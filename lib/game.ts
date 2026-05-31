@@ -16,7 +16,8 @@ const DEFAULT_STATE: GameState = {
 // ── Auth ──────────────────────────────────────────────────────────────────────
 export async function getEmailSession() {
   const { data: { session } } = await supabase().auth.getSession()
-  if (!session || session.user.is_anonymous) return null
+  // is_anonymous may be undefined on old sessions — treat anything without a verified email as not logged in
+  if (!session || !session.user.email || session.user.is_anonymous === true) return null
   return session
 }
 
