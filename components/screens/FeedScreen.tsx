@@ -1,0 +1,436 @@
+'use client'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { useApp } from '@/lib/context'
+import type { CharId } from '@/lib/types'
+import { CHARS, STORY_ORDER, SEEN_CHARS, STORY_CONTENT } from '@/lib/data'
+
+const StatusBar = () => (
+  <div className="statusbar">
+    <span>9:41</span>
+    <span className="sb-right">
+      <svg width="17" height="11" viewBox="0 0 17 11" fill="#fff"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" y="0" width="3" height="11" rx="1"/></svg>
+      <svg width="16" height="12" viewBox="0 0 16 12" fill="none" stroke="#fff" strokeWidth="1.5" strokeLinecap="round"><path d="M1 4.2a11 11 0 0 1 14 0"/><path d="M3.6 6.9a7 7 0 0 1 8.8 0"/><path d="M6.1 9.5a3 3 0 0 1 3.8 0"/></svg>
+      <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="1" y="1" width="20" height="10" rx="2.6" stroke="#fff" strokeOpacity=".45"/><rect x="2.6" y="2.6" width="14.5" height="6.8" rx="1.3" fill="#fff"/><rect x="22.4" y="4" width="1.6" height="4" rx="1" fill="#fff" fillOpacity=".45"/></svg>
+    </span>
+  </div>
+)
+
+export default function FeedScreen() {
+  const { navigate, goBack, showToast, game } = useApp()
+
+  // World intro overlay
+  const [showIntro, setShowIntro] = useState(false)
+  const [introGone, setIntroGone] = useState(false)
+  const [introLines, setIntroLines] = useState<boolean[]>([false, false, false, false, false, false])
+
+  // Story viewer
+  const [storyChar, setStoryChar] = useState<CharId | null>(null)
+  const [storyActive, setStoryActive] = useState(false)
+  const storyTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Check first visit
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const seen = localStorage.getItem('lore_world_seen')
+      if (seen === '1') {
+        // Mark as seen so next visit won't show intro
+        localStorage.setItem('lore_world_seen', 'seen')
+        setShowIntro(true)
+
+        // Stagger intro lines
+        const delays = [200, 500, 900, 1300, 1700, 2100]
+        delays.forEach((d, i) => {
+          setTimeout(() => {
+            setIntroLines(prev => {
+              const next = [...prev]
+              next[i] = true
+              return next
+            })
+          }, d)
+        })
+      }
+    }
+  }, [])
+
+  const dismissIntro = useCallback(() => {
+    setIntroGone(true)
+    setTimeout(() => setShowIntro(false), 500)
+  }, [])
+
+  // Story viewer
+  const openStory = useCallback((charId: CharId) => {
+    setStoryChar(charId)
+    setStoryActive(true)
+    if (storyTimer.current) clearTimeout(storyTimer.current)
+    storyTimer.current = setTimeout(() => {
+      setStoryActive(false)
+    }, 5000)
+  }, [])
+
+  const closeStory = useCallback(() => {
+    if (storyTimer.current) clearTimeout(storyTimer.current)
+    setStoryActive(false)
+  }, [])
+
+  // Enter live/narrator
+  const enterLive = useCallback(() => {
+    if (game.char) {
+      navigate('live')
+    } else {
+      navigate('narrator')
+    }
+  }, [navigate, game.char])
+
+  // Tab bar
+  const handleTab = useCallback((tab: string) => {
+    if (tab === 'home') {
+      navigate('worlds')
+    } else if (tab === 'messages') {
+      if (game.char || game.narrator_done) {
+        navigate('dm-inbox')
+      } else {
+        showToast('Pehle koi character chuno 🔥')
+      }
+    } else if (tab === 'live') {
+      enterLive()
+    } else if (tab === 'profile') {
+      showToast('Profile jald aayega 🔥')
+    }
+  }, [navigate, showToast, game, enterLive])
+
+  const handleDMIcon = useCallback(() => {
+    if (game.char || game.narrator_done) {
+      navigate('dm-inbox')
+    } else {
+      showToast('Pehle Creator House mein andar aao 🔥')
+    }
+  }, [navigate, showToast, game])
+
+  const currentStoryContent = storyChar ? STORY_CONTENT[storyChar] : null
+  const currentChar = storyChar ? CHARS[storyChar] : null
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', position: 'relative' }}>
+      <StatusBar />
+
+      {/* App bar */}
+      <div className="appbar feed-appbar">
+        <div className="row1">
+          <button className="icon-btn" onClick={goBack} style={{ marginRight: 2 }}>
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M15 18l-6-6 6-6"/>
+            </svg>
+          </button>
+          <div className="feed-title">Creator House</div>
+          <button className="icon-btn" onClick={() => showToast('Notifications coming soon')}>
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            </svg>
+          </button>
+          <button className="icon-btn" style={{ position: 'relative' }} onClick={handleDMIcon}>
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round">
+              <path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/>
+            </svg>
+            <span className="badge-num">3</span>
+          </button>
+        </div>
+        <div className="feed-live">
+          <div className="pulse" />
+          LIVE — Day 3 of 30 · housewatch_india trending
+        </div>
+      </div>
+
+      {/* Scrollable feed */}
+      <div className="scroll" style={{ flex: 1 }}>
+
+        {/* Stories ring */}
+        <div className="stories">
+          {/* You */}
+          <button className="story" onClick={() => showToast('Apni kahani khud likho 🔥')}>
+            <div className="story-ring">
+              <div className="av" style={{ width: '100%', height: '100%', border: '2.5px solid var(--bg)', fontSize: 22, background: '#333' }}>
+                You
+              </div>
+            </div>
+            <span className="story-label">You</span>
+          </button>
+
+          {STORY_ORDER.map((charId) => {
+            const char = CHARS[charId]
+            const seen = SEEN_CHARS.includes(charId)
+            return (
+              <button key={charId} className="story" onClick={() => openStory(charId)}>
+                <div className={`story-ring${seen ? ' seen' : ''}`}>
+                  <div
+                    className={`av ${char.cls}`}
+                    style={{ width: '100%', height: '100%', border: '2.5px solid var(--bg)', fontSize: 22 }}
+                  >
+                    {char.init}
+                  </div>
+                </div>
+                <span className="story-label">{char.name}</span>
+              </button>
+            )
+          })}
+        </div>
+
+        {/* Post: Reya */}
+        <div className="post">
+          <div className="post-head">
+            <div className="av c-reya" style={{ width: 34, height: 34, fontSize: 14 }}>R</div>
+            <div className="post-id">
+              <div className="h">reya</div>
+              <div className="s">Creator House · 6h ago</div>
+            </div>
+            <button className="icon-btn">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="#fff"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+            </button>
+          </div>
+          <div className="post-img grain" style={{ background: 'linear-gradient(135deg,#b03a5e,#7a1140)' }}>
+            <p className="overlay-txt">"Stress ko content mein convert karo. Seekho." 🤍</p>
+          </div>
+          <div className="post-actions">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+            <div className="spacer" />
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+          </div>
+          <div className="likes">84,291 likes</div>
+          <div className="caption"><b>reya</b> Kaafi log poochte hain — "Reya, tujhe stress nahi hota?" Stress? Main stress ko content mein convert karti hoon. 🤍</div>
+          <div className="comments-link">View all 2,847 comments</div>
+          <div className="ts" style={{ padding: '2px 14px 12px' }}>6 HOURS AGO</div>
+        </div>
+
+        {/* Story drop card */}
+        <div className="story-drop" onClick={enterLive}>
+          <div className="sd-img" style={{ background: 'linear-gradient(135deg,#ff2d78,#7a1140)' }}>
+            <div className="sd-badge">
+              <span className="pulse" style={{ marginRight: 5 }} />
+              STORY DROP
+            </div>
+            <div className="sd-title">Brand deal ka phone aaya</div>
+            <div className="sd-sub">Reya ka deal. Tera choice. Kya karoge?</div>
+            <button className="sd-cta" onClick={(e) => { e.stopPropagation(); enterLive() }}>
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="#000"><polygon points="5,3 19,12 5,21"/></svg>
+              Play the story
+            </button>
+          </div>
+        </div>
+
+        {/* Post: housewatch_india */}
+        <div className="post">
+          <div className="post-head">
+            <div className="av" style={{ width: 34, height: 34, fontSize: 14, background: '#1c1c26' }}>H</div>
+            <div className="post-id">
+              <div className="h">housewatch_india</div>
+              <div className="s">2.8M followers · 2h ago</div>
+            </div>
+            <button className="icon-btn">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="#fff"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+            </button>
+          </div>
+          <div className="post-img grain" style={{ background: '#12121a' }}>
+            <p className="overlay-txt" style={{ fontSize: 14, color: 'rgba(255,255,255,.7)' }}>
+              #CreatorHouseLeak — jo viral hua, woh screenshot aur woh ek line.<br /><br />
+              "yeh zyada hi innocent act karti hai, real nahi lagti."<br /><br />
+              <span style={{ color: 'var(--accent)', fontFamily: 'var(--sans)', fontSize: 12 }}>#CreatorHouseLeak TRENDING</span>
+            </p>
+          </div>
+          <div className="post-actions">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+            <div className="spacer" />
+          </div>
+          <div className="likes">94,102 likes</div>
+          <div className="caption"><b>housewatch_india</b> Creator House ka sabse calculated player. 94k likes in 3 hours. Thread aa raha hai. 👀</div>
+          <div className="ts" style={{ padding: '2px 14px 12px' }}>2 HOURS AGO</div>
+        </div>
+
+        {/* Post: Kabir */}
+        <div className="post">
+          <div className="post-head">
+            <div className="av c-kabir" style={{ width: 34, height: 34, fontSize: 14 }}>K</div>
+            <div className="post-id">
+              <div className="h">kabirlol</div>
+              <div className="s">Creator House · 3h ago</div>
+            </div>
+            <button className="icon-btn">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="#fff"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+            </button>
+          </div>
+          <div className="post-img grain" style={{ background: 'linear-gradient(135deg,#2a6f8f,#0a2a40)' }}>
+            <p className="overlay-txt">"Is ghar mein sab serious ho jaate hain jab camera on hota hai. Main serious tab hota hoon jab camera off hota hai." 😭👀</p>
+          </div>
+          <div className="post-actions">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+            <div className="spacer" />
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+          </div>
+          <div className="likes">41,882 likes</div>
+          <div className="caption"><b>kabirlol</b> Camera ka psychology. Weekend mein thread dalunga. 😭</div>
+          <div className="comments-link">View all 1,204 comments</div>
+          <div className="ts" style={{ padding: '2px 14px 12px' }}>3 HOURS AGO</div>
+        </div>
+
+        {/* Post: Ananya */}
+        <div className="post" style={{ borderBottom: 'none' }}>
+          <div className="post-head">
+            <div className="av c-ananya" style={{ width: 34, height: 34, fontSize: 14 }}>A</div>
+            <div className="post-id">
+              <div className="h">ananya</div>
+              <div className="s">Creator House · 45m ago</div>
+            </div>
+            <button className="icon-btn">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="#fff"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+            </button>
+          </div>
+          <div className="post-img grain" style={{ background: 'linear-gradient(135deg,#8a4ab0,#3a1660)' }}>
+            <p className="overlay-txt">2.1M views raat mein. Subah uthke dekha toh ro padi. Phir Reya ko bataya. Usne bola... "nice." 🥺✨</p>
+          </div>
+          <div className="post-actions">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+            <div className="spacer" />
+          </div>
+          <div className="likes">2,108,441 likes</div>
+          <div className="caption"><b>ananya</b> 2.1M. Ro padi. Tumhara pyaar 🥺✨</div>
+          <div className="comments-link">View all 18,204 comments</div>
+          <div className="ts" style={{ padding: '2px 14px 12px' }}>45 MINUTES AGO</div>
+        </div>
+
+        {/* bottom spacing */}
+        <div style={{ height: 20 }} />
+      </div>
+
+      {/* Tab bar */}
+      <div className="tabbar">
+        <button className="tab" onClick={() => handleTab('home')}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/>
+          </svg>
+          <span>Home</span>
+        </button>
+        <button className="tab" onClick={() => handleTab('messages')}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+            <path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/>
+          </svg>
+          <span>Messages</span>
+        </button>
+        <button className="tab active" onClick={() => handleTab('live')}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M13 2L4.5 13.5H11L9 22l9-12h-6.5L13 2z" strokeLinejoin="round"/>
+          </svg>
+          <span>Live</span>
+        </button>
+        <button className="tab" onClick={() => handleTab('profile')}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+            <circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/>
+          </svg>
+          <span>Profile</span>
+        </button>
+      </div>
+
+      {/* World intro overlay */}
+      {showIntro && (
+        <div className={`world-intro${introGone ? ' gone' : ''}`}>
+          {/* Line 0: LIVE badge */}
+          <div className={`wi-line${introLines[0] ? ' in' : ''}`}>
+            <div className="wi-pre">
+              <div className="pulse" />
+              LIVE · DAY 3 OF 30
+            </div>
+          </div>
+          {/* Line 1: Title */}
+          <div className={`wi-line${introLines[1] ? ' in' : ''}`}>
+            <div className="wi-title">Creator House.</div>
+          </div>
+          {/* Line 2: Meta */}
+          <div className={`wi-line${introLines[2] ? ' in' : ''}`}>
+            <div className="wi-meta">8 creators. Ek villa. 30 din ka experiment.</div>
+          </div>
+          {/* Line 3: Drama */}
+          <div className={`wi-line${introLines[3] ? ' in' : ''}`}>
+            <div className="wi-drama">
+              <b>Kisi ne group chat leak kiya.</b> Sabke screenshots ban ke viral ho gaye hain. Is ghar mein trust currency hai — aur abhi market crash ho gaya hai.
+            </div>
+          </div>
+          {/* Line 4: Avatars */}
+          <div className={`wi-line${introLines[4] ? ' in' : ''}`}>
+            <div style={{ display: 'flex', alignItems: 'center', marginTop: 20 }}>
+              <div className="wi-chars">
+                {(['reya','kabir','meher','ananya','dev','zoya','rishi','adi'] as const).map((id) => {
+                  const c = CHARS[id]
+                  return (
+                    <div key={id} className={`av ${c.cls}`} style={{ width: 32, height: 32, fontSize: 13, marginLeft: 0 }}>
+                      {c.init}
+                    </div>
+                  )
+                })}
+              </div>
+              <div className="wi-chars-label">8 creators · 1.2M following</div>
+            </div>
+          </div>
+          {/* Line 5: CTAs */}
+          <div className={`wi-line${introLines[5] ? ' in' : ''}`}>
+            <div className="wi-cta">
+              <button className="wi-btn" onClick={dismissIntro}>Andar aao →</button>
+              <button className="wi-skip-btn" onClick={dismissIntro}>Skip</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Story viewer overlay */}
+      <div className={`story-viewer${storyActive ? ' active' : ''}`} onClick={closeStory}>
+        {currentChar && currentStoryContent && (
+          <>
+            <div
+              className="sv-bg"
+              style={{ background: `linear-gradient(180deg, color-mix(in srgb, ${getCharColor(currentChar.id)} 60%, #000) 0%, #000 100%)` }}
+            />
+            <div className="sv-vignette" />
+            {/* Progress bar */}
+            <div className="sv-progress">
+              {STORY_ORDER.map((id) => (
+                <span key={id}>
+                  <i className={id === storyChar && storyActive ? 'run' : ''} />
+                </span>
+              ))}
+            </div>
+            {/* Top bar */}
+            <div className="sv-top">
+              <div className={`av ${currentChar.cls}`} style={{ width: 34, height: 34, fontSize: 14 }}>
+                {currentChar.init}
+              </div>
+              <div className="sinfo">
+                <div className="sn">{currentChar.name}</div>
+                <div className="st">{currentStoryContent.time}</div>
+              </div>
+              <button className="sv-close" onClick={closeStory}>✕</button>
+            </div>
+            {/* Body */}
+            <div className="sv-body">
+              <div className="sv-text">{currentStoryContent.text}</div>
+              <div className="sv-sub">TAP TO CLOSE · {currentStoryContent.time.toUpperCase()}</div>
+            </div>
+            <div className="sv-tap-hint">tap anywhere to close</div>
+          </>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function getCharColor(id: string): string {
+  const map: Record<string, string> = {
+    reya:'#b03a5e', kabir:'#2a6f8f', meher:'#b07a2a', dev:'#3a7a4a',
+    ananya:'#8a4ab0', zoya:'#aa6a8a', rishi:'#4a8a2a', adi:'#d4581a',
+  }
+  return map[id] ?? '#333'
+}

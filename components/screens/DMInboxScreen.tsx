@@ -1,0 +1,124 @@
+'use client'
+import { useApp } from '@/lib/context'
+import type { CharId } from '@/lib/types'
+import { CHARS, DM_ORDER, DM_PREVIEW, DM_TIME, DM_UNREAD } from '@/lib/data'
+import { useCallback, useRef, useState } from 'react'
+
+const StatusBar = () => (
+  <div className="statusbar">
+    <span>9:41</span>
+    <span className="sb-right">
+      <svg width="17" height="11" viewBox="0 0 17 11" fill="#fff"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" y="0" width="3" height="11" rx="1"/></svg>
+      <svg width="16" height="12" viewBox="0 0 16 12" fill="none" stroke="#fff" strokeWidth="1.5" strokeLinecap="round"><path d="M1 4.2a11 11 0 0 1 14 0"/><path d="M3.6 6.9a7 7 0 0 1 8.8 0"/><path d="M6.1 9.5a3 3 0 0 1 3.8 0"/></svg>
+      <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="1" y="1" width="20" height="10" rx="2.6" stroke="#fff" strokeOpacity=".45"/><rect x="2.6" y="2.6" width="14.5" height="6.8" rx="1.3" fill="#fff"/><rect x="22.4" y="4" width="1.6" height="4" rx="1" fill="#fff" fillOpacity=".45"/></svg>
+    </span>
+  </div>
+)
+
+export default function DMInboxScreen() {
+  const { goBack, navigate, showToast, openDMThread, dmHistory } = useApp()
+
+  // Track which chars have been opened (remove unread dot)
+  const [opened, setOpened] = useState<Set<CharId>>(new Set())
+
+  const handleOpen = useCallback((charId: CharId) => {
+    setOpened(prev => new Set([...prev, charId]))
+    openDMThread(charId)
+  }, [openDMThread])
+
+  const handleTab = useCallback((tab: string) => {
+    if (tab === 'home') navigate('worlds')
+    else if (tab === 'live') navigate('live')
+    else if (tab === 'profile') showToast('Profile jald aayega 🔥')
+  }, [navigate, showToast])
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      <StatusBar />
+
+      {/* App bar */}
+      <div className="appbar dm-head">
+        <div className="row1">
+          <button className="icon-btn" onClick={goBack}>
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M15 18l-6-6 6-6"/>
+            </svg>
+          </button>
+          <div className="title">Messages</div>
+          <button className="icon-btn" onClick={() => showToast('New message coming soon')}>
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round">
+              <path d="M12 5v14M5 12h14"/>
+            </svg>
+          </button>
+        </div>
+        <div className="sub">Creator House · 8 characters</div>
+      </div>
+
+      {/* Search bar (decorative) */}
+      <div className="dm-search">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        Search
+      </div>
+
+      {/* DM list */}
+      <div className="scroll" style={{ flex: 1 }}>
+        {DM_ORDER.map((charId) => {
+          const char = CHARS[charId]
+          const isUnread = DM_UNREAD.includes(charId) && !opened.has(charId)
+          const history = dmHistory[charId]
+          const lastMsg = history && history.length > 0
+            ? history[history.length - 1].text
+            : DM_PREVIEW[charId]
+          const preview = lastMsg.length > 42 ? lastMsg.slice(0, 42) + '…' : lastMsg
+
+          return (
+            <button key={charId} className="dm-row" onClick={() => handleOpen(charId)}>
+              <div className={`av ${char.cls}`} style={{ width: 48, height: 48, fontSize: 18 }}>
+                {char.init}
+              </div>
+              <div className="info">
+                <div className="nm">{char.name}</div>
+                <div className="prev">{preview}</div>
+              </div>
+              <div className="meta">
+                <div className="ts">{DM_TIME[charId]}</div>
+                {isUnread && <div className="unread" />}
+              </div>
+            </button>
+          )
+        })}
+        <div style={{ height: 20 }} />
+      </div>
+
+      {/* Tab bar */}
+      <div className="tabbar">
+        <button className="tab" onClick={() => handleTab('home')}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/>
+          </svg>
+          <span>Home</span>
+        </button>
+        <button className="tab active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+            <path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/>
+          </svg>
+          <span>Messages</span>
+        </button>
+        <button className="tab" onClick={() => handleTab('live')}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M13 2L4.5 13.5H11L9 22l9-12h-6.5L13 2z" strokeLinejoin="round"/>
+          </svg>
+          <span>Live</span>
+        </button>
+        <button className="tab" onClick={() => handleTab('profile')}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+            <circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/>
+          </svg>
+          <span>Profile</span>
+        </button>
+      </div>
+    </div>
+  )
+}
