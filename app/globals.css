@@ -171,7 +171,12 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .sv-progress span{flex:1;height:2.5px;border-radius:2px;background:rgba(255,255,255,.3);overflow:hidden}
 .sv-progress span i{display:block;height:100%;background:#fff;width:0}
 .sv-progress span i.run{animation:svProg 5s linear forwards}
+.sv-progress span i.done{width:100%}
 @keyframes svProg{to{width:100%}}
+
+/* Meter value flash when it changes */
+@keyframes meterFlash{0%{color:#fff;transform:scale(1.4)}100%{transform:scale(1)}}
+.mval-flash{animation:meterFlash .45s ease-out forwards}
 .sv-top{display:flex;align-items:center;gap:10px;padding:10px 14px 0;position:relative;z-index:3}
 .sv-top .av{width:34px;height:34px;font-size:14px}
 .sv-top .sinfo{flex:1;line-height:1.3}

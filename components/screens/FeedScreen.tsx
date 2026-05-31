@@ -28,6 +28,18 @@ export default function FeedScreen() {
   const [storyActive, setStoryActive] = useState(false)
   const storyTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+  // Auto-advance ref — avoids stale closure on recursive schedule
+  const scheduleNext = useRef<(id: CharId) => void>(() => {})
+  scheduleNext.current = (fromId: CharId) => {
+    if (storyTimer.current) clearTimeout(storyTimer.current)
+    storyTimer.current = setTimeout(() => {
+      const idx = STORY_ORDER.indexOf(fromId)
+      const next = STORY_ORDER[idx + 1]
+      if (next) { setStoryChar(next); scheduleNext.current(next) }
+      else { setStoryActive(false); setStoryChar(null) }
+    }, 5000)
+  }
+
   // Show world intro overlay on first visit to feed (after world-intro screen)
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -50,20 +62,35 @@ export default function FeedScreen() {
     setTimeout(() => setShowIntro(false), 500)
   }, [])
 
-  // Story viewer
   const openStory = useCallback((charId: CharId) => {
     setStoryChar(charId)
     setStoryActive(true)
-    if (storyTimer.current) clearTimeout(storyTimer.current)
-    storyTimer.current = setTimeout(() => {
-      setStoryActive(false)
-    }, 5000)
+    scheduleNext.current(charId)
   }, [])
 
   const closeStory = useCallback(() => {
     if (storyTimer.current) clearTimeout(storyTimer.current)
     setStoryActive(false)
+    setStoryChar(null)
   }, [])
+
+  const tapStory = useCallback((e: React.MouseEvent) => {
+    if (!storyChar) return
+    const x = e.clientX
+    const w = (e.currentTarget as HTMLElement).offsetWidth
+    const idx = STORY_ORDER.indexOf(storyChar)
+    if (x < w * 0.35) {
+      // tap left → prev character
+      const prev = STORY_ORDER[idx - 1]
+      if (prev) { setStoryChar(prev); scheduleNext.current(prev) }
+      else closeStory()
+    } else {
+      // tap right → next character
+      const next = STORY_ORDER[idx + 1]
+      if (next) { setStoryChar(next); scheduleNext.current(next) }
+      else closeStory()
+    }
+  }, [storyChar, closeStory])
 
   // Enter live/narrator
   const enterLive = useCallback(() => {
@@ -109,10 +136,14 @@ export default function FeedScreen() {
       {/* App bar */}
       <div className="appbar feed-appbar">
         <div className="row1">
-          <button className="icon-btn" onClick={goBack} style={{ marginRight: 2 }}>
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <button
+            onClick={() => navigate('worlds')}
+            style={{ display:'flex', alignItems:'center', gap:4, background:'none', border:'none', cursor:'pointer', color:'var(--ink2)', fontSize:12, fontWeight:600, fontFamily:'var(--sans)', padding:'4px 0' }}
+          >
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M15 18l-6-6 6-6"/>
             </svg>
+            Exit
           </button>
           <div className="feed-title">Creator House</div>
           <button className="icon-btn" onClick={() => showToast('Notifications coming soon')}>
@@ -383,7 +414,7 @@ export default function FeedScreen() {
       )}
 
       {/* Story viewer overlay */}
-      <div className={`story-viewer${storyActive ? ' active' : ''}`} onClick={closeStory}>
+      <div className={`story-viewer${storyActive ? ' active' : ''}`} onClick={tapStory}>
         {currentChar && currentStoryContent && (
           <>
             <div
@@ -391,13 +422,14 @@ export default function FeedScreen() {
               style={{ background: `linear-gradient(180deg, color-mix(in srgb, ${getCharColor(currentChar.id)} 60%, #000) 0%, #000 100%)` }}
             />
             <div className="sv-vignette" />
-            {/* Progress bar */}
+            {/* Progress bars — one per character; filled=past, running=current, empty=future */}
             <div className="sv-progress">
-              {STORY_ORDER.map((id) => (
-                <span key={id}>
-                  <i className={id === storyChar && storyActive ? 'run' : ''} />
-                </span>
-              ))}
+              {STORY_ORDER.map((id) => {
+                const curIdx = storyChar ? STORY_ORDER.indexOf(storyChar) : -1
+                const thisIdx = STORY_ORDER.indexOf(id)
+                const cls = thisIdx < curIdx ? 'done' : (id === storyChar && storyActive ? 'run' : '')
+                return <span key={id}><i className={cls} /></span>
+              })}
             </div>
             {/* Top bar */}
             <div className="sv-top">
@@ -408,7 +440,7 @@ export default function FeedScreen() {
                 <div className="sn">{currentChar.name}</div>
                 <div className="st">{currentStoryContent.time}</div>
               </div>
-              <button className="sv-close" onClick={closeStory}>✕</button>
+              <button className="sv-close" onClick={(e) => { e.stopPropagation(); closeStory() }}>✕</button>
             </div>
             {/* Body */}
             <div className="sv-body">

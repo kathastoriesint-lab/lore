@@ -125,8 +125,8 @@ export default function NarratorScreen() {
 
       {/* Character picker sheet */}
       <div className={`picker${showPicker ? ' up' : ''}`}>
-        <div className="picker-h">Apna character chuno</div>
-        <div className="picker-sub">Woh ban jao. 30 din. Ek shot.</div>
+        <div className="picker-h">Choose your character</div>
+        <div className="picker-sub">30 days. One shot.</div>
 
         {/* Playable characters */}
         {PLAYABLE.map(({ id, tag }) => {
@@ -189,7 +189,7 @@ export default function NarratorScreen() {
         onClick={handleCTA}
         disabled={!selected}
       >
-        {selectedChar ? `${selectedChar.name} ke roop mein enter karo →` : 'Character chuno'}
+        {selectedChar ? `Play as ${selectedChar.name} →` : 'Choose a character'}
       </button>
     </div>
   )

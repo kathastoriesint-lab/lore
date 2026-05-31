@@ -192,21 +192,21 @@ export default function LiveScreen() {
         <div className="meter fame">
           <div className="ml">
             <div className="mlabel">⭐ FAME</div>
-            <div className="mval">{game.meters.fame}</div>
+            <div key={`f${game.meters.fame}`} className="mval mval-flash">{game.meters.fame}</div>
           </div>
           <div className="bar"><i ref={fameBarRef} /></div>
         </div>
         <div className="meter trust">
           <div className="ml">
             <div className="mlabel">🤝 TRUST</div>
-            <div className="mval">{game.meters.trust}</div>
+            <div key={`t${game.meters.trust}`} className="mval mval-flash">{game.meters.trust}</div>
           </div>
           <div className="bar"><i ref={trustBarRef} /></div>
         </div>
         <div className="meter heat">
           <div className="ml">
             <div className="mlabel">🔥 HEAT</div>
-            <div className="mval">{game.meters.heat}</div>
+            <div key={`h${game.meters.heat}`} className="mval mval-flash">{game.meters.heat}</div>
           </div>
           <div className="bar"><i ref={heatBarRef} /></div>
         </div>

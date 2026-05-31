@@ -93,15 +93,16 @@ export default function App() {
 
   const sendDM = useCallback(async (charId: CharId, text: string) => {
     const userMsg: DMMessage = { role: 'me', text }
-    const updated = [...(dmHistory[charId] ?? []), userMsg]
-    setDmHistory(prev => ({ ...prev, [charId]: updated }))
-    await saveDM(charId, userMsg)
+    // Use prev-based update to avoid stale closure overwriting concurrent state
+    const contextHistory = [...(dmHistory[charId] ?? []), userMsg]
+    setDmHistory(prev => ({ ...prev, [charId]: [...(prev[charId] ?? []), userMsg] }))
+    saveDM(charId, userMsg).catch(() => {})
     const playerName = game.char ? CHARS[game.char].name : 'Yaar'
-    const raw = await getAIReply(charId, updated, playerName)
+    const raw = await getAIReply(charId, contextHistory, playerName)
     const reply = raw?.trim() || DM_MOCK[charId][Math.floor(Math.random() * DM_MOCK[charId].length)]
     const charMsg: DMMessage = { role: 'char', text: reply }
     setDmHistory(prev => ({ ...prev, [charId]: [...(prev[charId] ?? []), charMsg] }))
-    await saveDM(charId, charMsg)
+    saveDM(charId, charMsg).catch(() => {})
   }, [dmHistory, game.char])
 
   const resetGame = useCallback(async () => {
