@@ -43,6 +43,9 @@ export default function App() {
     getEmailSession()
       .then(async session => {
         if (!session) {
+          // Sign out any stale anonymous session so it doesn't bleed through
+          const { createClient } = await import('@/lib/supabase')
+          await createClient().auth.signOut({ scope: 'local' }).catch(() => {})
           setScreen('login')
           setNavHistory(['login'])
           setReady(true)
