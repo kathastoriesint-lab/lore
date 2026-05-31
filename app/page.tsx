@@ -43,7 +43,8 @@ export default function App() {
     getEmailSession()
       .then(async session => {
         if (!session) {
-          // Sign out any stale anonymous session so it doesn't bleed through
+          // Nuke all local state — clears any stale anonymous Supabase session
+          if (typeof window !== 'undefined') localStorage.clear()
           const { createClient } = await import('@/lib/supabase')
           await createClient().auth.signOut({ scope: 'local' }).catch(() => {})
           setScreen('login')
