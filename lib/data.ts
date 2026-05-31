@@ -330,3 +330,33 @@ export const DM_MOCK: Record<CharId, string[]> = {
     'Main bas ek cheez chahta hoon yahan se — kuch meaningful. Content, connections, kuch bhi. Tu help karega kabhi? 🙏',
   ],
 }
+
+// ── Post comment options (shown when tapping comment on a feed post) ──────────
+export interface PostCommentOption {
+  text: string        // what the player writes
+  deltas: { fame: number; trust: number; heat: number }
+  toast: string       // feedback shown after
+}
+
+export const POST_COMMENTS: Record<string, PostCommentOption[]> = {
+  reya: [
+    { text: 'Inspired 🤍 This is everything.',   deltas:{ fame:3, trust:5, heat:0 },  toast:'Reya noticed you. Trust +5' },
+    { text: 'Easy to say when you have it all 🙄', deltas:{ fame:2, trust:-8, heat:8 }, toast:'Reya is not pleased. Trust -8' },
+    { text: 'Can you mentor me? 🙏',              deltas:{ fame:5, trust:10, heat:0 },  toast:'Reya appreciated the ask. Trust +10' },
+  ],
+  kabir: [
+    { text: 'Lol this is so accurate 😭',         deltas:{ fame:4, trust:6, heat:2 },  toast:'Kabir liked this. Trust +6' },
+    { text: 'Off camera you are different too 😅', deltas:{ fame:3, trust:8, heat:3 },  toast:'Kabir felt seen. Trust +8' },
+    { text: 'Stop trying to be deep 🙄',           deltas:{ fame:1, trust:-10, heat:7 }, toast:'Kabir noted this. Trust -10' },
+  ],
+  housewatch: [
+    { text: 'Bahut zyada soch rahe ho 😌',         deltas:{ fame:2, trust:0, heat:-3 }, toast:'Low heat move' },
+    { text: '👀 accurate tbh',                     deltas:{ fame:6, trust:0, heat:8 },  toast:'Engagement up. Heat +8' },
+    { text: 'Wrong 🙅 Stop spreading rumours',     deltas:{ fame:3, trust:0, heat:-5 }, toast:'You pushed back' },
+  ],
+  ananya: [
+    { text: 'Ro mat 🥺 Tu amazing hai',            deltas:{ fame:2, trust:10, heat:0 }, toast:'Ananya trusts you more. Trust +10' },
+    { text: '2.1M that is insane!! 🔥',            deltas:{ fame:5, trust:6, heat:0 },  toast:'Positive energy. Fame +5' },
+    { text: 'Nice attempt 😐',                     deltas:{ fame:0, trust:-12, heat:5 }, toast:"Ananya is hurt. Trust -12" },
+  ],
+}

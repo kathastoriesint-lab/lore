@@ -371,7 +371,47 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .send-btn:active{transform:scale(.9)}
 .send-btn:disabled{opacity:.4}
 
+/* ── Comment sheet ── */
+.comment-sheet{padding:12px 14px 14px;background:rgba(255,255,255,.04);border-top:1px solid var(--line)}
+.comment-sheet-label{font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--ink3);margin-bottom:10px}
+.comment-option{display:block;width:100%;text-align:left;padding:11px 14px;margin-bottom:7px;
+  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:12px;
+  font-size:13px;font-family:var(--sans);color:var(--ink);cursor:pointer;transition:background .12s}
+.comment-option:last-child{margin-bottom:0}
+.comment-option:active{background:rgba(255,45,120,.15);border-color:var(--accent)}
+
 /* ── World Intro (full-screen, fires on world card tap) ── */
+/* ── New world intro: animated + narrated ── */
+.wintro-skip{position:absolute;top:52px;right:18px;z-index:20;font-size:12px;font-weight:600;
+  color:rgba(255,255,255,.5);background:none;border:none;cursor:pointer;font-family:var(--sans)}
+.wintro-body{position:absolute;inset:0;z-index:10;display:flex;flex-direction:column;
+  justify-content:flex-end;padding:0 24px 44px;gap:0}
+.wintro-intro-block{margin-bottom:16px}
+.wintro-tl{font-family:var(--serif);font-size:44px;font-weight:600;line-height:1.0;
+  text-shadow:0 2px 24px rgba(0,0,0,.7);
+  opacity:0;transform:translateY(12px);transition:opacity .5s ease,transform .5s ease}
+.wintro-tl.in{opacity:1;transform:none}
+.wintro-sub{font-size:14px;color:rgba(255,255,255,.65);margin-top:6px;
+  opacity:0;transform:translateY(8px);transition:opacity .5s ease,transform .5s ease}
+.wintro-sub.in{opacity:1;transform:none}
+.wintro-hook{font-size:13px;color:rgba(255,255,255,.5);margin-top:10px;font-style:italic;
+  opacity:0;transform:translateY(8px);transition:opacity .5s ease,transform .5s ease}
+.wintro-hook.in{opacity:1;transform:none}
+/* Character list */
+.wintro-cast-list{display:flex;flex-direction:column;gap:6px;margin-bottom:16px;max-height:320px;overflow:hidden}
+.wintro-cast-row{display:flex;align-items:center;gap:10px;
+  opacity:0;transform:translateX(-8px);transition:opacity .35s ease,transform .35s ease,background .2s}
+.wintro-cast-row.in{opacity:.55;transform:none}
+.wintro-cast-row.in.active{opacity:1;background:rgba(255,255,255,.06);border-radius:10px;padding:4px 8px;margin:-4px -8px}
+.wintro-cast-av{width:28px;height:28px;font-size:11px;flex:0 0 auto}
+.wintro-cast-info{display:flex;align-items:baseline;gap:8px;min-width:0}
+.wintro-cast-name{font-weight:700;font-size:13px;white-space:nowrap}
+.wintro-cast-desc{font-size:11px;color:rgba(255,255,255,.5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* CTA */
+.wintro-cta-block{opacity:0;transform:translateY(10px);transition:opacity .5s ease,transform .5s ease;animation:fadeUp .5s ease forwards}
+@keyframes fadeUp{to{opacity:1;transform:none}}
+.wintro-cta-q{font-family:var(--serif);font-size:20px;font-weight:600;margin-bottom:14px}
+
 .wintro-screen{position:absolute;inset:0;display:flex;flex-direction:column;overflow:hidden}
 .wintro-cover{position:absolute;inset:0;z-index:0;
   background:linear-gradient(160deg,#c41060 0%,#7a1140 35%,#3a0820 62%,#08080F 100%)}

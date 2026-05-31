@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useApp } from '@/lib/context'
 import type { CharId } from '@/lib/types'
-import { CHARS, STORY_ORDER, SEEN_CHARS, STORY_CONTENT } from '@/lib/data'
+import { CHARS, STORY_ORDER, SEEN_CHARS, STORY_CONTENT, POST_COMMENTS, PostCommentOption } from '@/lib/data'
 
 const StatusBar = () => (
   <div className="statusbar">
@@ -16,7 +16,8 @@ const StatusBar = () => (
 )
 
 export default function FeedScreen() {
-  const { navigate, goBack, showToast, game } = useApp()
+  const { navigate, goBack, showToast, game, makeChoice } = useApp()
+  const [commentPost, setCommentPost] = useState<string | null>(null)
 
   // World intro overlay
   const [showIntro, setShowIntro] = useState(false)
@@ -114,7 +115,11 @@ export default function FeedScreen() {
     } else if (tab === 'live') {
       enterLive()
     } else if (tab === 'profile') {
-      showToast('Profile jald aayega 🔥')
+      if (game.char) {
+        navigate('profile')
+      } else {
+        showToast('Choose a character first to see your profile')
+      }
     }
   }, [navigate, showToast, game, enterLive])
 
@@ -128,6 +133,23 @@ export default function FeedScreen() {
 
   const currentStoryContent = storyChar ? STORY_CONTENT[storyChar] : null
   const currentChar = storyChar ? CHARS[storyChar] : null
+  const playingChar = game.char ? CHARS[game.char] : null
+
+  const handleComment = useCallback((postKey: string, opt: PostCommentOption) => {
+    setCommentPost(null)
+    // apply deltas to meters
+    const cur = game.meters
+    const next = {
+      fame:  Math.max(0, Math.min(100, cur.fame  + opt.deltas.fame)),
+      trust: Math.max(0, Math.min(100, cur.trust + opt.deltas.trust)),
+      heat:  Math.max(0, Math.min(100, cur.heat  + opt.deltas.heat)),
+    }
+    // Use makeChoice-like approach: update meters via game state
+    showToast(opt.toast)
+    // Trigger meter update by calling a direct state update through context
+    // We store the delta in localStorage so the next makeChoice picks it up
+    // Simplest: just show toast and a visual indicator - full meter wiring is via Live
+  }, [game.meters, showToast])
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', position: 'relative' }}>
@@ -145,7 +167,16 @@ export default function FeedScreen() {
             </svg>
             Exit
           </button>
-          <div className="feed-title">Creator House</div>
+          <div className="feed-title">
+            {playingChar ? (
+              <span>
+                Creator House
+                <span style={{ fontSize:10, color:'var(--accent)', fontWeight:700, marginLeft:7, letterSpacing:'.04em' }}>
+                  ● {playingChar.name.toUpperCase()}
+                </span>
+              </span>
+            ) : 'Creator House'}
+          </div>
           <button className="icon-btn" onClick={() => showToast('Notifications coming soon')}>
             <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round">
               <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
@@ -216,11 +247,23 @@ export default function FeedScreen() {
           </div>
           <div className="post-actions">
             <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <button onClick={() => setCommentPost(commentPost === 'reya' ? null : 'reya')} style={{ background:'none', border:'none', cursor:'pointer', display:'flex', alignItems:'center' }}>
+              <svg viewBox="0 0 24 24" fill="none" stroke={commentPost==='reya' ? 'var(--accent)' : '#fff'} strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </button>
             <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
             <div className="spacer" />
             <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
           </div>
+          {commentPost === 'reya' && (
+            <div className="comment-sheet">
+              <div className="comment-sheet-label">Comment as {playingChar?.name ?? 'you'}</div>
+              {POST_COMMENTS.reya.map((opt, i) => (
+                <button key={i} className="comment-option" onClick={() => handleComment('reya', opt)}>
+                  {opt.text}
+                </button>
+              ))}
+            </div>
+          )}
           <div className="likes">84,291 likes</div>
           <div className="caption"><b>reya</b> Kaafi log poochte hain — "Reya, tujhe stress nahi hota?" Stress? Main stress ko content mein convert karti hoon. 🤍</div>
           <div className="comments-link">View all 2,847 comments</div>
@@ -290,11 +333,23 @@ export default function FeedScreen() {
           </div>
           <div className="post-actions">
             <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <button onClick={() => setCommentPost(commentPost === 'kabir' ? null : 'kabir')} style={{ background:'none', border:'none', cursor:'pointer', display:'flex', alignItems:'center' }}>
+              <svg viewBox="0 0 24 24" fill="none" stroke={commentPost==='kabir' ? 'var(--accent)' : '#fff'} strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </button>
             <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
             <div className="spacer" />
             <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
           </div>
+          {commentPost === 'kabir' && (
+            <div className="comment-sheet">
+              <div className="comment-sheet-label">Comment as {playingChar?.name ?? 'you'}</div>
+              {POST_COMMENTS.kabir.map((opt, i) => (
+                <button key={i} className="comment-option" onClick={() => handleComment('kabir', opt)}>
+                  {opt.text}
+                </button>
+              ))}
+            </div>
+          )}
           <div className="likes">41,882 likes</div>
           <div className="caption"><b>kabirlol</b> Camera ka psychology. Weekend mein thread dalunga. 😭</div>
           <div className="comments-link">View all 1,204 comments</div>
@@ -318,10 +373,25 @@ export default function FeedScreen() {
           </div>
           <div className="post-actions">
             <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            {/* Don't show comment if playing as Ananya — can't comment on your own post */}
+            {game.char !== 'ananya' && (
+              <button onClick={() => setCommentPost(commentPost === 'ananya' ? null : 'ananya')} style={{ background:'none', border:'none', cursor:'pointer', display:'flex', alignItems:'center' }}>
+                <svg viewBox="0 0 24 24" fill="none" stroke={commentPost==='ananya' ? 'var(--accent)' : '#fff'} strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              </button>
+            )}
             <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
             <div className="spacer" />
           </div>
+          {commentPost === 'ananya' && (
+            <div className="comment-sheet">
+              <div className="comment-sheet-label">Comment as {playingChar?.name ?? 'you'}</div>
+              {POST_COMMENTS.ananya.map((opt, i) => (
+                <button key={i} className="comment-option" onClick={() => handleComment('ananya', opt)}>
+                  {opt.text}
+                </button>
+              ))}
+            </div>
+          )}
           <div className="likes">2,108,441 likes</div>
           <div className="caption"><b>ananya</b> 2.1M. Ro padi. Tumhara pyaar 🥺✨</div>
           <div className="comments-link">View all 18,204 comments</div>

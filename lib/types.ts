@@ -50,6 +50,7 @@ export type Screen =
   | 'live'
   | 'dm-inbox'
   | 'dm-thread'
+  | 'profile'
 
 export interface GameState {
   char: CharId | null

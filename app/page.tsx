@@ -14,6 +14,7 @@ import NarratorScreen from '@/components/screens/NarratorScreen'
 import LiveScreen from '@/components/screens/LiveScreen'
 import DMInboxScreen from '@/components/screens/DMInboxScreen'
 import DMThreadScreen from '@/components/screens/DMThreadScreen'
+import ProfileScreen from '@/components/screens/ProfileScreen'
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>('worlds')
@@ -147,6 +148,7 @@ export default function App() {
             <Slot id="live"        cur={screen} prev={prev}><LiveScreen /></Slot>
             <Slot id="dm-inbox"    cur={screen} prev={prev}><DMInboxScreen /></Slot>
             <Slot id="dm-thread"   cur={screen} prev={prev}><DMThreadScreen /></Slot>
+            <Slot id="profile"     cur={screen} prev={prev}><ProfileScreen /></Slot>
           </div>
         </div>
       </div>

@@ -76,7 +76,7 @@ export default function NarratorScreen() {
   const handleCTA = useCallback(() => {
     if (!selected) return
     setChar(selected)
-    navigate('live', { replace: true })
+    navigate('feed', { replace: true })
   }, [selected, setChar, navigate])
 
   const selectedChar = selected ? CHARS[selected] : null

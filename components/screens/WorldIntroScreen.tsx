@@ -1,17 +1,105 @@
 'use client'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useApp } from '@/lib/context'
 import { CHARS } from '@/lib/data'
 
-const CAST: (keyof typeof CHARS)[] = ['reya','kabir','meher','ananya','dev','zoya','rishi','adi']
+type CharId = 'reya'|'kabir'|'meher'|'dev'|'ananya'|'zoya'|'rishi'|'adi'
+const CAST: CharId[] = ['reya','kabir','meher','dev','ananya','zoya','rishi','adi']
+
+const CHAR_DESC: Record<CharId, string> = {
+  reya:   'Luxury lifestyle. 24. The house alpha.',
+  kabir:  "Everyone's friend. Nobody's ally.",
+  meher:  'Warm, wise — and watching everything.',
+  dev:    'Fitness, brands. Loyalty for sale.',
+  ananya: '19. Viral dancer. Just wants respect.',
+  zoya:   'Sweet on camera. Sharp off it.',
+  rishi:  'Records everything. Always.',
+  adi:    'Newest here. Still figuring it out.',
+}
+
+function speak(text: string) {
+  if (typeof window === 'undefined' || !window.speechSynthesis) return
+  window.speechSynthesis.cancel()
+  const utt = new SpeechSynthesisUtterance(text)
+  const voices = window.speechSynthesis.getVoices()
+  const male = voices.find(v =>
+    v.lang.startsWith('en') && (
+      v.name === 'Alex' ||
+      v.name === 'Daniel' ||
+      v.name.includes('Male') ||
+      v.name === 'Google UK English Male'
+    )
+  ) || voices.find(v => v.lang.startsWith('en'))
+  if (male) utt.voice = male
+  utt.rate = 0.84
+  utt.pitch = 0.82
+  utt.volume = 1
+  window.speechSynthesis.speak(utt)
+}
 
 export default function WorldIntroScreen() {
   const { navigate } = useApp()
-  const enter = () => navigate('feed')
+
+  // line visibility for world intro
+  const [lines, setLines] = useState([false, false, false])
+  // character parade: which chars are revealed
+  const [revealedChars, setRevealedChars] = useState<number>(-1)
+  const [activeChar, setActiveChar] = useState<number>(-1)
+  const [showCta, setShowCta] = useState(false)
+  const [phase, setPhase] = useState<'world'|'chars'|'cta'>('world')
+
+  const timers = useRef<ReturnType<typeof setTimeout>[]>([])
+  const t = (ms: number, fn: () => void) => {
+    const id = setTimeout(fn, ms)
+    timers.current.push(id)
+  }
+
+  const enter = useCallback(() => {
+    timers.current.forEach(clearTimeout)
+    if (typeof window !== 'undefined') window.speechSynthesis?.cancel()
+    navigate('narrator')
+  }, [navigate])
+
+  useEffect(() => {
+    // Phase 1 — world intro lines
+    t(200,  () => speak("Creator House. Eight rising creators. One villa. Thirty days. Tonight the house opens for the very first time."))
+    t(300,  () => setLines(p => { const n=[...p]; n[0]=true; return n }))
+    t(1100, () => setLines(p => { const n=[...p]; n[1]=true; return n }))
+    t(2200, () => setLines(p => { const n=[...p]; n[2]=true; return n }))
+    t(3800, () => setPhase('chars'))
+
+    return () => { timers.current.forEach(clearTimeout); window.speechSynthesis?.cancel() }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Phase 2 — character parade
+  useEffect(() => {
+    if (phase !== 'chars') return
+
+    const introScript = CAST.map(id =>
+      `${CHARS[id].name}. ${CHAR_DESC[id]}`
+    ).join('. ')
+    speak(`Let me introduce the players. ${introScript}. Eight characters. Who do you want to be?`)
+
+    CAST.forEach((_, i) => {
+      t(i * 1300, () => {
+        setActiveChar(i)
+        setRevealedChars(i)
+      })
+    })
+
+    t(CAST.length * 1300 + 600, () => {
+      setActiveChar(-1)
+      setShowCta(true)
+      setPhase('cta')
+    })
+  }, [phase]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="wintro-screen">
-      {/* Cinematic cover — gradient placeholder */}
       <div className="wintro-cover" />
+
+      {/* Skip */}
+      <button className="wintro-skip" onClick={enter}>Skip →</button>
 
       {/* LIVE badge */}
       <div className="wintro-live">
@@ -19,33 +107,54 @@ export default function WorldIntroScreen() {
         LIVE · DAY 1 OF 30
       </div>
 
-      {/* Bottom content */}
-      <div className="wintro-content">
-        <div className="wintro-title">Creator<br />House.</div>
-        <div className="wintro-meta">8 creators. Ek villa. 30 din.</div>
+      {/* Content area */}
+      <div className="wintro-body">
 
-        <div className="wintro-hook">
-          <b>Aaj raat, villa khul raha hai.</b> 8 strangers pehli baar mile hain.
-          Koi dushman nahi, koi dost nahi — but by morning, alliances ban jaayengi.
-        </div>
-
-        <div className="wintro-cast">
-          <div className="wintro-avs">
-            {CAST.map(id => (
-              <div key={id} className={`wintro-av ${CHARS[id].cls}`}>
-                {CHARS[id].init}
-              </div>
-            ))}
+        {/* World intro lines */}
+        <div className="wintro-intro-block">
+          <div className={`wintro-tl${lines[0] ? ' in' : ''}`}>
+            Creator<br />House.
           </div>
-          <div className="wintro-cast-meta">
-            8 creators<br />10k+ playing
+          <div className={`wintro-sub${lines[1] ? ' in' : ''}`}>
+            8 creators. Ek villa. 30 din.
+          </div>
+          <div className={`wintro-hook${lines[2] ? ' in' : ''}`}>
+            Tonight, the house opens. And someone is already playing.
           </div>
         </div>
 
-        <div className="wintro-ctas">
-          <button className="wintro-btn-main" onClick={enter}>Andar aao →</button>
-          <button className="wintro-btn-skip" onClick={enter}>Skip intro</button>
-        </div>
+        {/* Character parade */}
+        {phase !== 'world' && (
+          <div className="wintro-cast-list">
+            {CAST.map((id, i) => {
+              const char = CHARS[id]
+              const revealed = i <= revealedChars
+              const isCurrent = i === activeChar
+              return (
+                <div
+                  key={id}
+                  className={`wintro-cast-row${revealed ? ' in' : ''}${isCurrent ? ' active' : ''}`}
+                >
+                  <div className={`av ${char.cls} wintro-cast-av`}>{char.init}</div>
+                  <div className="wintro-cast-info">
+                    <span className="wintro-cast-name">{char.name}</span>
+                    <span className="wintro-cast-desc">{CHAR_DESC[id]}</span>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
+
+        {/* CTA */}
+        {showCta && (
+          <div className="wintro-cta-block">
+            <div className="wintro-cta-q">Who do you want to be?</div>
+            <button className="wintro-btn-main" onClick={enter}>
+              Choose your character →
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )
