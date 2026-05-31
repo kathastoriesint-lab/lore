@@ -135,6 +135,13 @@ export default function App() {
     }})
   }, [game, saveAndSet])
 
+  // Inject a DM message from a character without AI round-trip (used after Live choices)
+  const injectCharDM = useCallback((charId: CharId, text: string) => {
+    const charMsg: DMMessage = { role: 'char', text }
+    setDmHistory(prev => ({ ...prev, [charId]: [...(prev[charId] ?? []), charMsg] }))
+    saveDM(charId, charMsg).catch(() => {})
+  }, [])
+
   const applyFeedDeltas = useCallback((deltas: { fame: number; trust: number; heat: number }) => {
     saveAndSet({ ...game, meters: {
       fame:  Math.max(0, Math.min(100, game.meters.fame  + deltas.fame)),
@@ -169,7 +176,7 @@ export default function App() {
     <AppContext.Provider value={{
       screen, prevScreen: prev, dmChar, game, dmHistory, dmTrust, charFame, likedPosts, viewingCharId, toast,
       advanceSituation, navigate, goBack, showToast, setChar,
-      makeChoice, sendDM, openDMThread, resetGame, likePost, applyFeedDeltas, setViewingChar,
+      makeChoice, sendDM, openDMThread, resetGame, likePost, applyFeedDeltas, injectCharDM, setViewingChar,
     }}>
       <div className="stage">
         <div className="phone">

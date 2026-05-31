@@ -2,6 +2,7 @@
 import { useApp } from '@/lib/context'
 import type { CharId } from '@/lib/types'
 import { CHARS, DM_ORDER, DM_PREVIEW, DM_TIME, DM_UNREAD } from '@/lib/data'
+
 import { useCallback, useRef, useState } from 'react'
 
 const StatusBar = () => (
@@ -16,7 +17,9 @@ const StatusBar = () => (
 )
 
 export default function DMInboxScreen() {
-  const { goBack, navigate, showToast, openDMThread, dmHistory } = useApp()
+  const { goBack, navigate, showToast, openDMThread, dmHistory, game } = useApp()
+  // Never show the character you're playing as in your own DM list
+  const visibleChars = DM_ORDER.filter(id => id !== game.char)
 
   // Track which chars have been opened (remove unread dot)
   const [opened, setOpened] = useState<Set<CharId>>(new Set())
@@ -64,7 +67,7 @@ export default function DMInboxScreen() {
 
       {/* DM list */}
       <div className="scroll" style={{ flex: 1 }}>
-        {DM_ORDER.map((charId) => {
+        {visibleChars.map((charId) => {
           const char = CHARS[charId]
           const isUnread = DM_UNREAD.includes(charId) && !opened.has(charId)
           const history = dmHistory[charId]
@@ -75,8 +78,8 @@ export default function DMInboxScreen() {
 
           return (
             <button key={charId} className="dm-row" onClick={() => handleOpen(charId)}>
-              <div className={`av ${char.cls}`} style={{ width: 48, height: 48, fontSize: 18 }}>
-                {char.init}
+              <div className={`av ${char.cls}`} style={{ width:48, height:48, fontSize:18, backgroundImage:`url(/avatars/${charId}.png)`, backgroundSize:'cover', backgroundPosition:'center' }}>
+                <span style={{ opacity:0 }}>{char.init}</span>
               </div>
               <div className="info">
                 <div className="nm">{char.name}</div>

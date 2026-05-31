@@ -201,7 +201,7 @@ export default function FeedScreen() {
             <span className="story-label">You</span>
           </button>
 
-          {STORY_ORDER.map((charId) => {
+          {STORY_ORDER.filter(id => id !== game.char).map((charId) => {
             const char = CHARS[charId]
             const seen = SEEN_CHARS.includes(charId)
             return (

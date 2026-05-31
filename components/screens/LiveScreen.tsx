@@ -25,7 +25,7 @@ const FINALES = [
 ]
 
 export default function LiveScreen() {
-  const { navigate, showToast, game, makeChoice, openDMThread, advanceSituation } = useApp()
+  const { navigate, showToast, game, makeChoice, openDMThread, advanceSituation, injectCharDM } = useApp()
 
   const char = game.char ? CHARS[game.char] : null
   const situation = game.situation
@@ -97,6 +97,14 @@ export default function LiveScreen() {
     setTimeout(() => {
       scrollRef.current?.scrollTo({ top: 400, behavior: 'smooth' })
     }, 200)
+
+    // Auto-DM from first non-fan reactor (world reacts to your choice)
+    const firstReactor = ch.reactions.find(r => r.char !== '__fan')
+    if (firstReactor) {
+      setTimeout(() => {
+        injectCharDM(firstReactor.char as CharId, firstReactor.text)
+      }, 1200)
+    }
 
     // IG post slides up after brief pause
     setTimeout(() => {

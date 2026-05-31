@@ -389,8 +389,8 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 
 /* ── Instagram impact post ── */
 .ig-impact-post{background:var(--surf);border-radius:16px;overflow:hidden;margin-top:14px;
-  opacity:0;transform:translateY(20px);transition:opacity .5s ease,transform .5s ease}
-.ig-impact-post.in{opacity:1;transform:none}
+  animation:slideUp .5s cubic-bezier(.32,.72,0,1) both}
+@keyframes slideUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
 .ig-post-head{display:flex;align-items:center;gap:10px;padding:10px 14px 8px}
 .ig-post-img{width:100%;aspect-ratio:4/3;position:relative;display:grid;place-items:center}
 .ig-post-img::after{content:"";position:absolute;inset:0;background:var(--grain);background-size:160px 160px;opacity:.4}

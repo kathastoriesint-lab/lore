@@ -15,6 +15,7 @@ export interface AppCtx {
   viewingCharId: CharId | null
   likePost: (postId: string, charId: CharId, fameDelta: number) => void
   applyFeedDeltas: (deltas: { fame: number; trust: number; heat: number }) => void
+  injectCharDM: (charId: CharId, text: string) => void
   setViewingChar: (id: CharId | null) => void
   advanceSituation: () => void
   navigate: (s: Screen, opts?: { replace?: boolean }) => void
