@@ -54,32 +54,24 @@ export default function LiveScreen() {
   // Choice state
   const [chosen, setChosen] = useState<0 | 1 | null>(null)
   const [disabled, setDisabled] = useState(false)
-  const [showFlash, setShowFlash] = useState(false)
-  const [flashText, setFlashText] = useState('')
-  const [flashChar, setFlashChar] = useState<CharId | null>(null)
+  const [showImpact, setShowImpact] = useState(false)   // impact chips appear immediately
+  const [showPost, setShowPost] = useState(false)        // IG post slides up
   const [reactions, setReactions] = useState<boolean[]>([false, false, false])
-  const [showPost, setShowPost] = useState(false)
   const [likeCount, setLikeCount] = useState(0)
   const [showNext, setShowNext] = useState(false)
   const [stats, setStats] = useState<{ total: number; pctA: number } | null>(null)
-  const [postCaption, setPostCaption] = useState('')
-  const [postChar, setPostChar] = useState<CharId | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
 
   // Reset choice state when situation changes
   useEffect(() => {
     setChosen(null)
     setDisabled(false)
-    setShowFlash(false)
-    setFlashText('')
-    setFlashChar(null)
-    setReactions([false, false, false])
+    setShowImpact(false)
     setShowPost(false)
+    setReactions([false, false, false])
     setLikeCount(0)
     setShowNext(false)
     setStats(null)
-    setPostCaption('')
-    setPostChar(null)
   }, [situation])
 
   // Load stats for current situation
@@ -94,50 +86,43 @@ export default function LiveScreen() {
     setChosen(idx)
     setDisabled(true)
 
-    const ch = sit.choices[idx]
-    const reactChar = ch.reactions[0]?.char !== '__fan' ? ch.reactions[0]?.char as CharId : null
-
-    // Show flash overlay
-    setFlashText(ch.s)
-    setFlashChar(reactChar || (char?.id ?? null))
-    setShowFlash(true)
+    // Show impact chips immediately — no waiting
+    setShowImpact(true)
 
     await makeChoice(idx)
 
-    setTimeout(() => {
-      setShowFlash(false)
+    const ch = sit.choices[idx]
 
-      // Show reaction post
-      setPostCaption(ch.caption)
-      setPostChar(char?.id ?? null)
+    // Scroll impact area into view
+    setTimeout(() => {
+      scrollRef.current?.scrollTo({ top: 400, behavior: 'smooth' })
+    }, 200)
+
+    // IG post slides up after brief pause
+    setTimeout(() => {
       setShowPost(true)
 
-      // Animate like count 0 → 1200
+      // Animate like count
       let count = 0
       const step = () => {
-        count += Math.ceil((1200 - count) / 8)
-        if (count >= 1200) {
-          setLikeCount(1200)
-          return
-        }
+        count += Math.ceil((1247 - count) / 8)
+        if (count >= 1247) { setLikeCount(1247); return }
         setLikeCount(count)
         requestAnimationFrame(step)
       }
       requestAnimationFrame(step)
 
-      // Show reactions one by one
+      // Stagger reactions as IG comments
       ch.reactions.forEach((_, i) => {
         setTimeout(() => {
           setReactions(prev => { const n = [...prev]; n[i] = true; return n })
-        }, 800 * (i + 1))
+        }, 650 * (i + 1))
       })
 
-      // Show next button after last reaction
-      setTimeout(() => {
-        setShowNext(true)
-      }, 800 * ch.reactions.length + 600)
-    }, 950)
-  }, [disabled, sit, char, makeChoice])
+      // Next button after last reaction
+      setTimeout(() => setShowNext(true), 650 * ch.reactions.length + 500)
+    }, 500)
+  }, [disabled, sit, makeChoice])
 
   const handleNext = useCallback(() => {
     advanceSituation()
@@ -281,48 +266,129 @@ export default function LiveScreen() {
               )
             })()}
 
-            {/* Reaction posts (appear after choice) */}
-            {showPost && sit.choices[chosen!] && (
-              <div style={{ marginTop: 20 }}>
-                {/* Your post */}
-                <div style={{
-                  borderRadius: 16, overflow: 'hidden', marginBottom: 12,
-                  background: `linear-gradient(135deg, color-mix(in srgb, var(--cc) 80%, #000) 0%, #000 100%)`,
-                }} className={char.cls}>
-                  <div style={{ padding: '16px 16px 12px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-                      <div className={`av ${char.cls}`} style={{ width: 26, height: 26, fontSize: 11 }}>{char.init}</div>
-                      <div style={{ fontWeight: 700, fontSize: 12 }}>{char.handle}</div>
-                    </div>
-                    <div style={{ fontFamily: 'var(--serif)', fontSize: 15, lineHeight: 1.4 }}>{postCaption}</div>
+            {/* ── Impact section (Hybrid A+C design) ── */}
+            {showImpact && chosen !== null && sit.choices[chosen] && (() => {
+              const ch = sit.choices[chosen]
+              const d = ch.deltas
+              return (
+                <div style={{ marginTop: 20 }}>
+                  {/* Impact chips row */}
+                  <div className="impact-chips-row">
+                    {d.fame !== 0 && (
+                      <div className={`impact-chip${d.fame > 0 ? ' positive' : ' negative'} fame`}>
+                        {d.fame > 0 ? '+' : ''}{d.fame} ⭐
+                      </div>
+                    )}
+                    {d.trust !== 0 && (
+                      <div className={`impact-chip${d.trust > 0 ? ' positive' : ' negative'} trust`}>
+                        {d.trust > 0 ? '+' : ''}{d.trust} 🤝
+                      </div>
+                    )}
+                    {d.heat !== 0 && (
+                      <div className={`impact-chip${d.heat > 0 ? ' positive' : ' negative'} heat`}>
+                        {d.heat > 0 ? '+' : ''}{d.heat} 🔥
+                      </div>
+                    )}
                   </div>
-                  <div style={{ padding: '8px 16px 12px', display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <svg viewBox="0 0 24 24" width="18" height="18" fill="var(--accent)" stroke="var(--accent)" strokeWidth="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-                    <span style={{ fontSize: 12, fontWeight: 700 }}>{likeCount.toLocaleString()} likes</span>
-                  </div>
-                </div>
 
-                {/* Character reactions */}
-                {sit.choices[chosen!].reactions.map((r, i) => {
-                  const isUser = r.char === '__fan'
-                  const rChar = isUser ? null : CHARS[r.char as CharId]
-                  return (
-                    <div key={i} className={`reaction${reactions[i] ? ' in' : ''}`}>
-                      <div
-                        className={rChar ? `av ${rChar.cls}` : 'av'}
-                        style={{ width: 26, height: 26, fontSize: 11, background: rChar ? undefined : '#333' }}
-                      >
-                        {rChar ? rChar.init : (r.name?.[0] ?? 'F')}
-                      </div>
-                      <div className="rb">
-                        <div className="rn">{rChar ? rChar.name : (r.name ?? 'fan')}</div>
-                        <div className="rbub">{r.text}</div>
-                      </div>
+                  {/* Consequence banner */}
+                  {(game.meters.heat > 60 || game.meters.trust < 30) && (
+                    <div className="consequence-banner">
+                      {game.meters.heat > 60
+                        ? '⚠ Heat critical — someone will address this publicly'
+                        : '⚠ Trust low — your allies are questioning you'}
                     </div>
-                  )
-                })}
-              </div>
-            )}
+                  )}
+
+                  {/* Instagram post slides up */}
+                  {showPost && (
+                    <div className={`ig-impact-post${showPost ? ' in' : ''}`}>
+                      {/* Post header */}
+                      <div className="ig-post-head">
+                        <div
+                          className={`av ${char.cls}`}
+                          style={{
+                            width: 34, height: 34, fontSize: 14,
+                            backgroundImage: `url(/avatars/${char.id}.png)`,
+                            backgroundSize: 'cover', backgroundPosition: 'center',
+                          }}
+                        >
+                          <span style={{ opacity:0 }}>{char.init}</span>
+                        </div>
+                        <div>
+                          <div style={{ fontWeight: 700, fontSize: 13 }}>{char.handle}</div>
+                          <div style={{ fontSize: 10, color: 'var(--ink3)' }}>just now</div>
+                        </div>
+                        <div style={{ marginLeft: 'auto', fontSize: 9, fontWeight: 800, letterSpacing: '.06em', color: 'var(--accent)', background: 'rgba(255,45,120,.1)', border: '1px solid rgba(255,45,120,.2)', borderRadius: 10, padding: '3px 8px' }}>
+                          POST
+                        </div>
+                      </div>
+
+                      {/* Post image */}
+                      <div
+                        className="ig-post-img grain"
+                        style={{ background: `linear-gradient(135deg, color-mix(in srgb, var(--cc,#333) 70%, #000) 0%, #000 100%)` }}
+                      >
+                        <p className="overlay-txt" style={{ fontSize: 15, padding: '0 20px' }}>
+                          {ch.caption}
+                        </p>
+                      </div>
+
+                      {/* Post actions */}
+                      <div style={{ padding: '8px 14px 4px', display: 'flex', alignItems: 'center', gap: 14 }}>
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="var(--accent)" stroke="var(--accent)" strokeWidth="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        <div style={{ flex:1 }} />
+                        <span style={{ fontSize: 12, fontWeight: 700 }}>{likeCount.toLocaleString()} likes</span>
+                      </div>
+
+                      {/* Comments appearing as IG comments */}
+                      <div style={{ paddingBottom: 8 }}>
+                        {ch.reactions.map((r, i) => {
+                          const rChar = r.char !== '__fan' ? CHARS[r.char as CharId] : null
+                          return (
+                            <div
+                              key={i}
+                              style={{
+                                display: 'flex', gap: 8, padding: '5px 14px',
+                                opacity: reactions[i] ? 1 : 0,
+                                transform: reactions[i] ? 'none' : 'translateY(6px)',
+                                transition: 'opacity .35s ease, transform .35s ease',
+                              }}
+                            >
+                              <div
+                                className={rChar ? `av ${rChar.cls}` : 'av'}
+                                style={{
+                                  width: 22, height: 22, fontSize: 9, flex: '0 0 auto',
+                                  background: rChar ? undefined : '#333',
+                                  backgroundImage: rChar ? `url(/avatars/${rChar.id}.png)` : undefined,
+                                  backgroundSize: 'cover', backgroundPosition: 'center',
+                                }}
+                              >
+                                <span style={{ opacity:0 }}>{rChar ? rChar.init : (r.name?.[0] ?? 'F')}</span>
+                              </div>
+                              <div>
+                                <span style={{ fontWeight: 700, fontSize: 11, marginRight: 6 }}>
+                                  {rChar ? rChar.name : (r.name ?? 'fan')}
+                                </span>
+                                <span style={{ fontSize: 12, lineHeight: 1.4 }}>{r.text}</span>
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+
+                      {/* Next button inside post area */}
+                      {showNext && (
+                        <button className="next-btn" style={{ margin: '8px 14px 14px', width: 'calc(100% - 28px)' }} onClick={handleNext}>
+                          {situation + 1 < SITUATIONS.length ? 'NEXT SITUATION →' : 'FINALE DEKHO →'}
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )
+            })()}
           </div>
         )}
 
@@ -330,24 +396,17 @@ export default function LiveScreen() {
         {sit && <div style={{ height: 240 }} />}
       </div>
 
-      {/* Choice / next button sticky area */}
-      {sit && (
+      {/* Choice area — sticky bottom, transforms after choice */}
+      {sit && !showNext && (
         <div className="choice-wrap">
-          {/* Next situation button */}
-          {showNext && (
-            <button className="next-btn" onClick={handleNext}>
-              {situation + 1 < SITUATIONS.length ? 'NEXT SITUATION →' : 'FINALE DEKHO →'}
-            </button>
-          )}
-
-          {/* Choice buttons */}
-          {!showNext && (
+          {chosen === null ? (
+            // Pre-choice: question + two buttons
             <>
               <div className="choice-q">{sit.q}</div>
               {sit.choices.map((ch, i) => (
                 <button
                   key={i}
-                  className={`choice${chosen === i ? ' chosen' : ''}`}
+                  className="choice"
                   disabled={disabled}
                   onClick={() => handleChoice(i as 0 | 1)}
                 >
@@ -361,6 +420,31 @@ export default function LiveScreen() {
                 </div>
               )}
             </>
+          ) : (
+            // Post-choice: chosen locked/glowing, unchosen faded
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {sit.choices.map((ch, i) => (
+                <div
+                  key={i}
+                  style={{
+                    borderRadius: 14, padding: '12px 14px',
+                    border: chosen === i ? '2px solid var(--accent)' : '1px solid rgba(255,255,255,.07)',
+                    background: chosen === i ? 'rgba(255,45,120,.1)' : 'rgba(255,255,255,.04)',
+                    opacity: chosen === i ? 1 : 0.28,
+                    transition: 'all .3s ease',
+                    display: 'flex', alignItems: 'center', gap: 10,
+                  }}
+                >
+                  {chosen === i && (
+                    <div style={{ width: 20, height: 20, borderRadius: '50%', background: 'var(--accent)', display: 'grid', placeItems: 'center', flexShrink: 0, fontSize: 11, fontWeight: 800 }}>✓</div>
+                  )}
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 700, fontSize: 13.5, color: chosen === i ? '#fff' : 'var(--ink2)' }}>{ch.t}</div>
+                    {chosen === i && <div style={{ fontSize: 11, color: 'rgba(255,255,255,.55)', marginTop: 2 }}>{ch.s}</div>}
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
         </div>
       )}
@@ -396,15 +480,6 @@ export default function LiveScreen() {
         </button>
       </div>
 
-      {/* Flash overlay */}
-      <div className={`flash${showFlash ? ' show' : ''}`}>
-        {flashChar && (
-          <div className={`av ${CHARS[flashChar]?.cls ?? ''}`} style={{ width: 64, height: 64, fontSize: 26 }}>
-            {CHARS[flashChar]?.init ?? '?'}
-          </div>
-        )}
-        <div className="ft">{flashText}</div>
-      </div>
     </div>
   )
 }
