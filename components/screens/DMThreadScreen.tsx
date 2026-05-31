@@ -20,55 +20,55 @@ export default function DMThreadScreen() {
 
   const charId = dmChar as CharId | null
   const char = charId ? CHARS[charId] : null
+  // Source of truth — render these directly, no local copy
   const messages: DMMessage[] = charId ? (dmHistory[charId] ?? []) : []
 
   const [input, setInput] = useState('')
   const [sending, setSending] = useState(false)
   const [typing, setTyping] = useState(false)
-  // Typewriter state for last char message
-  const [displayedMessages, setDisplayedMessages] = useState<DMMessage[]>(messages)
-  const [typingCharIdx, setTypingCharIdx] = useState<number | null>(null) // index in displayedMessages being typed
-  const [typingText, setTypingText] = useState('')
+
+  // Typewriter for last incoming char message only
+  const [typewritingIdx, setTypewritingIdx] = useState<number | null>(null)
+  const [typewrittenText, setTypewrittenText] = useState('')
+  const typingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const prevLenRef = useRef(0)
 
   const chatRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
-  const typingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
-  // Sync displayedMessages when external messages arrive (loading initial msgs)
-  useEffect(() => {
-    if (!sending) {
-      setDisplayedMessages(messages)
-    }
-  }, [messages.length]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Scroll to bottom whenever displayed messages change
+  // Scroll to bottom on new messages
   useEffect(() => {
     const el = chatRef.current
-    if (el) {
-      requestAnimationFrame(() => {
-        el.scrollTop = el.scrollHeight
-      })
-    }
-  }, [displayedMessages, typing, typingText])
+    if (el) requestAnimationFrame(() => { el.scrollTop = el.scrollHeight })
+  }, [messages.length, typewrittenText, typing])
 
-  // Typewriter effect for a new char message
-  const startTypewriter = useCallback((text: string, msgIndex: number) => {
-    setTypingCharIdx(msgIndex)
-    setTypingText('')
-    const isLong = text.length > 120
-    const msPerChar = isLong ? 10 : 18
-    let i = 0
+  // Detect new char message and start typewriter
+  useEffect(() => {
+    if (messages.length <= prevLenRef.current) {
+      prevLenRef.current = messages.length
+      return
+    }
+    prevLenRef.current = messages.length
+    const lastIdx = messages.length - 1
+    const lastMsg = messages[lastIdx]
+    if (lastMsg?.role !== 'char') return
+
+    // Start typewriter on this message
+    setTypewritingIdx(lastIdx)
+    setTypewrittenText('')
     if (typingIntervalRef.current) clearInterval(typingIntervalRef.current)
+    const text = lastMsg.text
+    const msPerChar = text.length > 120 ? 10 : 18
+    let i = 0
     typingIntervalRef.current = setInterval(() => {
       i++
-      setTypingText(text.slice(0, i))
+      setTypewrittenText(text.slice(0, i))
       if (i >= text.length) {
-        if (typingIntervalRef.current) clearInterval(typingIntervalRef.current)
-        setTypingCharIdx(null)
-        setTypingText('')
+        clearInterval(typingIntervalRef.current!)
+        setTypewritingIdx(null)
       }
     }, msPerChar)
-  }, [])
+  }, [messages.length]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSend = useCallback(async () => {
     if (!charId || !input.trim() || sending) return
@@ -76,48 +76,13 @@ export default function DMThreadScreen() {
     setInput('')
     setSending(true)
     setTyping(true)
-
-    // Optimistically show user message
-    const userMsg: DMMessage = { role: 'me', text }
-    setDisplayedMessages(prev => [...prev, userMsg])
-
     try {
       await sendDM(charId, text)
-      // sendDM updates dmHistory via context; we need to get the new char reply
-      // We'll detect it by comparing after
     } finally {
       setTyping(false)
       setSending(false)
     }
   }, [charId, input, sending, sendDM])
-
-  // When dmHistory updates and we sent a message, find the new char message and typewrite it
-  const prevLenRef = useRef(messages.length)
-  useEffect(() => {
-    const currentLen = messages.length
-    if (currentLen > prevLenRef.current) {
-      const newMsgs = messages.slice(prevLenRef.current)
-      prevLenRef.current = currentLen
-
-      // Build full displayed list up to (but not including) new char messages
-      const lastCharMsgs = newMsgs.filter(m => m.role === 'char')
-      const allBeforeNew = messages.slice(0, currentLen - lastCharMsgs.length)
-
-      if (lastCharMsgs.length > 0) {
-        // Show all messages except the new char ones first
-        setDisplayedMessages([...allBeforeNew])
-        // Then typewrite the last char message
-        const charMsg = lastCharMsgs[lastCharMsgs.length - 1]
-        const finalList = messages.slice(0, currentLen - 1) // all but the typing one
-        setTimeout(() => {
-          setDisplayedMessages([...finalList, { role: 'char', text: '' }])
-          startTypewriter(charMsg.text, finalList.length)
-        }, 100)
-      } else {
-        setDisplayedMessages([...messages])
-      }
-    }
-  }, [messages, startTypewriter]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleQuickChip = useCallback((text: string) => {
     setInput(text)
@@ -125,19 +90,14 @@ export default function DMThreadScreen() {
   }, [])
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      handleSend()
-    }
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend() }
   }, [handleSend])
 
   if (!char || !charId) {
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ color: 'var(--ink2)', fontSize: 15 }}>Koi character select nahi hai</div>
-        <button style={{ marginTop: 16, color: 'var(--accent)', fontWeight: 600, padding: 12 }} onClick={goBack}>
-          Wapas jao
-        </button>
+      <div style={{ display:'flex', flexDirection:'column', height:'100%', alignItems:'center', justifyContent:'center' }}>
+        <div style={{ color:'var(--ink2)', fontSize:15 }}>No character selected</div>
+        <button style={{ marginTop:16, color:'var(--accent)', fontWeight:600, padding:12 }} onClick={goBack}>Go back</button>
       </div>
     )
   }
@@ -145,23 +105,18 @@ export default function DMThreadScreen() {
   const trustVal = DM_TRUST[charId] ?? 50
   const quickChips = DM_QUICK[charId] ?? []
 
-  // Determine which messages to render, and whether the last char is being typewritten
-  const isTypewriting = typingCharIdx !== null
-
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+    <div style={{ display:'flex', flexDirection:'column', height:'100%' }}>
       <StatusBar />
 
       {/* Thread header */}
       <div className="appbar thread-head">
-        <button className="icon-btn" onClick={goBack} style={{ flexShrink: 0 }}>
+        <button className="icon-btn" onClick={goBack} style={{ flexShrink:0 }}>
           <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M15 18l-6-6 6-6"/>
           </svg>
         </button>
-        <div className={`av ${char.cls}`} style={{ width: 30, height: 30, fontSize: 13, flexShrink: 0 }}>
-          {char.init}
-        </div>
+        <div className={`av ${char.cls}`} style={{ width:30, height:30, fontSize:13, flexShrink:0 }}>{char.init}</div>
         <div className="tinfo">
           <div className="tn">{char.name}</div>
           <div className="tsub">Creator House · Online</div>
@@ -176,64 +131,48 @@ export default function DMThreadScreen() {
 
       {/* Trust meter */}
       <div className="dm-trust">
-        <div className="tl">
-          <span>TRUST LEVEL</span>
-          <span>{trustVal}%</span>
-        </div>
-        <div className="bar">
-          <i style={{ width: `${trustVal}%` }} />
-        </div>
+        <div className="tl"><span>TRUST LEVEL</span><span>{trustVal}%</span></div>
+        <div className="bar"><i style={{ width:`${trustVal}%` }} /></div>
       </div>
 
-      {/* Chat messages */}
+      {/* Messages — render directly from context, no local copy */}
       <div className="chat" ref={chatRef}>
-        {displayedMessages.map((msg, i) => {
+        {messages.map((msg, i) => {
           const isIn = msg.role === 'char'
           const isOut = msg.role === 'me'
-          const prevMsg = i > 0 ? displayedMessages[i - 1] : null
+          const prevMsg = i > 0 ? messages[i - 1] : null
           const showAvatar = isIn && (!prevMsg || prevMsg.role !== 'char')
-
-          // Is this message being typewritten?
-          const isCurrentlyTyping = isTypewriting && typingCharIdx === i
+          const isTypewriting = typewritingIdx === i
 
           return (
-            <div key={i} style={{ display: 'flex', flexDirection: 'column' }}>
+            <div key={i} style={{ display:'flex', flexDirection:'column' }}>
               {showAvatar && (
                 <div className="msg-av">
-                  <div className={`av ${char.cls}`} style={{ width: 22, height: 22, fontSize: 10 }}>
-                    {char.init}
-                  </div>
+                  <div className={`av ${char.cls}`} style={{ width:22, height:22, fontSize:10 }}>{char.init}</div>
                   <div className="lbl">{char.name}</div>
                 </div>
               )}
               <div className={`msg${isIn ? ' in' : ''}${isOut ? ' out' : ''}`}>
-                {isCurrentlyTyping ? typingText : msg.text}
-                {isCurrentlyTyping && (
-                  <span style={{ opacity: 0.5, animation: 'typing 1s infinite' }}>|</span>
-                )}
+                {isTypewriting ? typewrittenText : msg.text}
+                {isTypewriting && <span style={{ opacity:.5 }}>|</span>}
               </div>
             </div>
           )
         })}
 
-        {/* Typing indicator */}
-        {typing && !isTypewriting && (
-          <div className="typing">
-            <i /><i /><i />
-          </div>
+        {typing && typewritingIdx === null && (
+          <div className="typing"><i /><i /><i /></div>
         )}
       </div>
 
-      {/* Quick reply chips */}
+      {/* Quick chips */}
       <div className="quick-chips">
         {quickChips.map((chip, i) => (
-          <button key={i} className="chip" onClick={() => handleQuickChip(chip)}>
-            {chip}
-          </button>
+          <button key={i} className="chip" onClick={() => handleQuickChip(chip)}>{chip}</button>
         ))}
       </div>
 
-      {/* Input bar */}
+      {/* Input */}
       <div className="input-bar">
         <div className="field">
           <input
@@ -246,11 +185,7 @@ export default function DMThreadScreen() {
             disabled={sending}
           />
         </div>
-        <button
-          className="send-btn"
-          onClick={handleSend}
-          disabled={!input.trim() || sending}
-        >
+        <button className="send-btn" onClick={handleSend} disabled={!input.trim() || sending}>
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/>
           </svg>
