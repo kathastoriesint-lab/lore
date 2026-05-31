@@ -51,6 +51,7 @@ export type Screen =
   | 'dm-inbox'
   | 'dm-thread'
   | 'profile'
+  | 'char-profile'
 
 export interface GameState {
   char: CharId | null

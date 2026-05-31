@@ -17,24 +17,8 @@ const CHAR_DESC: Record<CharId, string> = {
   adi:    'Newest here. Still figuring it out.',
 }
 
-function speak(text: string) {
-  if (typeof window === 'undefined' || !window.speechSynthesis) return
-  window.speechSynthesis.cancel()
-  const utt = new SpeechSynthesisUtterance(text)
-  const voices = window.speechSynthesis.getVoices()
-  const male = voices.find(v =>
-    v.lang.startsWith('en') && (
-      v.name === 'Alex' ||
-      v.name === 'Daniel' ||
-      v.name.includes('Male') ||
-      v.name === 'Google UK English Male'
-    )
-  ) || voices.find(v => v.lang.startsWith('en'))
-  if (male) utt.voice = male
-  utt.rate = 0.84
-  utt.pitch = 0.82
-  utt.volume = 1
-  window.speechSynthesis.speak(utt)
+function speak(_text: string) {
+  // Narration removed — animation only
 }
 
 export default function WorldIntroScreen() {
@@ -68,7 +52,7 @@ export default function WorldIntroScreen() {
     t(2200, () => setLines(p => { const n=[...p]; n[2]=true; return n }))
     t(3800, () => setPhase('chars'))
 
-    return () => { timers.current.forEach(clearTimeout); window.speechSynthesis?.cancel() }
+    return () => { timers.current.forEach(clearTimeout) }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Phase 2 — character parade

@@ -90,8 +90,8 @@ export default function WorldsScreen() {
 
       {/* Hero tagline */}
       <div className="hero-tag">
-        <h2>Some stories you watch.</h2>
-        <p>Some you live.</p>
+        <h2>Enter the world.</h2>
+        <p>Shape what happens.</p>
       </div>
 
       {/* World list */}

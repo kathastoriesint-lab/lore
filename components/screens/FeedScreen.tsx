@@ -16,7 +16,7 @@ const StatusBar = () => (
 )
 
 export default function FeedScreen() {
-  const { navigate, goBack, showToast, game, makeChoice } = useApp()
+  const { navigate, goBack, showToast, game, likePost, likedPosts, applyFeedDeltas, setViewingChar } = useApp()
   const [commentPost, setCommentPost] = useState<string | null>(null)
 
   // World intro overlay
@@ -137,19 +137,9 @@ export default function FeedScreen() {
 
   const handleComment = useCallback((postKey: string, opt: PostCommentOption) => {
     setCommentPost(null)
-    // apply deltas to meters
-    const cur = game.meters
-    const next = {
-      fame:  Math.max(0, Math.min(100, cur.fame  + opt.deltas.fame)),
-      trust: Math.max(0, Math.min(100, cur.trust + opt.deltas.trust)),
-      heat:  Math.max(0, Math.min(100, cur.heat  + opt.deltas.heat)),
-    }
-    // Use makeChoice-like approach: update meters via game state
+    applyFeedDeltas(opt.deltas)
     showToast(opt.toast)
-    // Trigger meter update by calling a direct state update through context
-    // We store the delta in localStorage so the next makeChoice picks it up
-    // Simplest: just show toast and a visual indicator - full meter wiring is via Live
-  }, [game.meters, showToast])
+  }, [applyFeedDeltas, showToast])
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', position: 'relative' }}>
@@ -219,9 +209,14 @@ export default function FeedScreen() {
                 <div className={`story-ring${seen ? ' seen' : ''}`}>
                   <div
                     className={`av ${char.cls}`}
-                    style={{ width: '100%', height: '100%', border: '2.5px solid var(--bg)', fontSize: 22 }}
+                    style={{
+                      width: '100%', height: '100%', border: '2.5px solid var(--bg)',
+                      fontSize: 22,
+                      backgroundImage: `url(/avatars/${charId}.png)`,
+                      backgroundSize: 'cover', backgroundPosition: 'center',
+                    }}
                   >
-                    {char.init}
+                    <span style={{ opacity:0 }}>{char.init}</span>
                   </div>
                 </div>
                 <span className="story-label">{char.name}</span>
@@ -233,7 +228,9 @@ export default function FeedScreen() {
         {/* Post: Reya */}
         <div className="post">
           <div className="post-head">
-            <div className="av c-reya" style={{ width: 34, height: 34, fontSize: 14 }}>R</div>
+            <button className="av c-reya" style={{ width:34, height:34, fontSize:14, padding:0, backgroundImage:'url(/avatars/reya.png)', backgroundSize:'cover', backgroundPosition:'center', border:'none', cursor:'pointer' }} onClick={() => setViewingChar('reya')}>
+              <span style={{ opacity: 0 }}>R</span>
+            </button>
             <div className="post-id">
               <div className="h">reya</div>
               <div className="s">Creator House · 6h ago</div>
@@ -246,7 +243,9 @@ export default function FeedScreen() {
             <p className="overlay-txt">"Stress ko content mein convert karo. Seekho." 🤍</p>
           </div>
           <div className="post-actions">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            <button onClick={() => likePost('reya-post', 'reya', 3)} style={{ background:'none', border:'none', cursor:'pointer', display:'flex', alignItems:'center' }}>
+              <svg viewBox="0 0 24 24" fill={likedPosts.has('reya-post') ? 'var(--accent)' : 'none'} stroke={likedPosts.has('reya-post') ? 'var(--accent)' : '#fff'} strokeWidth="1.8" strokeLinecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </button>
             <button onClick={() => setCommentPost(commentPost === 'reya' ? null : 'reya')} style={{ background:'none', border:'none', cursor:'pointer', display:'flex', alignItems:'center' }}>
               <svg viewBox="0 0 24 24" fill="none" stroke={commentPost==='reya' ? 'var(--accent)' : '#fff'} strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
             </button>
@@ -319,7 +318,9 @@ export default function FeedScreen() {
         {/* Post: Kabir */}
         <div className="post">
           <div className="post-head">
-            <div className="av c-kabir" style={{ width: 34, height: 34, fontSize: 14 }}>K</div>
+            <button className="av c-kabir" style={{ width:34, height:34, fontSize:14, padding:0, backgroundImage:'url(/avatars/kabir.png)', backgroundSize:'cover', backgroundPosition:'center', border:'none', cursor:'pointer' }} onClick={() => setViewingChar('kabir')}>
+              <span style={{ opacity:0 }}>K</span>
+            </button>
             <div className="post-id">
               <div className="h">kabirlol</div>
               <div className="s">Creator House · 3h ago</div>
@@ -332,7 +333,9 @@ export default function FeedScreen() {
             <p className="overlay-txt">"Is ghar mein sab serious ho jaate hain jab camera on hota hai. Main serious tab hota hoon jab camera off hota hai." 😭👀</p>
           </div>
           <div className="post-actions">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            <button onClick={() => likePost('kabir-post', 'kabir', 2)} style={{ background:'none', border:'none', cursor:'pointer', display:'flex', alignItems:'center' }}>
+              <svg viewBox="0 0 24 24" fill={likedPosts.has('kabir-post') ? 'var(--accent)' : 'none'} stroke={likedPosts.has('kabir-post') ? 'var(--accent)' : '#fff'} strokeWidth="1.8" strokeLinecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </button>
             <button onClick={() => setCommentPost(commentPost === 'kabir' ? null : 'kabir')} style={{ background:'none', border:'none', cursor:'pointer', display:'flex', alignItems:'center' }}>
               <svg viewBox="0 0 24 24" fill="none" stroke={commentPost==='kabir' ? 'var(--accent)' : '#fff'} strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
             </button>
@@ -359,7 +362,9 @@ export default function FeedScreen() {
         {/* Post: Ananya */}
         <div className="post" style={{ borderBottom: 'none' }}>
           <div className="post-head">
-            <div className="av c-ananya" style={{ width: 34, height: 34, fontSize: 14 }}>A</div>
+            <button className="av c-ananya" style={{ width:34, height:34, fontSize:14, padding:0, backgroundImage:'url(/avatars/ananya.png)', backgroundSize:'cover', backgroundPosition:'center', border:'none', cursor:'pointer' }} onClick={() => setViewingChar('ananya')}>
+              <span style={{ opacity:0 }}>A</span>
+            </button>
             <div className="post-id">
               <div className="h">ananya</div>
               <div className="s">Creator House · 45m ago</div>

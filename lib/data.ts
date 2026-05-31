@@ -225,6 +225,322 @@ export const SITUATIONS: Situation[] = [
       },
     ]
   },
+  // ── Day 2-4 (AI-generated, gpt-4o) ────────────────────────────────────────
+  {
+    tag:'⚡ DAY 2 · MORNING',
+    title:"Reya's Loyalty Test",
+    body:[
+      "Breakfast time in the villa garden. Reya sits across from you, sunglasses on, chai in hand. The others are still asleep.",
+      "She leans in: <b>'Main jaanna chahti hoon</b> — agar things get rough, main tumpe count kar sakti hoon?' The Luminary deal is still in the air. She knows you know.",
+      "Yeh moment is not a question. It's a test. Aur Kabir is watching from the kitchen window."
+    ],
+    react:{ char:'kabir', text:'Sabko test karegi. Tujhe bhi. Smart move dekh. 👀' },
+    q:'Kya bologe?',
+    choices:[
+      {
+        t:'Pledge loyalty to Reya',
+        s:'Lock in the most powerful alliance in the house.',
+        deltas:{fame:10,trust:-5,heat:8},
+        caption:'Kuch alliances feel right from day one. Main in hoon. 🤝',
+        reactions:[
+          {char:'reya', text:'Good. Main bhool nahi karti. Woh bhi promises, woh bhi betrayals.'},
+          {char:'meher', text:'Reya ke saath? Be careful — uski loyalty selective hoti hai. 🫶'},
+          {char:'__fan', name:'housewatch_india', text:'Alliance confirmed?? Game changer or trap? 👀'},
+        ]
+      },
+      {
+        t:'Stay non-committal',
+        s:"Keep your options open — don't bind yourself.",
+        deltas:{fame:5,trust:12,heat:-3},
+        caption:'Is ghar mein kuch bhi pakka nahi. Main soch ke chalti hoon. 🎯',
+        reactions:[
+          {char:'kabir', text:'Smart. Reya ke haath mein khud ko mat de. Main hoon na. 😭'},
+          {char:'reya', text:"Interesting. Let's see how long that lasts. 👑"},
+          {char:'__fan', name:'creator.tea', text:'Not committing to Reya?? Bold or stupid?'},
+        ]
+      },
+    ]
+  },
+  {
+    tag:'⚡ DAY 2 · AFTERNOON',
+    title:"Kabir's Secret Offer",
+    body:[
+      "Dopahar ka shoot khatam hua. Kabir ne camera band karte waqt aapko side pe bulaya. Living room khali hai.",
+      "<b>'Sun, main tujhe kuch bata raha hoon</b> — Reya is playing EVERYONE. Main uska Counter hoon. Agar tu mere saath hai, Week 2 mein tera naam top pe hoga.'",
+      "Uski eyes mein genuineness hai ya calculation? Dono ek saath bhi ho sakte hain."
+    ],
+    react:{ char:'meher', text:'Kabir ne tujhe approach kiya? Careful yaar. Woh sab record karta hai. ✨' },
+    q:'Kabir ke offer ka kya karoge?',
+    choices:[
+      {
+        t:'Accept the alliance',
+        s:'Risk it for the most strategic pairing in the house.',
+        deltas:{fame:15,trust:-10,heat:12},
+        caption:'Kuch allies loud hote hain, kuch silent. Main dono ke saath hoon. 🔥',
+        reactions:[
+          {char:'kabir', text:'YO. Ab game shuru hota hai. Week 2 mein duniya dekhegi 😭🔥'},
+          {char:'reya', text:'I heard. Noted. 👑'},
+          {char:'__fan', name:'housewatch_india', text:'Kabir alliance CONFIRMED?? This changes everything 👀'},
+        ]
+      },
+      {
+        t:"Reject — trust your gut",
+        s:"Kabir is chaos. Useful, but dangerous.",
+        deltas:{fame:8,trust:15,heat:-5},
+        caption:'Kuch offers bahut acha lagte hain. Yahi problem hai. 🎯',
+        reactions:[
+          {char:'kabir', text:'Your loss. But respect. 😭'},
+          {char:'ananya', text:'Tu ne na bola?? I knew you were different 🥺'},
+          {char:'__fan', name:'creator.tea', text:'Refused Kabir?? Either genius or naive'},
+        ]
+      },
+    ]
+  },
+  {
+    tag:'⚡ DAY 2 · NIGHT',
+    title:"Overheard in the Kitchen",
+    body:[
+      "Raat ke 11 baje. Tum paani lene kitchen mein gaye. Meher wahan pehle se hai.",
+      "From the hallway: Dev and Ananya. 'Woh zyada fit nahi hoti is house mein. Next week ke liye — vote pakka kar lo.'",
+      "<b>Woh tum baare mein baat kar rahe hain.</b> Meher ne suna. Tum dono ne suna. Ab?"
+    ],
+    react:{ char:'meher', text:'Main pehle se jaanti thi. Yahan koi bhi genuinely safe nahi hai. 🫶' },
+    q:'Is betrayal ka kya karoge?',
+    choices:[
+      {
+        t:'Confront them — right now',
+        s:"Don't let it slide. Names were said. Faces will be made.",
+        deltas:{fame:20,trust:-15,heat:18},
+        caption:'Seedha sawaal karo. Seedha jawaab lo. #NoFilter',
+        reactions:[
+          {char:'dev', text:'Main toh bas... hypothetically bol raha tha. 💪'},
+          {char:'ananya', text:'I\'m so sorry, I didn\'t mean it that way 🥺😭'},
+          {char:'__fan', name:'housewatch_india', text:'CONFRONTATION NIGHT 2 LET\'S GO 🔥🔥'},
+        ]
+      },
+      {
+        t:'Stay quiet — play the long game',
+        s:"Store this. Use it when it matters most.",
+        deltas:{fame:5,trust:12,heat:-4},
+        caption:'Jo sunta hai, woh jeetta hai. #StrategicSilence',
+        reactions:[
+          {char:'meher', text:'Smart. Patience is power here. ✨'},
+          {char:'kabir', text:'You heard?? Main already jaanta tha 😭 aaj discuss karte hain'},
+          {char:'__fan', name:'creator.tea', text:'Did they hear the conversation?? 👀'},
+        ]
+      },
+    ]
+  },
+  {
+    tag:'⚡ DAY 3 · MORNING',
+    title:"housewatch DM",
+    body:[
+      "Subah uthte hi phone pe ek anonymous DM: 'Tum jaante ho Reya ke baare mein woh cheez jo tum sochte ho sirf tumhe pata hai? 3 aur log jaante hain. Main unme se ek hoon.'",
+      "Reya abhi neeche breakfast kar rahi hai. Woh confident hai. Shayad woh yeh nahi jaanti.",
+      "<b>Information = leverage.</b> Ya information = trap. Dono possible hain."
+    ],
+    react:{ char:'rishi', text:'Anonymous DMs mein truth bhi hoti hai. Main proof chahta hoon. 🎥' },
+    q:'Is DM ka kya karoge?',
+    choices:[
+      {
+        t:'Warn Reya — tell her privately',
+        s:"If she finds out you knew and stayed quiet, you lose her forever.",
+        deltas:{fame:8,trust:15,heat:-2},
+        caption:'Jo sach hai woh kehna padta hai, chahe comfortable na ho. 🤍',
+        reactions:[
+          {char:'reya', text:'...Tu ne mujhe bataya. That matters. 👑'},
+          {char:'kabir', text:'Oh interesting. Reya ke loyal ban rahe ho? 😭 Dekh lena'},
+          {char:'__fan', name:'creator.tea', text:'Is this loyalty or strategy??'},
+        ]
+      },
+      {
+        t:'Keep it — information is power',
+        s:"This anonymous DM is your ace. Don't show cards yet.",
+        deltas:{fame:12,trust:-7,heat:9},
+        caption:'Sabke paas stories hain. Main apni timing choose karti hoon. 👀',
+        reactions:[
+          {char:'kabir', text:'YESSSS. Ab tu real player ban rahi hai 🔥'},
+          {char:'zoya', text:'Something changed today. I can tell. 💅'},
+          {char:'__fan', name:'housewatch_india', text:'She knows something. Thread incoming 👀'},
+        ]
+      },
+    ]
+  },
+  {
+    tag:'⚡ DAY 3 · AFTERNOON',
+    title:"Confession Room",
+    body:[
+      "Producers ne bulaya. Red light. Soundproof room. Just you and the camera.",
+      "'Is hafte ki sabse <b>badi galti</b> kya thi tum ne?' the producer's voice says through a speaker. 'Aur sabse bada regret?'",
+      "The confession room clips jaate hain sometimes — seedha social media pe. Kabir ne pehle hi ek clip leak kiya tha. Woh sab jaanta hai."
+    ],
+    react:{ char:'dev', text:'Confession room mein sach bolna? Respect. Par be careful. 💪' },
+    q:'Confession room mein kya bologe?',
+    choices:[
+      {
+        t:'Spill it — raw and honest',
+        s:"Real confession. The kind that goes viral because it's true.",
+        deltas:{fame:20,trust:-10,heat:15},
+        caption:'Pehli baar kisi ne sach poocha toh sach hi bolunga. Dekhte hain. 🎙️',
+        reactions:[
+          {char:'zoya', text:'Oh that\'s going to clip. Screenshot lete hoon 💅'},
+          {char:'ananya', text:'That was... actually really real. Respect. ✨'},
+          {char:'__fan', name:'housewatch_india', text:'CONFESSION CLIP DROPPING IN 3... 2...'},
+        ]
+      },
+      {
+        t:'Stay vague — protect yourself',
+        s:"Enough to seem human. Not enough to be used against you.",
+        deltas:{fame:5,trust:12,heat:-3},
+        caption:'Har cheez shareable nahi hoti. Aur that\'s okay. 🤍',
+        reactions:[
+          {char:'meher', text:'Wise. Not everything needs to be content. 🫶'},
+          {char:'kabir', text:'Smart or boring? Fine line. 😭'},
+          {char:'__fan', name:'creator.tea', text:'Vague confession — calculated or genuine?'},
+        ]
+      },
+    ]
+  },
+  {
+    tag:'⚡ DAY 3 · NIGHT',
+    title:"Fan Account Backlash",
+    body:[
+      "Raat ko scroll karte waqt: <b>@creator.tea</b> ne ek thread daala. 'Creator House ka sabse fake player — receipts neeche.' 47 retweets. Growing.",
+      "Comments mein tumhare naam ke saath woh clip hai — confession room ya living room se, unclear. Teammates dekh rahe hain.",
+      "Tumhare paas yeh option hai: ignore karo aur sone jao. Ya address karo aur raat bhar jaago."
+    ],
+    react:{ char:'adi', text:'Main toh personally tera saath hoon. Par social media alag game hai. 🙏' },
+    q:'Backlash ka response kya hoga?',
+    choices:[
+      {
+        t:'Go live — address it directly',
+        s:"Don't let the narrative write itself. Take control.",
+        deltas:{fame:18,trust:5,heat:14},
+        caption:'Main hun, yeh meri story hai. Koi aur nahi likhega. 🎙️',
+        reactions:[
+          {char:'reya', text:'Bold. Par ab tujhe actually deliver karna hoga. 👑'},
+          {char:'rishi', text:'Live recording start kar diya. Good content. 🎥'},
+          {char:'__fan', name:'housewatch_india', text:'SHE\'S GOING LIVE ABOUT THE THREAD 🔥🔥'},
+        ]
+      },
+      {
+        t:'Ignore it — rise above',
+        s:"Responding gives it more oxygen. Silence can be loud.",
+        deltas:{fame:6,trust:10,heat:-2},
+        caption:'Jo jaanta hai woh jaanta hai. Baaki sab eventually samjhenge. 🤍',
+        reactions:[
+          {char:'meher', text:'Good call. Sometimes silence wins. ✨'},
+          {char:'kabir', text:'Ignore kiya? Hmm. Interesting strategy. 😭'},
+          {char:'__fan', name:'creator.tea', text:'No response?? She really said unbothered 💅'},
+        ]
+      },
+    ]
+  },
+  {
+    tag:'⚡ DAY 4 · MORNING',
+    title:"Luminary Deal: Final Answer",
+    body:[
+      "Luminary Brands ne final deadline di hai: aaj shaam tak. Woh chahte hain ki <b>ek solo creator</b> deal sign kare — official face of the campaign.",
+      "Reya assumes it's hers. Dev ne already apply kar diya — quietly, through Kabir's contact. Tumhara DM abhi bhi unanswered hai.",
+      "5 lakh. Ek post. Ek naam. Sirf ek."
+    ],
+    react:{ char:'zoya', text:'Main sunta toh hoon sab par bolti nahi. Par yeh deal... interesting hai. 💅' },
+    q:'Luminary deal ka kya karogi?',
+    choices:[
+      {
+        t:'Go for it — apply directly',
+        s:"You earned the reach. Why should it go to someone else?",
+        deltas:{fame:25,trust:-18,heat:22},
+        caption:'Opportunities wait for no one. Especially not in Creator House. 🔥',
+        reactions:[
+          {char:'reya', text:'Oh. OH. Main yaad rakhungi yeh. 👑'},
+          {char:'dev', text:'Competitor confirmed 💪 may the best one win'},
+          {char:'__fan', name:'housewatch_india', text:'THE BRAND DEAL WAR HAS BEGUN 💀💀'},
+        ]
+      },
+      {
+        t:"Let it pass — trust over money",
+        s:"The relationships in this house will outlast one deal.",
+        deltas:{fame:8,trust:20,heat:-5},
+        caption:'Kuch cheezein hain jo 5 lakh se zyada valuable hain. #LongGame',
+        reactions:[
+          {char:'meher', text:'You gave that up?? I respect you more now. 🫶'},
+          {char:'ananya', text:'That was actually so mature omg 🥺✨'},
+          {char:'__fan', name:'creator.tea', text:'She passed on 5 lakh?? Clout move or genuine?'},
+        ]
+      },
+    ]
+  },
+  {
+    tag:'⚡ DAY 4 · AFTERNOON',
+    title:"Rishi's Footage",
+    body:[
+      "Rishi finds you alone in the studio. He looks serious — which is rare. 'Mere paas kuch footage hai,' he says. '<b>Tere baare mein nahi — tere liye.</b>'",
+      "He shows you a clip: Kabir, Day 1, on the phone. Saying your name. Saying things you didn't know were said.",
+      "Rishi wants something in return. He always does. The question is: at what cost?"
+    ],
+    react:{ char:'adi', text:'Rishi ne kisi ko kuch dikhaya? Yeh pehli baar nahi hai. Careful. 🙏' },
+    q:'Rishi ke saath kya karoge?',
+    choices:[
+      {
+        t:'Take the footage — deal with Rishi later',
+        s:"Evidence first. Consequences second.",
+        deltas:{fame:15,trust:-5,heat:10},
+        caption:'Jo record hua hai, woh exist karta hai. #Receipts',
+        reactions:[
+          {char:'rishi', text:'Smart. Main jaanta tha tu samjhegi. Tere kaam aayega. 🎥'},
+          {char:'kabir', text:'You two talked? Interesting... 👀'},
+          {char:'__fan', name:'housewatch_india', text:'Rishi giving footage to someone?? RECEIPTS INCOMING'},
+        ]
+      },
+      {
+        t:"Refuse — don't get into Rishi's game",
+        s:"Rishi's footage always comes with strings. You don't want his strings.",
+        deltas:{fame:5,trust:10,heat:-3},
+        caption:'Kuch information ki keemat bahut zyada hoti hai. #NoThanks 🎯',
+        reactions:[
+          {char:'rishi', text:'Interesting. You\'ll regret it or you won\'t. I\'ll keep recording. 🎥'},
+          {char:'meher', text:'Good call. Rishi\'s help always comes with a bill. ✨'},
+          {char:'__fan', name:'creator.tea', text:'Refused Rishi\'s footage?? Bold or mistake?'},
+        ]
+      },
+    ]
+  },
+  {
+    tag:'⚡ DAY 4 · NIGHT',
+    title:"Week 1 Vote",
+    body:[
+      "The house gathers. Week 1 is done. Second elimination vote — and this time, <b>Reya has the deciding vote.</b>",
+      "But there's a twist: she's asking for yours first. 'Meher ya Kabir?' she whispers. 'Main same vote karungi, promise.'",
+      "Meher — loyal, safe, genuine. Kabir — powerful, dangerous, entertaining. Ek vote. Ab."
+    ],
+    react:{ char:'zoya', text:'Reya ne tujhse poocha? Woh tujhe trust karti hai. Ya test kar rahi hai. 💅' },
+    q:'Kisko vote karoge?',
+    choices:[
+      {
+        t:'Vote Kabir out',
+        s:"Remove the chaos merchant before he removes you.",
+        deltas:{fame:16,trust:18,heat:10},
+        caption:'Week 2 mein sirf genuine log chahiye. Main ne decide kar liya. 🎯',
+        reactions:[
+          {char:'meher', text:'Thank you. Main yaad rakhungi. 🫶'},
+          {char:'kabir', text:'Wow. Tu ne mujhe? Fine. Main bahar se khelta hoon. 👀'},
+          {char:'__fan', name:'housewatch_india', text:'KABIR GETTING VOTED OUT?? WEEK 2 IS GOING TO BE UNHINGED'},
+        ]
+      },
+      {
+        t:'Vote Meher out',
+        s:"She's everyone's emotional anchor. That's power. Dangerous power.",
+        deltas:{fame:12,trust:-14,heat:22},
+        caption:'Yeh game hai. Aur main yahan sirf dost banane nahi aayi. ♟️',
+        reactions:[
+          {char:'reya', text:'Interesting. Tu same vote kiya. Now I know where you stand. 👑'},
+          {char:'kabir', text:'YASSS. NOW WE TALK. You\'re actually playing 🔥🔥'},
+          {char:'__fan', name:'housewatch_india', text:'SHE VOTED OUT MEHER?? Villain arc CONFIRMED 💀'},
+        ]
+      },
+    ]
+  },
 ]
 
 export const DM_ORDER: CharId[] = ['kabir','meher','reya','ananya','dev','zoya','rishi','adi']

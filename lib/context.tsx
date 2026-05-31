@@ -9,7 +9,13 @@ export interface AppCtx {
   game: GameState
   dmHistory: Record<string, DMMessage[]>
   dmTrust: Record<string, number>
+  charFame: Record<string, number>
+  likedPosts: Set<string>
   toast: string | null
+  viewingCharId: CharId | null
+  likePost: (postId: string, charId: CharId, fameDelta: number) => void
+  applyFeedDeltas: (deltas: { fame: number; trust: number; heat: number }) => void
+  setViewingChar: (id: CharId | null) => void
   advanceSituation: () => void
   navigate: (s: Screen, opts?: { replace?: boolean }) => void
   goBack: () => void

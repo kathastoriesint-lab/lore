@@ -15,12 +15,19 @@ import LiveScreen from '@/components/screens/LiveScreen'
 import DMInboxScreen from '@/components/screens/DMInboxScreen'
 import DMThreadScreen from '@/components/screens/DMThreadScreen'
 import ProfileScreen from '@/components/screens/ProfileScreen'
+import CharProfileScreen from '@/components/screens/CharProfileScreen'
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>('worlds')
   const [navHistory, setNavHistory] = useState<Screen[]>(['worlds'])
   const [dmChar, setDmChar] = useState<CharId | null>(null)
   const [dmTrust, setDmTrust] = useState<Record<string, number>>({})
+  // Per-character fame (drives follower counts on all profiles)
+  const [charFame, setCharFame] = useState<Record<string, number>>({
+    reya:85, kabir:55, meher:40, dev:30, ananya:15, zoya:50, rishi:35, adi:25
+  })
+  const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set())
+  const [viewingCharId, setViewingCharId] = useState<CharId | null>(null)
   const [game, setGame] = useState<GameState>({
     char: null, situation: 0, choices: [], meters: { fame: 15, trust: 60, heat: 5 }, narrator_done: false,
   })
@@ -115,6 +122,32 @@ export default function App() {
     }).catch(() => {})
   }, [dmHistory, game.char])
 
+  // Like a post — updates player fame + target character's fame
+  const likePost = useCallback((postId: string, charId: CharId, fameDelta: number) => {
+    setLikedPosts(prev => { const n = new Set(prev); n.add(postId); return n })
+    setCharFame(prev => ({
+      ...prev,
+      [charId]: Math.min(100, (prev[charId] ?? 50) + fameDelta),
+    }))
+    saveAndSet({ ...game, meters: {
+      ...game.meters,
+      fame: Math.min(100, game.meters.fame + Math.ceil(fameDelta / 3)),
+    }})
+  }, [game, saveAndSet])
+
+  const applyFeedDeltas = useCallback((deltas: { fame: number; trust: number; heat: number }) => {
+    saveAndSet({ ...game, meters: {
+      fame:  Math.max(0, Math.min(100, game.meters.fame  + deltas.fame)),
+      trust: Math.max(0, Math.min(100, game.meters.trust + deltas.trust)),
+      heat:  Math.max(0, Math.min(100, game.meters.heat  + deltas.heat)),
+    }})
+  }, [game, saveAndSet])
+
+  const setViewingChar = useCallback((id: CharId | null) => {
+    setViewingCharId(id)
+    if (id) navigate('char-profile')
+  }, [navigate])
+
   const resetGame = useCallback(async () => {
     await resetGameState()
     setGame({ char: null, situation: 0, choices: [], meters: { fame: 15, trust: 60, heat: 5 }, narrator_done: false })
@@ -134,9 +167,9 @@ export default function App() {
 
   return (
     <AppContext.Provider value={{
-      screen, prevScreen: prev, dmChar, game, dmHistory, dmTrust, toast,
+      screen, prevScreen: prev, dmChar, game, dmHistory, dmTrust, charFame, likedPosts, viewingCharId, toast,
       advanceSituation, navigate, goBack, showToast, setChar,
-      makeChoice, sendDM, openDMThread, resetGame,
+      makeChoice, sendDM, openDMThread, resetGame, likePost, applyFeedDeltas, setViewingChar,
     }}>
       <div className="stage">
         <div className="phone">
@@ -149,6 +182,7 @@ export default function App() {
             <Slot id="dm-inbox"    cur={screen} prev={prev}><DMInboxScreen /></Slot>
             <Slot id="dm-thread"   cur={screen} prev={prev}><DMThreadScreen /></Slot>
             <Slot id="profile"     cur={screen} prev={prev}><ProfileScreen /></Slot>
+            <Slot id="char-profile" cur={screen} prev={prev}><CharProfileScreen /></Slot>
           </div>
         </div>
       </div>
