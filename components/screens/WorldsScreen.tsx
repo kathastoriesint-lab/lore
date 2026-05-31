@@ -217,24 +217,15 @@ export default function WorldsScreen() {
       {/* Tab bar */}
       <div className="tabbar">
         <button className="tab active" onClick={() => {}}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/>
-          </svg>
-          <span>Home</span>
-        </button>
-        <button className="tab" onClick={() => handleTab('messages')}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-            <path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/>
+            <circle cx="12" cy="12" r="9"/>
+            <path d="M12 3c-2.5 3-4 5.7-4 9s1.5 6 4 9"/>
+            <path d="M12 3c2.5 3 4 5.7 4 9s-1.5 6-4 9"/>
+            <path d="M3 12h18"/>
           </svg>
-          <span>Messages</span>
+          <span>Worlds</span>
         </button>
-        <button className="tab" onClick={() => handleTab('live')}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M13 2L4.5 13.5H11L9 22l9-12h-6.5L13 2z" strokeLinejoin="round"/>
-          </svg>
-          <span>Live</span>
-        </button>
-        <button className="tab" onClick={() => handleTab('profile')}>
+        <button className="tab" onClick={() => showToast('Profile jald aayega 🔥')}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
             <circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/>
           </svg>
