@@ -106,6 +106,40 @@ export async function saveDM(charId: CharId, msg: DMMessage) {
   })
 }
 
+// ── Trust delta scoring via LLM ───────────────────────────────────────────────
+// Calls the same Edge Function in trust_score mode to get a -20..+20 delta.
+// Runs in parallel with nothing — called after the reply is known.
+export async function scoreTrustDelta(
+  charId: CharId,
+  playerMessage: string,
+  charReply: string
+): Promise<number> {
+  const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!
+  const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  try {
+    const resp = await fetch(`${SUPABASE_URL}/functions/v1/lore-chat`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+      },
+      body: JSON.stringify({
+        mode: 'trust_score',
+        character_id: charId,
+        messages: [
+          { role: 'user', content: playerMessage },
+          { role: 'assistant', content: charReply },
+        ],
+      }),
+    })
+    if (!resp.ok) return 0
+    const json = await resp.json()
+    return typeof json.delta === 'number' ? json.delta : 0
+  } catch {
+    return 0
+  }
+}
+
 // ── AI reply via Supabase Edge Function ──────────────────────────────────────
 export async function getAIReply(
   charId: CharId,

@@ -8,6 +8,7 @@ export interface AppCtx {
   dmChar: CharId | null
   game: GameState
   dmHistory: Record<string, DMMessage[]>
+  dmTrust: Record<string, number>
   toast: string | null
   advanceSituation: () => void
   navigate: (s: Screen, opts?: { replace?: boolean }) => void

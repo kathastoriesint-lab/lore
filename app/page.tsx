@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import type { CharId, DMMessage, GameState, Screen } from '@/lib/types'
 import { AppContext } from '@/lib/context'
 import {
-  applyDeltas, charMeters, ensureSession, getAIReply,
+  applyDeltas, charMeters, ensureSession, getAIReply, scoreTrustDelta,
   loadDMs, loadGameState, recordChoice, resetGameState, saveDM, saveGameState,
 } from '@/lib/game'
 import { CHARS, SITUATIONS, DM_MOCK } from '@/lib/data'
@@ -19,6 +19,7 @@ export default function App() {
   const [screen, setScreen] = useState<Screen>('worlds')
   const [navHistory, setNavHistory] = useState<Screen[]>(['worlds'])
   const [dmChar, setDmChar] = useState<CharId | null>(null)
+  const [dmTrust, setDmTrust] = useState<Record<string, number>>({})
   const [game, setGame] = useState<GameState>({
     char: null, situation: 0, choices: [], meters: { fame: 15, trust: 60, heat: 5 }, narrator_done: false,
   })
@@ -93,7 +94,6 @@ export default function App() {
 
   const sendDM = useCallback(async (charId: CharId, text: string) => {
     const userMsg: DMMessage = { role: 'me', text }
-    // Use prev-based update to avoid stale closure overwriting concurrent state
     const contextHistory = [...(dmHistory[charId] ?? []), userMsg]
     setDmHistory(prev => ({ ...prev, [charId]: [...(prev[charId] ?? []), userMsg] }))
     saveDM(charId, userMsg).catch(() => {})
@@ -103,6 +103,15 @@ export default function App() {
     const charMsg: DMMessage = { role: 'char', text: reply }
     setDmHistory(prev => ({ ...prev, [charId]: [...(prev[charId] ?? []), charMsg] }))
     saveDM(charId, charMsg).catch(() => {})
+    // Score trust impact in background — LLM evaluates the exchange
+    scoreTrustDelta(charId, text, reply).then(delta => {
+      if (delta === 0) return
+      setDmTrust(prev => {
+        const base = prev[charId] ?? 50
+        const next = Math.max(0, Math.min(100, base + delta))
+        return { ...prev, [charId]: next }
+      })
+    }).catch(() => {})
   }, [dmHistory, game.char])
 
   const resetGame = useCallback(async () => {
@@ -124,7 +133,7 @@ export default function App() {
 
   return (
     <AppContext.Provider value={{
-      screen, prevScreen: prev, dmChar, game, dmHistory, toast,
+      screen, prevScreen: prev, dmChar, game, dmHistory, dmTrust, toast,
       advanceSituation, navigate, goBack, showToast, setChar,
       makeChoice, sendDM, openDMThread, resetGame,
     }}>

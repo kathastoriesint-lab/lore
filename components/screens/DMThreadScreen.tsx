@@ -16,7 +16,7 @@ const StatusBar = () => (
 )
 
 export default function DMThreadScreen() {
-  const { goBack, showToast, dmChar, dmHistory, sendDM } = useApp()
+  const { goBack, showToast, dmChar, dmHistory, dmTrust, sendDM } = useApp()
 
   const charId = dmChar as CharId | null
   const char = charId ? CHARS[charId] : null
@@ -26,10 +26,10 @@ export default function DMThreadScreen() {
   const [sending, setSending] = useState(false)
   const [typing, setTyping] = useState(false)
 
-  // Trust level: starts at default, grows with each exchange (capped at 95)
-  const baseTrust = charId ? (DM_TRUST[charId] ?? 50) : 50
-  const exchanges = messages.filter(m => m.role === 'char').length
-  const trustVal = Math.min(95, baseTrust + exchanges * 3)
+  // Trust: LLM-scored live value from context, falls back to static default
+  const trustVal = charId
+    ? (dmTrust[charId] ?? DM_TRUST[charId] ?? 50)
+    : 50
 
   const chatRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
