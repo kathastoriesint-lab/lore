@@ -93,8 +93,8 @@ export default function WorldsScreen() {
 
       {/* Hero tagline */}
       <div className="hero-tag">
-        <h2>Duniya bahut badi hai.</h2>
-        <p>Chuno aapni — aur us mein raho.</p>
+        <h2>Some stories you watch.</h2>
+        <p>Some you live.</p>
       </div>
 
       {/* World list */}
