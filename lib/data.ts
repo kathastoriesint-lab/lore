@@ -51,7 +51,7 @@ export const STORY_CONTENT: Record<CharId, { time: string; text: string }> = {
 
 export const SITUATIONS: Situation[] = [
   {
-    tag:'⚡ DAY 3 · MORNING',
+    tag:'⚡ DAY 1 · MORNING',
     title:'Brand deal ka phone aaya',
     body:[
       'Subah 8 baje. Villa mein sab so rahe hain. Tum kitchen mein akele ho, chai ke liye pani garam kar rahe ho.',
@@ -86,7 +86,7 @@ export const SITUATIONS: Situation[] = [
     ]
   },
   {
-    tag:'⚡ DAY 3 · AFTERNOON',
+    tag:'⚡ DAY 1 · AFTERNOON',
     title:'Group chat leak ho gaya',
     body:[
       'Dopahar 2 baje. Villa ke bahar, Twitter pe aag lagi hui hai. House ka private WhatsApp group — screenshots ban ke viral ho gaya hai. <b>#CreatorHouseLeak</b> trending hai.',
@@ -121,7 +121,7 @@ export const SITUATIONS: Situation[] = [
     ]
   },
   {
-    tag:'⚡ DAY 4 · EVENING',
+    tag:'⚡ DAY 2 · EVENING',
     title:'Dev ka collab offer',
     body:[
       'Shaam 6 baje. Dev tujhe terrace pe bulata hai — "ek cheez discuss karni thi." Upar, sunset perfect hai. Ring light on hai. Yeh clearly pre-planned setting hai.',
@@ -156,7 +156,7 @@ export const SITUATIONS: Situation[] = [
     ]
   },
   {
-    tag:'⚡ DAY 6 · NIGHT',
+    tag:'⚡ DAY 3 · NIGHT',
     title:'Housewatch ne tera naam liya',
     body:[
       'Raat ke 11 baje. <b>housewatch_india</b> — 2.8M followers — ne ek thread daala hai. Subject: tum. "Creator House ka sabse calculated player." 94 hazaar likes in 3 hours.',
@@ -191,7 +191,7 @@ export const SITUATIONS: Situation[] = [
     ]
   },
   {
-    tag:'⚡ DAY 7 · ELIMINATION',
+    tag:'⚡ DAY 5 · ELIMINATION',
     title:'Deciding vote. Tere haath mein.',
     body:[
       'Week 1 khatam. Aaj Creator House ki pehli eviction hai. Do log bottom pe hain: <b>Kabir</b> — jisne shayad group chat leak kiya, par proof nahi — aur <b>Ananya</b> — jise audience "entertaining nahi" bol rahi hai.',

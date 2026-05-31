@@ -3,11 +3,14 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import type { CharId, DMMessage, GameState, Screen } from '@/lib/types'
 import { AppContext } from '@/lib/context'
 import {
-  applyDeltas, charMeters, ensureSession, getAIReply,
+  applyDeltas, charMeters, getEmailSession, getAIReply,
   loadDMs, loadGameState, recordChoice, resetGameState, saveDM, saveGameState,
 } from '@/lib/game'
 import { CHARS, SITUATIONS, DM_MOCK } from '@/lib/data'
+import LoginScreen from '@/components/screens/LoginScreen'
+import OTPScreen from '@/components/screens/OTPScreen'
 import WorldsScreen from '@/components/screens/WorldsScreen'
+import WorldIntroScreen from '@/components/screens/WorldIntroScreen'
 import FeedScreen from '@/components/screens/FeedScreen'
 import NarratorScreen from '@/components/screens/NarratorScreen'
 import LiveScreen from '@/components/screens/LiveScreen'
@@ -15,9 +18,10 @@ import DMInboxScreen from '@/components/screens/DMInboxScreen'
 import DMThreadScreen from '@/components/screens/DMThreadScreen'
 
 export default function App() {
-  const [screen, setScreen] = useState<Screen>('worlds')
-  const [navHistory, setNavHistory] = useState<Screen[]>(['worlds'])
+  const [screen, setScreen] = useState<Screen>('login')
+  const [navHistory, setNavHistory] = useState<Screen[]>(['login'])
   const [dmChar, setDmChar] = useState<CharId | null>(null)
+  const [pendingEmail, setPendingEmail] = useState('')
   const [game, setGame] = useState<GameState>({
     char: null, situation: 0, choices: [], meters: { fame: 15, trust: 60, heat: 5 }, narrator_done: false,
   })
@@ -30,14 +34,31 @@ export default function App() {
     if (typeof window !== 'undefined' && new URLSearchParams(location.search).has('reset')) {
       resetGameState().finally(() => {
         window.history.replaceState(null, '', location.pathname)
+        setScreen('login')
+        setNavHistory(['login'])
         setReady(true)
       })
       return
     }
-    ensureSession()
-      .then(() => loadGameState())
-      .then(s => { setGame(s); setReady(true) })
-      .catch(() => setReady(true))
+    getEmailSession()
+      .then(async session => {
+        if (!session) {
+          setScreen('login')
+          setNavHistory(['login'])
+          setReady(true)
+          return
+        }
+        const s = await loadGameState()
+        setGame(s)
+        setScreen('worlds')
+        setNavHistory(['worlds'])
+        setReady(true)
+      })
+      .catch(() => {
+        setScreen('login')
+        setNavHistory(['login'])
+        setReady(true)
+      })
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const navigate = useCallback((to: Screen, opts?: { replace?: boolean }) => {
@@ -107,7 +128,8 @@ export default function App() {
     await resetGameState()
     setGame({ char: null, situation: 0, choices: [], meters: { fame: 15, trust: 60, heat: 5 }, narrator_done: false })
     setDmHistory({})
-    navigate('worlds', { replace: true })
+    setPendingEmail('')
+    navigate('login', { replace: true })
   }, [navigate])
 
   const prev = navHistory[navHistory.length - 2] ?? null
@@ -123,18 +145,22 @@ export default function App() {
   return (
     <AppContext.Provider value={{
       screen, prevScreen: prev, dmChar, game, dmHistory, toast,
+      pendingEmail, setPendingEmail,
       advanceSituation, navigate, goBack, showToast, setChar,
       makeChoice, sendDM, openDMThread, resetGame,
     }}>
       <div className="stage">
         <div className="phone">
           <div className="viewport">
-            <Slot id="worlds"    cur={screen} prev={prev}><WorldsScreen /></Slot>
-            <Slot id="feed"      cur={screen} prev={prev}><FeedScreen /></Slot>
-            <Slot id="narrator"  cur={screen} prev={prev}><NarratorScreen /></Slot>
-            <Slot id="live"      cur={screen} prev={prev}><LiveScreen /></Slot>
-            <Slot id="dm-inbox"  cur={screen} prev={prev}><DMInboxScreen /></Slot>
-            <Slot id="dm-thread" cur={screen} prev={prev}><DMThreadScreen /></Slot>
+            <Slot id="login"       cur={screen} prev={prev}><LoginScreen /></Slot>
+            <Slot id="otp"         cur={screen} prev={prev}><OTPScreen /></Slot>
+            <Slot id="worlds"      cur={screen} prev={prev}><WorldsScreen /></Slot>
+            <Slot id="world-intro" cur={screen} prev={prev}><WorldIntroScreen /></Slot>
+            <Slot id="feed"        cur={screen} prev={prev}><FeedScreen /></Slot>
+            <Slot id="narrator"    cur={screen} prev={prev}><NarratorScreen /></Slot>
+            <Slot id="live"        cur={screen} prev={prev}><LiveScreen /></Slot>
+            <Slot id="dm-inbox"    cur={screen} prev={prev}><DMInboxScreen /></Slot>
+            <Slot id="dm-thread"   cur={screen} prev={prev}><DMThreadScreen /></Slot>
           </div>
         </div>
       </div>

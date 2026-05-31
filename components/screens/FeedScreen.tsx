@@ -28,24 +28,17 @@ export default function FeedScreen() {
   const [storyActive, setStoryActive] = useState(false)
   const storyTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // Check first visit
+  // Show world intro overlay on first visit to feed (after world-intro screen)
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const seen = localStorage.getItem('lore_world_seen')
-      if (seen === '1') {
-        // Mark as seen so next visit won't show intro
-        localStorage.setItem('lore_world_seen', 'seen')
+      const seen = localStorage.getItem('lore_feed_seen')
+      if (!seen) {
+        localStorage.setItem('lore_feed_seen', '1')
         setShowIntro(true)
-
-        // Stagger intro lines
         const delays = [200, 500, 900, 1300, 1700, 2100]
         delays.forEach((d, i) => {
           setTimeout(() => {
-            setIntroLines(prev => {
-              const next = [...prev]
-              next[i] = true
-              return next
-            })
+            setIntroLines(prev => { const next = [...prev]; next[i] = true; return next })
           }, d)
         })
       }
@@ -137,7 +130,7 @@ export default function FeedScreen() {
         </div>
         <div className="feed-live">
           <div className="pulse" />
-          LIVE — Day 3 of 30 · housewatch_india trending
+          LIVE — Day 1 of 30 · 8 creators just arrived
         </div>
       </div>
 
@@ -343,7 +336,7 @@ export default function FeedScreen() {
           <div className={`wi-line${introLines[0] ? ' in' : ''}`}>
             <div className="wi-pre">
               <div className="pulse" />
-              LIVE · DAY 3 OF 30
+              LIVE · DAY 1 OF 30
             </div>
           </div>
           {/* Line 1: Title */}
@@ -357,7 +350,7 @@ export default function FeedScreen() {
           {/* Line 3: Drama */}
           <div className={`wi-line${introLines[3] ? ' in' : ''}`}>
             <div className="wi-drama">
-              <b>Kisi ne group chat leak kiya.</b> Sabke screenshots ban ke viral ho gaye hain. Is ghar mein trust currency hai — aur abhi market crash ho gaya hai.
+              <b>Aaj raat, villa khul raha hai.</b> 8 strangers pehli baar mile hain. Koi dushman nahi, koi dost nahi — but by morning, alliances ban jaayengi. Tum kaun banna chahte ho?
             </div>
           </div>
           {/* Line 4: Avatars */}

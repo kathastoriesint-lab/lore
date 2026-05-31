@@ -9,6 +9,8 @@ export interface AppCtx {
   game: GameState
   dmHistory: Record<string, DMMessage[]>
   toast: string | null
+  pendingEmail: string
+  setPendingEmail: (e: string) => void
   advanceSituation: () => void
   navigate: (s: Screen, opts?: { replace?: boolean }) => void
   goBack: () => void

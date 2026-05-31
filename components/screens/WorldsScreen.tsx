@@ -62,10 +62,7 @@ export default function WorldsScreen() {
   }, [showToast])
 
   const handleCreatorHouse = useCallback(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('lore_world_seen', '1')
-    }
-    navigate('feed')
+    navigate('world-intro')
   }, [navigate])
 
   return (
@@ -117,7 +114,7 @@ export default function WorldsScreen() {
               <div className="wc-name">Creator House</div>
               <div className="wc-status">
                 <div className="pulse" />
-                Day 3 of 30 · Someone leaked the group chat.
+                Day 1 of 30 · Villa opens tonight.
               </div>
             </div>
             <div className="wc-foot">
