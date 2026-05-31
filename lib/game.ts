@@ -146,8 +146,8 @@ export async function getAIReply(
       buffer = lines.pop() ?? ''
       for (const line of lines) {
         if (!line.startsWith('data: ')) continue
-        const data = line.slice(6)
-        if (data === '[DONE]') return result
+        const data = line.slice(6).trim()
+        if (data === '[DONE]') return result || pickMock(charId)
         try {
           const json = JSON.parse(data)
           const token = json.choices?.[0]?.delta?.content

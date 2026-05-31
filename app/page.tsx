@@ -6,7 +6,7 @@ import {
   applyDeltas, charMeters, ensureSession, getAIReply,
   loadDMs, loadGameState, recordChoice, resetGameState, saveDM, saveGameState,
 } from '@/lib/game'
-import { CHARS, SITUATIONS } from '@/lib/data'
+import { CHARS, SITUATIONS, DM_MOCK } from '@/lib/data'
 import WorldsScreen from '@/components/screens/WorldsScreen'
 import FeedScreen from '@/components/screens/FeedScreen'
 import NarratorScreen from '@/components/screens/NarratorScreen'
@@ -96,7 +96,8 @@ export default function App() {
     setDmHistory(prev => ({ ...prev, [charId]: updated }))
     await saveDM(charId, userMsg)
     const playerName = game.char ? CHARS[game.char].name : 'Yaar'
-    const reply = await getAIReply(charId, updated, playerName)
+    const raw = await getAIReply(charId, updated, playerName)
+    const reply = raw?.trim() || DM_MOCK[charId][Math.floor(Math.random() * DM_MOCK[charId].length)]
     const charMsg: DMMessage = { role: 'char', text: reply }
     setDmHistory(prev => ({ ...prev, [charId]: [...(prev[charId] ?? []), charMsg] }))
     await saveDM(charId, charMsg)
