@@ -3,12 +3,10 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import type { CharId, DMMessage, GameState, Screen } from '@/lib/types'
 import { AppContext } from '@/lib/context'
 import {
-  applyDeltas, charMeters, getEmailSession, getAIReply,
+  applyDeltas, charMeters, ensureSession, getAIReply,
   loadDMs, loadGameState, recordChoice, resetGameState, saveDM, saveGameState,
 } from '@/lib/game'
 import { CHARS, SITUATIONS, DM_MOCK } from '@/lib/data'
-import LoginScreen from '@/components/screens/LoginScreen'
-import OTPScreen from '@/components/screens/OTPScreen'
 import WorldsScreen from '@/components/screens/WorldsScreen'
 import WorldIntroScreen from '@/components/screens/WorldIntroScreen'
 import FeedScreen from '@/components/screens/FeedScreen'
@@ -18,10 +16,9 @@ import DMInboxScreen from '@/components/screens/DMInboxScreen'
 import DMThreadScreen from '@/components/screens/DMThreadScreen'
 
 export default function App() {
-  const [screen, setScreen] = useState<Screen>('login')
-  const [navHistory, setNavHistory] = useState<Screen[]>(['login'])
+  const [screen, setScreen] = useState<Screen>('worlds')
+  const [navHistory, setNavHistory] = useState<Screen[]>(['worlds'])
   const [dmChar, setDmChar] = useState<CharId | null>(null)
-  const [pendingEmail, setPendingEmail] = useState('')
   const [game, setGame] = useState<GameState>({
     char: null, situation: 0, choices: [], meters: { fame: 15, trust: 60, heat: 5 }, narrator_done: false,
   })
@@ -34,35 +31,14 @@ export default function App() {
     if (typeof window !== 'undefined' && new URLSearchParams(location.search).has('reset')) {
       resetGameState().finally(() => {
         window.history.replaceState(null, '', location.pathname)
-        setScreen('login')
-        setNavHistory(['login'])
         setReady(true)
       })
       return
     }
-    getEmailSession()
-      .then(async session => {
-        if (!session) {
-          // Nuke all local state — clears any stale anonymous Supabase session
-          if (typeof window !== 'undefined') localStorage.clear()
-          const { createClient } = await import('@/lib/supabase')
-          await createClient().auth.signOut({ scope: 'local' }).catch(() => {})
-          setScreen('login')
-          setNavHistory(['login'])
-          setReady(true)
-          return
-        }
-        const s = await loadGameState()
-        setGame(s)
-        setScreen('worlds')
-        setNavHistory(['worlds'])
-        setReady(true)
-      })
-      .catch(() => {
-        setScreen('login')
-        setNavHistory(['login'])
-        setReady(true)
-      })
+    ensureSession()
+      .then(() => loadGameState())
+      .then(s => { setGame(s); setReady(true) })
+      .catch(() => setReady(true))
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const navigate = useCallback((to: Screen, opts?: { replace?: boolean }) => {
@@ -132,8 +108,7 @@ export default function App() {
     await resetGameState()
     setGame({ char: null, situation: 0, choices: [], meters: { fame: 15, trust: 60, heat: 5 }, narrator_done: false })
     setDmHistory({})
-    setPendingEmail('')
-    navigate('login', { replace: true })
+    navigate('worlds', { replace: true })
   }, [navigate])
 
   const prev = navHistory[navHistory.length - 2] ?? null
@@ -149,15 +124,12 @@ export default function App() {
   return (
     <AppContext.Provider value={{
       screen, prevScreen: prev, dmChar, game, dmHistory, toast,
-      pendingEmail, setPendingEmail,
       advanceSituation, navigate, goBack, showToast, setChar,
       makeChoice, sendDM, openDMThread, resetGame,
     }}>
       <div className="stage">
         <div className="phone">
           <div className="viewport">
-            <Slot id="login"       cur={screen} prev={prev}><LoginScreen /></Slot>
-            <Slot id="otp"         cur={screen} prev={prev}><OTPScreen /></Slot>
             <Slot id="worlds"      cur={screen} prev={prev}><WorldsScreen /></Slot>
             <Slot id="world-intro" cur={screen} prev={prev}><WorldIntroScreen /></Slot>
             <Slot id="feed"        cur={screen} prev={prev}><FeedScreen /></Slot>

@@ -14,27 +14,7 @@ const DEFAULT_STATE: GameState = {
 }
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
-export async function getEmailSession() {
-  const { data: { session } } = await supabase().auth.getSession()
-  // is_anonymous may be undefined on old sessions — treat anything without a verified email as not logged in
-  if (!session || !session.user.email || session.user.is_anonymous === true) return null
-  return session
-}
-
-export async function sendOTP(email: string) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (supabase().auth.signInWithOtp as any)({ email })
-  if (error) throw error
-}
-
-export async function verifyOTP(email: string, token: string) {
-  const { data, error } = await supabase().auth.verifyOtp({ email, token, type: 'email' })
-  if (error) throw error
-  return data.session
-}
-
-// kept for internal use — loads or creates a session without email (used by loadDMs fallback)
-async function ensureSession() {
+export async function ensureSession() {
   const { data: { session } } = await supabase().auth.getSession()
   if (session) return session
   const { data, error } = await supabase().auth.signInAnonymously()
@@ -71,11 +51,9 @@ export async function saveGameState(state: GameState) {
 
 export async function resetGameState() {
   const { data: { user } } = await supabase().auth.getUser()
-  if (user) {
-    await supabase().from('game_state').delete().eq('user_id', user.id)
-    await supabase().from('dm_messages').delete().eq('user_id', user.id)
-  }
-  await supabase().auth.signOut({ scope: 'local' })
+  if (!user) return
+  await supabase().from('game_state').delete().eq('user_id', user.id)
+  await supabase().from('dm_messages').delete().eq('user_id', user.id)
 }
 
 // ── Choice stats ──────────────────────────────────────────────────────────────

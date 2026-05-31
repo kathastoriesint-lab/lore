@@ -366,68 +366,6 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .send-btn:active{transform:scale(.9)}
 .send-btn:disabled{opacity:.4}
 
-/* ── Login ── */
-.login-screen{position:absolute;inset:0;display:flex;flex-direction:column;
-  align-items:center;padding:44px 28px 44px;background:var(--bg)}
-.login-glow{position:absolute;top:120px;left:50%;transform:translateX(-50%);
-  width:280px;height:280px;border-radius:50%;pointer-events:none;
-  background:radial-gradient(ellipse,rgba(255,45,120,.18) 0%,transparent 70%)}
-.login-logo-wrap{position:relative;z-index:2;display:flex;flex-direction:column;
-  align-items:center;margin-top:auto;padding-top:120px}
-.login-mark{width:88px;height:88px;filter:drop-shadow(0 0 18px rgba(255,45,120,.45))}
-.login-ring-outer{transform-origin:44px 44px;animation:loreSpin 12s linear infinite}
-.login-ring-mid{transform-origin:44px 44px;animation:loreCounterSpin 20s linear infinite}
-.login-ring-dot{transform-origin:44px 44px;animation:lorePulse 2.4s ease-in-out infinite}
-@keyframes loreCounterSpin{to{transform:rotate(-360deg)}}
-@keyframes lorePulse{0%,100%{opacity:.7;transform:scale(1)}50%{opacity:1;transform:scale(1.2)}}
-.login-wordmark{font-family:var(--serif);font-size:36px;font-weight:600;margin-top:14px;letter-spacing:-.01em}
-.login-tagline{font-size:13px;color:var(--ink3);margin-top:6px;text-align:center;line-height:1.6}
-.login-form{margin-top:auto;width:100%;position:relative;z-index:2}
-.login-form-lbl{font-size:11px;color:var(--ink3);margin-bottom:8px;letter-spacing:.03em}
-.login-input{width:100%;background:rgba(255,255,255,.06);
-  border:1px solid rgba(255,255,255,.1);border-bottom:2px solid var(--accent);
-  border-radius:10px 10px 0 0;padding:14px 16px;font-family:var(--sans);
-  font-size:15px;color:var(--ink);outline:none}
-.login-input::placeholder{color:var(--ink3)}
-.login-error{font-size:12px;color:var(--heat);margin-top:6px;padding-left:4px}
-.login-cta{width:100%;height:54px;margin-top:12px;
-  background:var(--accent);color:#fff;font-family:var(--sans);
-  font-weight:700;font-size:16px;border:none;border-radius:14px;cursor:pointer;
-  box-shadow:0 8px 24px rgba(255,45,120,.35);transition:opacity .15s}
-.login-cta:disabled{opacity:.45;cursor:default}
-.login-hint{text-align:center;font-size:11px;color:var(--ink3);margin-top:10px}
-
-/* ── OTP ── */
-.otp-screen{position:absolute;inset:0;display:flex;flex-direction:column;
-  padding:60px 28px 44px;background:var(--bg)}
-.otp-back{font-size:13px;color:var(--ink3);margin-bottom:36px;display:flex;
-  align-items:center;gap:6px;background:none;border:none;cursor:pointer;
-  font-family:var(--sans)}
-.otp-icon{width:56px;height:56px;border-radius:16px;
-  background:rgba(255,45,120,.1);border:1px solid rgba(255,45,120,.2);
-  display:grid;place-items:center;margin-bottom:18px}
-.otp-title{font-family:var(--serif);font-size:26px;font-weight:600;line-height:1.1}
-.otp-sub{font-size:13px;color:var(--ink2);margin-top:8px;line-height:1.6}
-.otp-email{color:var(--ink);font-weight:600}
-.otp-boxes-wrap{position:relative;margin-top:28px;cursor:text}
-.otp-hidden-input{position:absolute;opacity:0;width:100%;height:100%;
-  top:0;left:0;border:none;background:none;z-index:2;font-size:16px}
-.otp-boxes{display:flex;gap:10px;pointer-events:none}
-.otp-box{flex:1;height:56px;border-radius:10px;
-  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
-  display:grid;place-items:center;font-size:22px;font-weight:700;
-  transition:border-color .15s,box-shadow .15s}
-.otp-box.active{border-color:var(--accent);box-shadow:0 0 0 2px rgba(255,45,120,.2)}
-.otp-box.filled{border-color:rgba(255,255,255,.22)}
-.otp-error{margin-top:12px;padding:10px 14px;
-  background:rgba(255,92,58,.1);border:1px solid rgba(255,92,58,.25);
-  border-radius:10px;font-size:12px;color:var(--heat)}
-.otp-timer{font-size:12px;color:var(--ink3);margin-top:16px;text-align:center}
-.otp-resend-btn{background:none;border:none;color:var(--accent);font-weight:600;
-  font-size:12px;cursor:pointer;font-family:var(--sans);padding:0}
-.otp-spacer{flex:1}
-.otp-verify-hint{font-size:11px;color:var(--ink3);text-align:center;margin-bottom:8px}
-
 /* ── World Intro (full-screen, fires on world card tap) ── */
 .wintro-screen{position:absolute;inset:0;display:flex;flex-direction:column;overflow:hidden}
 .wintro-cover{position:absolute;inset:0;z-index:0;
