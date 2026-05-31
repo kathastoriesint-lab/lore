@@ -3,7 +3,9 @@ import { createClient } from './supabase'
 import type { CharId, GameState, Meters, DMMessage } from './types'
 import { CHARS, DM_HOOKS, DM_MOCK } from './data'
 
-const supabase = createClient()
+// Lazy init — avoids module-level instantiation during SSR/prerender
+let _supabase: ReturnType<typeof createClient> | null = null
+const supabase = () => { if (!_supabase) _supabase = createClient(); return _supabase }
 
 const DEFAULT_METERS: Meters = { fame: 15, trust: 60, heat: 5 }
 const DEFAULT_STATE: GameState = {
@@ -13,9 +15,9 @@ const DEFAULT_STATE: GameState = {
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 export async function ensureSession() {
-  const { data: { session } } = await supabase.auth.getSession()
+  const { data: { session } } = await supabase().auth.getSession()
   if (session) return session
-  const { data, error } = await supabase.auth.signInAnonymously()
+  const { data, error } = await supabase().auth.signInAnonymously()
   if (error) throw error
   return data.session
 }
@@ -23,7 +25,7 @@ export async function ensureSession() {
 // ── Game state ────────────────────────────────────────────────────────────────
 export async function loadGameState(): Promise<GameState> {
   await ensureSession()
-  const { data } = await supabase.from('game_state').select('*').maybeSingle()
+  const { data } = await supabase().from('game_state').select('*').maybeSingle()
   if (!data) return DEFAULT_STATE
   return {
     char: data.char_id,
@@ -35,9 +37,9 @@ export async function loadGameState(): Promise<GameState> {
 }
 
 export async function saveGameState(state: GameState) {
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: { user } } = await supabase().auth.getUser()
   if (!user) return
-  await supabase.from('game_state').upsert({
+  await supabase().from('game_state').upsert({
     user_id: user.id,
     char_id: state.char,
     situation: state.situation,
@@ -48,22 +50,22 @@ export async function saveGameState(state: GameState) {
 }
 
 export async function resetGameState() {
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: { user } } = await supabase().auth.getUser()
   if (!user) return
-  await supabase.from('game_state').delete().eq('user_id', user.id)
+  await supabase().from('game_state').delete().eq('user_id', user.id)
 }
 
 // ── Choice stats ──────────────────────────────────────────────────────────────
 export async function recordChoice(situationId: number, choice: 'A' | 'B') {
   try {
-    await supabase.rpc('increment_choice', { p_situation: situationId, p_choice: choice })
+    await supabase().rpc('increment_choice', { p_situation: situationId, p_choice: choice })
   } catch {
     // Fallback: rpc not created yet, skip silently
   }
 }
 
 export async function getStats(situationId: number): Promise<{ total: number; pctA: number }> {
-  const { data } = await supabase
+  const { data } = await supabase()
     .from('situation_stats')
     .select('choice, count')
     .eq('situation_id', situationId)
@@ -77,7 +79,7 @@ export async function getStats(situationId: number): Promise<{ total: number; pc
 // ── DM messages ───────────────────────────────────────────────────────────────
 export async function loadDMs(charId: CharId): Promise<DMMessage[]> {
   await ensureSession()
-  const { data } = await supabase
+  const { data } = await supabase()
     .from('dm_messages')
     .select('role, content')
     .eq('char_id', charId)
@@ -93,9 +95,9 @@ export async function loadDMs(charId: CharId): Promise<DMMessage[]> {
 }
 
 export async function saveDM(charId: CharId, msg: DMMessage) {
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: { user } } = await supabase().auth.getUser()
   if (!user) return
-  await supabase.from('dm_messages').insert({
+  await supabase().from('dm_messages').insert({
     user_id: user.id,
     char_id: charId,
     role: msg.role,
