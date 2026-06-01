@@ -45,6 +45,11 @@ export interface Situation {
   day: number
   /** One-line teaser shown on the locked Day N screen */
   dayTeaser?: string
+  /** Post that appears in the feed after this situation is completed */
+  feedReaction?: {
+    A: { char: CharId; caption: string }
+    B: { char: CharId; caption: string }
+  }
 }
 
 export interface DMMessage {

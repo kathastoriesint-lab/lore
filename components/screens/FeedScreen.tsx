@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useApp } from '@/lib/context'
 import type { CharId } from '@/lib/types'
-import { CHARS, STORY_ORDER, SEEN_CHARS, STORY_CONTENT, POST_COMMENTS, PostCommentOption } from '@/lib/data'
+import { CHARS, SITUATIONS, STORY_ORDER, SEEN_CHARS, STORY_CONTENT, POST_COMMENTS, PostCommentOption } from '@/lib/data'
 
 const StatusBar = () => (
   <div className="statusbar">
@@ -135,6 +135,15 @@ export default function FeedScreen() {
   const currentChar = storyChar ? CHARS[storyChar] : null
   const playingChar = game.char ? CHARS[game.char] : null
 
+  // Reactive feed: show post from last completed situation's feedReaction
+  const visibleSits = SITUATIONS.filter(s => !s.chars || (game.char && s.chars.includes(game.char as 'ananya'|'kabir'|'reya')))
+  const lastCompletedSit = game.situation > 0 ? visibleSits[game.situation - 1] : null
+  const lastChoice = game.choices.length > 0 ? game.choices[game.choices.length - 1] : null
+  const feedReaction = lastCompletedSit?.feedReaction && lastChoice
+    ? lastCompletedSit.feedReaction[lastChoice]
+    : null
+  const feedReactChar = feedReaction ? CHARS[feedReaction.char] : null
+
   const handleComment = useCallback((postKey: string, opt: PostCommentOption) => {
     setCommentPost(null)
     const charName = CHARS[postKey as keyof typeof CHARS]?.name
@@ -224,6 +233,33 @@ export default function FeedScreen() {
             )
           })}
         </div>
+
+        {/* Reactive post — appears after Live choices, proves "world changed" */}
+        {feedReaction && feedReactChar && (
+          <div className="post" style={{ borderTop: '2px solid rgba(255,45,120,.3)', background: 'rgba(255,45,120,.04)' }}>
+            <div className="post-head">
+              <div
+                className={`av ${feedReactChar.cls}`}
+                style={{ width:34, height:34, fontSize:14,
+                  backgroundImage:`url(/avatars/${feedReactChar.id}.png)`,
+                  backgroundSize:'cover', backgroundPosition:'center' }}
+              >
+                <span style={{ opacity:0 }}>{feedReactChar.init}</span>
+              </div>
+              <div className="post-id">
+                <div className="h">{feedReactChar.handle}</div>
+                <div className="s" style={{ color:'var(--accent)' }}>Creator House · just now · <b>reacting to your move</b></div>
+              </div>
+              <div className="new-pill">NEW</div>
+            </div>
+            <div className={`post-img grain ${feedReactChar.cls}`} style={{ background: `linear-gradient(135deg, color-mix(in srgb, var(--cc) 70%, #000) 0%, #000 100%)` }}>
+              <p className="overlay-txt" style={{ fontSize:14 }}>{feedReaction.caption}</p>
+            </div>
+            <div className="post-actions">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </div>
+          </div>
+        )}
 
         {/* Post: Reya */}
         <div className="post">

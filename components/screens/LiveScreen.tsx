@@ -409,6 +409,7 @@ export default function LiveScreen() {
                       <div style={{ paddingBottom: 8 }}>
                         {ch.reactions.map((r, i) => {
                           const rChar = r.char !== '__fan' ? CHARS[r.char as CharId] : null
+                          if (r.char !== '__fan' && !rChar) return null // GAP 3: guard against typo char IDs
                           return (
                             <div
                               key={i}

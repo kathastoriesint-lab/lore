@@ -53,6 +53,10 @@ export const SITUATIONS: Situation[] = [
   {
     tag:'⚡ DAY 1 · MORNING',
     day:1,
+    feedReaction:{
+      A:{char:'reya', caption:'Some people move fast. No alliances, no warnings — just moves. Respect and fear are different things. Both are useful. 👀'},
+      B:{char:'reya', caption:'Today someone in this house showed me something rare — they asked first. Not permission. Just courtesy. That matters here. 🤍'},
+    },
     title:'Brand deal ka phone aaya',
     body:[
       'Subah 8 baje. Villa mein sab so rahe hain. Tum kitchen mein akele ho, chai ke liye pani garam kar rahe ho.',
@@ -89,6 +93,10 @@ export const SITUATIONS: Situation[] = [
   {
     tag:'⚡ DAY 1 · AFTERNOON',
     day:1,
+    feedReaction:{
+      A:{char:'kabir', caption:'Okay wow. Named publicly Day 1. Bold move. I respect the audacity though 😭🔥 Game on.'},
+      B:{char:'meher', caption:'The most powerful move in a crisis is usually to say nothing. Some people learn that. Some don\'t. 🫶'},
+    },
     title:'Group chat leak ho gaya',
     body:[
       'Dopahar 2 baje. Villa ke bahar, Twitter pe aag lagi hui hai. House ka private WhatsApp group — screenshots ban ke viral ho gaya hai. <b>#CreatorHouseLeak</b> trending hai.',
