@@ -137,9 +137,9 @@ export default function FeedScreen() {
 
   const handleComment = useCallback((postKey: string, opt: PostCommentOption) => {
     setCommentPost(null)
-    applyFeedDeltas(opt.deltas)
-    showToast(opt.toast)
-  }, [applyFeedDeltas, showToast])
+    const charName = CHARS[postKey as keyof typeof CHARS]?.name
+    applyFeedDeltas(opt.deltas, postKey, charName)
+  }, [applyFeedDeltas])
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', position: 'relative' }}>
