@@ -225,7 +225,7 @@ export const SITUATIONS: Situation[] = [
       },
     ]
   },
-  // ── Day 2-4 (AI-generated, gpt-4o) ────────────────────────────────────────
+  // ── Day 2-4 (AI-generated, gpt-5.4) ───────────────────────────────────────
   {
     tag:'⚡ DAY 2 · MORNING',
     title:"Reya's Loyalty Test",
