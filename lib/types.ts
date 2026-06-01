@@ -58,8 +58,6 @@ export interface DMMessage {
 }
 
 export type Screen =
-  | 'login'
-  | 'otp'
   | 'worlds'
   | 'world-intro'
   | 'feed'

@@ -21,8 +21,6 @@ export interface AppCtx {
   game: GameState
   dmHistory: Record<string, DMMessage[]>
   dmTrust: Record<string, number>
-  pendingEmail: string
-  setPendingEmail: (e: string) => void
   impactNotif: ImpactNotif | null
   showImpact: (n: ImpactNotif) => void
   charFame: Record<string, number>

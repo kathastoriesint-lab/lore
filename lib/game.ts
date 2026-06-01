@@ -33,7 +33,7 @@ export async function verifyOTP(email: string, token: string) {
   return data.session
 }
 
-async function ensureSession() {
+export async function ensureSession() {
   const { data: { session } } = await supabase().auth.getSession()
   if (session) return session
   const { data, error } = await supabase().auth.signInAnonymously()
