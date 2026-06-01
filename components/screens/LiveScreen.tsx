@@ -139,7 +139,7 @@ export default function LiveScreen() {
 
   // Navigate to tabs
   const handleTab = useCallback((tab: string) => {
-    if (tab === 'home') navigate('worlds')
+    if (tab === 'home') navigate('feed')
     else if (tab === 'messages') navigate('dm-inbox')
     else if (tab === 'profile') showToast('Profile jald aayega 🔥')
   }, [navigate, showToast])
@@ -461,12 +461,9 @@ export default function LiveScreen() {
       <div className="tabbar">
         <button className="tab" onClick={() => handleTab('home')}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="9"/>
-            <path d="M12 3c-2.5 3-4 5.7-4 9s1.5 6 4 9"/>
-            <path d="M12 3c2.5 3 4 5.7 4 9s-1.5 6-4 9"/>
-            <path d="M3 12h18"/>
+            <path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/>
           </svg>
-          <span>Worlds</span>
+          <span>Feed</span>
         </button>
         <button className="tab" onClick={() => handleTab('messages')}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
