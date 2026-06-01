@@ -17,7 +17,7 @@ export const SEEN_CHARS: CharId[] = ['dev','zoya']
 export const PLAYABLE = [
   { id:'ananya' as CharId, tag:'Prove karna hai sirf khud ko.' },
   { id:'kabir'  as CharId, tag:'Game already shuru kar chuka hoon. 👀' },
-  { id:'reya'   as CharId, tag:'Main toh already on top hoon. Sawaal yeh hai — kitne din tak.' },
+  { id:'reya'   as CharId, tag:'Main already on top hoon. Sawaal yeh hai — kitne din tak.' },
 ]
 export const LOCKED: CharId[] = ['meher','dev','zoya','rishi','adi']
 
@@ -28,7 +28,7 @@ export const NARR_LINES = [
 ]
 
 export const NARR_CHARS: [CharId, string][] = [
-  ['reya',  'Luxury. Lifestyle. Untouchable.\nWoh sab kuch fake hai jo woh dikhati hai.'],
+  ['reya',  'Luxury. Lifestyle. Untouchable.\nSab kuch curated hai. Woh jaanti hai.'],
   ['kabir', 'Sabka dost. Kisi ka nahi.\nDrama woh banata hai. Record bhi wahi karta hai.'],
   ['meher', 'Ghar ki dil. Sab se wise.\nPar "authenticity" bhi ek brand hai.'],
   ['dev',   'Fitness. Brand deals. Grindset.\nLoyalty for sale — jo zyada de.'],

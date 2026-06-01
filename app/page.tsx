@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import type { CharId, DMMessage, GameState, Screen } from '@/lib/types'
 import { AppContext, ImpactNotif } from '@/lib/context'
 import {
-  applyDeltas, charMeters, ensureSession, getAIReply, scoreTrustDelta,
+  applyDeltas, charMeters, getEmailSession, getAIReply, scoreTrustDelta,
   loadDMs, loadGameState, recordChoice, resetGameState, saveDM, saveGameState,
 } from '@/lib/game'
 import { CHARS, SITUATIONS, DM_MOCK, getVisibleSituations } from '@/lib/data'
@@ -18,13 +18,13 @@ import ProfileScreen from '@/components/screens/ProfileScreen'
 import CharProfileScreen from '@/components/screens/CharProfileScreen'
 import ImpactPill from '@/components/ImpactPill'
 import ErrorBoundary from '@/components/ErrorBoundary'
-import OnboardScreen from '@/components/screens/OnboardScreen'
+import LoginScreen from '@/components/screens/LoginScreen'
+import OTPScreen from '@/components/screens/OTPScreen'
 
 export default function App() {
-  // Check if player has a name — if not, show onboard screen
-  const hasName = typeof window !== 'undefined' && !!localStorage.getItem('lore_player_name')
-  const [screen, setScreen] = useState<Screen>(hasName ? 'worlds' : 'onboard')
-  const [navHistory, setNavHistory] = useState<Screen[]>([hasName ? 'worlds' : 'onboard'])
+  const [screen, setScreen] = useState<Screen>('login')
+  const [navHistory, setNavHistory] = useState<Screen[]>(['login'])
+  const [pendingEmail, setPendingEmail] = useState('')
   const [dmChar, setDmChar] = useState<CharId | null>(null)
   const [dmTrust, setDmTrust] = useState<Record<string, number>>({})
   const [impactNotif, setImpactNotif] = useState<ImpactNotif | null>(null)
@@ -53,17 +53,20 @@ export default function App() {
     if (typeof window !== 'undefined' && new URLSearchParams(location.search).has('reset')) {
       resetGameState().finally(() => {
         window.history.replaceState(null, '', location.pathname)
-        localStorage.removeItem('lore_player_name')
-        setScreen('onboard')
-        setNavHistory(['onboard'])
-        setReady(true)
+        setScreen('login'); setNavHistory(['login']); setReady(true)
       })
       return
     }
-    ensureSession()
-      .then(() => loadGameState())
-      .then(s => { setGame(s); setReady(true) })
-      .catch(() => setReady(true))
+    getEmailSession()
+      .then(async session => {
+        if (!session) {
+          if (typeof window !== 'undefined') localStorage.clear()
+          setScreen('login'); setNavHistory(['login']); setReady(true); return
+        }
+        const s = await loadGameState()
+        setGame(s); setScreen('worlds'); setNavHistory(['worlds']); setReady(true)
+      })
+      .catch(() => { setScreen('login'); setNavHistory(['login']); setReady(true) })
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const navigate = useCallback((to: Screen, opts?: { replace?: boolean }) => {
@@ -221,7 +224,8 @@ export default function App() {
     await resetGameState()
     setGame({ char: null, situation: 0, choices: [], meters: { fame: 15, trust: 60, heat: 5 }, narrator_done: false, dayUnlockTime: {} })
     setDmHistory({})
-    navigate('worlds', { replace: true })
+    setPendingEmail('')
+    navigate('login', { replace: true })
   }, [navigate])
 
   const prev = navHistory[navHistory.length - 2] ?? null
@@ -236,7 +240,7 @@ export default function App() {
 
   return (
     <AppContext.Provider value={{
-      screen, prevScreen: prev, dmChar, game, dmHistory, dmTrust, charFame, likedPosts, viewingCharId, toast, impactNotif, showImpact,
+      screen, prevScreen: prev, dmChar, game, dmHistory, dmTrust, charFame, likedPosts, viewingCharId, toast, impactNotif, showImpact, pendingEmail, setPendingEmail,
       advanceSituation, navigate, goBack, showToast, setChar,
       makeChoice, sendDM, openDMThread, resetGame, likePost, applyFeedDeltas, injectCharDM, setViewingChar,
     }}>
@@ -250,7 +254,8 @@ export default function App() {
             </div>
           )}
           <div className="viewport">
-            <Slot id="onboard"     cur={screen} prev={prev}><OnboardScreen /></Slot>
+            <Slot id="login"       cur={screen} prev={prev}><LoginScreen /></Slot>
+            <Slot id="otp"         cur={screen} prev={prev}><OTPScreen /></Slot>
             <Slot id="worlds"      cur={screen} prev={prev}><WorldsScreen /></Slot>
             <Slot id="world-intro" cur={screen} prev={prev}><WorldIntroScreen /></Slot>
             <Slot id="feed"        cur={screen} prev={prev}><FeedScreen /></Slot>

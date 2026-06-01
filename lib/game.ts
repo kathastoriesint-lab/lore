@@ -15,7 +15,25 @@ const DEFAULT_STATE: GameState = {
 }
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
-export async function ensureSession() {
+export async function getEmailSession() {
+  const { data: { session } } = await supabase().auth.getSession()
+  if (!session || !session.user.email) return null
+  return session
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function sendOTP(email: string) {
+  const { error } = await (supabase().auth.signInWithOtp as any)({ email })
+  if (error) throw error
+}
+
+export async function verifyOTP(email: string, token: string) {
+  const { data, error } = await supabase().auth.verifyOtp({ email, token, type: 'email' })
+  if (error) throw error
+  return data.session
+}
+
+async function ensureSession() {
   const { data: { session } } = await supabase().auth.getSession()
   if (session) return session
   const { data, error } = await supabase().auth.signInAnonymously()
@@ -54,9 +72,11 @@ export async function saveGameState(state: GameState) {
 
 export async function resetGameState() {
   const { data: { user } } = await supabase().auth.getUser()
-  if (!user) return
-  await supabase().from('game_state').delete().eq('user_id', user.id)
-  await supabase().from('dm_messages').delete().eq('user_id', user.id)
+  if (user) {
+    await supabase().from('game_state').delete().eq('user_id', user.id)
+    await supabase().from('dm_messages').delete().eq('user_id', user.id)
+  }
+  await supabase().auth.signOut({ scope: 'local' })
 }
 
 // ── Choice stats ──────────────────────────────────────────────────────────────
