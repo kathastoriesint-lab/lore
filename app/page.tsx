@@ -6,7 +6,7 @@ import {
   applyDeltas, charMeters, ensureSession, getAIReply, scoreTrustDelta,
   loadDMs, loadGameState, recordChoice, resetGameState, saveDM, saveGameState,
 } from '@/lib/game'
-import { CHARS, SITUATIONS, DM_MOCK } from '@/lib/data'
+import { CHARS, SITUATIONS, DM_MOCK, getVisibleSituations } from '@/lib/data'
 import WorldsScreen from '@/components/screens/WorldsScreen'
 import WorldIntroScreen from '@/components/screens/WorldIntroScreen'
 import FeedScreen from '@/components/screens/FeedScreen'
@@ -17,6 +17,7 @@ import DMThreadScreen from '@/components/screens/DMThreadScreen'
 import ProfileScreen from '@/components/screens/ProfileScreen'
 import CharProfileScreen from '@/components/screens/CharProfileScreen'
 import ImpactPill from '@/components/ImpactPill'
+import ErrorBoundary from '@/components/ErrorBoundary'
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>('worlds')
@@ -89,9 +90,7 @@ export default function App() {
   }, [saveAndSet])
 
   const advanceSituation = useCallback(() => {
-    const visibleSits = SITUATIONS.filter(s =>
-      !s.chars || (game.char && s.chars.includes(game.char!))
-    )
+    const visibleSits = getVisibleSituations(game.char)
     const currentSit = visibleSits[game.situation]
     const nextSit = visibleSits[game.situation + 1]
     const newUnlockTime = { ...game.dayUnlockTime }
@@ -105,7 +104,7 @@ export default function App() {
 
   const makeChoice = useCallback(async (idx: number) => {
     if (!game.char) return
-    const visibleSits = SITUATIONS.filter(s => !s.chars || s.chars.includes(game.char!))
+    const visibleSits = getVisibleSituations(game.char)
     const sit = visibleSits[game.situation]
     const ch = (sit?.choicesByChar?.[game.char!] ?? sit?.choices)?.[idx]
     if (!ch) return
@@ -234,6 +233,7 @@ export default function App() {
     }}>
       <div className="stage">
         <div className="phone">
+          <ErrorBoundary>
           {/* Global impact pill — floats over all screens */}
           {impactNotif && (
             <div className="impact-pill-layer">
@@ -251,6 +251,7 @@ export default function App() {
             <Slot id="profile"     cur={screen} prev={prev}><ProfileScreen /></Slot>
             <Slot id="char-profile" cur={screen} prev={prev}><CharProfileScreen /></Slot>
           </div>
+          </ErrorBoundary>
         </div>
       </div>
     </AppContext.Provider>

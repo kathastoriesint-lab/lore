@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useApp } from '@/lib/context'
 import type { CharId } from '@/lib/types'
-import { CHARS, SITUATIONS, STORY_ORDER, SEEN_CHARS, STORY_CONTENT, POST_COMMENTS, PostCommentOption } from '@/lib/data'
+import { CHARS, SITUATIONS, STORY_ORDER, SEEN_CHARS, STORY_CONTENT, POST_COMMENTS, PostCommentOption, getVisibleSituations } from '@/lib/data'
 
 const StatusBar = () => (
   <div className="statusbar">
@@ -136,7 +136,7 @@ export default function FeedScreen() {
   const playingChar = game.char ? CHARS[game.char] : null
 
   // Reactive feed: show post from last completed situation's feedReaction
-  const visibleSits = SITUATIONS.filter(s => !s.chars || (game.char && s.chars.includes(game.char as 'ananya'|'kabir'|'reya')))
+  const visibleSits = getVisibleSituations(game.char)
   const lastCompletedSit = game.situation > 0 ? visibleSits[game.situation - 1] : null
   const lastChoice = game.choices.length > 0 ? game.choices[game.choices.length - 1] : null
   const feedReaction = lastCompletedSit?.feedReaction && lastChoice

@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useApp } from '@/lib/context'
 import type { CharId } from '@/lib/types'
-import { CHARS, SITUATIONS } from '@/lib/data'
+import { CHARS, SITUATIONS, getVisibleSituations } from '@/lib/data'
 import { getStats, clamp } from '@/lib/game'
 
 
@@ -30,9 +30,7 @@ export default function LiveScreen() {
   const char = game.char ? CHARS[game.char] : null
 
   // Filter situations to only those visible for the current character
-  const visibleSituations = SITUATIONS.filter(s =>
-    !s.chars || (game.char && s.chars.includes(game.char))
-  )
+  const visibleSituations = getVisibleSituations(game.char)
 
   const situation = game.situation
   const sit = situation < visibleSituations.length ? visibleSituations[situation] : null

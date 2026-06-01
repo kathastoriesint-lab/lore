@@ -969,6 +969,13 @@ export const SITUATIONS: Situation[] = [
   },
 ]
 
+// Single source of truth for character-filtered situation list.
+// Use this everywhere instead of inline SITUATIONS.filter() calls.
+export function getVisibleSituations(charId: CharId | null): typeof SITUATIONS {
+  if (!charId) return SITUATIONS.filter(s => !s.chars)
+  return SITUATIONS.filter(s => !s.chars || s.chars.includes(charId))
+}
+
 export const DM_ORDER: CharId[] = ['kabir','meher','reya','ananya','dev','zoya','rishi','adi']
 
 export const DM_HOOKS: Record<CharId, string> = {
