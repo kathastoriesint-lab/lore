@@ -38,7 +38,7 @@ export default function App() {
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set())
   const [viewingCharId, setViewingCharId] = useState<CharId | null>(null)
   const [game, setGame] = useState<GameState>({
-    char: null, situation: 0, choices: [], meters: { fame: 15, trust: 60, heat: 5 }, narrator_done: false,
+    char: null, situation: 0, choices: [], meters: { fame: 15, trust: 60, heat: 5 }, narrator_done: false, dayUnlockTime: {},
   })
   const [dmHistory, setDmHistory] = useState<Record<string, DMMessage[]>>({})
   const [toast, setToast] = useState<string | null>(null)
@@ -85,16 +85,30 @@ export default function App() {
   }, [])
 
   const setChar = useCallback((id: CharId) => {
-    saveAndSet({ char: id, situation: 0, choices: [], meters: charMeters(id), narrator_done: true })
+    saveAndSet({ char: id, situation: 0, choices: [], meters: charMeters(id), narrator_done: true, dayUnlockTime: {} })
   }, [saveAndSet])
 
   const advanceSituation = useCallback(() => {
-    saveAndSet({ ...game, situation: game.situation + 1 })
+    const visibleSits = SITUATIONS.filter(s =>
+      !s.chars || (game.char && s.chars.includes(game.char!))
+    )
+    const currentSit = visibleSits[game.situation]
+    const nextSit = visibleSits[game.situation + 1]
+    const newUnlockTime = { ...game.dayUnlockTime }
+    // 6-hour gate on day boundary (demo: set LORE_DAY_GATE_MS=1800000 for 30min)
+    const gateMs = 6 * 60 * 60 * 1000
+    if (nextSit && currentSit && nextSit.day > currentSit.day && !newUnlockTime[nextSit.day]) {
+      newUnlockTime[nextSit.day] = Date.now() + gateMs
+    }
+    saveAndSet({ ...game, situation: game.situation + 1, dayUnlockTime: newUnlockTime })
   }, [game, saveAndSet])
 
   const makeChoice = useCallback(async (idx: number) => {
     if (!game.char) return
-    const ch = SITUATIONS[game.situation].choices[idx]
+    const visibleSits = SITUATIONS.filter(s => !s.chars || s.chars.includes(game.char!))
+    const sit = visibleSits[game.situation]
+    const ch = (sit?.choicesByChar?.[game.char!] ?? sit?.choices)?.[idx]
+    if (!ch) return
     const letter = idx === 0 ? 'A' : 'B'
     const newMeters = applyDeltas(game.meters, ch.deltas)
     saveAndSet({ ...game, meters: newMeters, choices: [...game.choices, letter] as ('A'|'B')[] })
@@ -197,7 +211,7 @@ export default function App() {
 
   const resetGame = useCallback(async () => {
     await resetGameState()
-    setGame({ char: null, situation: 0, choices: [], meters: { fame: 15, trust: 60, heat: 5 }, narrator_done: false })
+    setGame({ char: null, situation: 0, choices: [], meters: { fame: 15, trust: 60, heat: 5 }, narrator_done: false, dayUnlockTime: {} })
     setDmHistory({})
     navigate('worlds', { replace: true })
   }, [navigate])

@@ -52,6 +52,7 @@ export const STORY_CONTENT: Record<CharId, { time: string; text: string }> = {
 export const SITUATIONS: Situation[] = [
   {
     tag:'⚡ DAY 1 · MORNING',
+    day:1,
     title:'Brand deal ka phone aaya',
     body:[
       'Subah 8 baje. Villa mein sab so rahe hain. Tum kitchen mein akele ho, chai ke liye pani garam kar rahe ho.',
@@ -87,6 +88,7 @@ export const SITUATIONS: Situation[] = [
   },
   {
     tag:'⚡ DAY 1 · AFTERNOON',
+    day:1,
     title:'Group chat leak ho gaya',
     body:[
       'Dopahar 2 baje. Villa ke bahar, Twitter pe aag lagi hui hai. House ka private WhatsApp group — screenshots ban ke viral ho gaya hai. <b>#CreatorHouseLeak</b> trending hai.',
@@ -121,7 +123,7 @@ export const SITUATIONS: Situation[] = [
     ]
   },
   {
-    tag:'⚡ DAY 2 · EVENING',
+    tag:'⚡ DAY 2 · EVENING', day:2,
     title:'Dev ka collab offer',
     body:[
       'Shaam 6 baje. Dev tujhe terrace pe bulata hai — "ek cheez discuss karni thi." Upar, sunset perfect hai. Ring light on hai. Yeh clearly pre-planned setting hai.',
@@ -157,6 +159,7 @@ export const SITUATIONS: Situation[] = [
   },
   {
     tag:'⚡ DAY 3 · NIGHT',
+    day:3,
     title:'Housewatch ne tera naam liya',
     body:[
       'Raat ke 11 baje. <b>housewatch_india</b> — 2.8M followers — ne ek thread daala hai. Subject: tum. "Creator House ka sabse calculated player." 94 hazaar likes in 3 hours.',
@@ -191,7 +194,7 @@ export const SITUATIONS: Situation[] = [
     ]
   },
   {
-    tag:'⚡ DAY 5 · ELIMINATION',
+    tag:'⚡ DAY 5 · ELIMINATION', day:5,
     title:'Deciding vote. Tere haath mein.',
     body:[
       'Week 1 khatam. Aaj Creator House ki pehli eviction hai. Do log bottom pe hain: <b>Kabir</b> — jisne shayad group chat leak kiya, par proof nahi — aur <b>Ananya</b> — jise audience "entertaining nahi" bol rahi hai.',
@@ -227,7 +230,7 @@ export const SITUATIONS: Situation[] = [
   },
   // ── Day 2-4 (AI-generated, gpt-5.4) ───────────────────────────────────────
   {
-    tag:'⚡ DAY 2 · MORNING',
+    tag:'⚡ DAY 2 · MORNING', day:2,
     title:"Reya's Loyalty Test",
     body:[
       "Breakfast time in the villa garden. Reya sits across from you, sunglasses on, chai in hand. The others are still asleep.",
@@ -262,7 +265,7 @@ export const SITUATIONS: Situation[] = [
     ]
   },
   {
-    tag:'⚡ DAY 2 · AFTERNOON',
+    tag:'⚡ DAY 2 · AFTERNOON', day:2,
     title:"Kabir's Secret Offer",
     body:[
       "Dopahar ka shoot khatam hua. Kabir ne camera band karte waqt aapko side pe bulaya. Living room khali hai.",
@@ -297,7 +300,7 @@ export const SITUATIONS: Situation[] = [
     ]
   },
   {
-    tag:'⚡ DAY 2 · NIGHT',
+    tag:'⚡ DAY 2 · NIGHT', day:2,
     title:"Overheard in the Kitchen",
     body:[
       "Raat ke 11 baje. Tum paani lene kitchen mein gaye. Meher wahan pehle se hai.",
@@ -332,7 +335,7 @@ export const SITUATIONS: Situation[] = [
     ]
   },
   {
-    tag:'⚡ DAY 3 · MORNING',
+    tag:'⚡ DAY 3 · MORNING', day:3,
     title:"housewatch DM",
     body:[
       "Subah uthte hi phone pe ek anonymous DM: 'Tum jaante ho Reya ke baare mein woh cheez jo tum sochte ho sirf tumhe pata hai? 3 aur log jaante hain. Main unme se ek hoon.'",
@@ -367,7 +370,7 @@ export const SITUATIONS: Situation[] = [
     ]
   },
   {
-    tag:'⚡ DAY 3 · AFTERNOON',
+    tag:'⚡ DAY 3 · AFTERNOON', day:3,
     title:"Confession Room",
     body:[
       "Producers ne bulaya. Red light. Soundproof room. Just you and the camera.",
@@ -403,6 +406,7 @@ export const SITUATIONS: Situation[] = [
   },
   {
     tag:'⚡ DAY 3 · NIGHT',
+    day:3,
     title:"Fan Account Backlash",
     body:[
       "Raat ko scroll karte waqt: <b>@creator.tea</b> ne ek thread daala. 'Creator House ka sabse fake player — receipts neeche.' 47 retweets. Growing.",
@@ -437,7 +441,7 @@ export const SITUATIONS: Situation[] = [
     ]
   },
   {
-    tag:'⚡ DAY 4 · MORNING',
+    tag:'⚡ DAY 4 · MORNING', day:4,
     title:"Luminary Deal: Final Answer",
     body:[
       "Luminary Brands ne final deadline di hai: aaj shaam tak. Woh chahte hain ki <b>ek solo creator</b> deal sign kare — official face of the campaign.",
@@ -472,7 +476,7 @@ export const SITUATIONS: Situation[] = [
     ]
   },
   {
-    tag:'⚡ DAY 4 · AFTERNOON',
+    tag:'⚡ DAY 4 · AFTERNOON', day:4,
     title:"Rishi's Footage",
     body:[
       "Rishi finds you alone in the studio. He looks serious — which is rare. 'Mere paas kuch footage hai,' he says. '<b>Tere baare mein nahi — tere liye.</b>'",
@@ -507,7 +511,7 @@ export const SITUATIONS: Situation[] = [
     ]
   },
   {
-    tag:'⚡ DAY 4 · NIGHT',
+    tag:'⚡ DAY 4 · NIGHT', day:4,
     title:"Week 1 Vote",
     body:[
       "The house gathers. Week 1 is done. Second elimination vote — and this time, <b>Reya has the deciding vote.</b>",
@@ -537,6 +541,420 @@ export const SITUATIONS: Situation[] = [
           {char:'reya', text:'Interesting. Tu same vote kiya. Now I know where you stand. 👑'},
           {char:'kabir', text:'YASSS. NOW WE TALK. You\'re actually playing 🔥🔥'},
           {char:'__fan', name:'housewatch_india', text:'SHE VOTED OUT MEHER?? Villain arc CONFIRMED 💀'},
+        ]
+      },
+    ]
+  },
+
+  // ── ANANYA-SPECIFIC Day 1 situations ──────────────────────────────────────
+  {
+    tag:'⚡ DAY 1 · WELCOME DINNER',
+    day:1, chars:['ananya'],
+    title:'The Dance Girl Comment',
+    body:[
+      'Welcome dinner, villa terrace. Fairy lights, everyone looking incredible. You\'re between Zoya and Adi, telling them about your latest reel hitting 2M views. Finally among your people.',
+      'Then Rohan from brand partner Aestivo does a casual intro round. He calls Meher "brilliant" — and when he gets to you: <b>"Ananya! The dance girl. Super cute, yaar. My 14-year-old cousin loves your transitions."</b> He moves on before you can say anything else.',
+      'The table heard. Kabir raises an eyebrow. Reya, at the far end, meets your eyes for exactly one second — the kind that says she filed that moment away. You have the rest of this dinner to decide who you are in this house. Or let them decide for you.',
+    ],
+    react:{ char:'kabir', text:'Ooh. Rohan just sorted you into the kiddie table. What are you going to do with that? 👀' },
+    q:'The "dance girl" comment lands in front of everyone. How do you handle it?',
+    choices:[
+      {
+        t:'Reclaim the table — own the room',
+        s:'You laugh it off, then pivot hard.',
+        deltas:{fame:12,trust:-4,heat:6},
+        caption:'Showed up to dinner, stayed for the conversation. Just because I dance doesn\'t mean I can\'t talk 💀 #CreatorHouse #Day1',
+        reactions:[
+          {char:'reya', text:'Interesting. She recovered faster than I expected.'},
+          {char:'__fan', name:'housewatch_india', text:'ANANYA CLAPPING BACK AT ROHAN AESTIVO omg she\'s not here to play'},
+        ]
+      },
+      {
+        t:'Let it go — watch who flinches',
+        s:'You smile, say nothing. Absorb. Watch.',
+        deltas:{fame:3,trust:14,heat:-2},
+        caption:'Day 1 and I\'m already learning. Listening is underrated. 👀 #CreatorHouse',
+        reactions:[
+          {char:'meher', text:'Smart girl. She\'s watching. I need to watch her back.'},
+          {char:'__fan', name:'creator.tea', text:'Ananya not reacting to Rohan is lowkey the most powerful thing she did tonight'},
+        ]
+      },
+    ]
+  },
+  {
+    tag:'☀️ DAY 1 · AFTERNOON',
+    day:1, chars:['ananya'],
+    title:"Reya's Compliment",
+    body:[
+      "You're on the terrace stretching, phone propped against the railing. Reya drifts over with her iced coffee. Casual. Unhurried. Like she owns this space — which she does.",
+      "<b>'I love how you're completely unbothered by all this,'</b> she says. 'Like, there's something genuinely sweet about a creator who's still just... happy to be here. Most people lose that.' She smiles. It's warm. It's kind. Three seconds later you realize it's a sentence with a knife inside it.",
+      "What you don't know: Rishi's on the far end of the terrace with his camera pointed at you both. That clip — Reya saying 'sweet about a creator who's still just happy to be here' — is about to hit #CreatorHouseLeak with 'Reya putting Ananya in her place??' You have forty seconds before you lose control of this moment.",
+    ],
+    react:{ char:'rishi', text:'Already uploading. This is going to be the clip of the day. 🎥' },
+    q:"Reya's backhanded compliment is about to go viral. What's your move?",
+    choices:[
+      {
+        t:'Flip the frame — straight to camera',
+        s:'You look at Rishi\'s lens and respond warmly but sharply. Make the clip yours.',
+        deltas:{fame:18,trust:-8,heat:12},
+        caption:'She said sweet. I heard that as a compliment. We\'re good here 🤍 #CreatorHouse #Day1',
+        reactions:[
+          {char:'reya', text:'She saw Rishi. Good instincts. I\'m going to have to be more careful.'},
+          {char:'__fan', name:'housewatch_india', text:'ANANYA KNEW THE CAMERA WAS ON AND STILL SAID IT. this girl is not what i expected'},
+        ]
+      },
+      {
+        t:'Miss it — respond genuinely',
+        s:'You take Reya at face value. You don\'t realize the clip is already live.',
+        deltas:{fame:-5,trust:16,heat:3},
+        caption:'Day 1 and Reya said the sweetest thing to me 🥹 grateful to be here for real. #CreatorHouse',
+        reactions:[
+          {char:'meher', text:'Oh no. She didn\'t catch it. Someone should warn her.'},
+          {char:'__fan', name:'creator.tea', text:'Ananya thought that was a real compliment... someone tell her what Reya actually said 😭'},
+        ]
+      },
+    ]
+  },
+  {
+    tag:'🌙 DAY 1 · NIGHT',
+    day:1, chars:['ananya'],
+    title:"Kabir's Kitchen Offer",
+    body:[
+      "It's 11PM. House is quiet. You're in the kitchen making chai because you cannot sleep — brain running too fast. Kabir finds you here. He always finds people in kitchens.",
+      "He doesn't perform anything. He just makes chai with you. <b>'You're talented,'</b> he says, watching the milk. 'But talent doesn't protect you in here. You need to understand what this house actually is.' He tells you: everyone here is building something, and watching everyone else. 'I can show you how to move. Whose trust is worth having. Think of it as — older sibling energy.' He slides your mug toward you and smiles.",
+      "The offer is real. You can tell he's not lying about the information. But when someone offers to teach you the game on Day 1, they're also recruiting you into their version of it. If you say yes, you owe Kabir something.",
+    ],
+    react:{ char:'kabir', text:'No pressure. I just think you\'re too interesting to get eaten on Day 3. 😭' },
+    q:"Kabir's offering to be your guide — but guides always have a destination in mind.",
+    choices:[
+      {
+        t:'Accept — but stay alert',
+        s:'Take the offer, keep your eyes open.',
+        deltas:{fame:6,trust:-10,heat:14},
+        caption:'Got some perspective tonight from someone unexpected. Taking it. 🙏 #CreatorHouse',
+        reactions:[
+          {char:'zoya', text:'She said yes to Kabir. Interesting. I need to find out what he told her. 💅'},
+          {char:'__fan', name:'housewatch_india', text:'Ananya and Kabir having a late night kitchen convo... the alliance rumours are already starting'},
+        ]
+      },
+      {
+        t:'Decline — stay your own person',
+        s:'Thank him and mean it. Figure this out yourself.',
+        deltas:{fame:4,trust:8,heat:-6},
+        caption:'Day 1 done. Still standing. Still me. That\'s enough for tonight. ✨ #CreatorHouse',
+        reactions:[
+          {char:'meher', text:'She turned Kabir down? On Day 1? Okay. I underestimated her.'},
+          {char:'__fan', name:'creator.tea', text:'Ananya said no to Kabir at the kitchen offer I cannot 😭 she\'s either very smart or very naive'},
+        ]
+      },
+    ]
+  },
+  {
+    tag:'🌒 DAY 1 · 2 AM',
+    day:1, chars:['ananya'],
+    title:'The Stolen Idea',
+    body:[
+      "You couldn't sleep, so you opened your notes app. It came fast and clean: a challenge format where each creator in the house teaches one skill in under 60 seconds. Simple, viral, generous. You voice-noted yourself, got excited, <b>sent it to the house group chat at 1:47 AM</b> because you couldn't hold it in.",
+      "By 2:14 AM, Dev had posted it. Not credited to you. His caption: 'New format idea just dropped in my brain, let me know if you're in.' Three creators already replied with hearts. Rishi screen-recorded the thread.",
+      "You are lying in your bed. The voice note is right there in your recents. The timestamps are right there. Dev's post is 27 minutes old and already has 400 comments. You are 19 years old, this is your first day, and you just learned something about how this house works.",
+    ],
+    react:{ char:'dev', text:'What? It was just inspiration. Ideas don\'t have owners, Ananya. 💪' },
+    q:"Dev stole your idea and posted it 27 minutes later. It's 2AM. What do you do?",
+    choices:[
+      {
+        t:'Post your voice note immediately',
+        s:'You timestamp your receipts publicly — messy, emotional, but real.',
+        deltas:{fame:20,trust:-6,heat:18},
+        caption:'Posted my idea at 1:47AM. Dev posted 2:14AM. Just so the timeline is clear. 🙂 #CreatorHouse',
+        reactions:[
+          {char:'reya', text:'She kept receipts and posted them on Day 1. She\'s going to be a problem.'},
+          {char:'__fan', name:'housewatch_india', text:'THE TIMESTAMPS. THE VOICE NOTE. ANANYA SAID CHOOSE VIOLENCE I AM SCREAMING'},
+        ]
+      },
+      {
+        t:'Sleep on it — call it out tomorrow',
+        s:'Screenshot everything. Close your phone. Wait until you can be strategic.',
+        deltas:{fame:5,trust:10,heat:4},
+        caption:'Good ideas find their way. Trusting the process. 🌙 #CreatorHouse #Day1',
+        reactions:[
+          {char:'meher', text:'She went quiet. Either she didn\'t notice or she\'s saving it. Both are interesting.'},
+          {char:'__fan', name:'creator.tea', text:'Ananya\'s silence after Dev\'s post is the most suspicious thing in this thread'},
+        ]
+      },
+    ]
+  },
+
+  // ── KABIR-SPECIFIC Day 1 situations ───────────────────────────────────────
+  {
+    tag:'⚡ DAY 1 · EARLY MORNING',
+    day:1, chars:['kabir'],
+    title:'The Receipts Room',
+    body:[
+      "You're getting water at 7:43 AM when you hear it — Reya and Meher, low voices on the balcony. The sliding door is cracked. Reya is telling Meher she already has a brand deal lined up that bypasses the house manager. <b>Before anyone else even unpacks.</b> You hear a number. It's big.",
+      "This is Day 1. You haven't even had breakfast. And you already have something no one else has — a secret that belongs to the house's alpha.",
+      "Kabir's brain runs the math. Tell someone and you're a gossip. Record it and you're protected. Walk away clean — but you walk away with nothing except knowledge. And knowledge, in this house, is the only currency that doesn't run out.",
+    ],
+    react:{ char:'kabir', text:'Yaar... tumhara mic is always on. Even when it\'s off. 😭' },
+    q:'You have maybe 8 seconds before they finish. What do you do?',
+    choices:[
+      {
+        t:'Record it. Silently.',
+        s:'Evidence is insurance. Decide how to use it later.',
+        deltas:{fame:0,trust:-10,heat:15},
+        caption:'Day 1 and already feeling like the house has layers 👀 #CreatorHouse #JustObserving',
+        reactions:[
+          {char:'meher', text:'Why does he look like he knows something? He always looks like he knows something.'},
+          {char:'__fan', name:'housewatch_india', text:'kabir was in the kitchen at 7:43. reya and meher were on the balcony. the timeline is right there people 🧵'},
+        ]
+      },
+      {
+        t:'Walk away. Let them have it.',
+        s:'Cleanest hands win the longest game.',
+        deltas:{fame:5,trust:8,heat:-5},
+        caption:'Morning energy in the house is immaculate. No notes. ☀️ #CreatorHouse #Day1',
+        reactions:[
+          {char:'reya', text:'Kabir seems chill. Which is either genuine or a performance. Both are concerning.'},
+          {char:'__fan', name:'content.tea.daily', text:'see this is why kabir always survives. he just MOVES DIFFERENT. no unnecessary noise.'},
+        ]
+      },
+    ]
+  },
+  {
+    tag:'⚡ DAY 1 · LATE MORNING',
+    day:1, chars:['kabir'],
+    title:"Reya Asks Directly",
+    body:[
+      "The group chat drama has been live for forty minutes. Reya is moving quietly through the house, talking to people one by one. Now it's your turn.",
+      "She sits across from you, sets her phone face-down, and looks at you with the calm of someone who already has a theory. <b>'Kabir. Be honest with me. Do you know who started the leak?'</b> She's not asking like she suspects you. She's asking like she's decided you're the person who would know.",
+      "This is the test. If you lie cleanly, you're her informant — useful, protected, but obligated. If you tell enough truth — that you did it, played right — you're either her enemy or the most interesting person in this house.",
+    ],
+    react:{ char:'kabir', text:'Yaar, why does everyone think I know things? ...Okay I know things. 😭' },
+    q:'Reya is waiting. Eye contact. What do you tell her?',
+    choices:[
+      {
+        t:'Deflect with a name. Point at Dev.',
+        s:'Not a full lie. Dev IS transactional enough that it\'s plausible.',
+        deltas:{fame:8,trust:-15,heat:12},
+        caption:'Some people come in playing chess, some come in playing checkers. Bas. 🤷 #CreatorHouse',
+        reactions:[
+          {char:'reya', text:'Interesting. He said Dev without hesitating. Either it\'s true or he practiced that.'},
+          {char:'__fan', name:'dramaalert_creators', text:'KABIR JUST THREW DEV UNDER THE BUS ON DAY ONE. I am not okay. I am eating. 🍿'},
+        ]
+      },
+      {
+        t:'Give her just enough truth.',
+        s:'"I have a theory. But I need to know you won\'t use it against me."',
+        deltas:{fame:12,trust:5,heat:18},
+        caption:'Sometimes the most powerful thing you can do is just... listen. 🎙️ #CreatorHouse #Day1',
+        reactions:[
+          {char:'reya', text:'He bargained with me. On Day 1. I actually respect it. I need to watch him closely.'},
+          {char:'__fan', name:'housewatch_india', text:'the way kabir and reya were at the table for 12 minutes and both came out smiling. ALLIANCE CONFIRMED OR THREAT ASSESSMENT?'},
+        ]
+      },
+    ]
+  },
+  {
+    tag:'⚡ DAY 1 · AFTERNOON',
+    day:1, chars:['kabir'],
+    title:"Rishi's Offer",
+    body:[
+      "Rishi finds you by the pool. Camera always present — but it's pointed at the water, not at you, which is either politeness or strategy. He speaks quietly: he's been recording everything. B-roll, reactions, candid moments. He already has footage of the group chat fallout that could go massive.",
+      "<b>'I'm not putting it out alone,'</b> he says. 'But if we co-release — your commentary, my footage — we both eat.'",
+      "You look at him. Rishi is 35 fame and got here by documenting other people's stories. The offer is real. But Rishi records everything, which means Rishi also has footage of <i>you</i>. This alliance has a surveillance component you can't turn off.",
+    ],
+    react:{ char:'kabir', text:'Rishi bhai, your camera is pointed at me while you say this. Coincidence? 🎥' },
+    q:"Rishi's waiting for an answer. Alliance or independence?",
+    choices:[
+      {
+        t:'Take the alliance. Co-create the story.',
+        s:'Reach now, risk later. You can manage Rishi.',
+        deltas:{fame:20,trust:-8,heat:15},
+        caption:'When the right people find each other in the right room, kuch toh hoga 🤝 #CreatorHouse',
+        reactions:[
+          {char:'zoya', text:'Rishi and Kabir together is a nightmare. Rishi has footage. Kabir has narrative. That\'s a media operation.'},
+          {char:'__fan', name:'housewatch_india', text:'THE COLLAB WE DIDN\'T KNOW WE NEEDED. two of the most underrated people finding each other DAY ONE.'},
+        ]
+      },
+      {
+        t:'Pass. Keep your hands clean.',
+        s:'Your commentary doesn\'t need a co-author. Or a witness.',
+        deltas:{fame:6,trust:10,heat:-8},
+        caption:'Watching this house wake up is genuinely the most entertaining thing I\'ve done all year 🍵 #CreatorHouse',
+        reactions:[
+          {char:'rishi', text:'He said no. Which means he\'s got his own plan. I\'m going to film him more. 🎥'},
+          {char:'__fan', name:'content.tea.daily', text:'kabir staying solo is the CORRECT MOVE. the narrator doesn\'t have allegiances. he has an audience.'},
+        ]
+      },
+    ]
+  },
+  {
+    tag:'⚡ DAY 1 · EVENING',
+    day:1, chars:['kabir'],
+    title:'Meher Knows',
+    body:[
+      "7 PM. Fragile post-drama calm. People are cooking, editing, performing normalcy. Meher finds you on the terrace alone — she doesn't have her usual warm energy. She has a different face. The one she doesn't show on camera.",
+      "She sits next to you and says, quietly, without drama: <b>'I know it was you, Kabir. The leak. I can't prove it yet, but I know.'</b>",
+      "She's not threatening you. That's what makes it worse. She's just telling you. Like she wants you to know that she knows. You understand immediately — Meher is not Dev, who is transactional. Meher is a strategist who has been playing warm because warm works. She's the one you should have been watching from the beginning.",
+    ],
+    react:{ char:'kabir', text:'Meher bhai... tumhara "warm strategist" brand is really doing its job, haan? 😭' },
+    q:'Meher is watching your face. What do you do with this?',
+    choices:[
+      {
+        t:'Deny it. Calmly and completely.',
+        s:'She said she can\'t prove it. Let her spend the energy trying.',
+        deltas:{fame:0,trust:-18,heat:10},
+        caption:'Day 1 taught me: people see patterns where there are none. We\'re all just reacting. #CreatorHouse',
+        reactions:[
+          {char:'meher', text:'He looked me right in the eye and lied. Good liar. Which confirms everything.'},
+          {char:'__fan', name:'housewatch_india', text:'meher and kabir had a 6 minute terrace conversation and she came down looking like she solved something. WHAT WAS SAID.'},
+        ]
+      },
+      {
+        t:"Let her in. Enough to make her complicit.",
+        s:'"Okay. But now you\'re in it too. So what do you want?"',
+        deltas:{fame:5,trust:15,heat:20},
+        caption:'The people who see you clearly are either your biggest threats or your most valuable allies. No in between. 🌙',
+        reactions:[
+          {char:'meher', text:'He didn\'t even flinch. Just pivoted to "so what do you want." I think I just became his partner by accident.'},
+          {char:'__fan', name:'meherkabir.theorists', text:'something shifted on that terrace. there is an alliance we are not being shown and it is the most dangerous one in the house.'},
+        ]
+      },
+    ]
+  },
+
+  // ── REYA-SPECIFIC Day 1 situations ────────────────────────────────────────
+  {
+    tag:'⚡ DAY 1 · MORNING',
+    day:1, chars:['reya'],
+    title:'The Receipt',
+    body:[
+      "You're mid-unpacking when Rishi wanders in — camera on, obviously. He's hovering near the bed where you dumped your tote. The Prada bag you carried in. The one with the dry-cleaning tag still looped around the handle. And underneath it, slipping out: <b>a return receipt. Zara Home. ₹4,200.</b> For a throw blanket you posted as 'gifted, obsessed' three weeks ago.",
+      "He hasn't seen it yet. His eyes are on his camera screen. The receipt is cream-coloured and small but the word RETURN is printed in caps and you know exactly what it looks like.",
+      "85 fame. Three brand pitches in your pipeline. One receipt and the whole architecture wobbles. You have maybe four seconds.",
+    ],
+    react:{ char:'rishi', text:'"Your setup looks so curated, Reya. Can I do a room tour with you?" 🎥' },
+    q:"Rishi's camera is live. The receipt is inches from his lens. How do you play this?",
+    choices:[
+      {
+        t:'Pocket it smoothly — pivot hard',
+        s:'Grab it mid-motion like it\'s trash, redirect to your "housewarming aesthetic."',
+        deltas:{fame:4,trust:-8,heat:12},
+        caption:'Day 1 energy: setting intentions, not unpacking receipts 🤍 #CreatorHouse',
+        reactions:[
+          {char:'rishi', text:'Posts the clip anyway. You can see his finger hesitate on the tag. 🎥'},
+          {char:'__fan', name:'housewatch_india', text:'why did she flinch when he looked at her bag 👁️ slow down the clip someone'},
+        ]
+      },
+      {
+        t:'Own it — make it a bit',
+        s:'Wave it at camera, do a "sustainable girlie returns what she doesn\'t love" spin.',
+        deltas:{fame:9,trust:5,heat:6},
+        caption:'Sustainable era loading 🌿 I return things. I\'m not ashamed. #ConsciousCreator #CreatorHouse',
+        reactions:[
+          {char:'meher', text:'"That was actually smart. I didn\'t know you had that gear."'},
+          {char:'__fan', name:'creator.tea', text:'ok the return queen arc is cute but also… is everything she posts \'gifted\' actually kept??'},
+        ]
+      },
+    ]
+  },
+  {
+    tag:'⚡ DAY 1 · AFTERNOON',
+    day:1, chars:['reya'],
+    title:'Luminary Is Shopping',
+    body:[
+      "The DM comes in at 2:47 PM. It's Priya from Luminary — the partnerships lead, the one who went cold on you for six weeks.",
+      "'Hey babe — so excited about the house! Quick q — noticed a few other faces in the cast list. Are any of them aligned with the luxury positioning we talked about? Just doing our due diligence before we finalise things 🙏'",
+      "<b>They're shopping.</b> Six weeks of decks and mood boards and a three-call pitch and they're in your house, looking at your competitors. Ananya posted a reel this morning that got 2.3M views in four hours. You have 85 fame and Luminary just watched Ananya trend.",
+    ],
+    react:{ char:'kabir', text:'"Reya you look stressed. Bad news? Or just the afternoon light?" 😭' },
+    q:'Luminary wants intel on your housemates. What do you send back?',
+    choices:[
+      {
+        t:'Play brand consultant — subtly undercut everyone',
+        s:'A warm, professional reply positioning each competitor as "lovely but a different vibe."',
+        deltas:{fame:3,trust:-14,heat:18},
+        caption:'Luxury is a feeling, not a price tag. Some people get it 🤍 #CreatorHouse',
+        reactions:[
+          {char:'ananya', text:'Has no idea. Posts a thank-you reel for the housemates. It does numbers.'},
+          {char:'__fan', name:'lore.archive', text:'Reya\'s confessional cut away really fast when she checked her phone. production noticed.'},
+        ]
+      },
+      {
+        t:'Call Priya — stop the text chain',
+        s:'Step outside. Call directly. Pitch yourself as the anchor, not a participant in their comparison shopping.',
+        deltas:{fame:7,trust:2,heat:9},
+        caption:'When the deal is worth doing, you show up differently. Non-negotiable energy 🖤 #CreatorHouse',
+        reactions:[
+          {char:'zoya', text:'Spots you on the phone outside, notes the body language, says nothing to your face. 💅'},
+          {char:'__fan', name:'housewatch_india', text:'Reya disappeared for 20 min right after Ananya\'s reel popped off. coincidence?'},
+        ]
+      },
+    ]
+  },
+  {
+    tag:'⚡ DAY 1 · EVENING',
+    day:1, chars:['reya'],
+    title:'Humble Beginnings',
+    body:[
+      "First group dinner. Twelve mics, two camera rigs. Someone asks everyone to share 'their origin story — where they started, what drove them here.'",
+      "Meher goes first. Dad's medical debt, skincare channel from a shared bathroom. Standing ovation. Ananya mentions a chawl in Mulund and everyone melts. Then the camera turns to you.",
+      "You have a version: 'I was just a girl from Bandra with a phone and a dream.' Technically true. <b>Bandra West. Second floor of a building your parents own outright.</b> A phone that cost ₹1.4 lakh. Kabir is sitting directly across from you with a look on his face like he already knows the zip code.",
+    ],
+    react:{ char:'kabir', text:'"Bandra, right Reya? Which part — Hill Road side or the other side? 😇"' },
+    q:"The camera is on you. Kabir just named the postcode. What's your origin story tonight?",
+    choices:[
+      {
+        t:'Lean into the honest rebrand',
+        s:'"I came from money and I had to earn credibility anyway." Flip the narrative.',
+        deltas:{fame:11,trust:16,heat:-5},
+        caption:'Privilege doesn\'t protect you from imposter syndrome. That\'s my honest origin. #CreatorHouse',
+        reactions:[
+          {char:'meher', text:'"Honestly? That took more guts than the sad story. Respect."'},
+          {char:'__fan', name:'creator.tea', text:'ok reya admitting the bandra west life is actually more interesting than her usual vague "hustle" narrative??'},
+        ]
+      },
+      {
+        t:'Give the rehearsed version and get out clean',
+        s:'Deliver the "phone and a dream" line. Don\'t let Kabir steer.',
+        deltas:{fame:2,trust:-10,heat:15},
+        caption:'Everyone starts somewhere. Mine just started with a lot of intention 🤍 #CreatorHouse',
+        reactions:[
+          {char:'kabir', text:'Smiles into his water glass. Doesn\'t say another word. That\'s somehow worse.'},
+          {char:'__fan', name:'housewatch_india', text:'why does reya\'s origin story change slightly every time she tells it. someone make a compilation'},
+        ]
+      },
+    ]
+  },
+  {
+    tag:'⚡ DAY 1 · NIGHT',
+    day:1, chars:['reya'],
+    title:"Meher's Alliance",
+    body:[
+      "Past midnight. Cameras still on but crew has thinned. You're on the terrace doing your nighttime skincare. Meher comes out with two cups of chai and sits without being invited.",
+      "She talks about house dynamics, how the group is going to splinter fast. Then: <b>'I think we'd make sense as allies. Not content partners — I mean actually watching each other's backs. Different enough that we don't compete. Both smart enough to know when something's about to go wrong.'</b>",
+      "She means it. You are extremely good at reading performance and this is not performance — it's the specific warmth of someone who genuinely likes the version of you they've seen. Which means she's operating on incomplete information. If she knew the full picture — the receipts, the debt, the wardrobe scam — she'd either pity you or use it.",
+    ],
+    react:{ char:'meher', text:'"You don\'t have to trust me tonight. Just don\'t rule it out." 🫶' },
+    q:"Meher is offering a genuine alliance and you can't figure out her angle.",
+    choices:[
+      {
+        t:'Accept warmly — keep the actual walls up',
+        s:'Say yes, mean maybe. Give her enough access to feel real.',
+        deltas:{fame:5,trust:8,heat:4},
+        caption:'Night one and I already found my person in the house 🤍 you know who you are #CreatorHouse',
+        reactions:[
+          {char:'meher', text:'Squeezes your hand. Doesn\'t perform it for the camera. Somehow this makes it worse.'},
+          {char:'__fan', name:'lore.archive', text:'Reya and Meher terrace scene already has a ship name in the comments. they\'re going to eat this up.'},
+        ]
+      },
+      {
+        t:'Deflect with warmth — keep the distance',
+        s:'Be charming, grateful, call her "someone I respect" — without committing.',
+        deltas:{fame:1,trust:-6,heat:2},
+        caption:'Day 1 energy: choosing carefully, not quickly. 🖤 #CreatorHouse',
+        reactions:[
+          {char:'meher', text:'Nods once. Picks up her chai. Lets the silence sit without filling it.'},
+          {char:'__fan', name:'housewatch_india', text:'Meher literally offered friendship and Reya gave her a press statement. girl is ARMORED'},
         ]
       },
     ]

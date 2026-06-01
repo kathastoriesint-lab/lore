@@ -11,6 +11,7 @@ const DEFAULT_METERS: Meters = { fame: 15, trust: 60, heat: 5 }
 const DEFAULT_STATE: GameState = {
   char: null, situation: 0, choices: [],
   meters: DEFAULT_METERS, narrator_done: false,
+  dayUnlockTime: {},
 }
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
@@ -33,6 +34,7 @@ export async function loadGameState(): Promise<GameState> {
     choices: data.choices ?? [],
     meters: data.meters ?? DEFAULT_METERS,
     narrator_done: data.narrator_done,
+    dayUnlockTime: data.day_unlock_time ?? {},
   }
 }
 
@@ -46,6 +48,7 @@ export async function saveGameState(state: GameState) {
     choices: state.choices,
     meters: state.meters,
     narrator_done: state.narrator_done,
+    day_unlock_time: state.dayUnlockTime,
   }, { onConflict: 'user_id' })
 }
 

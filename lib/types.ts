@@ -33,8 +33,18 @@ export interface Situation {
   title: string
   body: string[]
   react: { char: CharId; text: string }
+  /** Per-character react override — falls back to react if char not present */
+  reactByChar?: Partial<Record<CharId, { char: CharId; text: string }>>
   q: string
   choices: [Choice, Choice]
+  /** Per-character choices override — falls back to choices if char not present */
+  choicesByChar?: Partial<Record<CharId, [Choice, Choice]>>
+  /** Which characters see this situation. Undefined = all playable chars. */
+  chars?: CharId[]
+  /** Day number 1–5. Used for time-gating. */
+  day: number
+  /** One-line teaser shown on the locked Day N screen */
+  dayTeaser?: string
 }
 
 export interface DMMessage {
@@ -55,8 +65,10 @@ export type Screen =
 
 export interface GameState {
   char: CharId | null
-  situation: number
+  situation: number              // index into the filtered (per-char) situations list
   choices: ('A' | 'B')[]
   meters: Meters
   narrator_done: boolean
+  /** Timestamps (ms since epoch) when each day unlocks. null = not yet set. */
+  dayUnlockTime: Record<number, number>
 }

@@ -1,5 +1,5 @@
 'use client'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useApp } from '@/lib/context'
 import type { CharId } from '@/lib/types'
 import { CHARS, SITUATIONS } from '@/lib/data'
@@ -28,9 +28,42 @@ export default function LiveScreen() {
   const { navigate, showToast, game, makeChoice, openDMThread, advanceSituation, injectCharDM } = useApp()
 
   const char = game.char ? CHARS[game.char] : null
+
+  // Filter situations to only those visible for the current character
+  const visibleSituations = SITUATIONS.filter(s =>
+    !s.chars || (game.char && s.chars.includes(game.char))
+  )
+
   const situation = game.situation
-  const sit = situation < SITUATIONS.length ? SITUATIONS[situation] : null
-  const isFinale = situation >= SITUATIONS.length
+  const sit = situation < visibleSituations.length ? visibleSituations[situation] : null
+  const isFinale = situation >= visibleSituations.length
+
+  // Day-lock: detect if next situation is in a future day that hasn't unlocked yet
+  const prevSit = situation > 0 ? visibleSituations[situation - 1] : null
+  const isDayLocked = sit && prevSit && sit.day > prevSit.day &&
+    game.dayUnlockTime[sit.day] != null &&
+    game.dayUnlockTime[sit.day] > Date.now()
+
+  // Countdown timer for locked day
+  const [countdown, setCountdown] = useState('')
+  useEffect(() => {
+    if (!isDayLocked || !sit) return
+    const update = () => {
+      const ms = game.dayUnlockTime[sit.day] - Date.now()
+      if (ms <= 0) { setCountdown('00:00:00'); return }
+      const h = Math.floor(ms / 3_600_000)
+      const m = Math.floor((ms % 3_600_000) / 60_000)
+      const s = Math.floor((ms % 60_000) / 1_000)
+      setCountdown(`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`)
+    }
+    update()
+    const t = setInterval(update, 1_000)
+    return () => clearInterval(t)
+  }, [isDayLocked, sit, game.dayUnlockTime])
+
+  // Per-character react and choices overrides
+  const effectiveReact = sit ? (sit.reactByChar?.[game.char!] ?? sit.react) : null
+  const effectiveChoices = sit ? (sit.choicesByChar?.[game.char!] ?? sit.choices) : null
 
   // Meter bar refs
   const fameBarRef = useRef<HTMLElement>(null)
@@ -208,6 +241,23 @@ export default function LiveScreen() {
       {/* Main scroll */}
       <div className="live-scroll" ref={scrollRef}>
 
+        {/* Day-lock screen — next day not yet unlocked */}
+        {isDayLocked && sit && (
+          <div className="day-lock-screen">
+            <div className="day-lock-bg" />
+            <div className="day-lock-card">
+              <div className="day-lock-tag">⚡ DAY {sit.day} · UNLOCKS IN</div>
+              <div className="day-lock-countdown">{countdown}</div>
+              {sit.dayTeaser && (
+                <div className="day-lock-teaser">"{sit.dayTeaser}"</div>
+              )}
+              <button className="day-lock-btn" disabled>
+                COME BACK IN {countdown.split(':')[0]}h {countdown.split(':')[1]}m
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Finale screen */}
         {isFinale && finaleArc && (
           <div style={{ padding: '32px 24px', display: 'flex', flexDirection: 'column', gap: 20, minHeight: '60%', justifyContent: 'center' }}>
@@ -258,17 +308,22 @@ export default function LiveScreen() {
               ))}
             </div>
 
-            {/* Character reaction */}
-            {(() => {
-              const reactChar = CHARS[sit.react.char]
+            {/* Character reaction — uses per-char override if present */}
+            {effectiveReact && (() => {
+              const reactChar = CHARS[effectiveReact.char]
               return (
                 <div className="sit-react">
-                  <div className={`av ${reactChar.cls}`} style={{ width: 26, height: 26, fontSize: 11 }}>
-                    {reactChar.init}
+                  <div
+                    className={`av ${reactChar.cls}`}
+                    style={{ width:26, height:26, fontSize:11,
+                      backgroundImage:`url(/avatars/${reactChar.id}.png)`,
+                      backgroundSize:'cover', backgroundPosition:'center' }}
+                  >
+                    <span style={{ opacity:0 }}>{reactChar.init}</span>
                   </div>
                   <div className="react-body">
                     <div className="rn">{reactChar.name}</div>
-                    <div className={`react-bubble ${reactChar.cls}`}>{sit.react.text}</div>
+                    <div className={`react-bubble ${reactChar.cls}`}>{effectiveReact.text}</div>
                   </div>
                 </div>
               )

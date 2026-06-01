@@ -395,6 +395,31 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .ig-post-img{width:100%;aspect-ratio:4/3;position:relative;display:grid;place-items:center}
 .ig-post-img::after{content:"";position:absolute;inset:0;background:var(--grain);background-size:160px 160px;opacity:.4}
 
+/* ── Day lock screen ── */
+.day-lock-screen{display:flex;align-items:center;justify-content:center;
+  min-height:80%;padding:32px 24px;position:relative}
+.day-lock-bg{position:absolute;inset:0;
+  background:linear-gradient(160deg,rgba(255,45,120,.08) 0%,rgba(8,8,15,1) 60%);
+  filter:blur(0)}
+.day-lock-card{position:relative;z-index:2;text-align:center;
+  background:rgba(18,18,20,.95);backdrop-filter:blur(16px);
+  border:1px solid rgba(255,45,120,.2);border-radius:20px;
+  padding:28px 24px;width:100%;
+  box-shadow:0 0 40px rgba(255,45,120,.1)}
+.day-lock-tag{font-size:10px;font-weight:800;letter-spacing:.12em;
+  color:var(--accent);margin-bottom:14px}
+.day-lock-countdown{font-family:var(--serif);font-size:48px;font-weight:600;
+  letter-spacing:.02em;line-height:1;color:var(--ink);margin-bottom:16px;
+  font-variant-numeric:tabular-nums}
+.day-lock-teaser{font-size:14px;color:var(--ink2);line-height:1.55;
+  padding:12px 14px;border-left:2px solid var(--accent);
+  background:rgba(255,45,120,.06);border-radius:0 10px 10px 0;
+  text-align:left;margin-bottom:20px;font-style:italic}
+.day-lock-btn{width:100%;height:48px;background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.12);border-radius:12px;
+  color:var(--ink3);font-family:var(--sans);font-size:12px;font-weight:700;
+  letter-spacing:.06em;cursor:default}
+
 /* ── Impact pill (Variant C: pill → expand) ── */
 .impact-pill-layer{position:absolute;top:52px;right:12px;z-index:100;pointer-events:none}
 .impact-pill{pointer-events:all;display:flex;align-items:center;gap:8px;
