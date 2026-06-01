@@ -405,7 +405,11 @@ export default function LiveScreen() {
 
                       {/* Comments appearing as IG comments */}
                       <div style={{ paddingBottom: 8 }}>
-                        {ch.reactions.map((r, i) => {
+                        {ch.reactions.filter(r => {
+                          // Don't show reactions from the character the player is playing as
+                          if (r.char !== '__fan' && game.char && r.char === game.char) return false
+                          return true
+                        }).map((r, i) => {
                           const rChar = r.char !== '__fan' ? CHARS[r.char as CharId] : null
                           if (r.char !== '__fan' && !rChar) return null // GAP 3: guard against typo char IDs
                           return (

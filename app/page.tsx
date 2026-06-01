@@ -18,10 +18,13 @@ import ProfileScreen from '@/components/screens/ProfileScreen'
 import CharProfileScreen from '@/components/screens/CharProfileScreen'
 import ImpactPill from '@/components/ImpactPill'
 import ErrorBoundary from '@/components/ErrorBoundary'
+import OnboardScreen from '@/components/screens/OnboardScreen'
 
 export default function App() {
-  const [screen, setScreen] = useState<Screen>('worlds')
-  const [navHistory, setNavHistory] = useState<Screen[]>(['worlds'])
+  // Check if player has a name — if not, show onboard screen
+  const hasName = typeof window !== 'undefined' && !!localStorage.getItem('lore_player_name')
+  const [screen, setScreen] = useState<Screen>(hasName ? 'worlds' : 'onboard')
+  const [navHistory, setNavHistory] = useState<Screen[]>([hasName ? 'worlds' : 'onboard'])
   const [dmChar, setDmChar] = useState<CharId | null>(null)
   const [dmTrust, setDmTrust] = useState<Record<string, number>>({})
   const [impactNotif, setImpactNotif] = useState<ImpactNotif | null>(null)
@@ -50,6 +53,9 @@ export default function App() {
     if (typeof window !== 'undefined' && new URLSearchParams(location.search).has('reset')) {
       resetGameState().finally(() => {
         window.history.replaceState(null, '', location.pathname)
+        localStorage.removeItem('lore_player_name')
+        setScreen('onboard')
+        setNavHistory(['onboard'])
         setReady(true)
       })
       return
@@ -141,8 +147,11 @@ export default function App() {
     const contextHistory = [...(dmHistory[charId] ?? []), userMsg]
     setDmHistory(prev => ({ ...prev, [charId]: [...(prev[charId] ?? []), userMsg] }))
     saveDM(charId, userMsg).catch(() => {})
-    const playerName = game.char ? CHARS[game.char].name : 'Yaar'
-    const raw = await getAIReply(charId, contextHistory, playerName)
+    const storedName = typeof window !== 'undefined' ? localStorage.getItem('lore_player_name') : null
+    const playerName = storedName || (game.char ? CHARS[game.char].name : 'Yaar')
+    const raw = await getAIReply(charId, contextHistory, playerName, {
+      char: game.char, meters: game.meters, choices: game.choices, situation: game.situation,
+    })
     const reply = raw?.trim() || DM_MOCK[charId][Math.floor(Math.random() * DM_MOCK[charId].length)]
     const charMsg: DMMessage = { role: 'char', text: reply }
     setDmHistory(prev => ({ ...prev, [charId]: [...(prev[charId] ?? []), charMsg] }))
@@ -241,6 +250,7 @@ export default function App() {
             </div>
           )}
           <div className="viewport">
+            <Slot id="onboard"     cur={screen} prev={prev}><OnboardScreen /></Slot>
             <Slot id="worlds"      cur={screen} prev={prev}><WorldsScreen /></Slot>
             <Slot id="world-intro" cur={screen} prev={prev}><WorldIntroScreen /></Slot>
             <Slot id="feed"        cur={screen} prev={prev}><FeedScreen /></Slot>

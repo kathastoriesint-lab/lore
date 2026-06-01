@@ -147,7 +147,8 @@ export async function scoreTrustDelta(
 export async function getAIReply(
   charId: CharId,
   history: DMMessage[],
-  playerName: string
+  playerName: string,
+  gameState?: { char: string | null; meters: { fame: number; trust: number; heat: number }; choices: string[]; situation: number }
 ): Promise<string> {
   const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!
   const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -168,7 +169,15 @@ export async function getAIReply(
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
       },
-      body: JSON.stringify({ character_id: charId, messages: msgs, player_name: playerName }),
+      body: JSON.stringify({
+        character_id: charId,
+        messages: msgs,
+        player_name: playerName,
+        player_char: gameState?.char ?? null,
+        player_meters: gameState?.meters ?? null,
+        player_choices: gameState?.choices ?? null,
+        current_day: gameState ? Math.ceil((gameState.situation + 1) / 3) : 1,
+      }),
     })
     clearTimeout(timer)
     if (!resp.ok) throw new Error('api-error')

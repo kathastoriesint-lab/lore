@@ -58,6 +58,7 @@ export interface DMMessage {
 }
 
 export type Screen =
+  | 'onboard'
   | 'worlds'
   | 'world-intro'
   | 'feed'
