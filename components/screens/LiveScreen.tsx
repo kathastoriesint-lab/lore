@@ -204,7 +204,7 @@ export default function LiveScreen() {
           {char.init}
         </div>
         <div className="nm">{char.name}</div>
-        <div className="ctr">Situation {Math.min(situation + 1, SITUATIONS.length)} of {SITUATIONS.length}</div>
+        <div className="ctr">Situation {Math.min(situation + 1, visibleSituations.length)} of {visibleSituations.length}</div>
         <div className="live-badge">
           <div className="pulse" />
           LIVE
@@ -447,7 +447,7 @@ export default function LiveScreen() {
                       {/* Next button inside post area */}
                       {showNext && (
                         <button className="next-btn" style={{ margin: '8px 14px 14px', width: 'calc(100% - 28px)' }} onClick={handleNext}>
-                          {situation + 1 < SITUATIONS.length ? 'NEXT SITUATION →' : 'FINALE DEKHO →'}
+                          {situation + 1 < visibleSituations.length ? 'NEXT SITUATION →' : 'FINALE DEKHO →'}
                         </button>
                       )}
                     </div>

@@ -122,8 +122,8 @@ export default function App() {
       charName: firstReactor ? CHARS[firstReactor.char as CharId]?.name : undefined,
       trustDelta: ch.deltas.trust,
       trustVal: newMeters.trust,
-      tasksLeft: Math.max(0, SITUATIONS.length - game.situation - 2),
-      tasksTotal: SITUATIONS.length,
+      tasksLeft: Math.max(0, visibleSits.length - game.situation - 2),
+      tasksTotal: visibleSits.length,
     })
   }, [game, saveAndSet, showImpact])
 

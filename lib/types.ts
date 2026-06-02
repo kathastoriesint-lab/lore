@@ -67,6 +67,8 @@ export type Screen =
   | 'dm-thread'
   | 'profile'
   | 'char-profile'
+  | 'story-reader'
+  | 'world-hub'
 
 export interface GameState {
   char: CharId | null
