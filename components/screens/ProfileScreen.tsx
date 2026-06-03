@@ -1,11 +1,11 @@
 'use client'
 import { useApp } from '@/lib/context'
 import { CHARS, DM_TRUST } from '@/lib/data'
+import { fameToFollowers as fameToFollowersNum } from '@/lib/game'
 
-// Fame 0-100 → followers count (logarithmic feel)
-function fameToFollowers(fame: number): string {
-  const base = Math.max(1, fame)
-  const raw = Math.round(base * base * 120 + base * 1000)
+// Fame 0-100 → followers string (formatted)
+function fameToFollowersStr(fame: number): string {
+  const raw = fameToFollowersNum(fame)
   if (raw >= 1_000_000) return `${(raw / 1_000_000).toFixed(1)}M`
   if (raw >= 1_000)     return `${(raw / 1_000).toFixed(0)}K`
   return `${raw}`
@@ -21,7 +21,7 @@ const CHAR_POSTS: Record<string, { caption: string; bg: string }[]> = {
     { caption: 'Reels grind never stops 💜', bg: 'linear-gradient(135deg,#6a3a90,#1a0840)' },
     { caption: 'Creator House Day 1 🏠', bg: 'linear-gradient(135deg,#aa6ab0,#4a0880)' },
   ],
-  reya: [
+  ria: [
     { caption: 'Stress → content 🤍', bg: 'linear-gradient(135deg,#b03a5e,#7a1140)' },
     { caption: 'Mornings. Always.', bg: 'linear-gradient(135deg,#c04a6e,#5a0830)' },
     { caption: 'No explanation needed 👑', bg: 'linear-gradient(135deg,#903050,#4a0820)' },
@@ -85,7 +85,7 @@ export default function ProfileScreen() {
   }
 
   const fame = game.meters.fame
-  const followers = fameToFollowers(fame)
+  const followers = fameToFollowersStr(fame)
   const following = fameToFollowing(fame)
   const posts = CHAR_POSTS[charId] ?? []
 
@@ -139,19 +139,19 @@ export default function ProfileScreen() {
           <div style={{ marginTop:12 }}>
             <div style={{ fontWeight:700, fontSize:14 }}>{char.name}</div>
             <div style={{ fontSize:12, color:'var(--ink2)', marginTop:2 }}>{char.role}</div>
-            <div style={{ fontSize:12, color:'var(--ink3)', marginTop:4 }}>Creator House • Day 1 of 30</div>
+            <div style={{ fontSize:12, color:'var(--ink3)', marginTop:4 }}>Creator House • Day 1 of 10</div>
           </div>
 
-          {/* Meters */}
+          {/* Meters — v2: fame, heat, image */}
           <div style={{ display:'flex', gap:8, marginTop:12, flexWrap:'wrap' }}>
             <div style={{ padding:'6px 12px', background:'rgba(255,176,32,.12)', border:'1px solid rgba(255,176,32,.3)', borderRadius:20, fontSize:11, fontWeight:700, color:'var(--fame)' }}>
               ⭐ Fame {game.meters.fame}
             </div>
-            <div style={{ padding:'6px 12px', background:'rgba(61,214,200,.12)', border:'1px solid rgba(61,214,200,.3)', borderRadius:20, fontSize:11, fontWeight:700, color:'var(--trust)' }}>
-              🤝 Trust {game.meters.trust}
-            </div>
             <div style={{ padding:'6px 12px', background:'rgba(255,92,58,.12)', border:'1px solid rgba(255,92,58,.3)', borderRadius:20, fontSize:11, fontWeight:700, color:'var(--heat)' }}>
               🔥 Heat {game.meters.heat}
+            </div>
+            <div style={{ padding:'6px 12px', background:'rgba(61,214,200,.12)', border:'1px solid rgba(61,214,200,.3)', borderRadius:20, fontSize:11, fontWeight:700, color:'var(--trust)' }}>
+              🤝 Image {game.meters.image}
             </div>
           </div>
         </div>

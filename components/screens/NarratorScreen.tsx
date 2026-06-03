@@ -146,8 +146,7 @@ export default function NarratorScreen() {
                 <div className="role">{char.role}</div>
                 <div className="stats">
                   <span>Fame {char.fame}</span>
-                  <span>Trust {char.trust}</span>
-                  <span>Heat {char.heat}</span>
+                  <span>Fame {char.fame}</span>
                 </div>
                 <div className="tag">{tag}</div>
               </div>
@@ -170,7 +169,7 @@ export default function NarratorScreen() {
                   {char.init}
                 </div>
                 <div className="nm" style={{ fontSize: 13 }}>{char.name}</div>
-                <div className="role" style={{ fontSize: 10 }}>{char.fame}F · {char.trust}T</div>
+                <div className="role" style={{ fontSize: 10 }}>{char.fame}F</div>
                 <div className="locked-pill">
                   <LockIcon /> SOON
                 </div>

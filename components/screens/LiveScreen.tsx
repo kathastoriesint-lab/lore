@@ -1,9 +1,9 @@
 'use client'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useApp } from '@/lib/context'
 import type { CharId } from '@/lib/types'
 import { CHARS, SITUATIONS, getVisibleSituations } from '@/lib/data'
-import { getStats, clamp } from '@/lib/game'
+import { getStats, clamp, resolveEnding } from '@/lib/game'
 
 
 const StatusBar = () => (
@@ -17,20 +17,20 @@ const StatusBar = () => (
   </div>
 )
 
-const FINALES = [
-  { condition: (f: number, _t: number, h: number) => h > 50, arc: 'Villain Era', sub: 'The internet has a new villain. Congrats — bura naam bhi naam hota hai.', color: '#FF5C3A' },
-  { condition: (_f: number, t: number, _h: number) => t > 60, arc: 'Fan Favourite', sub: 'Is ghar ka dil tum ho. Audience tumhare saath hai. Always.', color: '#3DD6C8' },
-  { condition: (f: number, _t: number, _h: number) => f > 70, arc: 'Main Character', sub: 'Har scene tumhara. Har headline tumhara. Yahi hai Creator House.', color: '#FFB020' },
-  { condition: () => true, arc: 'Dark Horse', sub: 'Quietly. Deadly. Week 2 mein duniya dekhi. Abhi toh trailer tha.', color: '#8a4ab0' },
-]
+const FINALE_DATA = {
+  heart: { arc: 'Heat King/Queen', sub: 'Tu viral hai, controversial hai, aur everyone is talking about you. Bura naam bhi naam hota hai.', color: '#FF5C3A' },
+  main:  { arc: 'Main Character', sub: 'Har scene tumhara. Har headline tumhara. Yahi hai Creator House.', color: '#FFB020' },
+  brand: { arc: 'Brand Icon', sub: 'Brands queue mein hain. Image perfect hai. Creator House ne tumhe polish kiya.', color: '#3DD6C8' },
+  dark:  { arc: 'Dark Horse', sub: 'Quietly. Deadly. Is ghar mein sab ne underestimate kiya — aur sab galat the.', color: '#8a4ab0' },
+}
 
 export default function LiveScreen() {
   const { navigate, showToast, game, makeChoice, openDMThread, advanceSituation, injectCharDM } = useApp()
 
   const char = game.char ? CHARS[game.char] : null
 
-  // Filter situations to only those visible for the current character
-  const visibleSituations = getVisibleSituations(game.char)
+  // Get visible situations for current meters/choices
+  const visibleSituations = getVisibleSituations(game.meters, game.choices)
 
   const situation = game.situation
   const sit = situation < visibleSituations.length ? visibleSituations[situation] : null
@@ -59,28 +59,27 @@ export default function LiveScreen() {
     return () => clearInterval(t)
   }, [isDayLocked, sit, game.dayUnlockTime])
 
-  // Per-character react and choices overrides
-  const effectiveReact = sit ? (sit.reactByChar?.[game.char!] ?? sit.react) : null
-  const effectiveChoices = sit ? (sit.choicesByChar?.[game.char!] ?? sit.choices) : null
+  // Effective react (v2: no per-char override, just sit.react)
+  const effectiveReact = sit ? sit.react : null
 
-  // Meter bar refs
+  // Meter bar refs — fame, heat (was trust), imageBar (was heat)
   const fameBarRef = useRef<HTMLElement>(null)
-  const trustBarRef = useRef<HTMLElement>(null)
   const heatBarRef = useRef<HTMLElement>(null)
+  const imageBarRef = useRef<HTMLElement>(null)
 
   // Animate meters
   useEffect(() => {
     const set = () => {
-      if (fameBarRef.current) fameBarRef.current.style.width = `${clamp(game.meters.fame)}%`
-      if (trustBarRef.current) trustBarRef.current.style.width = `${clamp(game.meters.trust)}%`
-      if (heatBarRef.current) heatBarRef.current.style.width = `${clamp(game.meters.heat)}%`
+      if (fameBarRef.current)  fameBarRef.current.style.width  = `${clamp(game.meters.fame)}%`
+      if (heatBarRef.current)  heatBarRef.current.style.width  = `${clamp(game.meters.heat)}%`
+      if (imageBarRef.current) imageBarRef.current.style.width = `${clamp(game.meters.image)}%`
     }
     // Reset to 0 first, then animate
-    if (fameBarRef.current) fameBarRef.current.style.width = '0%'
-    if (trustBarRef.current) trustBarRef.current.style.width = '0%'
-    if (heatBarRef.current) heatBarRef.current.style.width = '0%'
+    if (fameBarRef.current)  fameBarRef.current.style.width  = '0%'
+    if (heatBarRef.current)  heatBarRef.current.style.width  = '0%'
+    if (imageBarRef.current) imageBarRef.current.style.width = '0%'
     requestAnimationFrame(() => requestAnimationFrame(set))
-  }, [game.meters.fame, game.meters.trust, game.meters.heat])
+  }, [game.meters.fame, game.meters.heat, game.meters.image])
 
   // Choice state
   const [chosen, setChosen] = useState<0 | 1 | null>(null)
@@ -175,10 +174,9 @@ export default function LiveScreen() {
     else if (tab === 'profile') showToast('Profile jald aayega 🔥')
   }, [navigate, showToast])
 
-  // Finale arc
-  const finaleArc = isFinale
-    ? FINALES.find(f => f.condition(game.meters.fame, game.meters.trust, game.meters.heat)) ?? FINALES[FINALES.length - 1]
-    : null
+  // Finale arc — uses resolveEnding
+  const endingKey = isFinale ? resolveEnding(game.meters) : null
+  const finaleArc = endingKey ? FINALE_DATA[endingKey] : null
 
   if (!char) {
     return (
@@ -220,19 +218,19 @@ export default function LiveScreen() {
           </div>
           <div className="bar"><i ref={fameBarRef} /></div>
         </div>
-        <div className="meter trust">
-          <div className="ml">
-            <div className="mlabel">🤝 TRUST</div>
-            <div key={`t${game.meters.trust}`} className="mval mval-flash">{game.meters.trust}</div>
-          </div>
-          <div className="bar"><i ref={trustBarRef} /></div>
-        </div>
         <div className="meter heat">
           <div className="ml">
-            <div className="mlabel">🔥 HEAT</div>
+            <div className="mlabel">🔥 Heat</div>
             <div key={`h${game.meters.heat}`} className="mval mval-flash">{game.meters.heat}</div>
           </div>
           <div className="bar"><i ref={heatBarRef} /></div>
+        </div>
+        <div className="meter image">
+          <div className="ml">
+            <div className="mlabel">🤝 Image</div>
+            <div key={`i${game.meters.image}`} className="mval mval-flash">{game.meters.image}</div>
+          </div>
+          <div className="bar"><i ref={imageBarRef} /></div>
         </div>
       </div>
 
@@ -246,9 +244,6 @@ export default function LiveScreen() {
             <div className="day-lock-card">
               <div className="day-lock-tag">⚡ DAY {sit.day} · UNLOCKS IN</div>
               <div className="day-lock-countdown">{countdown}</div>
-              {sit.dayTeaser && (
-                <div className="day-lock-teaser">"{sit.dayTeaser}"</div>
-              )}
               <button className="day-lock-btn" disabled>
                 COME BACK IN {countdown.split(':')[0]}h {countdown.split(':')[1]}m
               </button>
@@ -259,7 +254,7 @@ export default function LiveScreen() {
         {/* Finale screen */}
         {isFinale && finaleArc && (
           <div style={{ padding: '32px 24px', display: 'flex', flexDirection: 'column', gap: 20, minHeight: '60%', justifyContent: 'center' }}>
-            <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.1em', color: 'var(--ink3)' }}>WEEK 1 COMPLETE</div>
+            <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.1em', color: 'var(--ink3)' }}>CREATOR HOUSE — FINALE</div>
             <div style={{
               fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 36, lineHeight: 1.1,
               color: finaleArc.color
@@ -271,11 +266,11 @@ export default function LiveScreen() {
               <div style={{ padding: '10px 16px', background: `color-mix(in srgb, ${finaleArc.color} 20%, transparent)`, border: `1px solid color-mix(in srgb, ${finaleArc.color} 40%, transparent)`, borderRadius: 12, fontSize: 12, fontWeight: 700, color: finaleArc.color }}>
                 Fame {game.meters.fame}
               </div>
-              <div style={{ padding: '10px 16px', background: 'color-mix(in srgb, #3DD6C8 20%, transparent)', border: '1px solid color-mix(in srgb, #3DD6C8 40%, transparent)', borderRadius: 12, fontSize: 12, fontWeight: 700, color: '#3DD6C8' }}>
-                Trust {game.meters.trust}
-              </div>
               <div style={{ padding: '10px 16px', background: 'color-mix(in srgb, #FF5C3A 20%, transparent)', border: '1px solid color-mix(in srgb, #FF5C3A 40%, transparent)', borderRadius: 12, fontSize: 12, fontWeight: 700, color: '#FF5C3A' }}>
                 Heat {game.meters.heat}
+              </div>
+              <div style={{ padding: '10px 16px', background: 'color-mix(in srgb, #3DD6C8 20%, transparent)', border: '1px solid color-mix(in srgb, #3DD6C8 40%, transparent)', borderRadius: 12, fontSize: 12, fontWeight: 700, color: '#3DD6C8' }}>
+                Image {game.meters.image}
               </div>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 16 }}>
@@ -306,7 +301,7 @@ export default function LiveScreen() {
               ))}
             </div>
 
-            {/* Character reaction — uses per-char override if present */}
+            {/* Character reaction */}
             {effectiveReact && (() => {
               const reactChar = CHARS[effectiveReact.char]
               return (
@@ -340,24 +335,24 @@ export default function LiveScreen() {
                         {d.fame > 0 ? '+' : ''}{d.fame} ⭐
                       </div>
                     )}
-                    {d.trust !== 0 && (
-                      <div className={`impact-chip${d.trust > 0 ? ' positive' : ' negative'} trust`}>
-                        {d.trust > 0 ? '+' : ''}{d.trust} 🤝
-                      </div>
-                    )}
                     {d.heat !== 0 && (
                       <div className={`impact-chip${d.heat > 0 ? ' positive' : ' negative'} heat`}>
                         {d.heat > 0 ? '+' : ''}{d.heat} 🔥
                       </div>
                     )}
+                    {d.image !== 0 && (
+                      <div className={`impact-chip${d.image > 0 ? ' positive' : ' negative'} image`}>
+                        {d.image > 0 ? '+' : ''}{d.image} 🤝
+                      </div>
+                    )}
                   </div>
 
                   {/* Consequence banner */}
-                  {(game.meters.heat > 60 || game.meters.trust < 30) && (
+                  {(game.meters.heat > 75 || game.meters.image < 20) && (
                     <div className="consequence-banner">
-                      {game.meters.heat > 60
+                      {game.meters.heat > 75
                         ? '⚠ Heat critical — someone will address this publicly'
-                        : '⚠ Trust low — your allies are questioning you'}
+                        : '⚠ Image low — brands are watching'}
                     </div>
                   )}
 
@@ -411,7 +406,7 @@ export default function LiveScreen() {
                           return true
                         }).map((r, i) => {
                           const rChar = r.char !== '__fan' ? CHARS[r.char as CharId] : null
-                          if (r.char !== '__fan' && !rChar) return null // GAP 3: guard against typo char IDs
+                          if (r.char !== '__fan' && !rChar) return null
                           return (
                             <div
                               key={i}

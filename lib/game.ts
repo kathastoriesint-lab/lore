@@ -1,14 +1,15 @@
 'use client'
 import { createClient } from './supabase'
 import type { CharId, GameState, Meters, DMMessage } from './types'
-import { CHARS, DM_HOOKS, DM_MOCK } from './data'
+import { DM_HOOKS, DM_MOCK } from './data'
 
 // Lazy init — avoids module-level instantiation during SSR/prerender
 let _supabase: ReturnType<typeof createClient> | null = null
 const supabase = () => { if (!_supabase) _supabase = createClient(); return _supabase }
 
-const DEFAULT_METERS: Meters = { fame: 15, trust: 60, heat: 5 }
+const DEFAULT_METERS: Meters = { fame: 20, heat: 50, image: 30 }
 const DEFAULT_STATE: GameState = {
+  playerName: '', playerGender: 'male' as const,
   char: null, situation: 0, choices: [],
   meters: DEFAULT_METERS, narrator_done: false,
   dayUnlockTime: {},
@@ -46,11 +47,18 @@ export async function loadGameState(): Promise<GameState> {
   await ensureSession()
   const { data } = await supabase().from('game_state').select('*').maybeSingle()
   if (!data) return DEFAULT_STATE
+  // Guard against old meter format (trust/heat keys from v1)
+  const rawMeters = data.meters ?? DEFAULT_METERS
+  const meters: Meters = rawMeters?.image !== undefined
+    ? rawMeters as Meters
+    : DEFAULT_METERS
   return {
+    playerName: data.player_name ?? '',
+    playerGender: (data.player_gender ?? 'male') as 'male' | 'female',
     char: data.char_id,
     situation: data.situation,
     choices: data.choices ?? [],
-    meters: data.meters ?? DEFAULT_METERS,
+    meters,
     narrator_done: data.narrator_done,
     dayUnlockTime: data.day_unlock_time ?? {},
   }
@@ -61,6 +69,8 @@ export async function saveGameState(state: GameState) {
   if (!user) return
   await supabase().from('game_state').upsert({
     user_id: user.id,
+    player_name: state.playerName,
+    player_gender: state.playerGender,
     char_id: state.char,
     situation: state.situation,
     choices: state.choices,
@@ -168,7 +178,7 @@ export async function getAIReply(
   charId: CharId,
   history: DMMessage[],
   playerName: string,
-  gameState?: { char: string | null; meters: { fame: number; trust: number; heat: number }; choices: string[]; situation: number }
+  gameState?: { char: string | null; meters: Meters; choices: string[]; situation: number }
 ): Promise<string> {
   const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!
   const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -240,12 +250,44 @@ export function clamp(n: number) { return Math.max(0, Math.min(100, Math.round(n
 export function applyDeltas(meters: Meters, deltas: Meters): Meters {
   return {
     fame:  clamp(meters.fame  + deltas.fame),
-    trust: clamp(meters.trust + deltas.trust),
     heat:  clamp(meters.heat  + deltas.heat),
+    image: clamp(meters.image + deltas.image),
   }
 }
 
-export function charMeters(charId: CharId): Meters {
-  const c = CHARS[charId]
-  return { fame: c.fame, trust: c.trust, heat: c.heat }
+// charMeters not needed in v2 (fixed POV), kept for compat
+export function charMeters(_charId: CharId): Meters {
+  return DEFAULT_METERS
+}
+
+// ── Token resolution ──────────────────────────────────────────────────────────
+export function resolveTokens(text: string, playerName: string, playerGender: 'male' | 'female'): string {
+  const crush = playerGender === 'male' ? 'Ananya' : 'Kabir'
+  const ally  = playerGender === 'male' ? 'Kabir'  : 'Ananya'
+  return text
+    .replaceAll('{name}', playerName || 'Tum')
+    .replaceAll('{crush}', crush)
+    .replaceAll('{ally}', ally)
+}
+
+// ── Loyalty scoring ───────────────────────────────────────────────────────────
+export function allyLoyalty(choices: ('A' | 'B')[], situations: import('./types').Situation[]): number {
+  let n = 0
+  for (let i = 0; i < choices.length && i < situations.length; i++) {
+    if (situations[i].loyaltyChoice && choices[i] === situations[i].loyaltyChoice) n++
+  }
+  return n
+}
+
+// ── Ending resolution ─────────────────────────────────────────────────────────
+export function resolveEnding(m: Meters): 'heart' | 'main' | 'brand' | 'dark' {
+  if (m.heat  >= 78 && m.heat  - Math.max(m.fame, m.image) >= 8) return 'heart'
+  if (m.fame  >= 78 && m.fame  - Math.max(m.heat, m.image) >= 8) return 'main'
+  if (m.image >= 78 && m.image - Math.max(m.fame, m.heat)  >= 8) return 'brand'
+  return 'dark'
+}
+
+// ── Fame → followers ──────────────────────────────────────────────────────────
+export function fameToFollowers(fame: number): number {
+  return Math.round(fame * fame * 120 + fame * 1000)
 }

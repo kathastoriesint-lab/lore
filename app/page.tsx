@@ -5,6 +5,7 @@ import { AppContext, ImpactNotif } from '@/lib/context'
 import {
   applyDeltas, charMeters, ensureSession, getAIReply, scoreTrustDelta,
   loadDMs, loadGameState, recordChoice, resetGameState, saveDM, saveGameState,
+  fameToFollowers,
 } from '@/lib/game'
 import { CHARS, SITUATIONS, DM_MOCK, getVisibleSituations } from '@/lib/data'
 import WorldsScreen from '@/components/screens/WorldsScreen'
@@ -26,20 +27,19 @@ export default function App() {
   const [dmTrust, setDmTrust] = useState<Record<string, number>>({})
   const [impactNotif, setImpactNotif] = useState<ImpactNotif | null>(null)
 
-  const fameToFollowers = (fame: number) => Math.round(fame * fame * 120 + fame * 1000)
-
   const showImpact = useCallback((n: ImpactNotif) => {
     setImpactNotif(n)
     setTimeout(() => setImpactNotif(null), 4000)
   }, [])
   // Per-character fame (drives follower counts on all profiles)
   const [charFame, setCharFame] = useState<Record<string, number>>({
-    reya:85, kabir:55, meher:40, dev:30, ananya:15, zoya:50, rishi:35, adi:25
+    ria:85, kabir:55, meher:40, dev:30, ananya:15, zoya:50, rishi:35, adi:25
   })
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set())
   const [viewingCharId, setViewingCharId] = useState<CharId | null>(null)
   const [game, setGame] = useState<GameState>({
-    char: null, situation: 0, choices: [], meters: { fame: 15, trust: 60, heat: 5 }, narrator_done: false, dayUnlockTime: {},
+    playerName: '', playerGender: 'male' as const,
+    char: null, situation: 0, choices: [], meters: { fame: 20, heat: 50, image: 30 }, narrator_done: false, dayUnlockTime: {},
   })
   const [dmHistory, setDmHistory] = useState<Record<string, DMMessage[]>>({})
   const [toast, setToast] = useState<string | null>(null)
@@ -86,11 +86,11 @@ export default function App() {
   }, [])
 
   const setChar = useCallback((id: CharId) => {
-    saveAndSet({ char: id, situation: 0, choices: [], meters: charMeters(id), narrator_done: true, dayUnlockTime: {} })
-  }, [saveAndSet])
+    saveAndSet({ ...game, char: id, situation: 0, choices: [], meters: charMeters(id), narrator_done: true, dayUnlockTime: {} })
+  }, [saveAndSet, game])
 
   const advanceSituation = useCallback(() => {
-    const visibleSits = getVisibleSituations(game.char)
+    const visibleSits = getVisibleSituations(game.meters, game.choices)
     const currentSit = visibleSits[game.situation]
     const nextSit = visibleSits[game.situation + 1]
     const newUnlockTime = { ...game.dayUnlockTime }
@@ -103,10 +103,9 @@ export default function App() {
   }, [game, saveAndSet])
 
   const makeChoice = useCallback(async (idx: number) => {
-    if (!game.char) return
-    const visibleSits = getVisibleSituations(game.char)
+    const visibleSits = getVisibleSituations(game.meters, game.choices)
     const sit = visibleSits[game.situation]
-    const ch = (sit?.choicesByChar?.[game.char!] ?? sit?.choices)?.[idx]
+    const ch = sit?.choices?.[idx]
     if (!ch) return
     const letter = idx === 0 ? 'A' : 'B'
     const newMeters = applyDeltas(game.meters, ch.deltas)
@@ -120,8 +119,8 @@ export default function App() {
       followerTotal: fameToFollowers(newMeters.fame),
       charId: firstReactor?.char,
       charName: firstReactor ? CHARS[firstReactor.char as CharId]?.name : undefined,
-      trustDelta: ch.deltas.trust,
-      trustVal: newMeters.trust,
+      trustDelta: ch.deltas.heat,
+      trustVal: newMeters.heat,
       tasksLeft: Math.max(0, visibleSits.length - game.situation - 2),
       tasksTotal: visibleSits.length,
     })
@@ -142,7 +141,7 @@ export default function App() {
     setDmHistory(prev => ({ ...prev, [charId]: [...(prev[charId] ?? []), userMsg] }))
     saveDM(charId, userMsg).catch(() => {})
     const storedName = typeof window !== 'undefined' ? localStorage.getItem('lore_player_name') : null
-    const playerName = storedName || (game.char ? CHARS[game.char].name : 'Yaar')
+    const playerName = storedName || game.playerName || 'Yaar'
     const raw = await getAIReply(charId, contextHistory, playerName, {
       char: game.char, meters: game.meters, choices: game.choices, situation: game.situation,
     })
@@ -159,7 +158,7 @@ export default function App() {
         return { ...prev, [charId]: next }
       })
     }).catch(() => {})
-  }, [dmHistory, game.char])
+  }, [dmHistory, game.char, game.playerName])
 
   // Like a post — updates player fame + target character's fame
   const likePost = useCallback((postId: string, charId: CharId, fameDelta: number) => {
@@ -187,20 +186,20 @@ export default function App() {
     saveDM(charId, charMsg).catch(() => {})
   }, [])
 
-  const applyFeedDeltas = useCallback((deltas: { fame: number; trust: number; heat: number }, charId?: string, charName?: string) => {
+  const applyFeedDeltas = useCallback((deltas: { fame: number; heat: number; image: number }, charId?: string, charName?: string) => {
     const newFame = Math.max(0, Math.min(100, game.meters.fame + deltas.fame))
     saveAndSet({ ...game, meters: {
       fame:  newFame,
-      trust: Math.max(0, Math.min(100, game.meters.trust + deltas.trust)),
       heat:  Math.max(0, Math.min(100, game.meters.heat  + deltas.heat)),
+      image: Math.max(0, Math.min(100, game.meters.image + deltas.image)),
     }})
     showImpact({
       action: charName ? `Commented on ${charName}'s post` : 'Commented',
       followerDelta: Math.round(deltas.fame * 180),
       followerTotal: fameToFollowers(newFame),
       charId, charName,
-      trustDelta: deltas.trust,
-      trustVal: game.meters.trust + deltas.trust,
+      trustDelta: deltas.heat,
+      trustVal: game.meters.heat + deltas.heat,
       tasksLeft: Math.max(0, SITUATIONS.length - game.situation - 1),
       tasksTotal: SITUATIONS.length,
     })
@@ -213,7 +212,7 @@ export default function App() {
 
   const resetGame = useCallback(async () => {
     await resetGameState()
-    setGame({ char: null, situation: 0, choices: [], meters: { fame: 15, trust: 60, heat: 5 }, narrator_done: false, dayUnlockTime: {} })
+    setGame({ playerName: '', playerGender: 'male' as const, char: null, situation: 0, choices: [], meters: { fame: 20, heat: 50, image: 30 }, narrator_done: false, dayUnlockTime: {} })
     setDmHistory({})
     navigate('worlds', { replace: true })
   }, [navigate])

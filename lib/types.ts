@@ -1,4 +1,4 @@
-export type CharId = 'ria'|'kabir'|'meher'|'dev'|'ananya'|'zoya'|'rishi'|'adi'
+export type CharId = 'ria'|'kabir'|'dev'|'ananya'|'zoya'|'meher'|'rishi'|'adi'
 
 export interface Character {
   id: CharId
@@ -7,12 +7,10 @@ export interface Character {
   cls: string
   init: string
   fame: number
-  trust: number
-  heat: number
   role: string
 }
 
-export interface Meters { fame: number; trust: number; heat: number }
+export interface Meters { fame: number; heat: number; image: number }
 
 export interface Choice {
   t: string
@@ -29,27 +27,21 @@ export interface Reaction {
 }
 
 export interface Situation {
+  id: string
+  day: number
+  slot: string
   tag: string
   title: string
   body: string[]
   react: { char: CharId; text: string }
-  /** Per-character react override — falls back to react if char not present */
-  reactByChar?: Partial<Record<CharId, { char: CharId; text: string }>>
   q: string
   choices: [Choice, Choice]
-  /** Per-character choices override — falls back to choices if char not present */
-  choicesByChar?: Partial<Record<CharId, [Choice, Choice]>>
-  /** Which characters see this situation. Undefined = all playable chars. */
-  chars?: CharId[]
-  /** Day number 1–5. Used for time-gating. */
-  day: number
-  /** One-line teaser shown on the locked Day N screen */
-  dayTeaser?: string
-  /** Post that appears in the feed after this situation is completed */
   feedReaction?: {
-    A: { char: CharId; caption: string }
-    B: { char: CharId; caption: string }
+    A: { char: CharId; caption: string } | null
+    B: { char: CharId; caption: string } | null
   }
+  loyaltyChoice?: 'A' | 'B'
+  condition?: (meters: Meters) => boolean
 }
 
 export interface DMMessage {
@@ -71,11 +63,12 @@ export type Screen =
   | 'world-hub'
 
 export interface GameState {
+  playerName: string
+  playerGender: 'male' | 'female'
   char: CharId | null
-  situation: number              // index into the filtered (per-char) situations list
+  situation: number
   choices: ('A' | 'B')[]
   meters: Meters
   narrator_done: boolean
-  /** Timestamps (ms since epoch) when each day unlocks. null = not yet set. */
   dayUnlockTime: Record<number, number>
 }

@@ -136,7 +136,7 @@ export default function FeedScreen() {
   const playingChar = game.char ? CHARS[game.char] : null
 
   // Reactive feed: show post from last completed situation's feedReaction
-  const visibleSits = getVisibleSituations(game.char)
+  const visibleSits = getVisibleSituations(game.meters, game.choices)
   const lastCompletedSit = game.situation > 0 ? visibleSits[game.situation - 1] : null
   const lastChoice = game.choices.length > 0 ? game.choices[game.choices.length - 1] : null
   const feedReaction = lastCompletedSit?.feedReaction && lastChoice

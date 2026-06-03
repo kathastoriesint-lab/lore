@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "simulate:outcomes": "node scripts/simulate-outcomes.mjs --write"
   },
   "dependencies": {
     "@supabase/ssr": "^0.5.2",
