@@ -3,11 +3,11 @@ import { createContext, useContext } from 'react'
 import type { CharId, DMMessage, GameState, Screen } from './types'
 
 export interface ImpactNotif {
-  action: string           // "Liked Reya's post"
+  action: string           // "Liked Ria's post"
   followerDelta: number    // +2400
   followerTotal: number    // 18400
-  charId?: string          // 'reya'
-  charName?: string        // 'Reya'
+  charId?: string          // 'ria'
+  charName?: string        // 'Ria'
   trustDelta?: number      // +3
   trustVal?: number        // 43
   tasksLeft?: number       // 4

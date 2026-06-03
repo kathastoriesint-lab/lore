@@ -1,4 +1,4 @@
-export type CharId = 'reya'|'kabir'|'meher'|'dev'|'ananya'|'zoya'|'rishi'|'adi'
+export type CharId = 'ria'|'kabir'|'meher'|'dev'|'ananya'|'zoya'|'rishi'|'adi'
 
 export interface Character {
   id: CharId

@@ -1,7 +1,7 @@
 import type { Character, Situation, CharId } from './types'
 
 export const CHARS: Record<CharId, Character> = {
-  reya:   { id:'reya',   name:'Reya',   handle:'reya',       cls:'c-reya',   init:'R', fame:85, trust:40, heat:20, role:'Luxury lifestyle · 24 saal · The alpha' },
+  ria:   { id:'ria',   name:'Ria',   handle:'ria',       cls:'c-reya',   init:'R', fame:85, trust:40, heat:20, role:'Luxury lifestyle · 24 saal · The alpha' },
   kabir:  { id:'kabir',  name:'Kabir',  handle:'kabirlol',   cls:'c-kabir',  init:'K', fame:55, trust:25, heat:40, role:'Comedy · 26 saal · Chaos merchant' },
   meher:  { id:'meher',  name:'Meher',  handle:'meher',      cls:'c-meher',  init:'M', fame:40, trust:70, heat:15, role:'Lifestyle · 25 saal · The house\'s heart' },
   dev:    { id:'dev',    name:'Dev',    handle:'devlifts',   cls:'c-dev',    init:'D', fame:30, trust:65, heat:10, role:'Fitness · 27 saal · Grindset' },
@@ -11,13 +11,13 @@ export const CHARS: Record<CharId, Character> = {
   adi:    { id:'adi',    name:'Adi',    handle:'adi',        cls:'c-adi',    init:'A', fame:25, trust:40, heat:35, role:'Content · 22 saal · The new one' },
 }
 
-export const STORY_ORDER: CharId[] = ['reya','kabir','meher','dev','ananya','zoya','rishi','adi']
+export const STORY_ORDER: CharId[] = ['ria','kabir','meher','dev','ananya','zoya','rishi','adi']
 export const SEEN_CHARS: CharId[] = ['dev','zoya']
 
 export const PLAYABLE = [
   { id:'ananya' as CharId, tag:'Prove karna hai sirf khud ko.' },
   { id:'kabir'  as CharId, tag:'Game already shuru kar chuka hoon. 👀' },
-  { id:'reya'   as CharId, tag:'Main already on top hoon. Sawaal yeh hai — kitne din tak.' },
+  { id:'ria'   as CharId, tag:'Main already on top hoon. Sawaal yeh hai — kitne din tak.' },
 ]
 export const LOCKED: CharId[] = ['meher','dev','zoya','rishi','adi']
 
@@ -28,7 +28,7 @@ export const NARR_LINES = [
 ]
 
 export const NARR_CHARS: [CharId, string][] = [
-  ['reya',  'Luxury. Lifestyle. Untouchable.\nSab kuch curated hai. Woh jaanti hai.'],
+  ['ria',  'Luxury. Lifestyle. Untouchable.\nSab kuch curated hai. Woh jaanti hai.'],
   ['kabir', 'Sabka dost. Kisi ka nahi.\nDrama woh banata hai. Record bhi wahi karta hai.'],
   ['meher', 'Ghar ki dil. Sab se wise.\nPar "authenticity" bhi ek brand hai.'],
   ['dev',   'Fitness. Brand deals. Grindset.\nLoyalty for sale — jo zyada de.'],
@@ -39,11 +39,11 @@ export const NARR_CHARS: [CharId, string][] = [
 ]
 
 export const STORY_CONTENT: Record<CharId, { time: string; text: string }> = {
-  reya:   { time:'6h ago',    text:'Kaafi log poochte hain — "Reya, tujhe stress nahi hota?" Stress? Main stress ko content mein convert karti hoon. Yeh alag cheez hai. Seekho. 🤍' },
+  ria:   { time:'6h ago',    text:'Kaafi log poochte hain — "Ria, tujhe stress nahi hota?" Stress? Main stress ko content mein convert karti hoon. Yeh alag cheez hai. Seekho. 🤍' },
   kabir:  { time:'2h ago',    text:'Is ghar mein sab serious ho jaate hain jab camera on hota hai. Main serious tab hota hoon jab camera off hota hai. Iss farq ko samajhna — yahi game hai. 😭👀' },
   meher:  { time:'4h ago',    text:'Aaj subah Ananya ro rahi thi, akeli kitchen mein. Main wahan thi. Kisi camera ne nahi pakda. Kuch cheezein real rehni chahiye. 🫶' },
   dev:    { time:'3h ago',    text:'5 AM. Sirf main aur weights. Is ghar mein sab kuch content hai — par gym ka waqt sirf mera hai. 💪' },
-  ananya: { time:'45m ago',   text:'Meri latest reel pe 2.1M views aa gaye raat mein. Subah uthke dekha toh ro padi — khushi se. Phir Reya ko bataya. Usne bola... "nice." Bas. Nice. 🥺✨' },
+  ananya: { time:'45m ago',   text:'Meri latest reel pe 2.1M views aa gaye raat mein. Subah uthke dekha toh ro padi — khushi se. Phir Ria ko bataya. Usne bola... "nice." Bas. Nice. 🥺✨' },
   zoya:   { time:'1h ago',    text:'Kuch log in-person bahut different hote hain apne on-camera persona se. Is ghar mein kaafi log hain aise. Main bhi hoon. Difference yeh hai ki main jaanti hoon. 💅' },
   rishi:  { time:'5h ago',    text:'Main record karta rehta hoon. Log bhool jaate hain. Phir kuch hafte baad woh moment trending ho jaata hai. Life is content. Content is life. 🎥' },
   adi:    { time:'just now',  text:'Pehla hafte khatam ho raha hai. Abhi tak koi real dost nahi banaya. Main still apna angle figure out kar raha hoon. 🙏' },
@@ -54,36 +54,36 @@ export const SITUATIONS: Situation[] = [
     tag:'⚡ DAY 1 · MORNING',
     day:1,
     feedReaction:{
-      A:{char:'reya', caption:'Some people move fast. No alliances, no warnings — just moves. Respect and fear are different things. Both are useful. 👀'},
-      B:{char:'reya', caption:'Today someone in this house showed me something rare — they asked first. Not permission. Just courtesy. That matters here. 🤍'},
+      A:{char:'ria', caption:'Some people move fast. No alliances, no warnings — just moves. Respect and fear are different things. Both are useful. 👀'},
+      B:{char:'ria', caption:'Today someone in this house showed me something rare — they asked first. Not permission. Just courtesy. That matters here. 🤍'},
     },
     title:'Brand deal ka phone aaya',
     body:[
       'Subah 8 baje. Villa mein sab so rahe hain. Tum kitchen mein akele ho, chai ke liye pani garam kar rahe ho.',
-      'Reya ka phone counter pe rakha hai. Screen lit hoti hai — <b>"Luminary Brands."</b> Par woh number. Luminary ne kal tujhe bhi DM kiya tha. Direct. Seedha tujhe. Ek solo deal. 5 lakh. Ek post.',
-      'Contract technically Reya ke through aata hai kyunki woh "house ki official face" hai. Agar tu seedha accept karta hai — complicated ho jaata hai. Agar Reya se poochta hai — power uske haath mein. Yeh decision abhi karna hoga.'
+      'Ria ka phone counter pe rakha hai. Screen lit hoti hai — <b>"Luminary Brands."</b> Par woh number. Luminary ne kal tujhe bhi DM kiya tha. Direct. Seedha tujhe. Ek solo deal. 5 lakh. Ek post.',
+      'Contract technically Ria ke through aata hai kyunki woh "house ki official face" hai. Agar tu seedha accept karta hai — complicated ho jaata hai. Agar Ria se poochta hai — power uske haath mein. Yeh decision abhi karna hoga.'
     ],
     react:{ char:'kabir', text:'Ek baar deal pakad lo yaar. Politics baad mein. Baad mein sab smooth ho jaata hai. Trust me. 😭' },
     q:'Kya karoge?',
     choices:[
       {
-        t:'Seedha accept karo — Reya ko bypass karo',
+        t:'Seedha accept karo — Ria ko bypass karo',
         s:'Tujhe permission nahi chahiye. Yeh tera deal hai.',
         deltas:{fame:14,trust:-9,heat:18},
         caption:'Solo deal. No middlemen, no permission. Mera kaam, mera naam. 🤍',
         reactions:[
           {char:'kabir', text:'BHAI isko koi nahi rokta 🔥 seedha khel gaya, no warning'},
-          {char:'reya',  text:'Interesting move. Chalte chalte pata chal jaata hai kaun kya hai.'},
-          {char:'__fan', name:'creator.tea', text:'omg she BYPASSED reya for the deal 😭😭 house is going to blow up'},
+          {char:'ria',  text:'Interesting move. Chalte chalte pata chal jaata hai kaun kya hai.'},
+          {char:'__fan', name:'creator.tea', text:'omg she BYPASSED ria for the deal 😭😭 house is going to blow up'},
         ]
       },
       {
-        t:'Reya se pehle baat karo',
+        t:'Ria se pehle baat karo',
         s:'Politics avoid karo. Usse loop mein rakhna smarter hai.',
         deltas:{fame:5,trust:12,heat:-4},
-        caption:'House mein respect chalta hai. Reya ko loop mein rakha. Akela nahi, smart. 🤝',
+        caption:'House mein respect chalta hai. Ria ko loop mein rakha. Akela nahi, smart. 🤝',
         reactions:[
-          {char:'reya',  text:'Smart. Tu samajhdaar hai. Yeh... yaad rahega. 🤍'},
+          {char:'ria',  text:'Smart. Tu samajhdaar hai. Yeh... yaad rahega. 🤍'},
           {char:'meher', text:'Yahi sahi tha. Is ghar mein bharosa currency hai.'},
           {char:'__fan', name:'housewatch_india', text:'safe play... boring ya genius? jury is out 👀'},
         ]
@@ -124,7 +124,7 @@ export const SITUATIONS: Situation[] = [
         caption:'Jo bolna hai, camera ke peeche bolungi. Receipts tayaar ho rahe hain. 🤐',
         reactions:[
           {char:'meher', text:'Proud of you. Yeh real maturity hai. ❤️'},
-          {char:'reya',  text:'Cold play. Mujhe yeh approach pasand aayi.'},
+          {char:'ria',  text:'Cold play. Mujhe yeh approach pasand aayi.'},
           {char:'__fan', name:'housewatch_india', text:'composed reh gayi... ya darr gayi?? 👀'},
         ]
       },
@@ -136,19 +136,19 @@ export const SITUATIONS: Situation[] = [
     body:[
       'Shaam 6 baje. Dev tujhe terrace pe bulata hai — "ek cheez discuss karni thi." Upar, sunset perfect hai. Ring light on hai. Yeh clearly pre-planned setting hai.',
       '"Ek collab reel," woh kehta hai. "60-40, mera split bada. Par mere 2.1 million audience ke against tujhe consider karo — tera reach 3x ho jaayega. Minimum."',
-      'Catch: Dev chahta hai ki reel mein tu ek subtle jab daale Reya ke taraf. "Sirf ek line. Kuch direct nahi. Audience khud samjhenge. Content ko drama chahiye." Woh muskura raha hai.'
+      'Catch: Dev chahta hai ki reel mein tu ek subtle jab daale Ria ke taraf. "Sirf ek line. Kuch direct nahi. Audience khud samjhenge. Content ko drama chahiye." Woh muskura raha hai.'
     ],
-    react:{ char:'dev', text:'Zyada mat soch yaar. Numbers jhooth nahi bolte. Bas ek line — Reya ke baare mein. Kitna mushkil hai? 💪' },
+    react:{ char:'dev', text:'Zyada mat soch yaar. Numbers jhooth nahi bolte. Bas ek line — Ria ke baare mein. Kitna mushkil hai? 💪' },
     q:'Dev ko kya bologe?',
     choices:[
       {
         t:'Collab karo — dig bhi daal do',
-        s:'Reach > loyalty. Reya khud yahi karti.',
+        s:'Reach > loyalty. Ria khud yahi karti.',
         deltas:{fame:18,trust:-12,heat:16},
         caption:'New collab dropping tonight. 👀 Kuch log "clean" rehne ka dikhava karte hain — hum sab dekh rahe hain.',
         reactions:[
           {char:'dev',  text:'LET\'S GO 🔥 numbers aane wale hain, prepared reh'},
-          {char:'reya', text:'Toh tum bhi iss level pe aa gaye. Noted. Game on.'},
+          {char:'ria', text:'Toh tum bhi iss level pe aa gaye. Noted. Game on.'},
           {char:'__fan', name:'creator.tea', text:'the SHADE in this reel 💀 dev ne grind karaaya'},
         ]
       },
@@ -172,9 +172,9 @@ export const SITUATIONS: Situation[] = [
     body:[
       'Raat ke 11 baje. <b>housewatch_india</b> — 2.8M followers — ne ek thread daala hai. Subject: tum. "Creator House ka sabse calculated player." 94 hazaar likes in 3 hours.',
       '"Har move scripted hai. Har emotion timed hai. Receipts aa rahe hain." Comments mein teri clips edit ki hui hain. Out of context. Convincing lag rahi hain.',
-      'Tera phone non-stop vibrate ho raha hai. Reya online hai — ab woh teri post pe hai. Meher ne DM kiya: "Don\'t react yet." Kabir ne woh thread already 3 logon ko forward kar diya hai.'
+      'Tera phone non-stop vibrate ho raha hai. Ria online hai — ab woh teri post pe hai. Meher ne DM kiya: "Don\'t react yet." Kabir ne woh thread already 3 logon ko forward kar diya hai.'
     ],
-    react:{ char:'reya', text:'Internet bhool jaata hai — par sirf tab jab tum sahi move karo. Soch. 👑' },
+    react:{ char:'ria', text:'Internet bhool jaata hai — par sirf tab jab tum sahi move karo. Soch. 👑' },
     q:'Iska jawaab kaise doge?',
     choices:[
       {
@@ -183,7 +183,7 @@ export const SITUATIONS: Situation[] = [
         deltas:{fame:24,trust:6,heat:14},
         caption:'Going live in 5. Jo poochna hai poochlo. Main chhupti nahi. 🎙️',
         reactions:[
-          {char:'reya',  text:'Bold. Ab dekhte hain handle kaise karti hai. Mujhe yeh pasand aaya.'},
+          {char:'ria',  text:'Bold. Ab dekhte hain handle kaise karti hai. Mujhe yeh pasand aaya.'},
           {char:'kabir', text:'LIVE?? bhai yeh INSANE content hai 😭 main bhi join kar raha hoon'},
           {char:'__fan', name:'creator.tea', text:'SHE IS GOING LIVE TO CLAP BACK 😭🔥 absolutely fearless'},
         ]
@@ -230,7 +230,7 @@ export const SITUATIONS: Situation[] = [
         caption:'Ananya ko vote kiya. Yeh game hai, charity nahi. Strong survive karte hain. ♟️',
         reactions:[
           {char:'kabir', text:'NOW we\'re talking 🔥 tu samajhdaar nikla. Team?'},
-          {char:'reya',  text:'Ruthless. Mujhe yeh version zyada pasand aaya. Welcome to the top floor.'},
+          {char:'ria',  text:'Ruthless. Mujhe yeh version zyada pasand aaya. Welcome to the top floor.'},
           {char:'__fan', name:'housewatch_india', text:'voted out the sweet one?? 💀 villain arc fully confirmed'},
         ]
       },
@@ -239,9 +239,9 @@ export const SITUATIONS: Situation[] = [
   // ── Day 2-4 (AI-generated, gpt-5.4) ───────────────────────────────────────
   {
     tag:'⚡ DAY 2 · MORNING', day:2,
-    title:"Reya's Loyalty Test",
+    title:"Ria's Loyalty Test",
     body:[
-      "Breakfast time in the villa garden. Reya sits across from you, sunglasses on, chai in hand. The others are still asleep.",
+      "Breakfast time in the villa garden. Ria sits across from you, sunglasses on, chai in hand. The others are still asleep.",
       "She leans in: <b>'Main jaanna chahti hoon</b> — agar things get rough, main tumpe count kar sakti hoon?' The Luminary deal is still in the air. She knows you know.",
       "Yeh moment is not a question. It's a test. Aur Kabir is watching from the kitchen window."
     ],
@@ -249,13 +249,13 @@ export const SITUATIONS: Situation[] = [
     q:'Kya bologe?',
     choices:[
       {
-        t:'Pledge loyalty to Reya',
+        t:'Pledge loyalty to Ria',
         s:'Lock in the most powerful alliance in the house.',
         deltas:{fame:10,trust:-5,heat:8},
         caption:'Kuch alliances feel right from day one. Main in hoon. 🤝',
         reactions:[
-          {char:'reya', text:'Good. Main bhool nahi karti. Woh bhi promises, woh bhi betrayals.'},
-          {char:'meher', text:'Reya ke saath? Be careful — uski loyalty selective hoti hai. 🫶'},
+          {char:'ria', text:'Good. Main bhool nahi karti. Woh bhi promises, woh bhi betrayals.'},
+          {char:'meher', text:'Ria ke saath? Be careful — uski loyalty selective hoti hai. 🫶'},
           {char:'__fan', name:'housewatch_india', text:'Alliance confirmed?? Game changer or trap? 👀'},
         ]
       },
@@ -265,9 +265,9 @@ export const SITUATIONS: Situation[] = [
         deltas:{fame:5,trust:12,heat:-3},
         caption:'Is ghar mein kuch bhi pakka nahi. Main soch ke chalti hoon. 🎯',
         reactions:[
-          {char:'kabir', text:'Smart. Reya ke haath mein khud ko mat de. Main hoon na. 😭'},
-          {char:'reya', text:"Interesting. Let's see how long that lasts. 👑"},
-          {char:'__fan', name:'creator.tea', text:'Not committing to Reya?? Bold or stupid?'},
+          {char:'kabir', text:'Smart. Ria ke haath mein khud ko mat de. Main hoon na. 😭'},
+          {char:'ria', text:"Interesting. Let's see how long that lasts. 👑"},
+          {char:'__fan', name:'creator.tea', text:'Not committing to Ria?? Bold or stupid?'},
         ]
       },
     ]
@@ -277,7 +277,7 @@ export const SITUATIONS: Situation[] = [
     title:"Kabir's Secret Offer",
     body:[
       "Dopahar ka shoot khatam hua. Kabir ne camera band karte waqt aapko side pe bulaya. Living room khali hai.",
-      "<b>'Sun, main tujhe kuch bata raha hoon</b> — Reya is playing EVERYONE. Main uska Counter hoon. Agar tu mere saath hai, Week 2 mein tera naam top pe hoga.'",
+      "<b>'Sun, main tujhe kuch bata raha hoon</b> — Ria is playing EVERYONE. Main uska Counter hoon. Agar tu mere saath hai, Week 2 mein tera naam top pe hoga.'",
       "Uski eyes mein genuineness hai ya calculation? Dono ek saath bhi ho sakte hain."
     ],
     react:{ char:'meher', text:'Kabir ne tujhe approach kiya? Careful yaar. Woh sab record karta hai. ✨' },
@@ -290,7 +290,7 @@ export const SITUATIONS: Situation[] = [
         caption:'Kuch allies loud hote hain, kuch silent. Main dono ke saath hoon. 🔥',
         reactions:[
           {char:'kabir', text:'YO. Ab game shuru hota hai. Week 2 mein duniya dekhegi 😭🔥'},
-          {char:'reya', text:'I heard. Noted. 👑'},
+          {char:'ria', text:'I heard. Noted. 👑'},
           {char:'__fan', name:'housewatch_india', text:'Kabir alliance CONFIRMED?? This changes everything 👀'},
         ]
       },
@@ -346,21 +346,21 @@ export const SITUATIONS: Situation[] = [
     tag:'⚡ DAY 3 · MORNING', day:3,
     title:"housewatch DM",
     body:[
-      "Subah uthte hi phone pe ek anonymous DM: 'Tum jaante ho Reya ke baare mein woh cheez jo tum sochte ho sirf tumhe pata hai? 3 aur log jaante hain. Main unme se ek hoon.'",
-      "Reya abhi neeche breakfast kar rahi hai. Woh confident hai. Shayad woh yeh nahi jaanti.",
+      "Subah uthte hi phone pe ek anonymous DM: 'Tum jaante ho Ria ke baare mein woh cheez jo tum sochte ho sirf tumhe pata hai? 3 aur log jaante hain. Main unme se ek hoon.'",
+      "Ria abhi neeche breakfast kar rahi hai. Woh confident hai. Shayad woh yeh nahi jaanti.",
       "<b>Information = leverage.</b> Ya information = trap. Dono possible hain."
     ],
     react:{ char:'rishi', text:'Anonymous DMs mein truth bhi hoti hai. Main proof chahta hoon. 🎥' },
     q:'Is DM ka kya karoge?',
     choices:[
       {
-        t:'Warn Reya — tell her privately',
+        t:'Warn Ria — tell her privately',
         s:"If she finds out you knew and stayed quiet, you lose her forever.",
         deltas:{fame:8,trust:15,heat:-2},
         caption:'Jo sach hai woh kehna padta hai, chahe comfortable na ho. 🤍',
         reactions:[
-          {char:'reya', text:'...Tu ne mujhe bataya. That matters. 👑'},
-          {char:'kabir', text:'Oh interesting. Reya ke loyal ban rahe ho? 😭 Dekh lena'},
+          {char:'ria', text:'...Tu ne mujhe bataya. That matters. 👑'},
+          {char:'kabir', text:'Oh interesting. Ria ke loyal ban rahe ho? 😭 Dekh lena'},
           {char:'__fan', name:'creator.tea', text:'Is this loyalty or strategy??'},
         ]
       },
@@ -430,7 +430,7 @@ export const SITUATIONS: Situation[] = [
         deltas:{fame:18,trust:5,heat:14},
         caption:'Main hun, yeh meri story hai. Koi aur nahi likhega. 🎙️',
         reactions:[
-          {char:'reya', text:'Bold. Par ab tujhe actually deliver karna hoga. 👑'},
+          {char:'ria', text:'Bold. Par ab tujhe actually deliver karna hoga. 👑'},
           {char:'rishi', text:'Live recording start kar diya. Good content. 🎥'},
           {char:'__fan', name:'housewatch_india', text:'SHE\'S GOING LIVE ABOUT THE THREAD 🔥🔥'},
         ]
@@ -453,7 +453,7 @@ export const SITUATIONS: Situation[] = [
     title:"Luminary Deal: Final Answer",
     body:[
       "Luminary Brands ne final deadline di hai: aaj shaam tak. Woh chahte hain ki <b>ek solo creator</b> deal sign kare — official face of the campaign.",
-      "Reya assumes it's hers. Dev ne already apply kar diya — quietly, through Kabir's contact. Tumhara DM abhi bhi unanswered hai.",
+      "Ria assumes it's hers. Dev ne already apply kar diya — quietly, through Kabir's contact. Tumhara DM abhi bhi unanswered hai.",
       "5 lakh. Ek post. Ek naam. Sirf ek."
     ],
     react:{ char:'zoya', text:'Main sunta toh hoon sab par bolti nahi. Par yeh deal... interesting hai. 💅' },
@@ -465,7 +465,7 @@ export const SITUATIONS: Situation[] = [
         deltas:{fame:25,trust:-18,heat:22},
         caption:'Opportunities wait for no one. Especially not in Creator House. 🔥',
         reactions:[
-          {char:'reya', text:'Oh. OH. Main yaad rakhungi yeh. 👑'},
+          {char:'ria', text:'Oh. OH. Main yaad rakhungi yeh. 👑'},
           {char:'dev', text:'Competitor confirmed 💪 may the best one win'},
           {char:'__fan', name:'housewatch_india', text:'THE BRAND DEAL WAR HAS BEGUN 💀💀'},
         ]
@@ -522,11 +522,11 @@ export const SITUATIONS: Situation[] = [
     tag:'⚡ DAY 4 · NIGHT', day:4,
     title:"Week 1 Vote",
     body:[
-      "The house gathers. Week 1 is done. Second elimination vote — and this time, <b>Reya has the deciding vote.</b>",
+      "The house gathers. Week 1 is done. Second elimination vote — and this time, <b>Ria has the deciding vote.</b>",
       "But there's a twist: she's asking for yours first. 'Meher ya Kabir?' she whispers. 'Main same vote karungi, promise.'",
       "Meher — loyal, safe, genuine. Kabir — powerful, dangerous, entertaining. Ek vote. Ab."
     ],
-    react:{ char:'zoya', text:'Reya ne tujhse poocha? Woh tujhe trust karti hai. Ya test kar rahi hai. 💅' },
+    react:{ char:'zoya', text:'Ria ne tujhse poocha? Woh tujhe trust karti hai. Ya test kar rahi hai. 💅' },
     q:'Kisko vote karoge?',
     choices:[
       {
@@ -546,7 +546,7 @@ export const SITUATIONS: Situation[] = [
         deltas:{fame:12,trust:-14,heat:22},
         caption:'Yeh game hai. Aur main yahan sirf dost banane nahi aayi. ♟️',
         reactions:[
-          {char:'reya', text:'Interesting. Tu same vote kiya. Now I know where you stand. 👑'},
+          {char:'ria', text:'Interesting. Tu same vote kiya. Now I know where you stand. 👑'},
           {char:'kabir', text:'YASSS. NOW WE TALK. You\'re actually playing 🔥🔥'},
           {char:'__fan', name:'housewatch_india', text:'SHE VOTED OUT MEHER?? Villain arc CONFIRMED 💀'},
         ]
@@ -562,7 +562,7 @@ export const SITUATIONS: Situation[] = [
     body:[
       'Welcome dinner, villa terrace. Fairy lights, everyone looking incredible. You\'re between Zoya and Adi, telling them about your latest reel hitting 2M views. Finally among your people.',
       'Then Rohan from brand partner Aestivo does a casual intro round. He calls Meher "brilliant" — and when he gets to you: <b>"Ananya! The dance girl. Super cute, yaar. My 14-year-old cousin loves your transitions."</b> He moves on before you can say anything else.',
-      'The table heard. Kabir raises an eyebrow. Reya, at the far end, meets your eyes for exactly one second — the kind that says she filed that moment away. You have the rest of this dinner to decide who you are in this house. Or let them decide for you.',
+      'The table heard. Kabir raises an eyebrow. Ria, at the far end, meets your eyes for exactly one second — the kind that says she filed that moment away. You have the rest of this dinner to decide who you are in this house. Or let them decide for you.',
     ],
     react:{ char:'kabir', text:'Ooh. Rohan just sorted you into the kiddie table. What are you going to do with that? 👀' },
     q:'The "dance girl" comment lands in front of everyone. How do you handle it?',
@@ -573,7 +573,7 @@ export const SITUATIONS: Situation[] = [
         deltas:{fame:12,trust:-4,heat:6},
         caption:'Showed up to dinner, stayed for the conversation. Just because I dance doesn\'t mean I can\'t talk 💀 #CreatorHouse #Day1',
         reactions:[
-          {char:'reya', text:'Interesting. She recovered faster than I expected.'},
+          {char:'ria', text:'Interesting. She recovered faster than I expected.'},
           {char:'__fan', name:'housewatch_india', text:'ANANYA CLAPPING BACK AT ROHAN AESTIVO omg she\'s not here to play'},
         ]
       },
@@ -592,14 +592,14 @@ export const SITUATIONS: Situation[] = [
   {
     tag:'☀️ DAY 1 · AFTERNOON',
     day:1, chars:['ananya'],
-    title:"Reya's Compliment",
+    title:"Ria's Compliment",
     body:[
-      "You're on the terrace stretching, phone propped against the railing. Reya drifts over with her iced coffee. Casual. Unhurried. Like she owns this space — which she does.",
+      "You're on the terrace stretching, phone propped against the railing. Ria drifts over with her iced coffee. Casual. Unhurried. Like she owns this space — which she does.",
       "<b>'I love how you're completely unbothered by all this,'</b> she says. 'Like, there's something genuinely sweet about a creator who's still just... happy to be here. Most people lose that.' She smiles. It's warm. It's kind. Three seconds later you realize it's a sentence with a knife inside it.",
-      "What you don't know: Rishi's on the far end of the terrace with his camera pointed at you both. That clip — Reya saying 'sweet about a creator who's still just happy to be here' — is about to hit #CreatorHouseLeak with 'Reya putting Ananya in her place??' You have forty seconds before you lose control of this moment.",
+      "What you don't know: Rishi's on the far end of the terrace with his camera pointed at you both. That clip — Ria saying 'sweet about a creator who's still just happy to be here' — is about to hit #CreatorHouseLeak with 'Ria putting Ananya in her place??' You have forty seconds before you lose control of this moment.",
     ],
     react:{ char:'rishi', text:'Already uploading. This is going to be the clip of the day. 🎥' },
-    q:"Reya's backhanded compliment is about to go viral. What's your move?",
+    q:"Ria's backhanded compliment is about to go viral. What's your move?",
     choices:[
       {
         t:'Flip the frame — straight to camera',
@@ -607,18 +607,18 @@ export const SITUATIONS: Situation[] = [
         deltas:{fame:18,trust:-8,heat:12},
         caption:'She said sweet. I heard that as a compliment. We\'re good here 🤍 #CreatorHouse #Day1',
         reactions:[
-          {char:'reya', text:'She saw Rishi. Good instincts. I\'m going to have to be more careful.'},
+          {char:'ria', text:'She saw Rishi. Good instincts. I\'m going to have to be more careful.'},
           {char:'__fan', name:'housewatch_india', text:'ANANYA KNEW THE CAMERA WAS ON AND STILL SAID IT. this girl is not what i expected'},
         ]
       },
       {
         t:'Miss it — respond genuinely',
-        s:'You take Reya at face value. You don\'t realize the clip is already live.',
+        s:'You take Ria at face value. You don\'t realize the clip is already live.',
         deltas:{fame:-5,trust:16,heat:3},
-        caption:'Day 1 and Reya said the sweetest thing to me 🥹 grateful to be here for real. #CreatorHouse',
+        caption:'Day 1 and Ria said the sweetest thing to me 🥹 grateful to be here for real. #CreatorHouse',
         reactions:[
           {char:'meher', text:'Oh no. She didn\'t catch it. Someone should warn her.'},
-          {char:'__fan', name:'creator.tea', text:'Ananya thought that was a real compliment... someone tell her what Reya actually said 😭'},
+          {char:'__fan', name:'creator.tea', text:'Ananya thought that was a real compliment... someone tell her what Ria actually said 😭'},
         ]
       },
     ]
@@ -675,7 +675,7 @@ export const SITUATIONS: Situation[] = [
         deltas:{fame:20,trust:-6,heat:18},
         caption:'Posted my idea at 1:47AM. Dev posted 2:14AM. Just so the timeline is clear. 🙂 #CreatorHouse',
         reactions:[
-          {char:'reya', text:'She kept receipts and posted them on Day 1. She\'s going to be a problem.'},
+          {char:'ria', text:'She kept receipts and posted them on Day 1. She\'s going to be a problem.'},
           {char:'__fan', name:'housewatch_india', text:'THE TIMESTAMPS. THE VOICE NOTE. ANANYA SAID CHOOSE VIOLENCE I AM SCREAMING'},
         ]
       },
@@ -698,7 +698,7 @@ export const SITUATIONS: Situation[] = [
     day:1, chars:['kabir'],
     title:'The Receipts Room',
     body:[
-      "You're getting water at 7:43 AM when you hear it — Reya and Meher, low voices on the balcony. The sliding door is cracked. Reya is telling Meher she already has a brand deal lined up that bypasses the house manager. <b>Before anyone else even unpacks.</b> You hear a number. It's big.",
+      "You're getting water at 7:43 AM when you hear it — Ria and Meher, low voices on the balcony. The sliding door is cracked. Ria is telling Meher she already has a brand deal lined up that bypasses the house manager. <b>Before anyone else even unpacks.</b> You hear a number. It's big.",
       "This is Day 1. You haven't even had breakfast. And you already have something no one else has — a secret that belongs to the house's alpha.",
       "Kabir's brain runs the math. Tell someone and you're a gossip. Record it and you're protected. Walk away clean — but you walk away with nothing except knowledge. And knowledge, in this house, is the only currency that doesn't run out.",
     ],
@@ -712,7 +712,7 @@ export const SITUATIONS: Situation[] = [
         caption:'Day 1 and already feeling like the house has layers 👀 #CreatorHouse #JustObserving',
         reactions:[
           {char:'meher', text:'Why does he look like he knows something? He always looks like he knows something.'},
-          {char:'__fan', name:'housewatch_india', text:'kabir was in the kitchen at 7:43. reya and meher were on the balcony. the timeline is right there people 🧵'},
+          {char:'__fan', name:'housewatch_india', text:'kabir was in the kitchen at 7:43. ria and meher were on the balcony. the timeline is right there people 🧵'},
         ]
       },
       {
@@ -721,7 +721,7 @@ export const SITUATIONS: Situation[] = [
         deltas:{fame:5,trust:8,heat:-5},
         caption:'Morning energy in the house is immaculate. No notes. ☀️ #CreatorHouse #Day1',
         reactions:[
-          {char:'reya', text:'Kabir seems chill. Which is either genuine or a performance. Both are concerning.'},
+          {char:'ria', text:'Kabir seems chill. Which is either genuine or a performance. Both are concerning.'},
           {char:'__fan', name:'content.tea.daily', text:'see this is why kabir always survives. he just MOVES DIFFERENT. no unnecessary noise.'},
         ]
       },
@@ -730,14 +730,14 @@ export const SITUATIONS: Situation[] = [
   {
     tag:'⚡ DAY 1 · LATE MORNING',
     day:1, chars:['kabir'],
-    title:"Reya Asks Directly",
+    title:"Ria Asks Directly",
     body:[
-      "The group chat drama has been live for forty minutes. Reya is moving quietly through the house, talking to people one by one. Now it's your turn.",
+      "The group chat drama has been live for forty minutes. Ria is moving quietly through the house, talking to people one by one. Now it's your turn.",
       "She sits across from you, sets her phone face-down, and looks at you with the calm of someone who already has a theory. <b>'Kabir. Be honest with me. Do you know who started the leak?'</b> She's not asking like she suspects you. She's asking like she's decided you're the person who would know.",
       "This is the test. If you lie cleanly, you're her informant — useful, protected, but obligated. If you tell enough truth — that you did it, played right — you're either her enemy or the most interesting person in this house.",
     ],
     react:{ char:'kabir', text:'Yaar, why does everyone think I know things? ...Okay I know things. 😭' },
-    q:'Reya is waiting. Eye contact. What do you tell her?',
+    q:'Ria is waiting. Eye contact. What do you tell her?',
     choices:[
       {
         t:'Deflect with a name. Point at Dev.',
@@ -745,7 +745,7 @@ export const SITUATIONS: Situation[] = [
         deltas:{fame:8,trust:-15,heat:12},
         caption:'Some people come in playing chess, some come in playing checkers. Bas. 🤷 #CreatorHouse',
         reactions:[
-          {char:'reya', text:'Interesting. He said Dev without hesitating. Either it\'s true or he practiced that.'},
+          {char:'ria', text:'Interesting. He said Dev without hesitating. Either it\'s true or he practiced that.'},
           {char:'__fan', name:'dramaalert_creators', text:'KABIR JUST THREW DEV UNDER THE BUS ON DAY ONE. I am not okay. I am eating. 🍿'},
         ]
       },
@@ -755,8 +755,8 @@ export const SITUATIONS: Situation[] = [
         deltas:{fame:12,trust:5,heat:18},
         caption:'Sometimes the most powerful thing you can do is just... listen. 🎙️ #CreatorHouse #Day1',
         reactions:[
-          {char:'reya', text:'He bargained with me. On Day 1. I actually respect it. I need to watch him closely.'},
-          {char:'__fan', name:'housewatch_india', text:'the way kabir and reya were at the table for 12 minutes and both came out smiling. ALLIANCE CONFIRMED OR THREAT ASSESSMENT?'},
+          {char:'ria', text:'He bargained with me. On Day 1. I actually respect it. I need to watch him closely.'},
+          {char:'__fan', name:'housewatch_india', text:'the way kabir and ria were at the table for 12 minutes and both came out smiling. ALLIANCE CONFIRMED OR THREAT ASSESSMENT?'},
         ]
       },
     ]
@@ -833,14 +833,14 @@ export const SITUATIONS: Situation[] = [
   // ── REYA-SPECIFIC Day 1 situations ────────────────────────────────────────
   {
     tag:'⚡ DAY 1 · MORNING',
-    day:1, chars:['reya'],
+    day:1, chars:['ria'],
     title:'The Receipt',
     body:[
       "You're mid-unpacking when Rishi wanders in — camera on, obviously. He's hovering near the bed where you dumped your tote. The Prada bag you carried in. The one with the dry-cleaning tag still looped around the handle. And underneath it, slipping out: <b>a return receipt. Zara Home. ₹4,200.</b> For a throw blanket you posted as 'gifted, obsessed' three weeks ago.",
       "He hasn't seen it yet. His eyes are on his camera screen. The receipt is cream-coloured and small but the word RETURN is printed in caps and you know exactly what it looks like.",
       "85 fame. Three brand pitches in your pipeline. One receipt and the whole architecture wobbles. You have maybe four seconds.",
     ],
-    react:{ char:'rishi', text:'"Your setup looks so curated, Reya. Can I do a room tour with you?" 🎥' },
+    react:{ char:'rishi', text:'"Your setup looks so curated, Ria. Can I do a room tour with you?" 🎥' },
     q:"Rishi's camera is live. The receipt is inches from his lens. How do you play this?",
     choices:[
       {
@@ -867,14 +867,14 @@ export const SITUATIONS: Situation[] = [
   },
   {
     tag:'⚡ DAY 1 · AFTERNOON',
-    day:1, chars:['reya'],
+    day:1, chars:['ria'],
     title:'Luminary Is Shopping',
     body:[
       "The DM comes in at 2:47 PM. It's Priya from Luminary — the partnerships lead, the one who went cold on you for six weeks.",
       "'Hey babe — so excited about the house! Quick q — noticed a few other faces in the cast list. Are any of them aligned with the luxury positioning we talked about? Just doing our due diligence before we finalise things 🙏'",
       "<b>They're shopping.</b> Six weeks of decks and mood boards and a three-call pitch and they're in your house, looking at your competitors. Ananya posted a reel this morning that got 2.3M views in four hours. You have 85 fame and Luminary just watched Ananya trend.",
     ],
-    react:{ char:'kabir', text:'"Reya you look stressed. Bad news? Or just the afternoon light?" 😭' },
+    react:{ char:'kabir', text:'"Ria you look stressed. Bad news? Or just the afternoon light?" 😭' },
     q:'Luminary wants intel on your housemates. What do you send back?',
     choices:[
       {
@@ -884,7 +884,7 @@ export const SITUATIONS: Situation[] = [
         caption:'Luxury is a feeling, not a price tag. Some people get it 🤍 #CreatorHouse',
         reactions:[
           {char:'ananya', text:'Has no idea. Posts a thank-you reel for the housemates. It does numbers.'},
-          {char:'__fan', name:'lore.archive', text:'Reya\'s confessional cut away really fast when she checked her phone. production noticed.'},
+          {char:'__fan', name:'lore.archive', text:'Ria\'s confessional cut away really fast when she checked her phone. production noticed.'},
         ]
       },
       {
@@ -894,21 +894,21 @@ export const SITUATIONS: Situation[] = [
         caption:'When the deal is worth doing, you show up differently. Non-negotiable energy 🖤 #CreatorHouse',
         reactions:[
           {char:'zoya', text:'Spots you on the phone outside, notes the body language, says nothing to your face. 💅'},
-          {char:'__fan', name:'housewatch_india', text:'Reya disappeared for 20 min right after Ananya\'s reel popped off. coincidence?'},
+          {char:'__fan', name:'housewatch_india', text:'Ria disappeared for 20 min right after Ananya\'s reel popped off. coincidence?'},
         ]
       },
     ]
   },
   {
     tag:'⚡ DAY 1 · EVENING',
-    day:1, chars:['reya'],
+    day:1, chars:['ria'],
     title:'Humble Beginnings',
     body:[
       "First group dinner. Twelve mics, two camera rigs. Someone asks everyone to share 'their origin story — where they started, what drove them here.'",
       "Meher goes first. Dad's medical debt, skincare channel from a shared bathroom. Standing ovation. Ananya mentions a chawl in Mulund and everyone melts. Then the camera turns to you.",
       "You have a version: 'I was just a girl from Bandra with a phone and a dream.' Technically true. <b>Bandra West. Second floor of a building your parents own outright.</b> A phone that cost ₹1.4 lakh. Kabir is sitting directly across from you with a look on his face like he already knows the zip code.",
     ],
-    react:{ char:'kabir', text:'"Bandra, right Reya? Which part — Hill Road side or the other side? 😇"' },
+    react:{ char:'kabir', text:'"Bandra, right Ria? Which part — Hill Road side or the other side? 😇"' },
     q:"The camera is on you. Kabir just named the postcode. What's your origin story tonight?",
     choices:[
       {
@@ -918,7 +918,7 @@ export const SITUATIONS: Situation[] = [
         caption:'Privilege doesn\'t protect you from imposter syndrome. That\'s my honest origin. #CreatorHouse',
         reactions:[
           {char:'meher', text:'"Honestly? That took more guts than the sad story. Respect."'},
-          {char:'__fan', name:'creator.tea', text:'ok reya admitting the bandra west life is actually more interesting than her usual vague "hustle" narrative??'},
+          {char:'__fan', name:'creator.tea', text:'ok ria admitting the bandra west life is actually more interesting than her usual vague "hustle" narrative??'},
         ]
       },
       {
@@ -928,14 +928,14 @@ export const SITUATIONS: Situation[] = [
         caption:'Everyone starts somewhere. Mine just started with a lot of intention 🤍 #CreatorHouse',
         reactions:[
           {char:'kabir', text:'Smiles into his water glass. Doesn\'t say another word. That\'s somehow worse.'},
-          {char:'__fan', name:'housewatch_india', text:'why does reya\'s origin story change slightly every time she tells it. someone make a compilation'},
+          {char:'__fan', name:'housewatch_india', text:"why does ria's origin story change slightly every time she tells it. someone make a compilation"},
         ]
       },
     ]
   },
   {
     tag:'⚡ DAY 1 · NIGHT',
-    day:1, chars:['reya'],
+    day:1, chars:['ria'],
     title:"Meher's Alliance",
     body:[
       "Past midnight. Cameras still on but crew has thinned. You're on the terrace doing your nighttime skincare. Meher comes out with two cups of chai and sits without being invited.",
@@ -952,7 +952,7 @@ export const SITUATIONS: Situation[] = [
         caption:'Night one and I already found my person in the house 🤍 you know who you are #CreatorHouse',
         reactions:[
           {char:'meher', text:'Squeezes your hand. Doesn\'t perform it for the camera. Somehow this makes it worse.'},
-          {char:'__fan', name:'lore.archive', text:'Reya and Meher terrace scene already has a ship name in the comments. they\'re going to eat this up.'},
+          {char:'__fan', name:'lore.archive', text:'Ria and Meher terrace scene already has a ship name in the comments. they\'re going to eat this up.'},
         ]
       },
       {
@@ -962,7 +962,7 @@ export const SITUATIONS: Situation[] = [
         caption:'Day 1 energy: choosing carefully, not quickly. 🖤 #CreatorHouse',
         reactions:[
           {char:'meher', text:'Nods once. Picks up her chai. Lets the silence sit without filling it.'},
-          {char:'__fan', name:'housewatch_india', text:'Meher literally offered friendship and Reya gave her a press statement. girl is ARMORED'},
+          {char:'__fan', name:'housewatch_india', text:'Meher literally offered friendship and Ria gave her a press statement. girl is ARMORED'},
         ]
       },
     ]
@@ -976,12 +976,12 @@ export function getVisibleSituations(charId: CharId | null): typeof SITUATIONS {
   return SITUATIONS.filter(s => !s.chars || s.chars.includes(charId))
 }
 
-export const DM_ORDER: CharId[] = ['kabir','meher','reya','ananya','dev','zoya','rishi','adi']
+export const DM_ORDER: CharId[] = ['kabir','meher','ria','ananya','dev','zoya','rishi','adi']
 
 export const DM_HOOKS: Record<CharId, string> = {
   kabir:  'Yaar, tere baare mein curious hoon. Kya deal hai tera? 👀 Main help kar sakta hoon — bas ek cheez chahiye mere se pehle.',
   meher:  'Arey, seedha message kar le. Kyun sochna? Yeh ghar sab ka hai. 🫶 Pehla din kaisa raha tera?',
-  reya:   'Tune aaj achha decision liya. Main notice karti hoon. 👀',
+  ria:   'Tune aaj achha decision liya. Main notice karti hoon. 👀',
   ananya: 'Omg tujhe bhi akela lag raha hai kya?? Main toh subah se 😭 Tu sacha insaan hai na?',
   dev:    'Perfect timing yaar. Ek collab reel — tera follower count 3x guaranteed. Seedha deal, koi strings nahi.',
   zoya:   'Tujhe thodi der se dekh rahi thi. Interesting aura hai tera. 💅',
@@ -992,7 +992,7 @@ export const DM_HOOKS: Record<CharId, string> = {
 export const DM_PREVIEW: Record<CharId, string> = {
   kabir:  'Sun, ek baat poochhni thi... 👀',
   meher:  'Pehla din kaisa raha? Adjust ho rahi ho? 🫶',
-  reya:   'Interesting choice thi teri aaj. 👀',
+  ria:   'Interesting choice thi teri aaj. 👀',
   ananya: 'Tu acha hai na? Yahan koi samajhta nahi 🥺',
   dev:    'Collab karte hain. 60-40. Tera reach phatega.',
   zoya:   'Maine notice kiya tujhe. Just saying. 💅',
@@ -1001,19 +1001,19 @@ export const DM_PREVIEW: Record<CharId, string> = {
 }
 
 export const DM_TIME: Record<CharId, string> = {
-  kabir:'3m', meher:'8m', reya:'22m', ananya:'1h',
+  kabir:'3m', meher:'8m', ria:'22m', ananya:'1h',
   dev:'2h', zoya:'3h', rishi:'5h', adi:'just now',
 }
 
 export const DM_UNREAD: CharId[] = ['kabir','meher']
 export const DM_TRUST: Record<CharId, number> = {
-  kabir:25, meher:70, reya:40, ananya:60, dev:65, zoya:45, rishi:55, adi:40,
+  kabir:25, meher:70, ria:40, ananya:60, dev:65, zoya:45, rishi:55, adi:40,
 }
 
 export const DM_QUICK: Record<CharId, string[]> = {
-  kabir:  ['Kya soch raha hai tu?', 'Reya ke baare mein kya lagta?', 'Trust karoon ya nahi tujhe?'],
+  kabir:  ['Kya soch raha hai tu?', 'Ria ke baare mein kya lagta?', 'Trust karoon ya nahi tujhe?'],
   meher:  ['Yahan kaise survive karoon?', 'Kispe bharosa karoon?', 'Kabir ka kya scene hai?'],
-  reya:   ['Tujhe mujhse kya chahiye?', 'Top pe kaise pahuche?', 'Game samjha mujhe.'],
+  ria:   ['Tujhe mujhse kya chahiye?', 'Top pe kaise pahuche?', 'Game samjha mujhe.'],
   ananya: ['Tu theek hai?', 'Akela feel hota hai yahan?', 'Saath chalein?'],
   dev:    ['Deal ke baare mein batao', '60-40 kyun?', 'Collab mein kya milega mujhe?'],
   zoya:   ['Kya notice kiya tune?', 'Seedhi baat kar', 'Kispe nazar hai teri?'],
@@ -1024,7 +1024,7 @@ export const DM_QUICK: Record<CharId, string[]> = {
 export const DM_MOCK: Record<CharId, string[]> = {
   kabir: [
     'Seedhi baat — tujhe koi nahi dekh raha yahan. Main dekh raha hoon. 👀 Ab question yeh hai ki teri value kya hai mere liye.',
-    'Arre sun, Reya ke baare mein jo suna hai tune woh 50% sach hai. Baaki 50% main fill karta hoon. Kya milega mujhe? 😭',
+    'Arre sun, Ria ke baare mein jo suna hai tune woh 50% sach hai. Baaki 50% main fill karta hoon. Kya milega mujhe? 😭',
     'Bhai sab log socha hai ki main villain hoon. Par villain bhi toh ek role hai na? Is ghar mein bekar log character karte hain. Tu alag lag raha hai. 🔥',
     'Rishi ne kuch record kiya hai. Tujhe interesting lagega. Main share kar sakta hoon — ek choti si help ke badle. 👀',
     'Ek sach bolunga — is ghar mein koi genuinely tera dost nahi hai. Main bhi nahi. Par main honest toh hoon. Aur honesty ki bhi kuch value hoti hai na? 😭',
@@ -1033,10 +1033,10 @@ export const DM_MOCK: Record<CharId, string[]> = {
     'Mujhe laga tha adjust hone mein waqt lagega. Par tum theek lag rahe ho. Dekh, is ghar mein sab play karte hain. Main bhi. Par tere saath honest rahungi. 🫶',
     'Kabir pe trust mat karna. Woh footage rakhta hai. Bakwaas ke liye nahi — leverage ke liye.',
     'Yahan jaldi decide mat karna kuch bhi. Is ghar mein patience sabse rare cheez hai — aur sabse powerful bhi. ✨',
-    'Main tujhe kuch bolunga off record — Reya ki "clean" image puri manufactured hai. Par tujhe decide karna hai kya karna chahte ho is information ka. 🫶',
+    'Main tujhe kuch bolunga off record — Ria ki "clean" image puri manufactured hai. Par tujhe decide karna hai kya karna chahte ho is information ka. 🫶',
     'Yahan har koi angle play kar raha hai. Mera angle yeh hai ki ek banda hona chahiye jo genuinely sab dekhe. Mujhe lagta hai tu woh ho sakta hai. ✨',
   ],
-  reya: [
+  ria: [
     'Main timepass nahi karti. Agar tujhse baat kar rahi hoon toh koi reason hai. Socho.',
     'Bharosa? Is ghar mein? Seedha bolo kya chahiye — phir dekhte hain.',
     'Tere baare mein interesting kya hai — tu khud nahi jaanta. Main jaanti hoon. 👀',
@@ -1048,7 +1048,7 @@ export const DM_MOCK: Record<CharId, string[]> = {
     'Main strong dikhne ki koshish karti hoon par andar se darr lagta hai. Tu judge toh nahi karega na? ✨',
     'Kabir ne help karne ka promise kiya tha. Phir bina bataye woh clip post kar di. Yahan koi kisi ka nahi hai. 😭',
     'Main sirf ek cheez chahti hoon — log mujhe seriously lein. Sirf dancer nahi. Ek real creator. Kya tujhe lagta hai woh kabhi hoga yahan? 🥺',
-    'Reya ne aaj meri latest reel pe bola "cute attempt." Cute attempt. Main 10 minute confessional mein akele baithi rahi. Tu samajhta hai na? ✨',
+    'Ria ne aaj meri latest reel pe bola "cute attempt." Cute attempt. Main 10 minute confessional mein akele baithi rahi. Tu samajhta hai na? ✨',
   ],
   dev: [
     'Sun, time = money. Ek collab, 60-40, mera split. Tera reach 2-3x minimum. Haan ya na? 💪',
@@ -1060,7 +1060,7 @@ export const DM_MOCK: Record<CharId, string[]> = {
   zoya: [
     'Maine dekha tujhe Kabir se baat karte. Careful. Woh sweet nahi hai. Main hoon... thodi zyada. 💅',
     'On camera main sabki dost hoon. Off camera? Main sirf un logon ki dost hoon jo kaam aate hain. Tu aayega? 👀',
-    'Reya aur main? History hai. Ek din unse poochna kya happen kiya Season 0 mein. Woh nahi bolegi. Shayad main bolun. 💅',
+    'Ria aur main? History hai. Ek din unse poochna kya happen kiya Season 0 mein. Woh nahi bolegi. Shayad main bolun. 💅',
     'Mujhe laga tu interesting nahi hoga. Main galat thi. Is ghar mein interesting log rare hain. 👀',
     'Seedha baat karein — tu mere liye useful ho sakta hai, main tere liye. Transactional friendship bhi friendship hoti hai. 💅',
   ],
@@ -1088,10 +1088,10 @@ export interface PostCommentOption {
 }
 
 export const POST_COMMENTS: Record<string, PostCommentOption[]> = {
-  reya: [
-    { text: 'Inspired 🤍 This is everything.',   deltas:{ fame:3, trust:5, heat:0 },  toast:'Reya noticed you. Trust +5' },
-    { text: 'Easy to say when you have it all 🙄', deltas:{ fame:2, trust:-8, heat:8 }, toast:'Reya is not pleased. Trust -8' },
-    { text: 'Can you mentor me? 🙏',              deltas:{ fame:5, trust:10, heat:0 },  toast:'Reya appreciated the ask. Trust +10' },
+  ria: [
+    { text: 'Inspired 🤍 This is everything.',   deltas:{ fame:3, trust:5, heat:0 },  toast:'Ria noticed you. Trust +5' },
+    { text: 'Easy to say when you have it all 🙄', deltas:{ fame:2, trust:-8, heat:8 }, toast:'Ria is not pleased. Trust -8' },
+    { text: 'Can you mentor me? 🙏',              deltas:{ fame:5, trust:10, heat:0 },  toast:'Ria appreciated the ask. Trust +10' },
   ],
   kabir: [
     { text: 'Lol this is so accurate 😭',         deltas:{ fame:4, trust:6, heat:2 },  toast:'Kabir liked this. Trust +6' },

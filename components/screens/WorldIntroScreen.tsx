@@ -3,11 +3,11 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useApp } from '@/lib/context'
 import { CHARS } from '@/lib/data'
 
-type CharId = 'reya'|'kabir'|'meher'|'dev'|'ananya'|'zoya'|'rishi'|'adi'
-const CAST: CharId[] = ['reya','kabir','meher','dev','ananya','zoya','rishi','adi']
+type CharId = 'ria'|'kabir'|'meher'|'dev'|'ananya'|'zoya'|'rishi'|'adi'
+const CAST: CharId[] = ['ria','kabir','meher','dev','ananya','zoya','rishi','adi']
 
 const CHAR_DESC: Record<CharId, string> = {
-  reya:   'Luxury lifestyle. 24. The house alpha.',
+  ria:    'Luxury lifestyle. 24. The house alpha.',
   kabir:  "Everyone's friend. Nobody's ally.",
   meher:  'Warm, wise — and watching everything.',
   dev:    'Fitness, brands. Loyalty for sale.',

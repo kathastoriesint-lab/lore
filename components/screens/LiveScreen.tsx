@@ -287,9 +287,9 @@ export default function LiveScreen() {
               </button>
               <button
                 style={{ width: '100%', height: 48, background: 'transparent', color: 'var(--ink3)', fontWeight: 500, fontSize: 14, borderRadius: 14, border: '1px solid var(--line)' }}
-                onClick={() => openDMThread('reya')}
+                onClick={() => openDMThread('ria')}
               >
-                Reya ka reaction →
+                Ria ka reaction →
               </button>
             </div>
           </div>

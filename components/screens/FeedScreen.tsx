@@ -261,10 +261,10 @@ export default function FeedScreen() {
           </div>
         )}
 
-        {/* Post: Reya */}
+        {/* Post: Ria */}
         <div className="post">
           <div className="post-head">
-            <button className="av c-reya" style={{ width:34, height:34, fontSize:14, padding:0, backgroundImage:'url(/avatars/reya.png)', backgroundSize:'cover', backgroundPosition:'center', border:'none', cursor:'pointer' }} onClick={() => setViewingChar('reya')}>
+            <button className="av c-reya" style={{ width:34, height:34, fontSize:14, padding:0, backgroundImage:'url(/avatars/reya.png)', backgroundSize:'cover', backgroundPosition:'center', border:'none', cursor:'pointer' }} onClick={() => setViewingChar('ria')}>
               <span style={{ opacity: 0 }}>R</span>
             </button>
             <div className="post-id">
@@ -279,28 +279,28 @@ export default function FeedScreen() {
             <p className="overlay-txt">"Stress ko content mein convert karo. Seekho." 🤍</p>
           </div>
           <div className="post-actions">
-            <button onClick={() => likePost('reya-post', 'reya', 3)} style={{ background:'none', border:'none', cursor:'pointer', display:'flex', alignItems:'center' }}>
+            <button onClick={() => likePost('reya-post', 'ria', 3)} style={{ background:'none', border:'none', cursor:'pointer', display:'flex', alignItems:'center' }}>
               <svg viewBox="0 0 24 24" fill={likedPosts.has('reya-post') ? 'var(--accent)' : 'none'} stroke={likedPosts.has('reya-post') ? 'var(--accent)' : '#fff'} strokeWidth="1.8" strokeLinecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
             </button>
-            <button onClick={() => setCommentPost(commentPost === 'reya' ? null : 'reya')} style={{ background:'none', border:'none', cursor:'pointer', display:'flex', alignItems:'center' }}>
-              <svg viewBox="0 0 24 24" fill="none" stroke={commentPost==='reya' ? 'var(--accent)' : '#fff'} strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <button onClick={() => setCommentPost(commentPost === 'ria' ? null : 'ria')} style={{ background:'none', border:'none', cursor:'pointer', display:'flex', alignItems:'center' }}>
+              <svg viewBox="0 0 24 24" fill="none" stroke={commentPost==='ria' ? 'var(--accent)' : '#fff'} strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
             </button>
             <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
             <div className="spacer" />
             <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
           </div>
-          {commentPost === 'reya' && (
+          {commentPost === 'ria' && (
             <div className="comment-sheet">
               <div className="comment-sheet-label">Comment as {playingChar?.name ?? 'you'}</div>
               {POST_COMMENTS.reya.map((opt, i) => (
-                <button key={i} className="comment-option" onClick={() => handleComment('reya', opt)}>
+                <button key={i} className="comment-option" onClick={() => handleComment('ria', opt)}>
                   {opt.text}
                 </button>
               ))}
             </div>
           )}
           <div className="likes">84,291 likes</div>
-          <div className="caption"><b>reya</b> Kaafi log poochte hain — "Reya, tujhe stress nahi hota?" Stress? Main stress ko content mein convert karti hoon. 🤍</div>
+          <div className="caption"><b>reya</b> Kaafi log poochte hain — "Ria, tujhe stress nahi hota?" Stress? Main stress ko content mein convert karti hoon. 🤍</div>
           <div className="comments-link">View all 2,847 comments</div>
           <div className="ts" style={{ padding: '2px 14px 12px' }}>6 HOURS AGO</div>
         </div>
@@ -313,7 +313,7 @@ export default function FeedScreen() {
               STORY DROP
             </div>
             <div className="sd-title">Brand deal ka phone aaya</div>
-            <div className="sd-sub">Reya ka deal. Tera choice. Kya karoge?</div>
+            <div className="sd-sub">Ria ka deal. Tera choice. Kya karoge?</div>
             <button className="sd-cta" onClick={(e) => { e.stopPropagation(); enterLive() }}>
               <svg viewBox="0 0 24 24" width="16" height="16" fill="#000"><polygon points="5,3 19,12 5,21"/></svg>
               Play the story
@@ -410,7 +410,7 @@ export default function FeedScreen() {
             </button>
           </div>
           <div className="post-img grain" style={{ background: 'linear-gradient(135deg,#8a4ab0,#3a1660)' }}>
-            <p className="overlay-txt">2.1M views raat mein. Subah uthke dekha toh ro padi. Phir Reya ko bataya. Usne bola... "nice." 🥺✨</p>
+            <p className="overlay-txt">2.1M views raat mein. Subah uthke dekha toh ro padi. Phir Ria ko bataya. Usne bola... "nice." 🥺✨</p>
           </div>
           <div className="post-actions">
             <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
@@ -499,7 +499,7 @@ export default function FeedScreen() {
           <div className={`wi-line${introLines[4] ? ' in' : ''}`}>
             <div style={{ display: 'flex', alignItems: 'center', marginTop: 20 }}>
               <div className="wi-chars">
-                {(['reya','kabir','meher','ananya','dev','zoya','rishi','adi'] as const).map((id) => {
+                {(['ria','kabir','meher','ananya','dev','zoya','rishi','adi'] as const).map((id) => {
                   const c = CHARS[id]
                   return (
                     <div key={id} className={`av ${c.cls}`} style={{ width: 32, height: 32, fontSize: 13, marginLeft: 0 }}>
