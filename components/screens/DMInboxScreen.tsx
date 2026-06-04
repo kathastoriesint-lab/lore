@@ -28,9 +28,10 @@ export default function DMInboxScreen() {
   const isCricket = game.world === 'cricket'
   const allChars = { ...CHARS, ...CRICKET_CHARS }
 
-  // Never show the character you're playing as in your own DM list
+  // Cricket world: player plays as themselves, show all characters including Hardik
+  // Creator House: filter out the character being played as
   const visibleChars = isCricket
-    ? CRICKET_DM_ORDER.filter(id => id !== game.char)
+    ? CRICKET_DM_ORDER
     : DM_ORDER.filter(id => id !== game.char)
 
   // Track which chars have been opened (remove unread dot)
