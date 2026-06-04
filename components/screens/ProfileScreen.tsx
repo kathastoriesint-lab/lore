@@ -33,11 +33,6 @@ const CHAR_POSTS: Record<string, { caption: string; bg: string }[]> = {
     { caption: 'Camera never lies 👀', bg: 'linear-gradient(135deg,#1a5f7f,#082030)' },
     { caption: 'We outside 🔥', bg: 'linear-gradient(135deg,#3a7f9f,#0a3050)' },
   ],
-  meher: [
-    { caption: 'Some things stay off camera 🫶', bg: 'linear-gradient(135deg,#b07a2a,#5a3a00)' },
-    { caption: 'Real > curated ✨', bg: 'linear-gradient(135deg,#c08a3a,#4a2a00)' },
-    { caption: 'House diary 🏠', bg: 'linear-gradient(135deg,#906a1a,#3a2000)' },
-  ],
   dev: [
     { caption: '5AM. Always. 💪', bg: 'linear-gradient(135deg,#3a7a4a,#0a2a1a)' },
     { caption: 'Brand deal incoming 🤝', bg: 'linear-gradient(135deg,#2a6a3a,#081a08)' },
@@ -47,16 +42,6 @@ const CHAR_POSTS: Record<string, { caption: string; bg: string }[]> = {
     { caption: 'Hi babies 🥰', bg: 'linear-gradient(135deg,#aa6a8a,#3a1a2a)' },
     { caption: 'GRWM Creator House edition 💅', bg: 'linear-gradient(135deg,#9a5a7a,#2a0a1a)' },
     { caption: 'Not saying anything 👀', bg: 'linear-gradient(135deg,#ba7a9a,#4a2a3a)' },
-  ],
-  rishi: [
-    { caption: 'Raw footage 🎥', bg: 'linear-gradient(135deg,#4a8a2a,#0a2a00)' },
-    { caption: 'You never know who is recording', bg: 'linear-gradient(135deg,#3a7a1a,#081800)' },
-    { caption: 'Day 1 archive', bg: 'linear-gradient(135deg,#5a9a3a,#0a3a00)' },
-  ],
-  adi: [
-    { caption: 'New beginnings 🙏', bg: 'linear-gradient(135deg,#d4581a,#5a1a00)' },
-    { caption: 'Still learning the game', bg: 'linear-gradient(135deg,#2a6f8f,#081a2a)' },
-    { caption: 'Creator House 🏠', bg: 'linear-gradient(135deg,#7a2a8f,#2a0840)' },
   ],
 }
 
@@ -72,7 +57,7 @@ const StatusBar = () => (
 
 export default function ProfileScreen() {
   const { game, navigate, goBack, dmTrust } = useApp()
-  const charId = (game.char ?? 'adi') as import('@/lib/types').CharId
+  const charId = (game.char ?? 'kabir') as import('@/lib/types').CharId
   const char = CHARS[charId]
 
   const fame = game.meters.fame
