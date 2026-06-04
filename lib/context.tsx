@@ -35,8 +35,11 @@ export interface AppCtx {
   navigate: (s: Screen, opts?: { replace?: boolean }) => void
   goBack: () => void
   showToast: (msg: string) => void
+  phone: string
+  setPhone: (phone: string) => void
+  saveProfile: (name: string, gender: 'male' | 'female') => Promise<void>
   setChar: (id: CharId) => void
-  startGame: (name: string, gender: 'male' | 'female') => void
+  startGame: () => void
   makeChoice: (idx: number) => Promise<void>
   sendDM: (charId: CharId, text: string) => Promise<void>
   openDMThread: (charId: CharId) => void

@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import type { CharId, DMMessage, GameState, Screen } from '@/lib/types'
 import { AppContext, ImpactNotif } from '@/lib/context'
 import {
-  applyDeltas, charMeters, ensureSession, getAIReply, scoreTrustDelta,
+  applyDeltas, charMeters, getPhoneSession, getAIReply, scoreTrustDelta,
   loadDMs, loadGameState, recordChoice, resetGameState, saveDM, saveGameState,
   fameToFollowers,
 } from '@/lib/game'
@@ -17,11 +17,15 @@ import DMInboxScreen from '@/components/screens/DMInboxScreen'
 import DMThreadScreen from '@/components/screens/DMThreadScreen'
 import ProfileScreen from '@/components/screens/ProfileScreen'
 import CharProfileScreen from '@/components/screens/CharProfileScreen'
+import PhoneScreen from '@/components/screens/PhoneScreen'
+import OTPScreen from '@/components/screens/OTPScreen'
+import OnboardingScreen from '@/components/screens/OnboardingScreen'
 import ErrorBoundary from '@/components/ErrorBoundary'
 
 export default function App() {
-  const [screen, setScreen] = useState<Screen>('worlds')
-  const [navHistory, setNavHistory] = useState<Screen[]>(['worlds'])
+  const [screen, setScreen] = useState<Screen>('phone')
+  const [navHistory, setNavHistory] = useState<Screen[]>(['phone'])
+  const [phone, setPhone] = useState('')
   const [dmChar, setDmChar] = useState<CharId | null>(null)
   const [dmTrust, setDmTrust] = useState<Record<string, number>>({})
   const [impactNotif, setImpactNotif] = useState<ImpactNotif | null>(null)
@@ -49,14 +53,23 @@ export default function App() {
     if (typeof window !== 'undefined' && new URLSearchParams(location.search).has('reset')) {
       resetGameState().finally(() => {
         window.history.replaceState(null, '', location.pathname)
+        navigate('phone', { replace: true })
         setReady(true)
       })
       return
     }
-    ensureSession()
-      .then(() => loadGameState())
-      .then(s => { setGame(s); setReady(true) })
-      .catch(() => setReady(true))
+    getPhoneSession().then(session => {
+      if (!session) {
+        navigate('phone', { replace: true })
+        setReady(true)
+        return
+      }
+      loadGameState().then(s => {
+        setGame(s)
+        navigate(s.playerName ? 'worlds' : 'onboarding', { replace: true })
+        setReady(true)
+      }).catch(() => setReady(true))
+    }).catch(() => setReady(true))
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const navigate = useCallback((to: Screen, opts?: { replace?: boolean }) => {
@@ -88,13 +101,19 @@ export default function App() {
     saveAndSet({ ...game, char: id, situation: 0, choices: [], meters: charMeters(id), narrator_done: true, dayUnlockTime: {} })
   }, [saveAndSet, game])
 
-  const startGame = useCallback((name: string, gender: 'male' | 'female') => {
-    const newState: GameState = { playerName: name, playerGender: gender, char: 'kabir', situation: 0, choices: [], meters: { fame: 20, heat: 50, image: 30 }, narrator_done: true, dayUnlockTime: {} }
+  const saveProfile = useCallback(async (name: string, gender: 'male' | 'female') => {
+    const updated: GameState = { ...game, playerName: name, playerGender: gender }
+    setGame(updated)
+    await saveGameState(updated)
+    navigate('worlds')
+  }, [game, navigate])
+
+  const startGame = useCallback(() => {
+    const newState: GameState = { playerName: game.playerName, playerGender: game.playerGender, char: 'kabir', situation: 0, choices: [], meters: { fame: 20, heat: 50, image: 30 }, narrator_done: true, dayUnlockTime: {} }
     saveAndSet(newState)
-    // Mark feed as seen so the world-intro overlay doesn't re-appear on first Feed visit
     if (typeof window !== 'undefined') localStorage.setItem('lore_feed_seen', '1')
     navigate('live')
-  }, [saveAndSet, navigate])
+  }, [game.playerName, game.playerGender, saveAndSet, navigate])
 
   const advanceSituation = useCallback(() => {
     // Functional update: always reads latest game state, never a stale closure
@@ -216,7 +235,7 @@ export default function App() {
     await resetGameState()
     setGame({ playerName: '', playerGender: 'male' as const, char: null, situation: 0, choices: [], meters: { fame: 20, heat: 50, image: 30 }, narrator_done: false, dayUnlockTime: {} })
     setDmHistory({})
-    navigate('worlds', { replace: true })
+    navigate('phone', { replace: true })
   }, [navigate])
 
   const prev = navHistory[navHistory.length - 2] ?? null
@@ -232,6 +251,7 @@ export default function App() {
   return (
     <AppContext.Provider value={{
       screen, prevScreen: prev, dmChar, game, dmHistory, dmTrust, charFame, likedPosts, viewingCharId, toast, impactNotif, showImpact,
+      phone, setPhone, saveProfile,
       advanceSituation, navigate, goBack, showToast, setChar, startGame,
       makeChoice, sendDM, openDMThread, resetGame, likePost, applyFeedDeltas, injectCharDM, setViewingChar,
     }}>
@@ -239,6 +259,9 @@ export default function App() {
         <div className="phone">
           <ErrorBoundary>
           <div className="viewport">
+            <Slot id="phone"       cur={screen} prev={prev}><PhoneScreen /></Slot>
+            <Slot id="otp"         cur={screen} prev={prev}><OTPScreen /></Slot>
+            <Slot id="onboarding"  cur={screen} prev={prev}><OnboardingScreen /></Slot>
             <Slot id="worlds"      cur={screen} prev={prev}><WorldsScreen /></Slot>
             <Slot id="world-intro" cur={screen} prev={prev}><WorldIntroScreen /></Slot>
             <Slot id="feed"        cur={screen} prev={prev}><FeedScreen /></Slot>

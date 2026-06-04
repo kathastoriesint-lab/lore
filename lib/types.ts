@@ -59,6 +59,9 @@ export type Screen =
   | 'dm-thread'
   | 'profile'
   | 'char-profile'
+  | 'phone'
+  | 'otp'
+  | 'onboarding'
 
 export interface GameState {
   playerName: string

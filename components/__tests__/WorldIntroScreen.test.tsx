@@ -4,13 +4,15 @@ import { AppContext } from '@/lib/context'
 import WorldIntroScreen from '@/components/screens/WorldIntroScreen'
 import type { AppCtx } from '@/lib/context'
 
-// Minimal context value for testing
 function makeCtx(overrides: Partial<AppCtx> = {}): AppCtx {
   return {
     screen: 'world-intro',
     prevScreen: null,
     dmChar: null,
-    game: { playerName: '', playerGender: 'male', char: null, situation: 0, choices: [], meters: { fame: 20, heat: 50, image: 30 }, narrator_done: false, dayUnlockTime: {} },
+    phone: '',
+    setPhone: vi.fn(),
+    saveProfile: vi.fn(),
+    game: { playerName: 'Test', playerGender: 'male', char: null, situation: 0, choices: [], meters: { fame: 20, heat: 50, image: 30 }, narrator_done: false, dayUnlockTime: {} },
     dmHistory: {},
     dmTrust: {},
     charFame: {},
@@ -48,36 +50,19 @@ describe('WorldIntroScreen', () => {
     expect(screen.getByText('Skip →')).toBeInTheDocument()
   })
 
-  it('does not call startGame when name is empty', () => {
-    const startGame = vi.fn()
-    const { value } = renderWithCtx({ startGame })
-    // Skip to form
-    fireEvent.click(screen.getByText('Skip →'))
-    // Try to submit with empty name
-    const btn = screen.getByRole('button', { name: /Enter the House/i })
-    expect(btn).toBeDisabled()
-    expect(startGame).not.toHaveBeenCalled()
-  })
-
-  it('calls startGame with trimmed name and gender on submit', () => {
+  it('calls startGame when Enter button is clicked', () => {
     const startGame = vi.fn()
     renderWithCtx({ startGame })
     fireEvent.click(screen.getByText('Skip →'))
-    const input = screen.getByPlaceholderText('Tumhara naam...')
-    fireEvent.change(input, { target: { value: '  Rohan  ' } })
-    fireEvent.click(screen.getByRole('button', { name: /Enter the House/i }))
-    expect(startGame).toHaveBeenCalledWith('Rohan', 'male')
+    fireEvent.click(screen.getByRole('button', { name: /Ghar mein aao/i }))
+    expect(startGame).toHaveBeenCalled()
   })
 
-  it('gender toggle switches between male and female', () => {
-    const startGame = vi.fn()
-    renderWithCtx({ startGame })
+  it('calls navigate worlds when Baad mein is clicked', () => {
+    const navigate = vi.fn()
+    renderWithCtx({ navigate })
     fireEvent.click(screen.getByText('Skip →'))
-    // default is male, switch to female
-    fireEvent.click(screen.getByText('She / Her'))
-    const input = screen.getByPlaceholderText('Tumhara naam...')
-    fireEvent.change(input, { target: { value: 'Priya' } })
-    fireEvent.click(screen.getByRole('button', { name: /Enter the House/i }))
-    expect(startGame).toHaveBeenCalledWith('Priya', 'female')
+    fireEvent.click(screen.getByRole('button', { name: /Baad mein/i }))
+    expect(navigate).toHaveBeenCalledWith('worlds')
   })
 })

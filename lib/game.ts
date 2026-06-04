@@ -16,20 +16,19 @@ const DEFAULT_STATE: GameState = {
 }
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
-export async function getEmailSession() {
+export async function getPhoneSession() {
   const { data: { session } } = await supabase().auth.getSession()
-  if (!session || !session.user.email) return null
+  if (!session || !session.user.phone) return null
   return session
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function sendOTP(email: string) {
-  const { error } = await (supabase().auth.signInWithOtp as any)({ email })
+export async function sendPhoneOTP(phone: string) {
+  const { error } = await supabase().auth.signInWithOtp({ phone })
   if (error) throw error
 }
 
-export async function verifyOTP(email: string, token: string) {
-  const { data, error } = await supabase().auth.verifyOtp({ email, token, type: 'email' })
+export async function verifyPhoneOTP(phone: string, token: string) {
+  const { data, error } = await supabase().auth.verifyOtp({ phone, token, type: 'sms' })
   if (error) throw error
   return data.session
 }
