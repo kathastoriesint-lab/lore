@@ -72,6 +72,7 @@ export default function LiveScreen() {
   const [chosen, setChosen] = useState<0 | 1 | null>(null)
   const [showImpact, setShowImpact] = useState(false)
   const [showPost, setShowPost] = useState(false)
+  const [impactExpanded, setImpactExpanded] = useState(false)
   const [stats, setStats] = useState<{ total: number; pctA: number } | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
   // Ref-based processing guard — synchronously prevents double-tap between React renders
@@ -85,6 +86,7 @@ export default function LiveScreen() {
     setChosen(null)
     setShowImpact(false)
     setShowPost(false)
+    setImpactExpanded(false)
     setStats(null)
     processingRef.current = false
     timersRef.current = []
@@ -116,6 +118,7 @@ export default function LiveScreen() {
     setChosen(null)
     setShowImpact(false)
     setShowPost(false)
+    setImpactExpanded(false)
     processingRef.current = false
     scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
   }, [])
@@ -292,166 +295,199 @@ export default function LiveScreen() {
               )
             })()}
 
-            {/* ── Impact section ── */}
+            {/* ── Post-choice: collapsible impact + player post + reactions ── */}
             {showImpact && chosen !== null && sit.choices[chosen] && (() => {
               const ch = sit.choices[chosen]
               const d = ch.deltas
               const isCritical = game.meters.heat > 75
+              const playerHandle = (game.playerName || char?.handle || 'you').toLowerCase().replace(/\s+/g, '')
+              const displayChar = char
+                ? (game.playerGender === 'female'
+                    ? char.id === 'kabir' ? CHARS['ananya'] : char.id === 'ananya' ? CHARS['kabir'] : char
+                    : char)
+                : null
 
-              // Helper: consequence text for each meter
-              const fameMsg = d.fame > 3 ? 'People are noticing you' : d.fame > 0 ? 'Your name is spreading' : d.fame < -2 ? 'You slipped off the radar' : 'Quiet move'
-              const heatMsg = d.heat > 4 ? 'Ghar mein tension badh gayi' : d.heat > 0 ? 'Drama is building' : d.heat < -2 ? 'You cooled things down' : 'Steady'
-              const imageMsg = d.image > 3 ? 'Brands are watching' : d.image > 0 ? 'Your image improved' : d.image < -2 ? 'Brands are stepping back' : 'Holding'
+              // Compact delta summary for collapsed state
+              const deltaSummary = [
+                d.fame  !== 0 ? `${d.fame > 0 ? '+' : ''}${d.fame}⭐` : null,
+                d.heat  !== 0 ? `${d.heat > 0 ? '+' : ''}${d.heat}🔥` : null,
+                d.image !== 0 ? `${d.image > 0 ? '+' : ''}${d.image}🤝` : null,
+              ].filter(Boolean).join('  ')
 
               return (
                 <div style={{ marginTop: 16 }}>
-                  {/* Bold impact card */}
-                  <div className={`impact-card${isCritical ? ' danger' : ''}`}>
-                    {/* Fame row */}
-                    {d.fame !== 0 && (
-                      <div className="impact-row fame">
-                        <div className="impact-row-glow" />
-                        <div className="impact-delta">{d.fame > 0 ? '+' : ''}{d.fame}</div>
-                        <div className="impact-meta">
-                          <div className="impact-mlabel">⭐ FAME</div>
-                          <div className="impact-bar-track">
-                            <div className="impact-bar-fill" style={{ width: `${Math.max(0, Math.min(100, game.meters.fame))}%` }} />
-                          </div>
-                          <div className="impact-consequence">{fameMsg}</div>
-                        </div>
-                      </div>
-                    )}
-                    {/* Heat row */}
-                    {d.heat !== 0 && (
-                      <div className={`impact-row heat${d.heat < 0 ? ' negative' : ''}`}>
-                        <div className="impact-row-glow" />
-                        <div className="impact-delta">{d.heat > 0 ? '+' : ''}{d.heat}</div>
-                        <div className="impact-meta">
-                          <div className="impact-mlabel">
-                            🔥 HEAT
-                            {isCritical && <span className="impact-crit">CRITICAL</span>}
-                          </div>
-                          <div className="impact-bar-track">
-                            <div className="impact-bar-fill" style={{ width: `${Math.max(0, Math.min(100, game.meters.heat))}%` }} />
-                          </div>
-                          <div className="impact-consequence">{heatMsg}</div>
-                        </div>
-                      </div>
-                    )}
-                    {/* Image row */}
-                    {d.image !== 0 && (
-                      <div className="impact-row image">
-                        <div className="impact-row-glow" />
-                        <div className="impact-delta">{d.image > 0 ? '+' : ''}{d.image}</div>
-                        <div className="impact-meta">
-                          <div className="impact-mlabel">🤝 IMAGE</div>
-                          <div className="impact-bar-track">
-                            <div className="impact-bar-fill" style={{ width: `${Math.max(0, Math.min(100, game.meters.image))}%` }} />
-                          </div>
-                          <div className="impact-consequence">{imageMsg}</div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
 
-                  {/* Reactions + NPC post — shown after choice, before CTA */}
-                  {showPost && (() => {
-                    const letter = chosen === 0 ? 'A' : 'B'
-                    const feedRx = sit.feedReaction?.[letter]
-                    const feedRxChar = feedRx ? CHARS[feedRx.char as CharId] : null
-                    return (
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 12 }}>
-                        {/* Threaded reactions */}
-                        {ch.reactions && ch.reactions.length > 0 && (
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
-                            {ch.reactions.map((rx, j) => {
-                              const isFan = rx.char === '__fan'
-                              const rxChar = isFan ? null : CHARS[rx.char as CharId]
-                              return (
-                                <div key={j} style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
-                                  {isFan ? (
-                                    <div style={{ width: 22, height: 22, borderRadius: '50%', background: '#2a2a38', display: 'grid', placeItems: 'center', fontSize: 9, fontWeight: 700, color: 'var(--ink3)', flexShrink: 0 }}>c</div>
-                                  ) : (
-                                    <div className={`av ${rxChar!.cls}`} style={{ width: 22, height: 22, fontSize: 9, flexShrink: 0, backgroundImage: `url(/avatars/${rxChar!.id}.png)`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
-                                      <span style={{ opacity: 0 }}>{rxChar!.init}</span>
-                                    </div>
-                                  )}
-                                  <div style={{ fontSize: 12, lineHeight: 1.4, color: 'rgba(255,255,255,.85)' }}>
-                                    <span style={{ fontWeight: 700, marginRight: 4 }}>
-                                      {isFan ? `@${rx.name ?? 'fan'}` : rxChar!.name}
-                                    </span>
-                                    {isFan && <span style={{ fontSize: 8, fontWeight: 700, color: 'var(--ink3)', background: 'rgba(255,255,255,.08)', padding: '1px 4px', borderRadius: 3, marginRight: 4 }}>FAN</span>}
-                                    {r(rx.text)}
+                  {/* Collapsible impact card */}
+                  <button
+                    onClick={() => setImpactExpanded(v => !v)}
+                    style={{ width: '100%', background: 'none', border: 'none', cursor: 'pointer', padding: 0, textAlign: 'left' }}
+                  >
+                    <div className={`impact-card${isCritical ? ' danger' : ''}`} style={{ marginTop: 0 }}>
+                      {/* Collapsed header — always visible */}
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 16px' }}>
+                        <div style={{ display: 'flex', gap: 14 }}>
+                          {d.fame !== 0 && (
+                            <span style={{ fontFamily: 'var(--serif)', fontSize: 22, fontWeight: 600, color: 'var(--fame)', lineHeight: 1 }}>
+                              {d.fame > 0 ? '+' : ''}{d.fame}<span style={{ fontSize: 12, marginLeft: 3 }}>⭐</span>
+                            </span>
+                          )}
+                          {d.heat !== 0 && (
+                            <span style={{ fontFamily: 'var(--serif)', fontSize: 22, fontWeight: 600, color: d.heat < 0 ? 'var(--trust)' : 'var(--heat)', lineHeight: 1 }}>
+                              {d.heat > 0 ? '+' : ''}{d.heat}<span style={{ fontSize: 12, marginLeft: 3 }}>🔥</span>
+                            </span>
+                          )}
+                          {d.image !== 0 && (
+                            <span style={{ fontFamily: 'var(--serif)', fontSize: 22, fontWeight: 600, color: 'var(--trust)', lineHeight: 1 }}>
+                              {d.image > 0 ? '+' : ''}{d.image}<span style={{ fontSize: 12, marginLeft: 3 }}>🤝</span>
+                            </span>
+                          )}
+                          {isCritical && <span className="impact-crit" style={{ alignSelf: 'center' }}>CRITICAL</span>}
+                        </div>
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--ink3)" strokeWidth="2" strokeLinecap="round" style={{ transform: impactExpanded ? 'rotate(180deg)' : 'none', transition: 'transform .2s', flexShrink: 0 }}>
+                          <path d="M6 9l6 6 6-6"/>
+                        </svg>
+                      </div>
+
+                      {/* Expanded detail rows */}
+                      {impactExpanded && (
+                        <>
+                          {d.fame !== 0 && (
+                            <div className="impact-row fame" style={{ borderTop: '1px solid rgba(255,255,255,.05)' }}>
+                              <div className="impact-row-glow" />
+                              <div className="impact-delta">{d.fame > 0 ? '+' : ''}{d.fame}</div>
+                              <div className="impact-meta">
+                                <div className="impact-mlabel">⭐ FAME</div>
+                                <div className="impact-bar-track"><div className="impact-bar-fill" style={{ width: `${Math.max(0, Math.min(100, game.meters.fame))}%` }} /></div>
+                                <div className="impact-consequence">{game.meters.fame} now</div>
+                              </div>
+                            </div>
+                          )}
+                          {d.heat !== 0 && (
+                            <div className={`impact-row heat${d.heat < 0 ? ' negative' : ''}`} style={{ borderTop: '1px solid rgba(255,255,255,.05)' }}>
+                              <div className="impact-row-glow" />
+                              <div className="impact-delta">{d.heat > 0 ? '+' : ''}{d.heat}</div>
+                              <div className="impact-meta">
+                                <div className="impact-mlabel">🔥 HEAT</div>
+                                <div className="impact-bar-track"><div className="impact-bar-fill" style={{ width: `${Math.max(0, Math.min(100, game.meters.heat))}%` }} /></div>
+                                <div className="impact-consequence">{game.meters.heat} now{isCritical ? ' — someone will address this' : ''}</div>
+                              </div>
+                            </div>
+                          )}
+                          {d.image !== 0 && (
+                            <div className="impact-row image" style={{ borderTop: '1px solid rgba(255,255,255,.05)' }}>
+                              <div className="impact-row-glow" />
+                              <div className="impact-delta">{d.image > 0 ? '+' : ''}{d.image}</div>
+                              <div className="impact-meta">
+                                <div className="impact-mlabel">🤝 IMAGE</div>
+                                <div className="impact-bar-track"><div className="impact-bar-fill" style={{ width: `${Math.max(0, Math.min(100, game.meters.image))}%` }} /></div>
+                                <div className="impact-consequence">{game.meters.image} now</div>
+                              </div>
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </button>
+
+                  {/* Player post + reactions — shown after post is ready */}
+                  {showPost && displayChar && (
+                    <div style={{ marginTop: 12, background: '#0f0f18', borderRadius: 16, overflow: 'hidden', border: '1px solid rgba(255,255,255,.07)', animation: 'slideUp .4s cubic-bezier(.32,.72,0,1) both' }}>
+                      {/* Post header */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px' }}>
+                        <div className={`av ${displayChar.cls}`} style={{ width: 32, height: 32, fontSize: 12, flexShrink: 0, backgroundImage: `url(/avatars/${displayChar.id}.png)`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+                          <span style={{ opacity: 0 }}>{displayChar.init}</span>
+                        </div>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontWeight: 700, fontSize: 13 }}>@{playerHandle}</div>
+                          <div style={{ fontSize: 10, color: 'var(--ink3)' }}>just now · Creator House</div>
+                        </div>
+                        <div style={{ fontSize: 9, fontWeight: 800, color: 'var(--accent)', background: 'rgba(255,45,120,.12)', padding: '3px 8px', borderRadius: 20 }}>✓ POSTED</div>
+                      </div>
+
+                      {/* Post image with caption */}
+                      <div className={`post-img grain ${displayChar.cls}`} style={{ margin: '0 12px', borderRadius: 10, background: `linear-gradient(135deg, color-mix(in srgb, var(--cc) 70%, #000) 0%, #000 100%)` }}>
+                        <p className="overlay-txt" style={{ fontSize: 14 }}>{r(ch.caption)}</p>
+                      </div>
+
+                      {/* Reactions as threaded comments */}
+                      {ch.reactions && ch.reactions.length > 0 && (
+                        <div style={{ padding: '10px 14px 12px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                          {ch.reactions.map((rx, j) => {
+                            const isFan = rx.char === '__fan'
+                            const rxChar = isFan ? null : (
+                              game.playerGender === 'female'
+                                ? rx.char === 'kabir' ? CHARS['ananya'] : rx.char === 'ananya' ? CHARS['kabir'] : CHARS[rx.char as CharId]
+                                : CHARS[rx.char as CharId]
+                            )
+                            return (
+                              <div key={j} style={{ display: 'flex', alignItems: 'flex-start', gap: 9 }}>
+                                {isFan ? (
+                                  <div style={{ width: 24, height: 24, borderRadius: '50%', background: '#1e1e2a', display: 'grid', placeItems: 'center', fontSize: 9, fontWeight: 800, color: 'var(--ink3)', flexShrink: 0, border: '1px solid rgba(255,255,255,.06)' }}>
+                                    {(rx.name ?? 'fan')[0].toUpperCase()}
                                   </div>
+                                ) : (
+                                  <div className={`av ${rxChar!.cls}`} style={{ width: 24, height: 24, fontSize: 9, flexShrink: 0, backgroundImage: `url(/avatars/${rxChar!.id}.png)`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+                                    <span style={{ opacity: 0 }}>{rxChar!.init}</span>
+                                  </div>
+                                )}
+                                <div style={{ fontSize: 12, lineHeight: 1.45, color: 'rgba(255,255,255,.88)' }}>
+                                  <span style={{ fontWeight: 700, marginRight: 5 }}>
+                                    {isFan ? `@${rx.name ?? 'fan'}` : rxChar!.name}
+                                  </span>
+                                  {isFan && (
+                                    <span style={{ fontSize: 8, fontWeight: 700, color: 'var(--ink3)', background: 'rgba(255,255,255,.07)', padding: '1px 5px', borderRadius: 4, marginRight: 5 }}>FAN</span>
+                                  )}
+                                  {r(rx.text)}
                                 </div>
-                              )
-                            })}
-                          </div>
-                        )}
-
-                        {/* NPC feedReaction post */}
-                        {feedRxChar && feedRx && (
-                          <div style={{ background: '#16161e', borderRadius: 14, overflow: 'hidden', border: '1px solid rgba(255,255,255,.08)', animation: 'fadeUp .4s ease-out .1s both' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px' }}>
-                              <div className={`av ${feedRxChar.cls}`} style={{ width: 26, height: 26, fontSize: 10, flexShrink: 0, backgroundImage: `url(/avatars/${feedRxChar.id}.png)`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
-                                <span style={{ opacity: 0 }}>{feedRxChar.init}</span>
                               </div>
-                              <div style={{ flex: 1, minWidth: 0 }}>
-                                <div style={{ fontWeight: 700, fontSize: 12 }}>@{feedRxChar.handle}</div>
-                                <div style={{ fontSize: 10, color: 'var(--ink3)', marginTop: 1 }}>posted in response</div>
-                              </div>
-                            </div>
-                            <div className={`post-img grain ${feedRxChar.cls}`} style={{ margin: '0 12px 12px', borderRadius: 10, background: `linear-gradient(135deg, color-mix(in srgb, var(--cc) 70%, #000) 0%, #000 100%)` }}>
-                              <p className="overlay-txt" style={{ fontSize: 13 }}>{resolveTokens(feedRx.caption, game.playerName, game.playerGender)}</p>
-                            </div>
-                          </div>
-                        )}
-
-                        {/* CTA buttons */}
-                        <div style={{ display: 'flex', gap: 10, marginTop: 2 }}>
-                          <button
-                            onClick={resetAfterChoice}
-                            style={{ flex: 2, height: 48, background: 'var(--accent)', color: '#fff', fontWeight: 700, fontSize: 14, borderRadius: 12, border: 'none', cursor: 'pointer' }}
-                          >
-                            Next Situation →
-                          </button>
-                          <button
-                            onClick={() => { resetAfterChoice(); navigate('feed') }}
-                            style={{ flex: 1, height: 48, background: 'rgba(255,255,255,.07)', color: 'var(--ink2)', fontWeight: 600, fontSize: 13, borderRadius: 12, border: '1px solid rgba(255,255,255,.1)', cursor: 'pointer' }}
-                          >
-                            Go to Feed
-                          </button>
+                            )
+                          })}
                         </div>
-                      </div>
-                    )
-                  })()}
+                      )}
+                    </div>
+                  )}
                 </div>
               )
             })()}
           </div>
         )}
 
-        {/* Bottom spacing */}
-        {sit && <div style={{ height: 240 }} />}
+        {/* Bottom spacing so content isn't hidden under sticky bar */}
+        {sit && <div style={{ height: 160 }} />}
       </div>
 
-      {/* Choice area — sticky bottom, hidden after choice */}
-      {sit && chosen === null && (
+      {/* Sticky bottom — choices before pick, CTAs after */}
+      {sit && (
         <div className="choice-wrap">
-          <div className="choice-q">{r(sit.q)}</div>
-          {sit.choices.map((ch, i) => (
-            <button
-              key={i}
-              className="choice"
-              onClick={() => handleChoice(i as 0 | 1)}
-            >
-              <div className="ct">{r(ch.t)}</div>
-              <div className="cs">{r(ch.s)}</div>
-            </button>
-          ))}
-          {stats && (
-            <div className="social-proof">
-              {stats.total.toLocaleString()} played · {stats.pctA}% chose A
+          {chosen === null ? (
+            <>
+              <div className="choice-q">{r(sit.q)}</div>
+              {sit.choices.map((ch, i) => (
+                <button key={i} className="choice" onClick={() => handleChoice(i as 0 | 1)}>
+                  <div className="ct">{r(ch.t)}</div>
+                  <div className="cs">{r(ch.s)}</div>
+                </button>
+              ))}
+              {stats && (
+                <div className="social-proof">
+                  {stats.total.toLocaleString()} played · {stats.pctA}% chose A
+                </div>
+              )}
+            </>
+          ) : (
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button
+                onClick={resetAfterChoice}
+                style={{ flex: 2, height: 50, background: 'var(--accent)', color: '#fff', fontWeight: 700, fontSize: 15, borderRadius: 14, border: 'none', cursor: 'pointer', fontFamily: 'var(--sans)' }}
+              >
+                Next Situation →
+              </button>
+              <button
+                onClick={() => { resetAfterChoice(); navigate('feed') }}
+                style={{ flex: 1, height: 50, background: 'rgba(255,255,255,.07)', color: 'var(--ink2)', fontWeight: 600, fontSize: 13, borderRadius: 14, border: '1px solid rgba(255,255,255,.1)', cursor: 'pointer', fontFamily: 'var(--sans)' }}
+              >
+                Go to Feed
+              </button>
             </div>
           )}
         </div>
