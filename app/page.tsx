@@ -89,7 +89,7 @@ export default function App() {
   }, [saveAndSet, game])
 
   const startGame = useCallback((name: string, gender: 'male' | 'female') => {
-    const newState: GameState = { playerName: name, playerGender: gender, char: null, situation: 0, choices: [], meters: { fame: 20, heat: 50, image: 30 }, narrator_done: true, dayUnlockTime: {} }
+    const newState: GameState = { playerName: name, playerGender: gender, char: 'kabir', situation: 0, choices: [], meters: { fame: 20, heat: 50, image: 30 }, narrator_done: true, dayUnlockTime: {} }
     saveAndSet(newState)
     // Mark feed as seen so the world-intro overlay doesn't re-appear on first Feed visit
     if (typeof window !== 'undefined') localStorage.setItem('lore_feed_seen', '1')
