@@ -1,7 +1,8 @@
 'use client'
+import { useMemo } from 'react'
 import { useApp } from '@/lib/context'
-import { CHARS, DM_TRUST } from '@/lib/data'
-import { fameToFollowers as fameToFollowersNum } from '@/lib/game'
+import { CHARS, DM_TRUST, getVisibleSituations } from '@/lib/data'
+import { fameToFollowers as fameToFollowersNum, applyDeltas, resolveTokens } from '@/lib/game'
 import MeterHUD from '@/components/MeterHUD'
 
 // Fame 0-100 → followers string (formatted)
@@ -77,7 +78,39 @@ export default function ProfileScreen() {
   const fame = game.meters.fame
   const followers = fameToFollowersStr(fame)
   const following = fameToFollowing(fame)
-  const posts = CHAR_POSTS[charId] ?? []
+
+  // Build player's real posts from choices — same logic as FeedScreen completedPosts
+  const playerHandle = (game.playerName || char.handle).toLowerCase().replace(/\s+/g, '')
+  const posts = useMemo(() => {
+    if (game.choices.length === 0) return []
+    const STARTING_METERS = { fame: 20, heat: 50, image: 30 }
+    let meters = { ...STARTING_METERS }
+    // Gradient palette cycling for post tiles — uses char color family
+    const gradients = [
+      'linear-gradient(135deg,color-mix(in srgb,var(--cc) 80%,#000) 0%,#000 100%)',
+      'linear-gradient(160deg,color-mix(in srgb,var(--cc) 60%,#111) 0%,#0a0a14 100%)',
+      'linear-gradient(120deg,color-mix(in srgb,var(--cc) 70%,#080818) 0%,#060610 100%)',
+      'linear-gradient(145deg,color-mix(in srgb,var(--cc) 50%,#0a0a1a) 0%,#000 100%)',
+      'linear-gradient(135deg,color-mix(in srgb,var(--cc) 90%,#1a0a28) 0%,#08080f 100%)',
+      'linear-gradient(110deg,color-mix(in srgb,var(--cc) 65%,#000) 0%,#0d0d1a 100%)',
+    ]
+    const result: { caption: string; bg: string }[] = []
+    for (let i = 0; i < game.choices.length; i++) {
+      const letter = game.choices[i]
+      const sitsAtStep = getVisibleSituations(meters, game.choices.slice(0, i) as ('A'|'B')[])
+      const sit = sitsAtStep[i]
+      if (!sit) continue
+      const ch = sit.choices[letter === 'A' ? 0 : 1]
+      if (ch?.caption) {
+        result.push({
+          caption: resolveTokens(ch.caption, game.playerName, game.playerGender),
+          bg: gradients[i % gradients.length],
+        })
+      }
+      if (ch) meters = applyDeltas(meters, ch.deltas)
+    }
+    return result.reverse() // newest first
+  }, [game.choices, game.playerName, game.playerGender, char])
 
   // Relationships from DM trust
   const relationships = Object.entries(dmTrust)
@@ -111,7 +144,7 @@ export default function ProfileScreen() {
             {/* Stats */}
             <div style={{ display:'flex', gap:20, flex:1, justifyContent:'center' }}>
               <div style={{ textAlign:'center' }}>
-                <div style={{ fontWeight:800, fontSize:16 }}>{posts.length}</div>
+                <div style={{ fontWeight:800, fontSize:16 }}>{posts.length || '—'}</div>
                 <div style={{ fontSize:11, color:'var(--ink2)' }}>Posts</div>
               </div>
               <div style={{ textAlign:'center' }}>
@@ -164,11 +197,19 @@ export default function ProfileScreen() {
 
         {/* Posts grid */}
         <div style={{ marginTop:16, borderTop:'1px solid var(--line)' }}>
+          {posts.length === 0 ? (
+            <div style={{ padding:'32px 20px', textAlign:'center', color:'var(--ink3)', fontSize:13 }}>
+              <div style={{ fontSize:22, marginBottom:8 }}>📸</div>
+              No posts yet — make your first move in Live
+            </div>
+          ) : (
+            <div className={`av ${char.cls}`} style={{ display:'none' }} /> /* inject --cc */
+          )}
           <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:2 }}>
             {posts.map((p, i) => (
-              <div key={i} style={{ aspectRatio:'1/1', background:p.bg, position:'relative', display:'grid', placeItems:'center', cursor:'pointer' }}>
-                <div style={{ position:'absolute', inset:0, background:'rgba(0,0,0,.15)' }} />
-                <div style={{ position:'relative', fontSize:9, color:'rgba(255,255,255,.85)', textAlign:'center', padding:'0 6px', fontStyle:'italic', fontFamily:'var(--serif)' }}>
+              <div key={i} className={`av ${char.cls}`} style={{ aspectRatio:'1/1', borderRadius:0, background:p.bg, position:'relative', display:'grid', placeItems:'center', cursor:'pointer', width:'100%', height:'auto' }}>
+                <div style={{ position:'absolute', inset:0, background:'rgba(0,0,0,.18)' }} />
+                <div style={{ position:'relative', fontSize:9, color:'rgba(255,255,255,.88)', textAlign:'left', padding:'0 8px', fontStyle:'italic', fontFamily:'var(--serif)', lineHeight:1.3 }}>
                   {p.caption}
                 </div>
               </div>

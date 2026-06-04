@@ -259,7 +259,7 @@ export default function FeedScreen() {
                     <span style={{ opacity:0 }}>{pc.init}</span>
                   </div>
                   <div className="post-id">
-                    <div className="h">@{pc.handle} <span style={{ fontSize:10, color:'var(--accent)', fontWeight:700, marginLeft:4 }}>YOU</span></div>
+                    <div className="h">@{(game.playerName || pc.handle).toLowerCase().replace(/\s+/g,'')} <span style={{ fontSize:10, color:'var(--accent)', fontWeight:700, marginLeft:4 }}>YOU</span></div>
                     <div className="s" style={{ color: isNew ? 'var(--accent)' : 'var(--ink3)' }}>
                       Creator House · {isNew ? 'just now · your post' : `Day ${post.sit.day}`}
                     </div>
