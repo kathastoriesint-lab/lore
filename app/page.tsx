@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import type { CharId, DMMessage, GameState, Screen } from '@/lib/types'
 import { AppContext, ImpactNotif } from '@/lib/context'
 import {
-  applyDeltas, charMeters, getEmailSession, getAIReply, scoreTrustDelta,
+  applyDeltas, charMeters, getPhoneSession, getAIReply, scoreTrustDelta,
   loadDMs, loadGameState, recordChoice, resetGameState, saveDM, saveGameState,
   fameToFollowers,
 } from '@/lib/game'
@@ -58,7 +58,7 @@ export default function App() {
       })
       return
     }
-    getEmailSession().then(session => {
+    getPhoneSession().then(session => {
       if (!session) {
         navigate('phone', { replace: true })
         setReady(true)

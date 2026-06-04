@@ -1,7 +1,7 @@
 'use client'
 import { useState, useCallback, useRef, useEffect } from 'react'
 import { useApp } from '@/lib/context'
-import { verifyEmailOTP, sendEmailOTP, loadGameState } from '@/lib/game'
+import { verifyPhoneOTP, sendPhoneOTP, loadGameState } from '@/lib/game'
 
 export default function OTPScreen() {
   const ctx = useApp()
@@ -28,7 +28,7 @@ export default function OTPScreen() {
     setLoading(true)
     setError('')
     try {
-      await verifyEmailOTP(ctx.phone, otp)
+      await verifyPhoneOTP(ctx.phone, otp)
       const state = await loadGameState()
       ctx.navigate(state.playerName ? 'worlds' : 'onboarding')
     } catch (e: unknown) {
@@ -41,7 +41,7 @@ export default function OTPScreen() {
   const handleResend = useCallback(async () => {
     if (countdown > 0 || !ctx.phone) return
     try {
-      await sendEmailOTP(ctx.phone)
+      await sendPhoneOTP(ctx.phone)
       setCountdown(60)
       timerRef.current = setInterval(() => {
         setCountdown(c => {
@@ -75,7 +75,7 @@ export default function OTPScreen() {
         Check your email
       </div>
       <div style={{ fontSize: 14, color: 'var(--ink2)', marginBottom: 44 }}>
-        We sent a 6-digit code to {masked}
+        We sent a code to {masked}
       </div>
 
       <input

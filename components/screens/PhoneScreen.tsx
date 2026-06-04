@@ -1,11 +1,11 @@
 'use client'
 import { useState, useCallback, useRef, useEffect } from 'react'
 import { useApp } from '@/lib/context'
-import { sendEmailOTP } from '@/lib/game'
+import { sendPhoneOTP } from '@/lib/game'
 
 export default function PhoneScreen() {
   const { navigate, setPhone } = useApp()
-  const [email, setEmail] = useState('')
+  const [digits, setDigits] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
@@ -14,24 +14,23 @@ export default function PhoneScreen() {
     setTimeout(() => inputRef.current?.focus(), 300)
   }, [])
 
-  const isValidEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)
-
   const handleSubmit = useCallback(async () => {
-    if (!isValidEmail(email) || loading) return
+    if (digits.length !== 10 || loading) return
+    const phone = `+91${digits}`
     setLoading(true)
     setError('')
     try {
-      await sendEmailOTP(email)
-      setPhone(email)
+      await sendPhoneOTP(phone)
+      setPhone(phone)
       navigate('otp')
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Something went wrong. Try again.')
     } finally {
       setLoading(false)
     }
-  }, [email, loading, navigate, setPhone])
+  }, [digits, loading, navigate, setPhone])
 
-  const ready = isValidEmail(email) && !loading
+  const ready = digits.length === 10 && !loading
 
   return (
     <div style={{
@@ -50,26 +49,30 @@ export default function PhoneScreen() {
       </div>
 
       <label style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.1em', color: 'rgba(255,255,255,.45)', marginBottom: 14 }}>
-        YOUR EMAIL
+        YOUR PHONE NUMBER
       </label>
-      <input
-        ref={inputRef}
-        type="email"
-        inputMode="email"
-        value={email}
-        onChange={e => { setEmail(e.target.value); setError('') }}
-        onKeyDown={e => { if (e.key === 'Enter') handleSubmit() }}
-        placeholder="you@example.com"
-        style={{
-          width: '100%', boxSizing: 'border-box',
-          background: 'transparent', border: 'none', outline: 'none',
-          borderBottom: `1.5px solid ${isValidEmail(email) ? 'var(--accent)' : 'rgba(255,255,255,.2)'}`,
-          paddingBottom: 10, marginBottom: 10,
-          fontSize: 20, fontFamily: 'var(--sans)', fontWeight: 500,
-          color: '#fff', caretColor: 'var(--accent)',
-          transition: 'border-color .2s',
-        }}
-      />
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: 10,
+        borderBottom: `1.5px solid ${digits.length === 10 ? 'var(--accent)' : 'rgba(255,255,255,.2)'}`,
+        paddingBottom: 10, marginBottom: 10,
+        transition: 'border-color .2s',
+      }}>
+        <span style={{ fontSize: 20, color: 'rgba(255,255,255,.5)', fontFamily: 'var(--sans)', fontWeight: 500, flexShrink: 0 }}>+91</span>
+        <input
+          ref={inputRef}
+          type="tel"
+          inputMode="numeric"
+          value={digits}
+          onChange={e => { setDigits(e.target.value.replace(/\D/g, '').slice(0, 10)); setError('') }}
+          onKeyDown={e => { if (e.key === 'Enter') handleSubmit() }}
+          placeholder="9876543210"
+          style={{
+            flex: 1, background: 'transparent', border: 'none', outline: 'none',
+            fontSize: 24, fontFamily: 'var(--sans)', fontWeight: 500,
+            color: '#fff', caretColor: 'var(--accent)', letterSpacing: '.05em',
+          }}
+        />
+      </div>
 
       {error && (
         <div style={{ fontSize: 13, color: '#FF5C3A', marginBottom: 8 }}>{error}</div>
