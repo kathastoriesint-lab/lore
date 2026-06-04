@@ -1,4 +1,5 @@
 'use client'
+import { useEffect } from 'react'
 import { useApp } from '@/lib/context'
 import { CHARS, DM_TRUST } from '@/lib/data'
 import { fameToFollowers as fameToFollowersNum } from '@/lib/game'
@@ -58,16 +59,20 @@ const StatusBar = () => (
 )
 
 export default function CharProfileScreen() {
-  const { goBack, viewingCharId, charFame, dmTrust, game, navigate, openDMThread } = useApp()
+  const { goBack, viewingCharId, charFame, dmTrust, game, navigate, openDMThread, screen } = useApp()
   const charId = viewingCharId
   const char = charId ? CHARS[charId] : null
 
+  // Guard: if this screen is active but no char is selected, go back immediately
+  useEffect(() => {
+    if (screen === 'char-profile' && (!charId || !char)) {
+      goBack()
+    }
+  }, [screen, charId, char, goBack])
+
   if (!char || !charId) {
-    return (
-      <div style={{ display:'flex', flexDirection:'column', height:'100%', background:'var(--bg)', alignItems:'center', justifyContent:'center' }}>
-        <button style={{ color:'var(--accent)', fontWeight:600 }} onClick={goBack}>Go back</button>
-      </div>
-    )
+    // Render nothing while the goBack effect fires
+    return <div style={{ height: '100%', background: 'var(--bg)' }} />
   }
 
   const fame = charFame[charId] ?? char.fame

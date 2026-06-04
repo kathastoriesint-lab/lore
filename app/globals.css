@@ -28,9 +28,10 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 
 /* ── Screens ── */
 .screen{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--bg);
-  transform:translateX(100%);transition:transform .28s cubic-bezier(.32,.72,0,1);will-change:transform;z-index:1}
-.screen.active{transform:translateX(0);z-index:2}
-.screen.behind{transform:translateX(-22%);z-index:1}
+  transform:translateX(100%);transition:transform .28s cubic-bezier(.32,.72,0,1);will-change:transform;z-index:1;
+  pointer-events:none}
+.screen.active{transform:translateX(0);z-index:2;pointer-events:all}
+.screen.behind{transform:translateX(-22%);z-index:1;pointer-events:none}
 
 .scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .scroll::-webkit-scrollbar{display:none}
