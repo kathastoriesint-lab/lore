@@ -35,6 +35,8 @@ export default function WorldIntroScreen() {
     if (!name.trim() || submitting) return
     setSubmitting(true)
     startGame(name.trim(), gender)
+    // startGame is synchronous — reset so button works if user navigates back
+    setTimeout(() => setSubmitting(false), 2000)
   }, [name, gender, submitting, startGame])
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {

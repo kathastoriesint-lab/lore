@@ -425,7 +425,7 @@ export default function FeedScreen() {
       </div>
 
       {/* World intro overlay */}
-      {showIntro && (
+      {showIntro && !game.narrator_done && (
         <div className={`world-intro${introGone ? ' gone' : ''}`}>
           {/* Line 0: LIVE badge */}
           <div className={`wi-line${introLines[0] ? ' in' : ''}`}>

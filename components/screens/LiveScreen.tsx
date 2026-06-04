@@ -142,8 +142,13 @@ export default function LiveScreen() {
       setShowPost(true)
       advanceSituation()  // ONE write: meters+choices (from makeChoice) + situation
       addTimer(() => {
+        // Reset all choice state so the NEXT situation is playable when user returns to Live
         inFlowRef.current = false
+        setChosen(null)
+        setShowImpact(false)
         setShowPost(false)
+        processingRef.current = false
+        timersRef.current = []
         navigate('feed')
       }, 1800)
     }, 500)
