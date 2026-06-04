@@ -22,18 +22,21 @@ interface SeedPostProps {
   likes: string
   time: string
   likedPosts: Set<string>
+  commentedPosts: Set<string>
   onLike: (id: string, charId: CharId, delta: number) => void
   onComment: (id: string | null) => void
   commentOpen: string | null
   comments: import('@/lib/data').PostCommentOption[]
-  onHandleComment: (charId: string, opt: import('@/lib/data').PostCommentOption) => void
+  onHandleComment: (charId: string, postId: string, opt: import('@/lib/data').PostCommentOption) => void
   playingCharName: string
 }
 
-function SeedPost({ id, charId, onViewChar, bg, caption, fullCaption, likes, time, likedPosts, onLike, onComment, commentOpen, comments, onHandleComment, playingCharName }: SeedPostProps) {
+function SeedPost({ id, charId, onViewChar, bg, caption, fullCaption, likes, time, likedPosts, commentedPosts, onLike, onComment, commentOpen, comments, onHandleComment, playingCharName }: SeedPostProps) {
   const char = CHARS[charId as CharId]
   if (!char) return null
   const isOpen = commentOpen === id
+  const liked = likedPosts.has(id)
+  const commented = commentedPosts.has(id)
   return (
     <div className="post">
       <div className="post-head">
@@ -54,20 +57,27 @@ function SeedPost({ id, charId, onViewChar, bg, caption, fullCaption, likes, tim
         <p className="overlay-txt" style={{ fontSize:14 }}>{caption}</p>
       </div>
       <div className="post-actions">
-        <button onClick={() => onLike(id, char.id, 3)} style={{ background:'none', border:'none', cursor:'pointer', display:'flex', alignItems:'center' }}>
-          <Heart filled={likedPosts.has(id)} />
+        <button
+          onClick={() => !liked && onLike(id, char.id, 3)}
+          style={{ background:'none', border:'none', cursor: liked ? 'default' : 'pointer', display:'flex', alignItems:'center', opacity: liked ? 0.6 : 1 }}
+        >
+          <Heart filled={liked} />
         </button>
-        <button onClick={() => onComment(isOpen ? null : id)} style={{ background:'none', border:'none', cursor:'pointer', display:'flex', alignItems:'center' }}>
-          <svg viewBox="0 0 24 24" fill="none" stroke={isOpen ? 'var(--accent)' : '#fff'} strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-        </button>
+        {!commented ? (
+          <button onClick={() => onComment(isOpen ? null : id)} style={{ background:'none', border:'none', cursor:'pointer', display:'flex', alignItems:'center' }}>
+            <svg viewBox="0 0 24 24" fill="none" stroke={isOpen ? 'var(--accent)' : '#fff'} strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </button>
+        ) : (
+          <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.3)" strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        )}
         <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
         <div className="spacer" />
       </div>
-      {isOpen && (
+      {isOpen && !commented && (
         <div className="comment-sheet">
           <div className="comment-sheet-label">Comment as {playingCharName}</div>
           {comments.map((opt, i) => (
-            <button key={i} className="comment-option" onClick={() => onHandleComment(charId, opt)}>{opt.text}</button>
+            <button key={i} className="comment-option" onClick={() => onHandleComment(charId, id, opt)}>{opt.text}</button>
           ))}
         </div>
       )}
@@ -92,6 +102,7 @@ const StatusBar = () => (
 export default function FeedScreen() {
   const { navigate, goBack, showToast, game, likePost, likedPosts, applyFeedDeltas, setViewingChar } = useApp()
   const [commentPost, setCommentPost] = useState<string | null>(null)
+  const [commentedPosts, setCommentedPosts] = useState<Set<string>>(new Set())
 
   // World intro overlay
   const [showIntro, setShowIntro] = useState(false)
@@ -144,34 +155,48 @@ export default function FeedScreen() {
   // Replay game state step-by-step to find the correct situation for each choice.
   // Simple index-mapping breaks when conditional situations (D4-HEAT, D5-FAME, D6-IMAGE)
   // are inserted mid-list — replaying with the actual meters at each step is correct.
-  const completedPosts = useMemo(() => {
+  type FeedPost =
+    | { type: 'npc';    postId: string; sit: ReturnType<typeof getVisibleSituations>[0]; choice: 'A'|'B'; reaction: { char: string; caption: string }; char: (typeof CHARS)[keyof typeof CHARS] }
+    | { type: 'player'; postId: string; sit: ReturnType<typeof getVisibleSituations>[0]; choice: 'A'|'B'; caption: string; playerChar: (typeof CHARS)[keyof typeof CHARS] }
+
+  const completedPosts = useMemo((): FeedPost[] => {
     if (game.choices.length === 0) return []
     const STARTING_METERS = { fame: 20, heat: 50, image: 30 }
     let meters = { ...STARTING_METERS }
-    const posts: Array<{ postId: string; sit: ReturnType<typeof getVisibleSituations>[0]; choice: 'A'|'B'; reaction: { char: string; caption: string }; char: (typeof CHARS)[keyof typeof CHARS] }> = []
+    const posts: FeedPost[] = []
+    const playerCharObj = game.char ? CHARS[game.char] : null
 
     for (let i = 0; i < game.choices.length; i++) {
       const letter = game.choices[i]
       const sitsAtStep = getVisibleSituations(meters, game.choices.slice(0, i) as ('A'|'B')[])
       const sit = sitsAtStep[i]
       if (!sit) continue
+      const ch = sit.choices[letter === 'A' ? 0 : 1]
+
+      // Player's own post (caption) — always push
+      if (ch?.caption && playerCharObj) {
+        posts.push({ type: 'player', postId: `player-${sit.id}-${letter}`, sit, choice: letter, caption: ch.caption, playerChar: playerCharObj })
+      }
+
+      // NPC feedReaction post
       const reaction = sit.feedReaction?.[letter]
       if (reaction) {
         const char = CHARS[reaction.char as CharId]
-        if (char) posts.push({ postId: `react-${sit.id}-${letter}`, sit, choice: letter, reaction, char })
+        if (char) posts.push({ type: 'npc', postId: `react-${sit.id}-${letter}`, sit, choice: letter, reaction, char })
       }
-      const ch = sit.choices[letter === 'A' ? 0 : 1]
+
       if (ch) meters = applyDeltas(meters, ch.deltas)
     }
     return posts.reverse()
-  }, [game.choices])
+  }, [game.choices, game.char])
 
   // Current visible situations (for Story Drop CTA only)
   const visibleSits = getVisibleSituations(game.meters, game.choices)
   const nextSit = visibleSits[game.situation]
 
-  const handleComment = useCallback((postKey: string, opt: PostCommentOption) => {
+  const handleComment = useCallback((postKey: string, postId: string, opt: PostCommentOption) => {
     setCommentPost(null)
+    setCommentedPosts(prev => { const n = new Set(prev); n.add(postId); return n })
     const charName = CHARS[postKey as keyof typeof CHARS]?.name
     applyFeedDeltas(opt.deltas, postKey, charName)
   }, [applyFeedDeltas])
@@ -220,52 +245,104 @@ export default function FeedScreen() {
       {/* Scrollable feed */}
       <div className="scroll" style={{ flex: 1 }}>
 
-        {/* Accumulated reactive posts — newest completed situation first */}
-        {completedPosts.map(({ postId, sit, reaction, char: reactChar }, i) => (
-          <div key={postId} className="post" style={i === 0 ? { borderTop: '2px solid rgba(255,45,120,.3)', background: 'rgba(255,45,120,.04)' } : {}}>
-            <div className="post-head">
-              <button
-                className={`av ${reactChar.cls}`}
-                style={{ width:34, height:34, fontSize:14, padding:0, backgroundImage:`url(/avatars/${reactChar.id}.png)`, backgroundSize:'cover', backgroundPosition:'center', border:'none', cursor:'pointer' }}
-                onClick={() => setViewingChar(reactChar.id)}
-              >
-                <span style={{ opacity:0 }}>{reactChar.init}</span>
-              </button>
-              <div className="post-id">
-                <div className="h">{reactChar.handle}</div>
-                <div className="s" style={{ color: i === 0 ? 'var(--accent)' : 'var(--ink3)' }}>
-                  Creator House · {i === 0 ? 'just now · reacting to your move' : `Day ${sit.day}`}
+        {/* Accumulated posts — newest first: player's own posts + NPC reactions */}
+        {completedPosts.map((post, i) => {
+          const isNew = i === 0
+          if (post.type === 'player') {
+            // Player's own caption post
+            const pc = post.playerChar
+            const liked = likedPosts.has(post.postId)
+            const commented = commentedPosts.has(post.postId)
+            return (
+              <div key={post.postId} className="post" style={isNew ? { borderTop: '2px solid rgba(255,45,120,.3)', background: 'rgba(255,45,120,.04)' } : {}}>
+                <div className="post-head">
+                  <div className={`av ${pc.cls}`} style={{ width:34, height:34, fontSize:14, backgroundImage:`url(/avatars/${pc.id}.png)`, backgroundSize:'cover', backgroundPosition:'center' }}>
+                    <span style={{ opacity:0 }}>{pc.init}</span>
+                  </div>
+                  <div className="post-id">
+                    <div className="h">@{pc.handle} <span style={{ fontSize:10, color:'var(--accent)', fontWeight:700, marginLeft:4 }}>YOU</span></div>
+                    <div className="s" style={{ color: isNew ? 'var(--accent)' : 'var(--ink3)' }}>
+                      Creator House · {isNew ? 'just now · your post' : `Day ${post.sit.day}`}
+                    </div>
+                  </div>
+                  {isNew && <div className="new-pill">NEW</div>}
+                </div>
+                <div className={`post-img grain ${pc.cls}`} style={{ background: `linear-gradient(135deg, color-mix(in srgb, var(--cc) 70%, #000) 0%, #000 100%)` }}>
+                  <p className="overlay-txt" style={{ fontSize:14 }}>{resolveTokens(post.caption, game.playerName, game.playerGender)}</p>
+                </div>
+                <div className="post-actions">
+                  <button
+                    onClick={() => !liked && likePost(post.postId, pc.id, 2)}
+                    style={{ background:'none', border:'none', cursor: liked ? 'default' : 'pointer', display:'flex', alignItems:'center', opacity: liked ? 0.6 : 1 }}
+                  >
+                    <svg viewBox="0 0 24 24" fill={liked ? 'var(--accent)' : 'none'} stroke={liked ? 'var(--accent)' : '#fff'} strokeWidth="1.8" strokeLinecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                  </button>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+                  <div className="spacer" />
                 </div>
               </div>
-              {i === 0 && <div className="new-pill">NEW</div>}
-            </div>
-            <div className={`post-img grain ${reactChar.cls}`} style={{ background: `linear-gradient(135deg, color-mix(in srgb, var(--cc) 70%, #000) 0%, #000 100%)` }}>
-              <p className="overlay-txt" style={{ fontSize:14 }}>{resolveTokens(reaction.caption, game.playerName, game.playerGender)}</p>
-            </div>
-            <div className="post-actions">
-              <button onClick={() => likePost(postId, reactChar.id, 2)} style={{ background:'none', border:'none', cursor:'pointer', display:'flex', alignItems:'center' }}>
-                <svg viewBox="0 0 24 24" fill={likedPosts.has(postId) ? 'var(--accent)' : 'none'} stroke={likedPosts.has(postId) ? 'var(--accent)' : '#fff'} strokeWidth="1.8" strokeLinecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-              </button>
-              {POST_COMMENTS[reactChar.id] && (
-                <button onClick={() => setCommentPost(commentPost === postId ? null : postId)} style={{ background:'none', border:'none', cursor:'pointer', display:'flex', alignItems:'center' }}>
-                  <svg viewBox="0 0 24 24" fill="none" stroke={commentPost===postId ? 'var(--accent)' : '#fff'} strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            )
+          }
+
+          // NPC feedReaction post
+          const reactChar = post.char
+          const liked = likedPosts.has(post.postId)
+          const commented = commentedPosts.has(post.postId)
+          return (
+            <div key={post.postId} className="post" style={isNew ? { borderTop: '2px solid rgba(255,45,120,.3)', background: 'rgba(255,45,120,.04)' } : {}}>
+              <div className="post-head">
+                <button
+                  className={`av ${reactChar.cls}`}
+                  style={{ width:34, height:34, fontSize:14, padding:0, backgroundImage:`url(/avatars/${reactChar.id}.png)`, backgroundSize:'cover', backgroundPosition:'center', border:'none', cursor:'pointer' }}
+                  onClick={() => setViewingChar(reactChar.id)}
+                >
+                  <span style={{ opacity:0 }}>{reactChar.init}</span>
                 </button>
-              )}
-              <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
-              <div className="spacer" />
-            </div>
-            {commentPost === postId && POST_COMMENTS[reactChar.id] && (
-              <div className="comment-sheet">
-                <div className="comment-sheet-label">Comment as {playingChar?.name ?? 'you'}</div>
-                {POST_COMMENTS[reactChar.id].map((opt, j) => (
-                  <button key={j} className="comment-option" onClick={() => handleComment(reactChar.id, opt)}>
-                    {opt.text}
-                  </button>
-                ))}
+                <div className="post-id">
+                  <div className="h">{reactChar.handle}</div>
+                  <div className="s" style={{ color: isNew ? 'var(--accent)' : 'var(--ink3)' }}>
+                    Creator House · {isNew ? 'just now · reacting to your move' : `Day ${post.sit.day}`}
+                  </div>
+                </div>
+                {isNew && <div className="new-pill">NEW</div>}
               </div>
-            )}
-          </div>
-        ))}
+              <div className={`post-img grain ${reactChar.cls}`} style={{ background: `linear-gradient(135deg, color-mix(in srgb, var(--cc) 70%, #000) 0%, #000 100%)` }}>
+                <p className="overlay-txt" style={{ fontSize:14 }}>{resolveTokens(post.reaction.caption, game.playerName, game.playerGender)}</p>
+              </div>
+              <div className="post-actions">
+                <button
+                  onClick={() => !liked && likePost(post.postId, reactChar.id, 2)}
+                  style={{ background:'none', border:'none', cursor: liked ? 'default' : 'pointer', display:'flex', alignItems:'center', opacity: liked ? 0.6 : 1 }}
+                >
+                  <svg viewBox="0 0 24 24" fill={liked ? 'var(--accent)' : 'none'} stroke={liked ? 'var(--accent)' : '#fff'} strokeWidth="1.8" strokeLinecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                </button>
+                {POST_COMMENTS[reactChar.id] && !commented && (
+                  <button
+                    onClick={() => setCommentPost(commentPost === post.postId ? null : post.postId)}
+                    style={{ background:'none', border:'none', cursor:'pointer', display:'flex', alignItems:'center' }}
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" stroke={commentPost===post.postId ? 'var(--accent)' : '#fff'} strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                  </button>
+                )}
+                {POST_COMMENTS[reactChar.id] && commented && (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.3)" strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                )}
+                <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+                <div className="spacer" />
+              </div>
+              {commentPost === post.postId && POST_COMMENTS[reactChar.id] && !commented && (
+                <div className="comment-sheet">
+                  <div className="comment-sheet-label">Comment as {playingChar?.name ?? 'you'}</div>
+                  {POST_COMMENTS[reactChar.id].map((opt, j) => (
+                    <button key={j} className="comment-option" onClick={() => handleComment(reactChar.id, post.postId, opt)}>
+                      {opt.text}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )
+        })}
 
         {/* Story Drop — dynamic: shows next pending situation */}
         {nextSit && (
@@ -294,7 +371,7 @@ export default function FeedScreen() {
           caption="Pehla din. Pehla room. Pehle mujhe. Kuch cheezein change nahi honti. 🤍"
           fullCaption="Kaafi log poochte hain — 'Ria, tujhe stress nahi hota?' Stress? Main stress ko content mein convert karti hoon. 🤍"
           likes="84,291" time="6 HOURS AGO"
-          likedPosts={likedPosts} onLike={likePost} onComment={setCommentPost}
+          likedPosts={likedPosts} commentedPosts={commentedPosts} onLike={likePost} onComment={setCommentPost}
           commentOpen={commentPost} comments={POST_COMMENTS.ria}
           onHandleComment={handleComment} playingCharName={playingChar?.name ?? 'you'}
         />
@@ -306,50 +383,63 @@ export default function FeedScreen() {
           caption="Naye log. Naye vibes. Is ghar mein sab interesting lagte hain. Especially ek. 👀🫶"
           fullCaption="Day 1 done. Chai piya. Kuch connections bane. Kuch strategies bhi. #CreatorHouse"
           likes="29,441" time="5 HOURS AGO"
-          likedPosts={likedPosts} onLike={likePost} onComment={setCommentPost}
+          likedPosts={likedPosts} commentedPosts={commentedPosts} onLike={likePost} onComment={setCommentPost}
           commentOpen={commentPost} comments={POST_COMMENTS.zoya}
           onHandleComment={handleComment} playingCharName={playingChar?.name ?? 'you'}
         />
 
         {/* housewatch_india gossip account */}
-        <div className="post">
-          <div className="post-head">
-            <div className="av" style={{ width:34, height:34, fontSize:14, background:'#1c1c26', fontWeight:800 }}>H</div>
-            <div className="post-id">
-              <div className="h">housewatch_india</div>
-              <div className="s">2.8M followers · 2h ago</div>
+        {(() => {
+          const hwLiked = likedPosts.has('hw-seed')
+          const hwCommented = commentedPosts.has('housewatch')
+          return (
+            <div className="post">
+              <div className="post-head">
+                <div className="av" style={{ width:34, height:34, fontSize:14, background:'#1c1c26', fontWeight:800 }}>H</div>
+                <div className="post-id">
+                  <div className="h">housewatch_india</div>
+                  <div className="s">2.8M followers · 2h ago</div>
+                </div>
+                <button className="icon-btn"><svg viewBox="0 0 24 24" width="20" height="20" fill="#fff"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
+              </div>
+              <div className="post-img grain" style={{ background: '#12121a' }}>
+                <p className="overlay-txt" style={{ fontSize:13, color:'rgba(255,255,255,.75)', lineHeight:1.6 }}>
+                  #CreatorHouseDay1 — koi quietly khel raha hai. Koi loudly.<br /><br />
+                  Jo sabse zyada chup hai woh sabse zyada plan kar raha hai. 🧵 Thread kal.<br /><br />
+                  <span style={{ color:'var(--accent)', fontFamily:'var(--sans)', fontSize:11 }}>#CreatorHouse TRENDING #1</span>
+                </p>
+              </div>
+              <div className="post-actions">
+                <button
+                  onClick={() => !hwLiked && likePost('hw-seed', 'ria', 1)}
+                  style={{ background:'none', border:'none', cursor: hwLiked ? 'default' : 'pointer', display:'flex', alignItems:'center', opacity: hwLiked ? 0.6 : 1 }}
+                >
+                  <svg viewBox="0 0 24 24" fill={hwLiked ? 'var(--accent)' : 'none'} stroke={hwLiked ? 'var(--accent)' : '#fff'} strokeWidth="1.8" strokeLinecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                </button>
+                {!hwCommented ? (
+                  <button onClick={() => setCommentPost(commentPost === 'housewatch' ? null : 'housewatch')} style={{ background:'none', border:'none', cursor:'pointer', display:'flex', alignItems:'center' }}>
+                    <svg viewBox="0 0 24 24" fill="none" stroke={commentPost==='housewatch' ? 'var(--accent)' : '#fff'} strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                  </button>
+                ) : (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.3)" strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                )}
+                <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+                <div className="spacer" />
+              </div>
+              {commentPost === 'housewatch' && !hwCommented && (
+                <div className="comment-sheet">
+                  <div className="comment-sheet-label">Comment as {playingChar?.name ?? 'you'}</div>
+                  {POST_COMMENTS.housewatch.map((opt, i) => (
+                    <button key={i} className="comment-option" onClick={() => handleComment('housewatch', 'housewatch', opt)}>{opt.text}</button>
+                  ))}
+                </div>
+              )}
+              <div className="likes">94,102 likes</div>
+              <div className="caption"><b>housewatch_india</b> Pehla din. Thread kal. 👀 #CreatorHouse</div>
+              <div className="ts" style={{ padding:'2px 14px 12px' }}>2 HOURS AGO</div>
             </div>
-            <button className="icon-btn"><svg viewBox="0 0 24 24" width="20" height="20" fill="#fff"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
-          </div>
-          <div className="post-img grain" style={{ background: '#12121a' }}>
-            <p className="overlay-txt" style={{ fontSize:13, color:'rgba(255,255,255,.75)', lineHeight:1.6 }}>
-              #CreatorHouseDay1 — koi quietly khel raha hai. Koi loudly.<br /><br />
-              Jo sabse zyada chup hai woh sabse zyada plan kar raha hai. 🧵 Thread kal.<br /><br />
-              <span style={{ color:'var(--accent)', fontFamily:'var(--sans)', fontSize:11 }}>#CreatorHouse TRENDING #1</span>
-            </p>
-          </div>
-          <div className="post-actions">
-            <button onClick={() => likePost('hw-seed', 'ria', 1)} style={{ background:'none', border:'none', cursor:'pointer', display:'flex', alignItems:'center' }}>
-              <svg viewBox="0 0 24 24" fill={likedPosts.has('hw-seed') ? 'var(--accent)' : 'none'} stroke={likedPosts.has('hw-seed') ? 'var(--accent)' : '#fff'} strokeWidth="1.8" strokeLinecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-            </button>
-            <button onClick={() => setCommentPost(commentPost === 'housewatch' ? null : 'housewatch')} style={{ background:'none', border:'none', cursor:'pointer', display:'flex', alignItems:'center' }}>
-              <svg viewBox="0 0 24 24" fill="none" stroke={commentPost==='housewatch' ? 'var(--accent)' : '#fff'} strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-            </button>
-            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
-            <div className="spacer" />
-          </div>
-          {commentPost === 'housewatch' && (
-            <div className="comment-sheet">
-              <div className="comment-sheet-label">Comment as {playingChar?.name ?? 'you'}</div>
-              {POST_COMMENTS.housewatch.map((opt, i) => (
-                <button key={i} className="comment-option" onClick={() => handleComment('housewatch', opt)}>{opt.text}</button>
-              ))}
-            </div>
-          )}
-          <div className="likes">94,102 likes</div>
-          <div className="caption"><b>housewatch_india</b> Pehla din. Thread kal. 👀 #CreatorHouse</div>
-          <div className="ts" style={{ padding:'2px 14px 12px' }}>2 HOURS AGO</div>
-        </div>
+          )
+        })()}
 
         {/* Kabir */}
         <SeedPost
@@ -358,7 +448,7 @@ export default function FeedScreen() {
           caption="&quot;Is ghar mein sab serious ho jaate hain jab camera on hota hai. Main serious tab hota hoon jab camera off hota hai.&quot; 😭👀"
           fullCaption="Camera ka psychology. Day 1 observation thread kal. 😭"
           likes="41,882" time="3 HOURS AGO"
-          likedPosts={likedPosts} onLike={likePost} onComment={setCommentPost}
+          likedPosts={likedPosts} commentedPosts={commentedPosts} onLike={likePost} onComment={setCommentPost}
           commentOpen={commentPost} comments={POST_COMMENTS.kabir}
           onHandleComment={handleComment} playingCharName={playingChar?.name ?? 'you'}
         />
@@ -370,7 +460,7 @@ export default function FeedScreen() {
           caption="5AM. Gym done. Creator House Day 1 different hai. Numbers aayenge. Always do. 💪📈"
           fullCaption="Grind never stops. Villa ya gym — same mindset. #CreatorHouse #Fitness"
           likes="18,204" time="4 HOURS AGO"
-          likedPosts={likedPosts} onLike={likePost} onComment={setCommentPost}
+          likedPosts={likedPosts} commentedPosts={commentedPosts} onLike={likePost} onComment={setCommentPost}
           commentOpen={commentPost} comments={POST_COMMENTS.dev}
           onHandleComment={handleComment} playingCharName={playingChar?.name ?? 'you'}
         />
@@ -382,7 +472,7 @@ export default function FeedScreen() {
           caption="Villa Day 1. Sab perform kar rahe hain. Main observe kar rahi hoon. Chai mil gayi. Sab theek hai. ☕"
           fullCaption="Kuch cheezein camera ke saamne nahi kehni chahiye. Baaki sab baad mein. 🫶 #CreatorHouse"
           likes="22,318" time="5 HOURS AGO"
-          likedPosts={likedPosts} onLike={likePost} onComment={setCommentPost}
+          likedPosts={likedPosts} commentedPosts={commentedPosts} onLike={likePost} onComment={setCommentPost}
           commentOpen={commentPost} comments={POST_COMMENTS.meher}
           onHandleComment={handleComment} playingCharName={playingChar?.name ?? 'you'}
         />
@@ -394,7 +484,7 @@ export default function FeedScreen() {
           caption="2.1M views raat mein. Subah uthke dekha toh ro padi. Phir Ria ko bataya. Usne bola... 'nice.' 🥺✨"
           fullCaption="2.1M. Ro padi. Tumhara pyaar 🥺✨"
           likes="2,108,441" time="45 MINUTES AGO"
-          likedPosts={likedPosts} onLike={likePost} onComment={setCommentPost}
+          likedPosts={likedPosts} commentedPosts={commentedPosts} onLike={likePost} onComment={setCommentPost}
           commentOpen={commentPost} comments={POST_COMMENTS.ananya}
           onHandleComment={handleComment} playingCharName={playingChar?.name ?? 'you'}
         />

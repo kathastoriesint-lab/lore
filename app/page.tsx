@@ -161,8 +161,9 @@ export default function App() {
     }).catch(() => {})
   }, [dmHistory, game.char, game.playerName])
 
-  // Like a post — updates player fame + target character's fame
+  // Like a post — updates player fame + target character's fame (idempotent: no double-like)
   const likePost = useCallback((postId: string, charId: CharId, fameDelta: number) => {
+    if (likedPosts.has(postId)) return  // already liked — full no-op
     setLikedPosts(prev => { const n = new Set(prev); n.add(postId); return n })
     const newFame = Math.min(100, game.meters.fame + Math.ceil(fameDelta / 3))
     setCharFame(prev => ({ ...prev, [charId]: Math.min(100, (prev[charId] ?? 50) + fameDelta) }))
@@ -178,7 +179,7 @@ export default function App() {
       tasksLeft: Math.max(0, SITUATIONS.length - game.situation - 1),
       tasksTotal: SITUATIONS.length,
     })
-  }, [game, saveAndSet, dmTrust, showImpact])
+  }, [game, likedPosts, saveAndSet, dmTrust, showImpact])
 
   // Inject a DM message from a character without AI round-trip (used after Live choices)
   const injectCharDM = useCallback((charId: CharId, text: string) => {

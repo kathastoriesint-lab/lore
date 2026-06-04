@@ -137,7 +137,7 @@ export default function LiveScreen() {
       addTimer(() => { injectCharDM(firstReactor.char as CharId, r(firstReactor.text)) }, 1200)
     }
 
-    // Show "Posted to feed ✓", advance situation (+ single Supabase write), then navigate
+    // Show post preview cards, advance situation, then navigate to feed
     addTimer(() => {
       setShowPost(true)
       advanceSituation()  // ONE write: meters+choices (from makeChoice) + situation
@@ -150,8 +150,8 @@ export default function LiveScreen() {
         processingRef.current = false
         timersRef.current = []
         navigate('feed')
-      }, 1800)
-    }, 500)
+      }, 3500)  // 3.5s to read the post cards before navigating
+    }, 600)
   }, [sit, makeChoice, advanceSituation, navigate, injectCharDM])
 
 
@@ -324,30 +324,60 @@ export default function LiveScreen() {
                     </div>
                   )}
 
-                  {/* "Posted to feed" confirmation — then auto-navigate */}
-                  {showPost && (
-                    <div
-                      style={{
-                        marginTop: 16,
-                        padding: '14px 16px',
-                        background: 'rgba(255,45,120,.08)',
-                        border: '1px solid rgba(255,45,120,.22)',
-                        borderRadius: 14,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 12,
-                        animation: 'fadeUp .35s ease-out',
-                      }}
-                    >
-                      <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(255,45,120,.18)', display: 'grid', placeItems: 'center', flexShrink: 0 }}>
-                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--accent)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  {/* Post preview cards — player's own post + NPC reaction */}
+                  {showPost && char && (() => {
+                    const letter = chosen === 0 ? 'A' : 'B'
+                    const feedRx = sit.feedReaction?.[letter]
+                    const feedRxChar = feedRx ? CHARS[feedRx.char as CharId] : null
+                    // Resolve the displayed char (female player: swap kabir↔ananya)
+                    const displayChar = game.playerGender === 'female'
+                      ? char.id === 'kabir' ? CHARS['ananya'] : char.id === 'ananya' ? CHARS['kabir'] : char
+                      : char
+                    return (
+                      <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
+                        {/* Player's own post */}
+                        <div style={{ background: '#16161e', borderRadius: 14, overflow: 'hidden', border: '1px solid rgba(255,45,120,.35)', animation: 'fadeUp .35s ease-out' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px' }}>
+                            <div className={`av ${displayChar.cls}`} style={{ width: 28, height: 28, fontSize: 11, flexShrink: 0, backgroundImage: `url(/avatars/${displayChar.id}.png)`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+                              <span style={{ opacity: 0 }}>{displayChar.init}</span>
+                            </div>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{ fontWeight: 700, fontSize: 12, color: '#fff' }}>@{displayChar.handle}</div>
+                              <div style={{ fontSize: 10, color: 'var(--accent)', marginTop: 1 }}>just now · posted</div>
+                            </div>
+                            <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--accent)', background: 'rgba(255,45,120,.15)', padding: '3px 9px', borderRadius: 20, flexShrink: 0 }}>✓ POSTED</div>
+                          </div>
+                          <div className={`post-img grain ${displayChar.cls}`} style={{ margin: '0 12px 12px', borderRadius: 10, background: `linear-gradient(135deg, color-mix(in srgb, var(--cc) 70%, #000) 0%, #000 100%)` }}>
+                            <p className="overlay-txt" style={{ fontSize: 13 }}>{r(ch.caption)}</p>
+                          </div>
+                        </div>
+
+                        {/* NPC feedReaction post (always when it exists) */}
+                        {feedRxChar && feedRx && (
+                          <div style={{ background: '#16161e', borderRadius: 14, overflow: 'hidden', border: '1px solid rgba(255,255,255,.08)', animation: 'fadeUp .4s ease-out .15s both' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px' }}>
+                              <div className={`av ${feedRxChar.cls}`} style={{ width: 28, height: 28, fontSize: 11, flexShrink: 0, backgroundImage: `url(/avatars/${feedRxChar.id}.png)`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+                                <span style={{ opacity: 0 }}>{feedRxChar.init}</span>
+                              </div>
+                              <div style={{ flex: 1, minWidth: 0 }}>
+                                <div style={{ fontWeight: 700, fontSize: 12, color: '#fff' }}>@{feedRxChar.handle}</div>
+                                <div style={{ fontSize: 10, color: 'var(--ink3)', marginTop: 1 }}>reacting · just now</div>
+                              </div>
+                              <div style={{ fontSize: 10, color: 'var(--ink3)', background: 'rgba(255,255,255,.07)', padding: '3px 9px', borderRadius: 20, flexShrink: 0 }}>REACTION</div>
+                            </div>
+                            <div className={`post-img grain ${feedRxChar.cls}`} style={{ margin: '0 12px 12px', borderRadius: 10, background: `linear-gradient(135deg, color-mix(in srgb, var(--cc) 70%, #000) 0%, #000 100%)` }}>
+                              <p className="overlay-txt" style={{ fontSize: 13 }}>{resolveTokens(feedRx.caption, game.playerName, game.playerGender)}</p>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Footer hint */}
+                        <div style={{ textAlign: 'center', fontSize: 11, color: 'var(--ink3)', paddingBottom: 4 }}>
+                          Ghar react kar raha hai — feed mein dekho →
+                        </div>
                       </div>
-                      <div>
-                        <div style={{ fontWeight: 700, fontSize: 13, color: 'var(--accent)' }}>Posted to feed</div>
-                        <div style={{ fontSize: 11, color: 'var(--ink3)', marginTop: 2 }}>Ghar react kar raha hai... feed dekho →</div>
-                      </div>
-                    </div>
-                  )}
+                    )
+                  })()}
                 </div>
               )
             })()}
