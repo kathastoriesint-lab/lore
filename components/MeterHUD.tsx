@@ -18,7 +18,7 @@ interface Props {
 
 export default function MeterHUD({ right }: Props) {
   const { game } = useApp()
-  const charId = game.char ?? 'adi'
+  const charId = game.char ?? 'kabir'
   const char = CHARS[charId]
 
   const fameRef   = useRef<HTMLElement>(null)

@@ -1,4 +1,4 @@
-export type CharId = 'ria'|'kabir'|'dev'|'ananya'|'zoya'|'meher'|'rishi'|'adi'
+export type CharId = 'ria'|'kabir'|'dev'|'ananya'|'zoya'
 
 export interface Character {
   id: CharId
@@ -59,8 +59,6 @@ export type Screen =
   | 'dm-thread'
   | 'profile'
   | 'char-profile'
-  | 'story-reader'
-  | 'world-hub'
 
 export interface GameState {
   playerName: string

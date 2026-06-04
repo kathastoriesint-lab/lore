@@ -6,9 +6,6 @@ export const CHARS: Record<CharId, Character> = {
   ananya: { id:'ananya', name:'Ananya', handle:'ananya.creates', cls:'c-ananya', init:'A', fame:15, role:'Dance · 23 · Your Crush / Ally' },
   dev:    { id:'dev',    name:'Dev',    handle:'devlifts',      cls:'c-dev',    init:'D', fame:30, role:'Fitness · 27 · Wild Card' },
   zoya:   { id:'zoya',   name:'Zoya',   handle:'zoya.creates',  cls:'c-zoya',   init:'Z', fame:50, role:'Beauty · 24 · The Schemer' },
-  meher:  { id:'meher',  name:'Meher',  handle:'meher',         cls:'c-meher',  init:'M', fame:40, role:'Lifestyle · 25' },
-  rishi:  { id:'rishi',  name:'Rishi',  handle:'rishivlogs',    cls:'c-rishi',  init:'R', fame:35, role:'Vlogs · 24' },
-  adi:    { id:'adi',    name:'Adi',    handle:'adi',           cls:'c-adi',    init:'A', fame:25, role:'Content · 22' },
 }
 
 export const NARR_LINES = [
@@ -1310,9 +1307,6 @@ export const DM_HOOKS: Record<CharId, string> = {
   ananya: 'Hi... main usually DM nahi karti but aaj karna tha. Tum bahut different lagte ho baaki sabse. 🥺',
   dev:    'Numbers. That\'s all this is. But you\'re different — I see it. Don\'t tell anyone I said that. 💪',
   zoya:   'Hey! Bas check kar rahi thi tum theek ho. Is ghar mein sab compete karte hain, main genuinely care karti hoon. 🫶',
-  meher:  'Kuch baat karni thi... 🫶',
-  rishi:  'Recorded everything. You\'re interesting. 🎥',
-  adi:    'Hey... 🙏',
 }
 
 export const DM_MOCK: Record<CharId, string[]> = {
@@ -1321,29 +1315,23 @@ export const DM_MOCK: Record<CharId, string[]> = {
   ananya: ['Sach mein? 🥺', 'Tum bahut achhe ho honestly', 'Main agree karti hoon... 🤍'],
   dev:    ['Numbers agree karte hain.', 'Solid. 💪', 'Facts. That\'s it.'],
   zoya:   ['Aww tum bahut sweet ho 🫶', 'Main samajhti hoon, sach mein.', 'Yeh toh interesting hai... 💅'],
-  meher:  ['🫶', 'Bilkul.', 'Sahi baat hai.'],
-  rishi:  ['Noted. 🎥', 'Clip worthy.', 'Recording.'],
-  adi:    ['haan yaar', 'okay', 'sahi hai'],
 }
 
 // Legacy compat exports
-export const DM_ORDER: CharId[] = ['kabir', 'ananya', 'ria', 'dev', 'zoya', 'meher', 'rishi', 'adi']
+export const DM_ORDER: CharId[] = ['kabir', 'ananya', 'ria', 'dev', 'zoya']
 export const DM_PREVIEW: Record<CharId, string> = {
   ria:    'Tumse kuch baat karni thi... 🤍',
   kabir:  'Finally directly baat kar sakta hoon. 😭',
   ananya: 'Tum bahut different lagte ho... 🥺',
   dev:    'You\'re different — I see it. 💪',
   zoya:   'Bas check kar rahi thi tum theek ho. 🫶',
-  meher:  'Kuch baat karni thi... 🫶',
-  rishi:  'Recorded everything. 🎥',
-  adi:    'Hey... 🙏',
 }
 export const DM_TIME: Record<CharId, string> = {
-  kabir:'3m', ananya:'8m', ria:'22m', dev:'1h', zoya:'2h', meher:'3h', rishi:'5h', adi:'just now',
+  kabir:'3m', ananya:'8m', ria:'22m', dev:'1h', zoya:'2h',
 }
 export const DM_UNREAD: CharId[] = ['kabir', 'ananya']
 export const DM_TRUST: Record<CharId, number> = {
-  ria:40, kabir:60, ananya:55, dev:50, zoya:35, meher:65, rishi:45, adi:40,
+  ria:40, kabir:60, ananya:55, dev:50, zoya:35,
 }
 export const DM_QUICK: Record<CharId, string[]> = {
   ria:    ['Tujhe mujhse kya chahiye?', 'Top pe kaise pahuche?', 'Game samjha mujhe.'],
@@ -1351,9 +1339,6 @@ export const DM_QUICK: Record<CharId, string[]> = {
   ananya: ['Tu theek hai?', 'Akela feel hota hai yahan?', 'Saath chalein?'],
   dev:    ['Deal ke baare mein batao', 'Yahan kyun aaye ho?', 'Collab mein kya milega?'],
   zoya:   ['Kya notice kiya tune?', 'Seedhi baat kar', 'Kispe nazar hai teri?'],
-  meher:  ['Yahan kaise survive karoon?', 'Kispe bharosa karoon?', 'Teri advice kya hai?'],
-  rishi:  ['Kya record kiya tune?', 'Footage kiske paas jaata hai?', 'Mujhe woh clip chahiye'],
-  adi:    ['Collab karein?', 'Yahan kaisa chal raha?', 'Dost banein?'],
 }
 
 export function getVisibleSituations(meters?: import('./types').Meters, _choices?: ('A' | 'B')[]): Situation[] {
@@ -1370,31 +1355,6 @@ export function getVisibleSituations(meters?: import('./types').Meters, _choices
   return ordered
 }
 
-export function getSituationAt(index: number, meters: import('./types').Meters, _choices: ('A' | 'B')[]): Situation | null {
-  // Build the ordered list including conditionals based on meter state at each gate
-  const core = SITUATIONS.filter(s => !s.condition)
-  const conds = SITUATIONS.filter(s => s.condition)
-
-  const ordered: Situation[] = []
-  for (const sit of core) {
-    ordered.push(sit)
-    // Check if any conditional follows this situation
-    if (sit.id === 'D4-1') {
-      const c = conds.find(s => s.id === 'D4-HEAT')
-      if (c && c.condition!(meters)) ordered.push(c)
-    }
-    if (sit.id === 'D5-2') {
-      const c = conds.find(s => s.id === 'D5-FAME')
-      if (c && c.condition!(meters)) ordered.push(c)
-    }
-    if (sit.id === 'D6-2') {
-      const c = conds.find(s => s.id === 'D6-IMAGE')
-      if (c && c.condition!(meters)) ordered.push(c)
-    }
-  }
-
-  return ordered[index] ?? null
-}
 
 // ── Post comment options (shown when tapping comment on a feed post) ──────────
 export interface PostCommentOption {
@@ -1403,25 +1363,12 @@ export interface PostCommentOption {
   toast: string
 }
 
-// ── Legacy compat exports (used by FeedScreen / NarratorScreen) ───────────────
-export const STORY_ORDER: CharId[] = ['ria','kabir','ananya','dev','zoya','meher','rishi','adi']
-export const SEEN_CHARS: CharId[] = ['dev','zoya']
 export const PLAYABLE: { id: CharId; tag: string }[] = [
   { id:'kabir',  tag:'Sabka dost. Kisi ka nahi. 😭' },
   { id:'ananya', tag:'Viral dancer, aur aage jaana hai. 🥺' },
   { id:'ria',    tag:'Main already on top hoon. Sawaal yeh hai — kitne din tak. 👑' },
 ]
-export const LOCKED: CharId[] = ['meher','dev','zoya','rishi','adi']
-export const STORY_CONTENT: Record<CharId, { time: string; text: string }> = {
-  ria:    { time:'6h ago',   text:'Stress ko content mein convert karna — yahi meri superpower hai. Seekho. 🤍' },
-  kabir:  { time:'2h ago',   text:'Is ghar mein sab serious ho jaate hain camera on hote hi. Main serious tab hota hoon jab camera off hota hai. 😭👀' },
-  ananya: { time:'45m ago',  text:'2.1M views aa gaye raat mein. Subah dekha toh ro padi — khushi se. Phir Ria ko bataya. "Nice." Bas. 🥺✨' },
-  dev:    { time:'3h ago',   text:'5 AM. Sirf main aur weights. Numbers jhooth nahi bolte. 💪' },
-  zoya:   { time:'1h ago',   text:'Kuch log in-person bahut different hote hain. Main bhi hoon. Difference yeh hai ki main jaanti hoon. 💅' },
-  meher:  { time:'4h ago',   text:'Aaj subah kuch hua jo camera ne nahi pakda. Kuch cheezein real rehni chahiye. 🫶' },
-  rishi:  { time:'5h ago',   text:'Main record karta rehta hoon. Log bhool jaate hain. Phir trending ho jaata hai. 🎥' },
-  adi:    { time:'just now', text:'Pehla hafte khatam ho raha hai. Abhi tak koi real dost nahi. Still figuring out my angle. 🙏' },
-}
+export const LOCKED: CharId[] = ['dev','zoya']
 
 export const POST_COMMENTS: Record<string, PostCommentOption[]> = {
   ria: [
@@ -1453,10 +1400,5 @@ export const POST_COMMENTS: Record<string, PostCommentOption[]> = {
     { text: 'Numbers never lie 📈 Respect',         deltas:{ fame:4, heat:0, image:3 },  toast:'Dev respects the grind. Fame +4' },
     { text: 'Ye sab brand PR hai na? 😅',           deltas:{ fame:2, heat:5, image:-2 }, toast:'Dev is sceptical. Heat +5' },
     { text: 'Bhai same thoughts 💪',                deltas:{ fame:3, heat:2, image:2 },  toast:'Dev aligned. Heat +2' },
-  ],
-  meher: [
-    { text: 'This is so real 🫶 Thank you',         deltas:{ fame:2, heat:0, image:4 },  toast:'Meher felt this. Image +4' },
-    { text: 'Aur bhi zyada ho sakta tha honestly',  deltas:{ fame:3, heat:3, image:1 },  toast:'Meher pushes back. Heat +3' },
-    { text: 'Beautifully said ✨',                   deltas:{ fame:2, heat:0, image:3 },  toast:'Meher approves. Image +3' },
   ],
 }

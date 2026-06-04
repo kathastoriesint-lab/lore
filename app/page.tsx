@@ -32,7 +32,7 @@ export default function App() {
   }, [])
   // Per-character fame (drives follower counts on all profiles)
   const [charFame, setCharFame] = useState<Record<string, number>>({
-    ria:85, kabir:55, meher:40, dev:30, ananya:15, zoya:50, rishi:35, adi:25
+    ria:85, kabir:55, dev:30, ananya:15, zoya:50
   })
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set())
   const [viewingCharId, setViewingCharId] = useState<CharId | null>(null)
@@ -89,7 +89,7 @@ export default function App() {
   }, [saveAndSet, game])
 
   const startGame = useCallback((name: string, gender: 'male' | 'female') => {
-    const newState: GameState = { playerName: name, playerGender: gender, char: 'adi', situation: 0, choices: [], meters: { fame: 20, heat: 50, image: 30 }, narrator_done: true, dayUnlockTime: {} }
+    const newState: GameState = { playerName: name, playerGender: gender, char: null, situation: 0, choices: [], meters: { fame: 20, heat: 50, image: 30 }, narrator_done: true, dayUnlockTime: {} }
     saveAndSet(newState)
     // Mark feed as seen so the world-intro overlay doesn't re-appear on first Feed visit
     if (typeof window !== 'undefined') localStorage.setItem('lore_feed_seen', '1')

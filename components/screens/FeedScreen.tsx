@@ -493,18 +493,6 @@ export default function FeedScreen() {
           onHandleComment={handleComment} playingCharName={playingChar?.name ?? 'you'}
         />
 
-        {/* Meher */}
-        <SeedPost
-          id="meher-seed" charId="meher" onViewChar={setViewingChar}
-          bg="linear-gradient(135deg,#b07a2a,#3a2000)"
-          caption="Villa Day 1. Sab perform kar rahe hain. Main observe kar rahi hoon. Chai mil gayi. Sab theek hai. ☕"
-          fullCaption="Kuch cheezein camera ke saamne nahi kehni chahiye. Baaki sab baad mein. 🫶 #CreatorHouse"
-          likes="22,318" time="5 HOURS AGO"
-          likedPosts={likedPosts} commentedPosts={commentedPosts} onLike={likePost} onComment={setCommentPost}
-          commentOpen={commentPost} comments={POST_COMMENTS.meher}
-          onHandleComment={handleComment} playingCharName={playingChar?.name ?? 'you'}
-        />
-
         {/* Ananya */}
         <SeedPost
           id="ananya-seed" charId="ananya" onViewChar={setViewingChar}
@@ -570,7 +558,7 @@ export default function FeedScreen() {
           <div className={`wi-line${introLines[4] ? ' in' : ''}`}>
             <div style={{ display: 'flex', alignItems: 'center', marginTop: 20 }}>
               <div className="wi-chars">
-                {(['ria','kabir','meher','ananya','dev','zoya','rishi','adi'] as const).map((id) => {
+                {(['ria','kabir','ananya','dev','zoya'] as const).map((id) => {
                   const c = CHARS[id]
                   return (
                     <div key={id} className={`av ${c.cls}`} style={{ width: 32, height: 32, fontSize: 13, marginLeft: 0 }}>
