@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useApp } from '@/lib/context'
 import type { CharId } from '@/lib/types'
 import { CHARS, SITUATIONS, getVisibleSituations } from '@/lib/data'
+import { CRICKET_CHARS, CRICKET_SITUATIONS, CRICKET_ENDING_DATA, resolveCricketEnding } from '@/lib/cricket-data'
 import { getStats, clamp, resolveEnding, resolveTokens } from '@/lib/game'
 import MeterHUD from '@/components/MeterHUD'
 
@@ -30,12 +31,18 @@ export default function LiveScreen() {
   // Tracks when we're mid-choice-flow so the situation-change effect doesn't clear showPost
   const inFlowRef = useRef(false)
 
-  const char = game.char ? CHARS[game.char] : null
-  // Shorthand: resolve {name}/{ally}/{crush} tokens using current player state
-  const r = (text: string) => resolveTokens(text, game.playerName, game.playerGender)
+  const isCricket = game.world === 'cricket'
+  const allChars = isCricket ? { ...CHARS, ...CRICKET_CHARS } : CHARS
+  const char = game.char ? allChars[game.char] : null
 
-  // Get visible situations for current meters/choices
-  const visibleSituations = getVisibleSituations(game.meters, game.choices)
+  // Shorthand: resolve tokens using current player state
+  const r = (text: string) => resolveTokens(text, game.playerName, game.playerGender)
+    .replace(/\{friend\}/g, 'Maddy')  // cricket-world friend token
+
+  // Get visible situations for current world + meters/choices
+  const visibleSituations = isCricket
+    ? CRICKET_SITUATIONS  // cricket doesn't use meter-conditional filtering yet
+    : getVisibleSituations(game.meters, game.choices)
 
   const situation = game.situation
   const sit = situation < visibleSituations.length ? visibleSituations[situation] : null
@@ -166,9 +173,13 @@ export default function LiveScreen() {
     else if (tab === 'profile') navigate('profile')
   }, [navigate])
 
-  // Finale arc — uses resolveEnding
-  const endingKey = isFinale ? resolveEnding(game.meters) : null
-  const finaleArc = endingKey ? FINALE_DATA[endingKey] : null
+  // Finale arc — world-aware
+  const endingKey = isFinale
+    ? isCricket ? resolveCricketEnding(game.meters) : resolveEnding(game.meters)
+    : null
+  const finaleArc = endingKey
+    ? (isCricket ? CRICKET_ENDING_DATA[endingKey as keyof typeof CRICKET_ENDING_DATA] : FINALE_DATA[endingKey as keyof typeof FINALE_DATA])
+    : null
 
   if (!char) {
     return (
@@ -276,7 +287,7 @@ export default function LiveScreen() {
                 : effectiveReact.char === 'ananya' ? 'kabir'
                 : effectiveReact.char
                 : effectiveReact.char
-              const reactChar = CHARS[reactCharId]
+              const reactChar = allChars[reactCharId]
               return (
                 <div className="sit-react">
                   <div
@@ -303,7 +314,7 @@ export default function LiveScreen() {
               const playerHandle = (game.playerName || char?.handle || 'you').toLowerCase().replace(/\s+/g, '')
               const displayChar = char
                 ? (game.playerGender === 'female'
-                    ? char.id === 'kabir' ? CHARS['ananya'] : char.id === 'ananya' ? CHARS['kabir'] : char
+                    ? char.id === 'kabir' ? allChars['ananya'] : char.id === 'ananya' ? allChars['kabir'] : char
                     : char)
                 : null
 
@@ -416,8 +427,8 @@ export default function LiveScreen() {
                             const isFan = rx.char === '__fan'
                             const rxChar = isFan ? null : (
                               game.playerGender === 'female'
-                                ? rx.char === 'kabir' ? CHARS['ananya'] : rx.char === 'ananya' ? CHARS['kabir'] : CHARS[rx.char as CharId]
-                                : CHARS[rx.char as CharId]
+                                ? rx.char === 'kabir' ? allChars['ananya'] : rx.char === 'ananya' ? allChars['kabir'] : allChars[rx.char as CharId]
+                                : allChars[rx.char as CharId]
                             )
                             return (
                               <div key={j} style={{ display: 'flex', alignItems: 'flex-start', gap: 9 }}>

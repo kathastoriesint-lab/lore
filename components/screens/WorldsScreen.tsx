@@ -54,8 +54,9 @@ export default function WorldsScreen() {
   }, [showToast])
 
   const handleCreatorHouse = useCallback(() => {
-    navigate('world-intro')
-  }, [navigate])
+    if (game.char && game.world === 'creator-house') navigate('feed')
+    else navigate('world-intro')
+  }, [navigate, game.char, game.world])
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
@@ -119,82 +120,40 @@ export default function WorldsScreen() {
             </div>
           </button>
 
-          {/* Sharma Niwas */}
+          {/* Indian Dressing Room */}
           <button
             className="world-card"
-            onClick={() => showToast('Coming soon — abhi sirf Creator House live hai')}
+            onClick={() => navigate('cricket-intro')}
+            style={{ boxShadow: '0 0 0 1.5px rgba(0,48,135,.5), 0 12px 40px rgba(0,48,135,.2)' }}
           >
             <div
               className="wc-cover"
-              style={{ background: 'linear-gradient(135deg,#ffb020,#7a4a00)' }}
+              style={{ background: 'linear-gradient(135deg,#003087,#001540)', height: 210 }}
             >
-              <div className="wc-badge">ONGOING</div>
-              <div className="wc-name">Sharma Niwas</div>
+              <div className="wc-badge" style={{ color: '#FFB020' }}>
+                <div className="pulse" style={{ background: '#FFB020' }} />
+                SEASON 1
+              </div>
+              <div className="wc-name">Indian Dressing Room</div>
               <div className="wc-status">
-                The new bahu found the loan papers.
+                <div className="pulse" />
+                16 years old. Mumbai Indians. Your first IPL.
               </div>
             </div>
             <div className="wc-foot">
               <div className="av-stack">
-                {['S','P','A'].map((init) => (
-                  <div key={init} className="av" style={{ width: 24, height: 24, fontSize: 10, background: '#b07a2a' }}>
-                    {init}
+                {[
+                  { init: 'H', bg: '#003087' },
+                  { init: 'R', bg: '#1a3a6e' },
+                  { init: 'S', bg: '#004080' },
+                  { init: 'J', bg: '#0a1a4a' },
+                ].map((c) => (
+                  <div key={c.init} className="av" style={{ width: 24, height: 24, fontSize: 10, background: c.bg }}>
+                    {c.init}
                   </div>
                 ))}
               </div>
-              <div className="wc-meta">9 family members · 840k following</div>
-            </div>
-          </button>
-
-          {/* Block C */}
-          <button
-            className={`world-card dim${shakingCard === 'block-c' ? ' shake' : ''}`}
-            onClick={() => triggerShake('block-c', 'Jald aa raha hai 🔥')}
-          >
-            <div
-              className="wc-cover"
-              style={{ background: 'linear-gradient(135deg,#00c9c8,#075a59)' }}
-            >
-              <div className="wc-badge">SEASON 1</div>
-              <div className="wc-lock"><LockIcon /></div>
-              <div className="wc-name">Block C</div>
-              <div className="wc-status">College hostel. 6 floors. Zero sleep.</div>
-            </div>
-            <div className="wc-foot">
-              <div className="av-stack">
-                {['A','S','R'].map((init) => (
-                  <div key={init} className="av" style={{ width: 24, height: 24, fontSize: 10, background: '#075a59' }}>
-                    {init}
-                  </div>
-                ))}
-              </div>
-              <div className="wc-meta">Coming soon</div>
-            </div>
-          </button>
-
-          {/* The Shaadi */}
-          <button
-            className={`world-card dim${shakingCard === 'shaadi' ? ' shake' : ''}`}
-            onClick={() => triggerShake('shaadi', 'Jald aa raha hai 🔥')}
-          >
-            <div
-              className="wc-cover"
-              style={{ background: 'linear-gradient(135deg,#e0563b,#6e1f12)' }}
-            >
-              <div className="wc-badge">7 DAYS</div>
-              <div className="wc-lock"><LockIcon /></div>
-              <div className="wc-name">The Shaadi</div>
-              <div className="wc-status">48 hours. 3 families. 1 secret.</div>
-            </div>
-            <div className="wc-foot">
-              <div className="av-stack">
-                {['P','A','N'].map((init) => (
-                  <div key={init} className="av" style={{ width: 24, height: 24, fontSize: 10, background: '#6e1f12' }}>
-                    {init}
-                  </div>
-                ))}
-              </div>
-              <div className="wc-meta">Coming soon</div>
+              <div className="wc-meta">Mumbai Indians · 30 situations · 5 endings</div>
             </div>
           </button>
 

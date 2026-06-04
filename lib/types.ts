@@ -1,4 +1,11 @@
-export type CharId = 'ria'|'kabir'|'dev'|'ananya'|'zoya'
+export type CharId =
+  // Creator House
+  | 'ria'|'kabir'|'dev'|'ananya'|'zoya'|'meher'|'rishi'|'adi'
+  // Indian Dressing Room
+  | 'hardik'|'rohit'|'surya'|'bumrah'|'tilak'|'coach'|'friend'
+  |'naman'|'robin'|'mahela'
+
+export type World = 'creator-house' | 'cricket'
 
 export interface Character {
   id: CharId
@@ -52,6 +59,7 @@ export interface DMMessage {
 export type Screen =
   | 'worlds'
   | 'world-intro'
+  | 'cricket-intro'
   | 'feed'
   | 'narrator'
   | 'live'
@@ -64,6 +72,7 @@ export type Screen =
 export interface GameState {
   playerName: string
   playerGender: 'male' | 'female'
+  world: World
   char: CharId | null
   situation: number
   choices: ('A' | 'B')[]

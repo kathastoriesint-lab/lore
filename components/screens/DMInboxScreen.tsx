@@ -73,7 +73,7 @@ export default function DMInboxScreen() {
           const history = dmHistory[charId]
           const lastMsg = history && history.length > 0
             ? history[history.length - 1].text
-            : DM_PREVIEW[charId]
+            : (DM_PREVIEW[charId] ?? '...')
           const preview = lastMsg.length > 42 ? lastMsg.slice(0, 42) + '…' : lastMsg
 
           return (

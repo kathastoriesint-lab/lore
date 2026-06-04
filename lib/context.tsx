@@ -40,6 +40,7 @@ export interface AppCtx {
   saveProfile: (name: string, gender: 'male' | 'female') => Promise<void>
   setChar: (id: CharId) => void
   startGame: () => void
+  startCricketGame: () => void
   makeChoice: (idx: number) => Promise<void>
   sendDM: (charId: CharId, text: string) => Promise<void>
   openDMThread: (charId: CharId) => void

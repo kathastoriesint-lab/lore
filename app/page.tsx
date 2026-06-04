@@ -18,6 +18,7 @@ import DMThreadScreen from '@/components/screens/DMThreadScreen'
 import ProfileScreen from '@/components/screens/ProfileScreen'
 import CharProfileScreen from '@/components/screens/CharProfileScreen'
 import OnboardingScreen from '@/components/screens/OnboardingScreen'
+import CricketIntroScreen from '@/components/screens/CricketIntroScreen'
 import ErrorBoundary from '@/components/ErrorBoundary'
 
 export default function App() {
@@ -40,7 +41,7 @@ export default function App() {
   const [viewingCharId, setViewingCharId] = useState<CharId | null>(null)
   const [game, setGame] = useState<GameState>({
     playerName: '', playerGender: 'male' as const,
-    char: null, situation: 0, choices: [], meters: { fame: 20, heat: 50, image: 30 }, narrator_done: false, dayUnlockTime: {},
+    world: 'creator-house' as const, char: null, situation: 0, choices: [], meters: { fame: 20, heat: 50, image: 30 }, narrator_done: false, dayUnlockTime: {},
   })
   const [dmHistory, setDmHistory] = useState<Record<string, DMMessage[]>>({})
   const [toast, setToast] = useState<string | null>(null)
@@ -107,7 +108,14 @@ export default function App() {
   }, [game, navigate])
 
   const startGame = useCallback(() => {
-    const newState: GameState = { playerName: game.playerName, playerGender: game.playerGender, char: 'kabir', situation: 0, choices: [], meters: { fame: 20, heat: 50, image: 30 }, narrator_done: true, dayUnlockTime: {} }
+    const newState: GameState = { playerName: game.playerName, playerGender: game.playerGender, world: 'creator-house', char: 'kabir', situation: 0, choices: [], meters: { fame: 20, heat: 50, image: 30 }, narrator_done: true, dayUnlockTime: {} }
+    saveAndSet(newState)
+    if (typeof window !== 'undefined') localStorage.setItem('lore_feed_seen', '1')
+    navigate('live')
+  }, [game.playerName, game.playerGender, saveAndSet, navigate])
+
+  const startCricketGame = useCallback(() => {
+    const newState: GameState = { playerName: game.playerName, playerGender: game.playerGender, world: 'cricket', char: 'hardik', situation: 0, choices: [], meters: { fame: 45, heat: 55, image: 35 }, narrator_done: true, dayUnlockTime: {} }
     saveAndSet(newState)
     if (typeof window !== 'undefined') localStorage.setItem('lore_feed_seen', '1')
     navigate('live')
@@ -163,7 +171,8 @@ export default function App() {
     const raw = await getAIReply(charId, contextHistory, playerName, {
       char: game.char, meters: game.meters, choices: game.choices, situation: game.situation,
     })
-    const reply = raw?.trim() || DM_MOCK[charId][Math.floor(Math.random() * DM_MOCK[charId].length)]
+    const mockArr = DM_MOCK[charId] ?? ['Haan yaar.', 'Kya chal raha hai?', 'Interesting.']
+    const reply = raw?.trim() || mockArr[Math.floor(Math.random() * mockArr.length)]
     const charMsg: DMMessage = { role: 'char', text: reply }
     setDmHistory(prev => ({ ...prev, [charId]: [...(prev[charId] ?? []), charMsg] }))
     saveDM(charId, charMsg).catch(() => {})
@@ -231,7 +240,7 @@ export default function App() {
 
   const resetGame = useCallback(async () => {
     await resetGameState()
-    setGame({ playerName: '', playerGender: 'male' as const, char: null, situation: 0, choices: [], meters: { fame: 20, heat: 50, image: 30 }, narrator_done: false, dayUnlockTime: {} })
+    setGame({ playerName: '', playerGender: 'male' as const, world: 'creator-house', char: null, situation: 0, choices: [], meters: { fame: 20, heat: 50, image: 30 }, narrator_done: false, dayUnlockTime: {} })
     setDmHistory({})
     navigate('worlds', { replace: true })
   }, [navigate])
@@ -250,16 +259,17 @@ export default function App() {
     <AppContext.Provider value={{
       screen, prevScreen: prev, dmChar, game, dmHistory, dmTrust, charFame, likedPosts, viewingCharId, toast, impactNotif, showImpact,
       phone, setPhone, saveProfile,
-      advanceSituation, navigate, goBack, showToast, setChar, startGame,
+      advanceSituation, navigate, goBack, showToast, setChar, startGame, startCricketGame,
       makeChoice, sendDM, openDMThread, resetGame, likePost, applyFeedDeltas, injectCharDM, setViewingChar,
     }}>
       <div className="stage">
         <div className="phone">
           <ErrorBoundary>
           <div className="viewport">
-            <Slot id="onboarding"  cur={screen} prev={prev}><OnboardingScreen /></Slot>
-            <Slot id="worlds"      cur={screen} prev={prev}><WorldsScreen /></Slot>
-            <Slot id="world-intro" cur={screen} prev={prev}><WorldIntroScreen /></Slot>
+            <Slot id="onboarding"    cur={screen} prev={prev}><OnboardingScreen /></Slot>
+            <Slot id="worlds"        cur={screen} prev={prev}><WorldsScreen /></Slot>
+            <Slot id="world-intro"   cur={screen} prev={prev}><WorldIntroScreen /></Slot>
+            <Slot id="cricket-intro" cur={screen} prev={prev}><CricketIntroScreen /></Slot>
             <Slot id="feed"        cur={screen} prev={prev}><FeedScreen /></Slot>
             <Slot id="narrator"    cur={screen} prev={prev}><NarratorScreen /></Slot>
             <Slot id="live"        cur={screen} prev={prev}><LiveScreen /></Slot>

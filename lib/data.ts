@@ -1,6 +1,6 @@
 import type { Character, Situation, CharId } from './types'
 
-export const CHARS: Record<CharId, Character> = {
+export const CHARS: Record<string, Character> = {
   ria:    { id:'ria',    name:'Ria',    handle:'riaofficial',   cls:'c-ria',    init:'R', fame:85, role:'Luxury lifestyle · 24 · Archrival' },
   kabir:  { id:'kabir',  name:'Kabir',  handle:'kabirlol',      cls:'c-kabir',  init:'K', fame:55, role:'Comedy · 26 · Your Ally / Crush' },
   ananya: { id:'ananya', name:'Ananya', handle:'ananya.creates', cls:'c-ananya', init:'A', fame:15, role:'Dance · 23 · Your Crush / Ally' },
@@ -1301,7 +1301,7 @@ export const SITUATIONS: Situation[] = [
   },
 ]
 
-export const DM_HOOKS: Record<CharId, string> = {
+export const DM_HOOKS: Partial<Record<string, string>> = {
   ria:    'Tumse kuch baat karni thi. Private mein. Woh public scene alag tha — yeh alag hai. 🤍',
   kabir:  'Arre yaar! Finally tere saath directly baat kar sakta hoon. Is ghar mein sab filter hai, tere saath nahi. 😭',
   ananya: 'Hi... main usually DM nahi karti but aaj karna tha. Tum bahut different lagte ho baaki sabse. 🥺',
@@ -1309,7 +1309,7 @@ export const DM_HOOKS: Record<CharId, string> = {
   zoya:   'Hey! Bas check kar rahi thi tum theek ho. Is ghar mein sab compete karte hain, main genuinely care karti hoon. 🫶',
 }
 
-export const DM_MOCK: Record<CharId, string[]> = {
+export const DM_MOCK: Partial<Record<string, string[]>> = {
   ria:    ['Interesting. Main soch rahi hoon.', 'Yeh toh tumne achha kaha.', 'Hmm. Main observe kar rahi hoon. 🤍'],
   kabir:  ['HAHA bhai sahi bola 😭', 'Yaar tu toh mast hai', 'Dekh dekh, game samajh raha hai tu 🔥'],
   ananya: ['Sach mein? 🥺', 'Tum bahut achhe ho honestly', 'Main agree karti hoon... 🤍'],
@@ -1319,21 +1319,21 @@ export const DM_MOCK: Record<CharId, string[]> = {
 
 // Legacy compat exports
 export const DM_ORDER: CharId[] = ['kabir', 'ananya', 'ria', 'dev', 'zoya']
-export const DM_PREVIEW: Record<CharId, string> = {
+export const DM_PREVIEW: Partial<Record<string, string>> = {
   ria:    'Tumse kuch baat karni thi... 🤍',
   kabir:  'Finally directly baat kar sakta hoon. 😭',
   ananya: 'Tum bahut different lagte ho... 🥺',
   dev:    'You\'re different — I see it. 💪',
   zoya:   'Bas check kar rahi thi tum theek ho. 🫶',
 }
-export const DM_TIME: Record<CharId, string> = {
+export const DM_TIME: Partial<Record<string, string>> = {
   kabir:'3m', ananya:'8m', ria:'22m', dev:'1h', zoya:'2h',
 }
 export const DM_UNREAD: CharId[] = ['kabir', 'ananya']
-export const DM_TRUST: Record<CharId, number> = {
+export const DM_TRUST: Partial<Record<string, number>> = {
   ria:40, kabir:60, ananya:55, dev:50, zoya:35,
 }
-export const DM_QUICK: Record<CharId, string[]> = {
+export const DM_QUICK: Partial<Record<string, string[]>> = {
   ria:    ['Tujhe mujhse kya chahiye?', 'Top pe kaise pahuche?', 'Game samjha mujhe.'],
   kabir:  ['Kya soch raha hai tu?', '{ally} ke baare mein kya lagta?', 'Trust karoon ya nahi tujhe?'],
   ananya: ['Tu theek hai?', 'Akela feel hota hai yahan?', 'Saath chalein?'],

@@ -8,12 +8,16 @@ let _supabase: ReturnType<typeof createClient> | null = null
 const supabase = () => { if (!_supabase) _supabase = createClient(); return _supabase }
 
 const DEFAULT_METERS: Meters = { fame: 20, heat: 50, image: 30 }
+const CRICKET_START_METERS: Meters = { fame: 45, heat: 55, image: 35 } // Form 45 · Fame 55 · Team Trust 35
 const DEFAULT_STATE: GameState = {
   playerName: '', playerGender: 'male' as const,
+  world: 'creator-house',
   char: null, situation: 0, choices: [],
   meters: DEFAULT_METERS, narrator_done: false,
   dayUnlockTime: {},
 }
+
+export const CRICKET_STARTING_METERS = CRICKET_START_METERS
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 export async function getPhoneSession() {
@@ -54,7 +58,8 @@ export async function loadGameState(): Promise<GameState> {
   return {
     playerName: data.player_name ?? '',
     playerGender: (data.player_gender ?? 'male') as 'male' | 'female',
-    char: (data.char_id && data.char_id in CHARS) ? data.char_id as CharId : null,
+    world: (data.world ?? 'creator-house') as import('./types').World,
+    char: (data.char_id) ? data.char_id as CharId : null,
     situation: data.situation,
     choices: data.choices ?? [],
     meters,
@@ -70,6 +75,7 @@ export async function saveGameState(state: GameState) {
     user_id: user.id,
     player_name: state.playerName,
     player_gender: state.playerGender,
+    world: state.world ?? 'creator-house',
     char_id: state.char,
     situation: state.situation,
     choices: state.choices,
@@ -120,7 +126,7 @@ export async function loadDMs(charId: CharId): Promise<DMMessage[]> {
 
   if (!data || data.length === 0) {
     // First time — insert opening hook
-    const hook: DMMessage = { role: 'char', text: DM_HOOKS[charId] }
+    const hook: DMMessage = { role: 'char', text: DM_HOOKS[charId] ?? 'Hey! Kya chal raha hai?' }
     await saveDM(charId, hook)
     return [hook]
   }
@@ -239,8 +245,8 @@ export async function getAIReply(
 }
 
 function pickMock(charId: CharId): string {
-  const arr = DM_MOCK[charId]
-  return arr[Math.floor(Math.random() * arr.length)]
+  const arr = DM_MOCK[charId] ?? []
+  return arr.length > 0 ? arr[Math.floor(Math.random() * arr.length)] : 'Haan yaar.'
 }
 
 // ── Meter helpers ─────────────────────────────────────────────────────────────

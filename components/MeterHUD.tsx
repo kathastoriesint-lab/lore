@@ -64,30 +64,38 @@ export default function MeterHUD({ right }: Props) {
         {right && <div className="mhud-right">{right}</div>}
       </div>
 
-      {/* Bottom row: three meters */}
-      <div className="mhud-bars">
-        <div className="meter fame">
-          <div className="ml">
-            <div className="mlabel">⭐ FAME</div>
-            <div key={`f${game.meters.fame}`} className="mval mval-flash">{game.meters.fame}</div>
+      {/* Bottom row: three meters — labels change per world */}
+      {(() => {
+        const isCricket = game.world === 'cricket'
+        const labels = isCricket
+          ? ['🏏 FORM', '⭐ FAME', '🤝 TRUST']
+          : ['⭐ FAME', '🔥 Heat', '🤝 Image']
+        return (
+          <div className="mhud-bars">
+            <div className="meter fame">
+              <div className="ml">
+                <div className="mlabel">{labels[0]}</div>
+                <div key={`f${game.meters.fame}`} className="mval mval-flash">{game.meters.fame}</div>
+              </div>
+              <div className="bar"><i ref={fameRef} /></div>
+            </div>
+            <div className="meter heat">
+              <div className="ml">
+                <div className="mlabel">{labels[1]}</div>
+                <div key={`h${game.meters.heat}`} className="mval mval-flash">{game.meters.heat}</div>
+              </div>
+              <div className="bar"><i ref={heatRef} /></div>
+            </div>
+            <div className="meter image">
+              <div className="ml">
+                <div className="mlabel">{labels[2]}</div>
+                <div key={`i${game.meters.image}`} className="mval mval-flash">{game.meters.image}</div>
+              </div>
+              <div className="bar"><i ref={imageRef} /></div>
+            </div>
           </div>
-          <div className="bar"><i ref={fameRef} /></div>
-        </div>
-        <div className="meter heat">
-          <div className="ml">
-            <div className="mlabel">🔥 Heat</div>
-            <div key={`h${game.meters.heat}`} className="mval mval-flash">{game.meters.heat}</div>
-          </div>
-          <div className="bar"><i ref={heatRef} /></div>
-        </div>
-        <div className="meter image">
-          <div className="ml">
-            <div className="mlabel">🤝 Image</div>
-            <div key={`i${game.meters.image}`} className="mval mval-flash">{game.meters.image}</div>
-          </div>
-          <div className="bar"><i ref={imageRef} /></div>
-        </div>
-      </div>
+        )
+      })()}
     </div>
   )
 }
