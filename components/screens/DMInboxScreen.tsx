@@ -2,6 +2,7 @@
 import { useApp } from '@/lib/context'
 import type { CharId } from '@/lib/types'
 import { CHARS, DM_ORDER, DM_PREVIEW, DM_TIME, DM_UNREAD } from '@/lib/data'
+import { CRICKET_CHARS, CRICKET_DM_HOOKS } from '@/lib/cricket-data'
 
 import { useCallback, useRef, useState } from 'react'
 
@@ -16,10 +17,21 @@ const StatusBar = () => (
   </div>
 )
 
+const CRICKET_DM_ORDER: CharId[] = ['hardik', 'rohit', 'surya', 'bumrah', 'tilak', 'coach', 'friend']
+const CRICKET_DM_TIMES: Partial<Record<string, string>> = {
+  hardik: '2m', rohit: '15m', surya: '8m', bumrah: '1h', tilak: '30m', coach: '3h', friend: 'just now'
+}
+const CRICKET_DM_UNREAD = ['friend', 'surya', 'hardik']
+
 export default function DMInboxScreen() {
   const { goBack, navigate, showToast, openDMThread, dmHistory, game } = useApp()
+  const isCricket = game.world === 'cricket'
+  const allChars = { ...CHARS, ...CRICKET_CHARS }
+
   // Never show the character you're playing as in your own DM list
-  const visibleChars = DM_ORDER.filter(id => id !== game.char)
+  const visibleChars = isCricket
+    ? CRICKET_DM_ORDER.filter(id => id !== game.char)
+    : DM_ORDER.filter(id => id !== game.char)
 
   // Track which chars have been opened (remove unread dot)
   const [opened, setOpened] = useState<Set<CharId>>(new Set())
@@ -54,7 +66,7 @@ export default function DMInboxScreen() {
             </svg>
           </button>
         </div>
-        <div className="sub">Creator House · 8 characters</div>
+        <div className="sub">{isCricket ? 'Indian Dressing Room · 7 contacts' : 'Creator House · 8 characters'}</div>
       </div>
 
       {/* Search bar (decorative) */}
@@ -68,12 +80,14 @@ export default function DMInboxScreen() {
       {/* DM list */}
       <div className="scroll" style={{ flex: 1 }}>
         {visibleChars.map((charId) => {
-          const char = CHARS[charId]
-          const isUnread = DM_UNREAD.includes(charId) && !opened.has(charId)
+          const char = allChars[charId]
+          if (!char) return null
+          const isUnread = (isCricket ? CRICKET_DM_UNREAD : DM_UNREAD).includes(charId) && !opened.has(charId)
           const history = dmHistory[charId]
+          const dmPreview = isCricket ? (CRICKET_DM_HOOKS[charId] ?? '...') : (DM_PREVIEW[charId] ?? '...')
           const lastMsg = history && history.length > 0
             ? history[history.length - 1].text
-            : (DM_PREVIEW[charId] ?? '...')
+            : dmPreview
           const preview = lastMsg.length > 42 ? lastMsg.slice(0, 42) + '…' : lastMsg
 
           return (
@@ -86,7 +100,7 @@ export default function DMInboxScreen() {
                 <div className="prev">{preview}</div>
               </div>
               <div className="meta">
-                <div className="ts">{DM_TIME[charId]}</div>
+                <div className="ts">{isCricket ? (CRICKET_DM_TIMES[charId] ?? '1h') : (DM_TIME[charId] ?? '1h')}</div>
                 {isUnread && <div className="unread" />}
               </div>
             </button>
@@ -98,27 +112,19 @@ export default function DMInboxScreen() {
       {/* Tab bar */}
       <div className="tabbar">
         <button className="tab" onClick={() => handleTab('home')}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/>
-          </svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
           <span>Feed</span>
         </button>
         <button className="tab active">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-            <path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/>
-          </svg>
-          <span>Messages</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <span>DMs</span>
         </button>
         <button className="tab" onClick={() => handleTab('live')}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M13 2L4.5 13.5H11L9 22l9-12h-6.5L13 2z" strokeLinejoin="round"/>
-          </svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2L4.5 13.5H11L9 22l9-12h-6.5L13 2z" strokeLinejoin="round"/></svg>
           <span>Live</span>
         </button>
         <button className="tab" onClick={() => handleTab('profile')}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-            <circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/>
-          </svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>
           <span>Profile</span>
         </button>
       </div>
