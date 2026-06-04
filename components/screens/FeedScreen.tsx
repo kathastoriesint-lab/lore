@@ -1,9 +1,81 @@
 'use client'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useApp } from '@/lib/context'
 import type { CharId } from '@/lib/types'
-import { CHARS, SITUATIONS, STORY_ORDER, SEEN_CHARS, STORY_CONTENT, POST_COMMENTS, PostCommentOption, getVisibleSituations } from '@/lib/data'
+import { CHARS, POST_COMMENTS, PostCommentOption, getVisibleSituations } from '@/lib/data'
 import MeterHUD from '@/components/MeterHUD'
+
+const Heart = ({ filled }: { filled: boolean }) => (
+  <svg viewBox="0 0 24 24" fill={filled ? 'var(--accent)' : 'none'} stroke={filled ? 'var(--accent)' : '#fff'} strokeWidth="1.8" strokeLinecap="round">
+    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+  </svg>
+)
+
+interface SeedPostProps {
+  id: string
+  charId: string
+  onViewChar: (id: CharId) => void
+  bg: string
+  caption: string
+  fullCaption: string
+  likes: string
+  time: string
+  likedPosts: Set<string>
+  onLike: (id: string, charId: CharId, delta: number) => void
+  onComment: (id: string | null) => void
+  commentOpen: string | null
+  comments: import('@/lib/data').PostCommentOption[]
+  onHandleComment: (charId: string, opt: import('@/lib/data').PostCommentOption) => void
+  playingCharName: string
+}
+
+function SeedPost({ id, charId, onViewChar, bg, caption, fullCaption, likes, time, likedPosts, onLike, onComment, commentOpen, comments, onHandleComment, playingCharName }: SeedPostProps) {
+  const char = CHARS[charId as CharId]
+  if (!char) return null
+  const isOpen = commentOpen === id
+  return (
+    <div className="post">
+      <div className="post-head">
+        <button
+          className={`av ${char.cls}`}
+          style={{ width:34, height:34, fontSize:14, padding:0, backgroundImage:`url(/avatars/${charId}.png)`, backgroundSize:'cover', backgroundPosition:'center', border:'none', cursor:'pointer' }}
+          onClick={() => onViewChar(char.id)}
+        >
+          <span style={{ opacity:0 }}>{char.init}</span>
+        </button>
+        <div className="post-id">
+          <div className="h">{char.handle}</div>
+          <div className="s">Creator House · {time.toLowerCase()}</div>
+        </div>
+        <button className="icon-btn"><svg viewBox="0 0 24 24" width="20" height="20" fill="#fff"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
+      </div>
+      <div className="post-img grain" style={{ background: bg }}>
+        <p className="overlay-txt" style={{ fontSize:14 }}>{caption}</p>
+      </div>
+      <div className="post-actions">
+        <button onClick={() => onLike(id, char.id, 3)} style={{ background:'none', border:'none', cursor:'pointer', display:'flex', alignItems:'center' }}>
+          <Heart filled={likedPosts.has(id)} />
+        </button>
+        <button onClick={() => onComment(isOpen ? null : id)} style={{ background:'none', border:'none', cursor:'pointer', display:'flex', alignItems:'center' }}>
+          <svg viewBox="0 0 24 24" fill="none" stroke={isOpen ? 'var(--accent)' : '#fff'} strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </button>
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+        <div className="spacer" />
+      </div>
+      {isOpen && (
+        <div className="comment-sheet">
+          <div className="comment-sheet-label">Comment as {playingCharName}</div>
+          {comments.map((opt, i) => (
+            <button key={i} className="comment-option" onClick={() => onHandleComment(charId, opt)}>{opt.text}</button>
+          ))}
+        </div>
+      )}
+      <div className="likes">{likes} likes</div>
+      <div className="caption"><b>{char.handle}</b> {fullCaption}</div>
+      <div className="ts" style={{ padding:'2px 14px 12px' }}>{time}</div>
+    </div>
+  )
+}
 
 const StatusBar = () => (
   <div className="statusbar">
@@ -24,23 +96,6 @@ export default function FeedScreen() {
   const [showIntro, setShowIntro] = useState(false)
   const [introGone, setIntroGone] = useState(false)
   const [introLines, setIntroLines] = useState<boolean[]>([false, false, false, false, false, false])
-
-  // Story viewer
-  const [storyChar, setStoryChar] = useState<CharId | null>(null)
-  const [storyActive, setStoryActive] = useState(false)
-  const storyTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  // Auto-advance ref — avoids stale closure on recursive schedule
-  const scheduleNext = useRef<(id: CharId) => void>(() => {})
-  scheduleNext.current = (fromId: CharId) => {
-    if (storyTimer.current) clearTimeout(storyTimer.current)
-    storyTimer.current = setTimeout(() => {
-      const idx = STORY_ORDER.indexOf(fromId)
-      const next = STORY_ORDER[idx + 1]
-      if (next) { setStoryChar(next); scheduleNext.current(next) }
-      else { setStoryActive(false); setStoryChar(null) }
-    }, 5000)
-  }
 
   // Show world intro overlay on first visit to feed (after world-intro screen)
   useEffect(() => {
@@ -64,36 +119,6 @@ export default function FeedScreen() {
     setTimeout(() => setShowIntro(false), 500)
   }, [])
 
-  const openStory = useCallback((charId: CharId) => {
-    setStoryChar(charId)
-    setStoryActive(true)
-    scheduleNext.current(charId)
-  }, [])
-
-  const closeStory = useCallback(() => {
-    if (storyTimer.current) clearTimeout(storyTimer.current)
-    setStoryActive(false)
-    setStoryChar(null)
-  }, [])
-
-  const tapStory = useCallback((e: React.MouseEvent) => {
-    if (!storyChar) return
-    const x = e.clientX
-    const w = (e.currentTarget as HTMLElement).offsetWidth
-    const idx = STORY_ORDER.indexOf(storyChar)
-    if (x < w * 0.35) {
-      // tap left → prev character
-      const prev = STORY_ORDER[idx - 1]
-      if (prev) { setStoryChar(prev); scheduleNext.current(prev) }
-      else closeStory()
-    } else {
-      // tap right → next character
-      const next = STORY_ORDER[idx + 1]
-      if (next) { setStoryChar(next); scheduleNext.current(next) }
-      else closeStory()
-    }
-  }, [storyChar, closeStory])
-
   // Enter live/narrator
   const enterLive = useCallback(() => {
     if (game.char) {
@@ -113,18 +138,24 @@ export default function FeedScreen() {
   }, [navigate, enterLive])
 
 
-  const currentStoryContent = storyChar ? STORY_CONTENT[storyChar] : null
-  const currentChar = storyChar ? CHARS[storyChar] : null
   const playingChar = game.char ? CHARS[game.char] : null
 
-  // Reactive feed: show post from last completed situation's feedReaction
+  // Build full feed history: all completed situations with feedReactions, newest first
   const visibleSits = getVisibleSituations(game.meters, game.choices)
-  const lastCompletedSit = game.situation > 0 ? visibleSits[game.situation - 1] : null
-  const lastChoice = game.choices.length > 0 ? game.choices[game.choices.length - 1] : null
-  const feedReaction = lastCompletedSit?.feedReaction && lastChoice
-    ? lastCompletedSit.feedReaction[lastChoice]
-    : null
-  const feedReactChar = feedReaction ? CHARS[feedReaction.char] : null
+  const completedPosts = game.choices
+    .map((choice, idx) => {
+      const sit = visibleSits[idx]
+      const reaction = sit?.feedReaction?.[choice]
+      if (!reaction) return null
+      const char = CHARS[reaction.char as CharId]
+      if (!char) return null
+      return { postId: `react-${sit.id}-${choice}`, sit, choice, reaction, char }
+    })
+    .filter((p): p is NonNullable<typeof p> => p !== null)
+    .reverse()
+
+  // Next situation for Story Drop CTA
+  const nextSit = visibleSits[game.situation]
 
   const handleComment = useCallback((postKey: string, opt: PostCommentOption) => {
     setCommentPost(null)
@@ -176,248 +207,185 @@ export default function FeedScreen() {
       {/* Scrollable feed */}
       <div className="scroll" style={{ flex: 1 }}>
 
-        {/* Stories ring */}
-        <div className="stories">
-          {/* You */}
-          <button className="story" onClick={() => showToast('Apni kahani khud likho 🔥')}>
-            <div className="story-ring">
-              <div className="av" style={{ width: '100%', height: '100%', border: '2.5px solid var(--bg)', fontSize: 22, background: '#333' }}>
-                You
-              </div>
-            </div>
-            <span className="story-label">You</span>
-          </button>
-
-          {STORY_ORDER.filter(id => id !== game.char).map((charId) => {
-            const char = CHARS[charId]
-            const seen = SEEN_CHARS.includes(charId)
-            return (
-              <button key={charId} className="story" onClick={() => openStory(charId)}>
-                <div className={`story-ring${seen ? ' seen' : ''}`}>
-                  <div
-                    className={`av ${char.cls}`}
-                    style={{
-                      width: '100%', height: '100%', border: '2.5px solid var(--bg)',
-                      fontSize: 22,
-                      backgroundImage: `url(/avatars/${charId}.png)`,
-                      backgroundSize: 'cover', backgroundPosition: 'center',
-                    }}
-                  >
-                    <span style={{ opacity:0 }}>{char.init}</span>
-                  </div>
-                </div>
-                <span className="story-label">{char.name}</span>
-              </button>
-            )
-          })}
-        </div>
-
-        {/* Reactive post — appears after Live choices, proves "world changed" */}
-        {feedReaction && feedReactChar && (
-          <div className="post" style={{ borderTop: '2px solid rgba(255,45,120,.3)', background: 'rgba(255,45,120,.04)' }}>
+        {/* Accumulated reactive posts — newest completed situation first */}
+        {completedPosts.map(({ postId, sit, reaction, char: reactChar }, i) => (
+          <div key={postId} className="post" style={i === 0 ? { borderTop: '2px solid rgba(255,45,120,.3)', background: 'rgba(255,45,120,.04)' } : {}}>
             <div className="post-head">
-              <div
-                className={`av ${feedReactChar.cls}`}
-                style={{ width:34, height:34, fontSize:14,
-                  backgroundImage:`url(/avatars/${feedReactChar.id}.png)`,
-                  backgroundSize:'cover', backgroundPosition:'center' }}
+              <button
+                className={`av ${reactChar.cls}`}
+                style={{ width:34, height:34, fontSize:14, padding:0, backgroundImage:`url(/avatars/${reactChar.id}.png)`, backgroundSize:'cover', backgroundPosition:'center', border:'none', cursor:'pointer' }}
+                onClick={() => setViewingChar(reactChar.id)}
               >
-                <span style={{ opacity:0 }}>{feedReactChar.init}</span>
-              </div>
+                <span style={{ opacity:0 }}>{reactChar.init}</span>
+              </button>
               <div className="post-id">
-                <div className="h">{feedReactChar.handle}</div>
-                <div className="s" style={{ color:'var(--accent)' }}>Creator House · just now · <b>reacting to your move</b></div>
+                <div className="h">{reactChar.handle}</div>
+                <div className="s" style={{ color: i === 0 ? 'var(--accent)' : 'var(--ink3)' }}>
+                  Creator House · {i === 0 ? 'just now · reacting to your move' : `Day ${sit.day}`}
+                </div>
               </div>
-              <div className="new-pill">NEW</div>
+              {i === 0 && <div className="new-pill">NEW</div>}
             </div>
-            <div className={`post-img grain ${feedReactChar.cls}`} style={{ background: `linear-gradient(135deg, color-mix(in srgb, var(--cc) 70%, #000) 0%, #000 100%)` }}>
-              <p className="overlay-txt" style={{ fontSize:14 }}>{feedReaction.caption}</p>
+            <div className={`post-img grain ${reactChar.cls}`} style={{ background: `linear-gradient(135deg, color-mix(in srgb, var(--cc) 70%, #000) 0%, #000 100%)` }}>
+              <p className="overlay-txt" style={{ fontSize:14 }}>{reaction.caption}</p>
             </div>
             <div className="post-actions">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+              <button onClick={() => likePost(postId, reactChar.id, 2)} style={{ background:'none', border:'none', cursor:'pointer', display:'flex', alignItems:'center' }}>
+                <svg viewBox="0 0 24 24" fill={likedPosts.has(postId) ? 'var(--accent)' : 'none'} stroke={likedPosts.has(postId) ? 'var(--accent)' : '#fff'} strokeWidth="1.8" strokeLinecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+              </button>
+              {POST_COMMENTS[reactChar.id] && (
+                <button onClick={() => setCommentPost(commentPost === postId ? null : postId)} style={{ background:'none', border:'none', cursor:'pointer', display:'flex', alignItems:'center' }}>
+                  <svg viewBox="0 0 24 24" fill="none" stroke={commentPost===postId ? 'var(--accent)' : '#fff'} strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                </button>
+              )}
+              <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+              <div className="spacer" />
+            </div>
+            {commentPost === postId && POST_COMMENTS[reactChar.id] && (
+              <div className="comment-sheet">
+                <div className="comment-sheet-label">Comment as {playingChar?.name ?? 'you'}</div>
+                {POST_COMMENTS[reactChar.id].map((opt, j) => (
+                  <button key={j} className="comment-option" onClick={() => handleComment(reactChar.id, opt)}>
+                    {opt.text}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
+
+        {/* Story Drop — dynamic: shows next pending situation */}
+        {nextSit && (
+          <div className="story-drop" onClick={enterLive}>
+            <div className="sd-img" style={{ background: 'linear-gradient(135deg,#ff2d78,#7a1140)' }}>
+              <div className="sd-badge">
+                <span className="pulse" style={{ marginRight: 5 }} />
+                STORY DROP · DAY {nextSit.day}
+              </div>
+              <div className="sd-title">{nextSit.title}</div>
+              <div className="sd-sub">{nextSit.body[0]?.replace(/<[^>]+>/g, '').slice(0, 72)}...</div>
+              <button className="sd-cta" onClick={(e) => { e.stopPropagation(); enterLive() }}>
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="#000"><polygon points="5,3 19,12 5,21"/></svg>
+                Play the story
+              </button>
             </div>
           </div>
         )}
 
-        {/* Post: Ria */}
+        {/* Seed posts — all 6 Creator House characters + gossip account */}
+
+        {/* Ria */}
+        <SeedPost
+          id="ria-seed" charId="ria" onViewChar={setViewingChar}
+          bg="linear-gradient(135deg,#b03a5e,#4a0820)"
+          caption="Pehla din. Pehla room. Pehle mujhe. Kuch cheezein change nahi honti. 🤍"
+          fullCaption="Kaafi log poochte hain — 'Ria, tujhe stress nahi hota?' Stress? Main stress ko content mein convert karti hoon. 🤍"
+          likes="84,291" time="6 HOURS AGO"
+          likedPosts={likedPosts} onLike={likePost} onComment={setCommentPost}
+          commentOpen={commentPost} comments={POST_COMMENTS.ria}
+          onHandleComment={handleComment} playingCharName={playingChar?.name ?? 'you'}
+        />
+
+        {/* Zoya */}
+        <SeedPost
+          id="zoya-seed" charId="zoya" onViewChar={setViewingChar}
+          bg="linear-gradient(135deg,#aa6a8a,#2a0a1a)"
+          caption="Naye log. Naye vibes. Is ghar mein sab interesting lagte hain. Especially ek. 👀🫶"
+          fullCaption="Day 1 done. Chai piya. Kuch connections bane. Kuch strategies bhi. #CreatorHouse"
+          likes="29,441" time="5 HOURS AGO"
+          likedPosts={likedPosts} onLike={likePost} onComment={setCommentPost}
+          commentOpen={commentPost} comments={POST_COMMENTS.zoya}
+          onHandleComment={handleComment} playingCharName={playingChar?.name ?? 'you'}
+        />
+
+        {/* housewatch_india gossip account */}
         <div className="post">
           <div className="post-head">
-            <button className="av c-ria" style={{ width:34, height:34, fontSize:14, padding:0, backgroundImage:'url(/avatars/ria.png)', backgroundSize:'cover', backgroundPosition:'center', border:'none', cursor:'pointer' }} onClick={() => setViewingChar('ria')}>
-              <span style={{ opacity: 0 }}>R</span>
-            </button>
-            <div className="post-id">
-              <div className="h">riaofficial</div>
-              <div className="s">Creator House · 6h ago</div>
-            </div>
-            <button className="icon-btn">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="#fff"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
-            </button>
-          </div>
-          <div className="post-img grain" style={{ background: 'linear-gradient(135deg,#b03a5e,#7a1140)' }}>
-            <p className="overlay-txt">"Stress ko content mein convert karo. Seekho." 🤍</p>
-          </div>
-          <div className="post-actions">
-            <button onClick={() => likePost('reya-post', 'ria', 3)} style={{ background:'none', border:'none', cursor:'pointer', display:'flex', alignItems:'center' }}>
-              <svg viewBox="0 0 24 24" fill={likedPosts.has('reya-post') ? 'var(--accent)' : 'none'} stroke={likedPosts.has('reya-post') ? 'var(--accent)' : '#fff'} strokeWidth="1.8" strokeLinecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-            </button>
-            <button onClick={() => setCommentPost(commentPost === 'ria' ? null : 'ria')} style={{ background:'none', border:'none', cursor:'pointer', display:'flex', alignItems:'center' }}>
-              <svg viewBox="0 0 24 24" fill="none" stroke={commentPost==='ria' ? 'var(--accent)' : '#fff'} strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-            </button>
-            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
-            <div className="spacer" />
-            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
-          </div>
-          {commentPost === 'ria' && (
-            <div className="comment-sheet">
-              <div className="comment-sheet-label">Comment as {playingChar?.name ?? 'you'}</div>
-              {POST_COMMENTS.ria.map((opt, i) => (
-                <button key={i} className="comment-option" onClick={() => handleComment('ria', opt)}>
-                  {opt.text}
-                </button>
-              ))}
-            </div>
-          )}
-          <div className="likes">84,291 likes</div>
-          <div className="caption"><b>riaofficial</b> Kaafi log poochte hain — "Ria, tujhe stress nahi hota?" Stress? Main stress ko content mein convert karti hoon. 🤍</div>
-          <div className="comments-link">View all 2,847 comments</div>
-          <div className="ts" style={{ padding: '2px 14px 12px' }}>6 HOURS AGO</div>
-        </div>
-
-        {/* Story drop card */}
-        <div className="story-drop" onClick={enterLive}>
-          <div className="sd-img" style={{ background: 'linear-gradient(135deg,#ff2d78,#7a1140)' }}>
-            <div className="sd-badge">
-              <span className="pulse" style={{ marginRight: 5 }} />
-              STORY DROP
-            </div>
-            <div className="sd-title">Brand deal ka phone aaya</div>
-            <div className="sd-sub">Ria ka deal. Tera choice. Kya karoge?</div>
-            <button className="sd-cta" onClick={(e) => { e.stopPropagation(); enterLive() }}>
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="#000"><polygon points="5,3 19,12 5,21"/></svg>
-              Play the story
-            </button>
-          </div>
-        </div>
-
-        {/* Post: housewatch_india */}
-        <div className="post">
-          <div className="post-head">
-            <div className="av" style={{ width: 34, height: 34, fontSize: 14, background: '#1c1c26' }}>H</div>
+            <div className="av" style={{ width:34, height:34, fontSize:14, background:'#1c1c26', fontWeight:800 }}>H</div>
             <div className="post-id">
               <div className="h">housewatch_india</div>
               <div className="s">2.8M followers · 2h ago</div>
             </div>
-            <button className="icon-btn">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="#fff"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
-            </button>
+            <button className="icon-btn"><svg viewBox="0 0 24 24" width="20" height="20" fill="#fff"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
           </div>
           <div className="post-img grain" style={{ background: '#12121a' }}>
-            <p className="overlay-txt" style={{ fontSize: 14, color: 'rgba(255,255,255,.7)' }}>
-              #CreatorHouseLeak — jo viral hua, woh screenshot aur woh ek line.<br /><br />
-              "yeh zyada hi innocent act karti hai, real nahi lagti."<br /><br />
-              <span style={{ color: 'var(--accent)', fontFamily: 'var(--sans)', fontSize: 12 }}>#CreatorHouseLeak TRENDING</span>
+            <p className="overlay-txt" style={{ fontSize:13, color:'rgba(255,255,255,.75)', lineHeight:1.6 }}>
+              #CreatorHouseDay1 — koi quietly khel raha hai. Koi loudly.<br /><br />
+              Jo sabse zyada chup hai woh sabse zyada plan kar raha hai. 🧵 Thread kal.<br /><br />
+              <span style={{ color:'var(--accent)', fontFamily:'var(--sans)', fontSize:11 }}>#CreatorHouse TRENDING #1</span>
             </p>
           </div>
           <div className="post-actions">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <button onClick={() => likePost('hw-seed', 'ria', 1)} style={{ background:'none', border:'none', cursor:'pointer', display:'flex', alignItems:'center' }}>
+              <svg viewBox="0 0 24 24" fill={likedPosts.has('hw-seed') ? 'var(--accent)' : 'none'} stroke={likedPosts.has('hw-seed') ? 'var(--accent)' : '#fff'} strokeWidth="1.8" strokeLinecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </button>
+            <button onClick={() => setCommentPost(commentPost === 'housewatch' ? null : 'housewatch')} style={{ background:'none', border:'none', cursor:'pointer', display:'flex', alignItems:'center' }}>
+              <svg viewBox="0 0 24 24" fill="none" stroke={commentPost==='housewatch' ? 'var(--accent)' : '#fff'} strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </button>
             <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
             <div className="spacer" />
           </div>
+          {commentPost === 'housewatch' && (
+            <div className="comment-sheet">
+              <div className="comment-sheet-label">Comment as {playingChar?.name ?? 'you'}</div>
+              {POST_COMMENTS.housewatch.map((opt, i) => (
+                <button key={i} className="comment-option" onClick={() => handleComment('housewatch', opt)}>{opt.text}</button>
+              ))}
+            </div>
+          )}
           <div className="likes">94,102 likes</div>
-          <div className="caption"><b>housewatch_india</b> Creator House ka sabse calculated player. 94k likes in 3 hours. Thread aa raha hai. 👀</div>
-          <div className="ts" style={{ padding: '2px 14px 12px' }}>2 HOURS AGO</div>
+          <div className="caption"><b>housewatch_india</b> Pehla din. Thread kal. 👀 #CreatorHouse</div>
+          <div className="ts" style={{ padding:'2px 14px 12px' }}>2 HOURS AGO</div>
         </div>
 
-        {/* Post: Kabir */}
-        <div className="post">
-          <div className="post-head">
-            <button className="av c-kabir" style={{ width:34, height:34, fontSize:14, padding:0, backgroundImage:'url(/avatars/kabir.png)', backgroundSize:'cover', backgroundPosition:'center', border:'none', cursor:'pointer' }} onClick={() => setViewingChar('kabir')}>
-              <span style={{ opacity:0 }}>K</span>
-            </button>
-            <div className="post-id">
-              <div className="h">kabirlol</div>
-              <div className="s">Creator House · 3h ago</div>
-            </div>
-            <button className="icon-btn">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="#fff"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
-            </button>
-          </div>
-          <div className="post-img grain" style={{ background: 'linear-gradient(135deg,#2a6f8f,#0a2a40)' }}>
-            <p className="overlay-txt">"Is ghar mein sab serious ho jaate hain jab camera on hota hai. Main serious tab hota hoon jab camera off hota hai." 😭👀</p>
-          </div>
-          <div className="post-actions">
-            <button onClick={() => likePost('kabir-post', 'kabir', 2)} style={{ background:'none', border:'none', cursor:'pointer', display:'flex', alignItems:'center' }}>
-              <svg viewBox="0 0 24 24" fill={likedPosts.has('kabir-post') ? 'var(--accent)' : 'none'} stroke={likedPosts.has('kabir-post') ? 'var(--accent)' : '#fff'} strokeWidth="1.8" strokeLinecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-            </button>
-            <button onClick={() => setCommentPost(commentPost === 'kabir' ? null : 'kabir')} style={{ background:'none', border:'none', cursor:'pointer', display:'flex', alignItems:'center' }}>
-              <svg viewBox="0 0 24 24" fill="none" stroke={commentPost==='kabir' ? 'var(--accent)' : '#fff'} strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-            </button>
-            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
-            <div className="spacer" />
-            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
-          </div>
-          {commentPost === 'kabir' && (
-            <div className="comment-sheet">
-              <div className="comment-sheet-label">Comment as {playingChar?.name ?? 'you'}</div>
-              {POST_COMMENTS.kabir.map((opt, i) => (
-                <button key={i} className="comment-option" onClick={() => handleComment('kabir', opt)}>
-                  {opt.text}
-                </button>
-              ))}
-            </div>
-          )}
-          <div className="likes">41,882 likes</div>
-          <div className="caption"><b>kabirlol</b> Camera ka psychology. Weekend mein thread dalunga. 😭</div>
-          <div className="comments-link">View all 1,204 comments</div>
-          <div className="ts" style={{ padding: '2px 14px 12px' }}>3 HOURS AGO</div>
-        </div>
+        {/* Kabir */}
+        <SeedPost
+          id="kabir-seed" charId="kabir" onViewChar={setViewingChar}
+          bg="linear-gradient(135deg,#2a6f8f,#0a2a40)"
+          caption="&quot;Is ghar mein sab serious ho jaate hain jab camera on hota hai. Main serious tab hota hoon jab camera off hota hai.&quot; 😭👀"
+          fullCaption="Camera ka psychology. Day 1 observation thread kal. 😭"
+          likes="41,882" time="3 HOURS AGO"
+          likedPosts={likedPosts} onLike={likePost} onComment={setCommentPost}
+          commentOpen={commentPost} comments={POST_COMMENTS.kabir}
+          onHandleComment={handleComment} playingCharName={playingChar?.name ?? 'you'}
+        />
 
-        {/* Post: Ananya */}
-        <div className="post" style={{ borderBottom: 'none' }}>
-          <div className="post-head">
-            <button className="av c-ananya" style={{ width:34, height:34, fontSize:14, padding:0, backgroundImage:'url(/avatars/ananya.png)', backgroundSize:'cover', backgroundPosition:'center', border:'none', cursor:'pointer' }} onClick={() => setViewingChar('ananya')}>
-              <span style={{ opacity:0 }}>A</span>
-            </button>
-            <div className="post-id">
-              <div className="h">ananya</div>
-              <div className="s">Creator House · 45m ago</div>
-            </div>
-            <button className="icon-btn">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="#fff"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
-            </button>
-          </div>
-          <div className="post-img grain" style={{ background: 'linear-gradient(135deg,#8a4ab0,#3a1660)' }}>
-            <p className="overlay-txt">2.1M views raat mein. Subah uthke dekha toh ro padi. Phir Ria ko bataya. Usne bola... "nice." 🥺✨</p>
-          </div>
-          <div className="post-actions">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-            {/* Don't show comment if playing as Ananya — can't comment on your own post */}
-            {game.char !== 'ananya' && (
-              <button onClick={() => setCommentPost(commentPost === 'ananya' ? null : 'ananya')} style={{ background:'none', border:'none', cursor:'pointer', display:'flex', alignItems:'center' }}>
-                <svg viewBox="0 0 24 24" fill="none" stroke={commentPost==='ananya' ? 'var(--accent)' : '#fff'} strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-              </button>
-            )}
-            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
-            <div className="spacer" />
-          </div>
-          {commentPost === 'ananya' && (
-            <div className="comment-sheet">
-              <div className="comment-sheet-label">Comment as {playingChar?.name ?? 'you'}</div>
-              {POST_COMMENTS.ananya.map((opt, i) => (
-                <button key={i} className="comment-option" onClick={() => handleComment('ananya', opt)}>
-                  {opt.text}
-                </button>
-              ))}
-            </div>
-          )}
-          <div className="likes">2,108,441 likes</div>
-          <div className="caption"><b>ananya</b> 2.1M. Ro padi. Tumhara pyaar 🥺✨</div>
-          <div className="comments-link">View all 18,204 comments</div>
-          <div className="ts" style={{ padding: '2px 14px 12px' }}>45 MINUTES AGO</div>
-        </div>
+        {/* Dev */}
+        <SeedPost
+          id="dev-seed" charId="dev" onViewChar={setViewingChar}
+          bg="linear-gradient(135deg,#3a7a4a,#0a2a1a)"
+          caption="5AM. Gym done. Creator House Day 1 different hai. Numbers aayenge. Always do. 💪📈"
+          fullCaption="Grind never stops. Villa ya gym — same mindset. #CreatorHouse #Fitness"
+          likes="18,204" time="4 HOURS AGO"
+          likedPosts={likedPosts} onLike={likePost} onComment={setCommentPost}
+          commentOpen={commentPost} comments={POST_COMMENTS.dev}
+          onHandleComment={handleComment} playingCharName={playingChar?.name ?? 'you'}
+        />
 
-        {/* bottom spacing */}
+        {/* Meher */}
+        <SeedPost
+          id="meher-seed" charId="meher" onViewChar={setViewingChar}
+          bg="linear-gradient(135deg,#b07a2a,#3a2000)"
+          caption="Villa Day 1. Sab perform kar rahe hain. Main observe kar rahi hoon. Chai mil gayi. Sab theek hai. ☕"
+          fullCaption="Kuch cheezein camera ke saamne nahi kehni chahiye. Baaki sab baad mein. 🫶 #CreatorHouse"
+          likes="22,318" time="5 HOURS AGO"
+          likedPosts={likedPosts} onLike={likePost} onComment={setCommentPost}
+          commentOpen={commentPost} comments={POST_COMMENTS.meher}
+          onHandleComment={handleComment} playingCharName={playingChar?.name ?? 'you'}
+        />
+
+        {/* Ananya */}
+        <SeedPost
+          id="ananya-seed" charId="ananya" onViewChar={setViewingChar}
+          bg="linear-gradient(135deg,#8a4ab0,#3a1660)"
+          caption="2.1M views raat mein. Subah uthke dekha toh ro padi. Phir Ria ko bataya. Usne bola... 'nice.' 🥺✨"
+          fullCaption="2.1M. Ro padi. Tumhara pyaar 🥺✨"
+          likes="2,108,441" time="45 MINUTES AGO"
+          likedPosts={likedPosts} onLike={likePost} onComment={setCommentPost}
+          commentOpen={commentPost} comments={POST_COMMENTS.ananya}
+          onHandleComment={handleComment} playingCharName={playingChar?.name ?? 'you'}
+        />
+
         <div style={{ height: 20 }} />
       </div>
 
@@ -493,52 +461,6 @@ export default function FeedScreen() {
         </div>
       )}
 
-      {/* Story viewer overlay */}
-      <div className={`story-viewer${storyActive ? ' active' : ''}`} onClick={tapStory}>
-        {currentChar && currentStoryContent && (
-          <>
-            <div
-              className="sv-bg"
-              style={{ background: `linear-gradient(180deg, color-mix(in srgb, ${getCharColor(currentChar.id)} 60%, #000) 0%, #000 100%)` }}
-            />
-            <div className="sv-vignette" />
-            {/* Progress bars — one per character; filled=past, running=current, empty=future */}
-            <div className="sv-progress">
-              {STORY_ORDER.map((id) => {
-                const curIdx = storyChar ? STORY_ORDER.indexOf(storyChar) : -1
-                const thisIdx = STORY_ORDER.indexOf(id)
-                const cls = thisIdx < curIdx ? 'done' : (id === storyChar && storyActive ? 'run' : '')
-                return <span key={id}><i className={cls} /></span>
-              })}
-            </div>
-            {/* Top bar */}
-            <div className="sv-top">
-              <div className={`av ${currentChar.cls}`} style={{ width: 34, height: 34, fontSize: 14 }}>
-                {currentChar.init}
-              </div>
-              <div className="sinfo">
-                <div className="sn">{currentChar.name}</div>
-                <div className="st">{currentStoryContent.time}</div>
-              </div>
-              <button className="sv-close" onClick={(e) => { e.stopPropagation(); closeStory() }}>✕</button>
-            </div>
-            {/* Body */}
-            <div className="sv-body">
-              <div className="sv-text">{currentStoryContent.text}</div>
-              <div className="sv-sub">TAP TO CLOSE · {currentStoryContent.time.toUpperCase()}</div>
-            </div>
-            <div className="sv-tap-hint">tap anywhere to close</div>
-          </>
-        )}
-      </div>
     </div>
   )
-}
-
-function getCharColor(id: string): string {
-  const map: Record<string, string> = {
-    reya:'#b03a5e', kabir:'#2a6f8f', meher:'#b07a2a', dev:'#3a7a4a',
-    ananya:'#8a4ab0', zoya:'#aa6a8a', rishi:'#4a8a2a', adi:'#d4581a',
-  }
-  return map[id] ?? '#333'
 }

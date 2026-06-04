@@ -1444,4 +1444,19 @@ export const POST_COMMENTS: Record<string, PostCommentOption[]> = {
     { text: '2.1M that is insane!! 🔥',             deltas:{ fame:5, heat:0, image:2 },  toast:'Positive energy. Fame +5' },
     { text: 'Nice attempt 😐',                      deltas:{ fame:0, heat:5, image:-4 }, toast:'Ananya is hurt. Heat +5' },
   ],
+  zoya: [
+    { text: 'Love this energy 🫶',                  deltas:{ fame:3, heat:1, image:3 },  toast:'Zoya is warm. Image +3' },
+    { text: 'Hmm interesting 👀',                   deltas:{ fame:2, heat:4, image:0 },  toast:'Zoya is watching. Heat +4' },
+    { text: 'Main agree nahi karti 🙅',             deltas:{ fame:1, heat:6, image:-2 }, toast:'Zoya disagrees. Heat +6' },
+  ],
+  dev: [
+    { text: 'Numbers never lie 📈 Respect',         deltas:{ fame:4, heat:0, image:3 },  toast:'Dev respects the grind. Fame +4' },
+    { text: 'Ye sab brand PR hai na? 😅',           deltas:{ fame:2, heat:5, image:-2 }, toast:'Dev is sceptical. Heat +5' },
+    { text: 'Bhai/behen same thoughts 💪',          deltas:{ fame:3, heat:2, image:2 },  toast:'Dev aligned. Heat +2' },
+  ],
+  meher: [
+    { text: 'This is so real 🫶 Thank you',         deltas:{ fame:2, heat:0, image:4 },  toast:'Meher felt this. Image +4' },
+    { text: 'Aur bhi zyada ho sakta tha honestly',  deltas:{ fame:3, heat:3, image:1 },  toast:'Meher pushes back. Heat +3' },
+    { text: 'Beautifully said ✨',                   deltas:{ fame:2, heat:0, image:3 },  toast:'Meher approves. Image +3' },
+  ],
 }
