@@ -27,6 +27,8 @@ const FINALE_DATA = {
 
 export default function LiveScreen() {
   const { navigate, game, makeChoice, advanceSituation, injectCharDM } = useApp()
+  // Tracks when we're mid-choice-flow so the situation-change effect doesn't clear showPost
+  const inFlowRef = useRef(false)
 
   const char = game.char ? CHARS[game.char] : null
   // Shorthand: resolve {name}/{ally}/{crush} tokens using current player state
@@ -77,14 +79,15 @@ export default function LiveScreen() {
   // Timer cleanup refs to prevent post-unmount fires
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([])
 
-  // Reset choice state when situation changes
+  // Reset choice state when situation changes (skip during mid-choice flow)
   useEffect(() => {
+    if (inFlowRef.current) return  // advanceSituation fires during flow — don't reset UI
     setChosen(null)
     setShowImpact(false)
     setShowPost(false)
     setStats(null)
     processingRef.current = false
-    timersRef.current = []  // clear stale timer ids from previous situation
+    timersRef.current = []
   }, [situation])
 
   // Clear pending timers on unmount to prevent post-unmount navigate/advanceSituation
@@ -112,10 +115,10 @@ export default function LiveScreen() {
     setShowImpact(true)
 
     try {
-      // makeChoice now does the combined write: meters + choices + situation advance in one Supabase upsert
+      // makeChoice updates meters+choices in React state only (no Supabase write yet)
       await makeChoice(idx)
     } catch {
-      // Write failed — reset so the player can retry
+      inFlowRef.current = false
       processingRef.current = false
       setChosen(null)
       setShowImpact(false)
@@ -125,6 +128,7 @@ export default function LiveScreen() {
     }
 
     const ch = sit.choices[idx]
+    inFlowRef.current = true  // freeze situation-change effect during animation
 
     addTimer(() => { scrollRef.current?.scrollTo({ top: 400, behavior: 'smooth' }) }, 200)
 
@@ -133,12 +137,17 @@ export default function LiveScreen() {
       addTimer(() => { injectCharDM(firstReactor.char as CharId, firstReactor.text) }, 1200)
     }
 
-    // Show "Posted to feed ✓" then navigate — advanceSituation no longer needed here
+    // Show "Posted to feed ✓", advance situation (+ single Supabase write), then navigate
     addTimer(() => {
       setShowPost(true)
-      addTimer(() => navigate('feed'), 1800)
+      advanceSituation()  // ONE write: meters+choices (from makeChoice) + situation
+      addTimer(() => {
+        inFlowRef.current = false
+        setShowPost(false)
+        navigate('feed')
+      }, 1800)
     }, 500)
-  }, [sit, makeChoice, navigate, injectCharDM])
+  }, [sit, makeChoice, advanceSituation, navigate, injectCharDM])
 
 
   // Navigate to tabs

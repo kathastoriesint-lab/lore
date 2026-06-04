@@ -122,24 +122,11 @@ export default function App() {
     const letter = idx === 0 ? 'A' : 'B'
     const newMeters = applyDeltas(game.meters, ch.deltas)
     const newChoices = [...game.choices, letter] as ('A'|'B')[]
-
-    // Compute situation advance inline — ONE combined Supabase write per action
-    const updatedSits = getVisibleSituations(newMeters, newChoices)
-    const newUnlockTime = { ...game.dayUnlockTime }
-    const gateMs = 0
-    const nextSit = updatedSits[game.situation + 1]
-    if (nextSit && sit && nextSit.day > sit.day && !newUnlockTime[nextSit.day]) {
-      newUnlockTime[nextSit.day] = Date.now() + gateMs
-    }
-    saveAndSet({
-      ...game,
-      meters: newMeters,
-      choices: newChoices,
-      situation: game.situation + 1,
-      dayUnlockTime: newUnlockTime,
-    })
+    // Update meters + choices in React state only — situation advance + single Supabase write
+    // happens in advanceSituation (called 500ms later after the impact animation plays)
+    setGame(prev => ({ ...prev, meters: newMeters, choices: newChoices }))
     await recordChoice(game.situation, letter)
-  }, [game, saveAndSet])
+  }, [game])
 
   const openDMThread = useCallback(async (charId: CharId) => {
     setDmChar(charId)
