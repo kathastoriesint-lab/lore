@@ -318,6 +318,15 @@ export default function LiveScreen() {
                     ? char.id === 'kabir' ? allChars['ananya'] : char.id === 'ananya' ? allChars['kabir'] : char
                     : char)
                 : null
+              // Inline char color — color-mix(var(--cc)) fails without a parent with the class
+              const CHAR_COLORS: Record<string, string> = {
+                ria:'#b03a5e', kabir:'#2a6f8f', dev:'#3a7a4a', ananya:'#8a4ab0', zoya:'#aa6a8a',
+                meher:'#b07a2a', rishi:'#4a8a2a', adi:'#d4581a',
+                hardik:'#003087', rohit:'#1a3a6e', surya:'#004080', bumrah:'#0a1a4a',
+                tilak:'#2a5a8f', coach:'#4a3a1a', friend:'#3a6a4a',
+              }
+              const charColor = displayChar ? (CHAR_COLORS[displayChar.id] ?? '#1a1a2e') : '#1a1a2e'
+              const postBg = `linear-gradient(135deg, ${charColor}cc 0%, #0a0a14 100%)`
 
               // Compact delta summary for collapsed state
               const deltaSummary = [
@@ -417,7 +426,7 @@ export default function LiveScreen() {
                       </div>
 
                       {/* Post image with caption */}
-                      <div className={`post-img grain ${displayChar.cls}`} style={{ margin: '0 12px', borderRadius: 10, background: `linear-gradient(135deg, color-mix(in srgb, var(--cc) 70%, #000) 0%, #000 100%)` }}>
+                      <div className={`post-img grain ${displayChar.cls}`} style={{ margin: '0 12px', borderRadius: 10, background: postBg }}>
                         <p className="overlay-txt" style={{ fontSize: 14 }}>{r(ch.caption)}</p>
                       </div>
 
