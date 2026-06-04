@@ -121,22 +121,25 @@ export default function App() {
     if (!ch) return
     const letter = idx === 0 ? 'A' : 'B'
     const newMeters = applyDeltas(game.meters, ch.deltas)
-    saveAndSet({ ...game, meters: newMeters, choices: [...game.choices, letter] as ('A'|'B')[] })
-    await recordChoice(game.situation, letter)
-    // Show impact pill after live choice
-    const firstReactor = ch.reactions.find(r => r.char !== '__fan')
-    showImpact({
-      action: `Made a choice: ${ch.t.slice(0, 30)}`,
-      followerDelta: Math.round(ch.deltas.fame * 180),
-      followerTotal: fameToFollowers(newMeters.fame),
-      charId: firstReactor?.char,
-      charName: firstReactor ? CHARS[firstReactor.char as CharId]?.name : undefined,
-      trustDelta: ch.deltas.heat,
-      trustVal: newMeters.heat,
-      tasksLeft: Math.max(0, visibleSits.length - game.situation - 2),
-      tasksTotal: visibleSits.length,
+    const newChoices = [...game.choices, letter] as ('A'|'B')[]
+
+    // Compute situation advance inline — ONE combined Supabase write per action
+    const updatedSits = getVisibleSituations(newMeters, newChoices)
+    const newUnlockTime = { ...game.dayUnlockTime }
+    const gateMs = 0
+    const nextSit = updatedSits[game.situation + 1]
+    if (nextSit && sit && nextSit.day > sit.day && !newUnlockTime[nextSit.day]) {
+      newUnlockTime[nextSit.day] = Date.now() + gateMs
+    }
+    saveAndSet({
+      ...game,
+      meters: newMeters,
+      choices: newChoices,
+      situation: game.situation + 1,
+      dayUnlockTime: newUnlockTime,
     })
-  }, [game, saveAndSet, showImpact])
+    await recordChoice(game.situation, letter)
+  }, [game, saveAndSet])
 
   const openDMThread = useCallback(async (charId: CharId) => {
     setDmChar(charId)
@@ -152,8 +155,7 @@ export default function App() {
     const contextHistory = [...(dmHistory[charId] ?? []), userMsg]
     setDmHistory(prev => ({ ...prev, [charId]: [...(prev[charId] ?? []), userMsg] }))
     saveDM(charId, userMsg).catch(() => {})
-    const storedName = typeof window !== 'undefined' ? localStorage.getItem('lore_player_name') : null
-    const playerName = storedName || game.playerName || 'Yaar'
+    const playerName = game.playerName || 'Yaar'
     const raw = await getAIReply(charId, contextHistory, playerName, {
       char: game.char, meters: game.meters, choices: game.choices, situation: game.situation,
     })

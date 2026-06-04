@@ -1,8 +1,9 @@
 'use client'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useApp } from '@/lib/context'
 import type { CharId } from '@/lib/types'
 import { CHARS, POST_COMMENTS, PostCommentOption, getVisibleSituations } from '@/lib/data'
+import { applyDeltas } from '@/lib/game'
 import MeterHUD from '@/components/MeterHUD'
 
 const Heart = ({ filled }: { filled: boolean }) => (
@@ -140,21 +141,33 @@ export default function FeedScreen() {
 
   const playingChar = game.char ? CHARS[game.char] : null
 
-  // Build full feed history: all completed situations with feedReactions, newest first
-  const visibleSits = getVisibleSituations(game.meters, game.choices)
-  const completedPosts = game.choices
-    .map((choice, idx) => {
-      const sit = visibleSits[idx]
-      const reaction = sit?.feedReaction?.[choice]
-      if (!reaction) return null
-      const char = CHARS[reaction.char as CharId]
-      if (!char) return null
-      return { postId: `react-${sit.id}-${choice}`, sit, choice, reaction, char }
-    })
-    .filter((p): p is NonNullable<typeof p> => p !== null)
-    .reverse()
+  // Replay game state step-by-step to find the correct situation for each choice.
+  // Simple index-mapping breaks when conditional situations (D4-HEAT, D5-FAME, D6-IMAGE)
+  // are inserted mid-list — replaying with the actual meters at each step is correct.
+  const completedPosts = useMemo(() => {
+    if (game.choices.length === 0) return []
+    const STARTING_METERS = { fame: 20, heat: 50, image: 30 }
+    let meters = { ...STARTING_METERS }
+    const posts: Array<{ postId: string; sit: ReturnType<typeof getVisibleSituations>[0]; choice: 'A'|'B'; reaction: { char: string; caption: string }; char: (typeof CHARS)[keyof typeof CHARS] }> = []
 
-  // Next situation for Story Drop CTA
+    for (let i = 0; i < game.choices.length; i++) {
+      const letter = game.choices[i]
+      const sitsAtStep = getVisibleSituations(meters, game.choices.slice(0, i) as ('A'|'B')[])
+      const sit = sitsAtStep[i]
+      if (!sit) continue
+      const reaction = sit.feedReaction?.[letter]
+      if (reaction) {
+        const char = CHARS[reaction.char as CharId]
+        if (char) posts.push({ postId: `react-${sit.id}-${letter}`, sit, choice: letter, reaction, char })
+      }
+      const ch = sit.choices[letter === 'A' ? 0 : 1]
+      if (ch) meters = applyDeltas(meters, ch.deltas)
+    }
+    return posts.reverse()
+  }, [game.choices])
+
+  // Current visible situations (for Story Drop CTA only)
+  const visibleSits = getVisibleSituations(game.meters, game.choices)
   const nextSit = visibleSits[game.situation]
 
   const handleComment = useCallback((postKey: string, opt: PostCommentOption) => {
@@ -263,7 +276,7 @@ export default function FeedScreen() {
                 STORY DROP · DAY {nextSit.day}
               </div>
               <div className="sd-title">{nextSit.title}</div>
-              <div className="sd-sub">{nextSit.body[0]?.replace(/<[^>]+>/g, '').slice(0, 72)}...</div>
+              <div className="sd-sub">{(nextSit.body[0]?.replace(/<[^>]+>/g, '').slice(0, 72) ?? '')}...</div>
               <button className="sd-cta" onClick={(e) => { e.stopPropagation(); enterLive() }}>
                 <svg viewBox="0 0 24 24" width="16" height="16" fill="#000"><polygon points="5,3 19,12 5,21"/></svg>
                 Play the story

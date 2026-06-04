@@ -84,6 +84,7 @@ export default function LiveScreen() {
     setShowPost(false)
     setStats(null)
     processingRef.current = false
+    timersRef.current = []  // clear stale timer ids from previous situation
   }, [situation])
 
   // Clear pending timers on unmount to prevent post-unmount navigate/advanceSituation
@@ -108,30 +109,36 @@ export default function LiveScreen() {
     if (processingRef.current || !sit) return
     processingRef.current = true
     setChosen(idx)
-
-    // Show impact chips immediately — no waiting
     setShowImpact(true)
 
-    await makeChoice(idx)
+    try {
+      // makeChoice now does the combined write: meters + choices + situation advance in one Supabase upsert
+      await makeChoice(idx)
+    } catch {
+      // Write failed — reset so the player can retry
+      processingRef.current = false
+      setChosen(null)
+      setShowImpact(false)
+      timersRef.current.forEach(clearTimeout)
+      timersRef.current = []
+      return
+    }
 
     const ch = sit.choices[idx]
 
-    // Scroll impact area into view
     addTimer(() => { scrollRef.current?.scrollTo({ top: 400, behavior: 'smooth' }) }, 200)
 
-    // Auto-DM from first non-fan reactor (world reacts to your choice)
     const firstReactor = ch.reactions.find(r => r.char !== '__fan')
     if (firstReactor) {
       addTimer(() => { injectCharDM(firstReactor.char as CharId, firstReactor.text) }, 1200)
     }
 
-    // Show "Posted to feed ✓" confirmation, then navigate to feed
+    // Show "Posted to feed ✓" then navigate — advanceSituation no longer needed here
     addTimer(() => {
       setShowPost(true)
-      advanceSituation()
       addTimer(() => navigate('feed'), 1800)
     }, 500)
-  }, [sit, makeChoice, advanceSituation, navigate, injectCharDM])
+  }, [sit, makeChoice, navigate, injectCharDM])
 
 
   // Navigate to tabs
