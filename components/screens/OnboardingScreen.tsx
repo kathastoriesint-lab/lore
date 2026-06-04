@@ -9,9 +9,7 @@ export default function OnboardingScreen() {
   const [saving, setSaving] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  useEffect(() => {
-    setTimeout(() => inputRef.current?.focus(), 400)
-  }, [])
+  // No auto-focus — iOS keyboard jump makes screen appear to disappear
 
   const handleSave = useCallback(async () => {
     if (!name.trim() || saving) return

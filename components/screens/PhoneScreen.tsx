@@ -10,9 +10,8 @@ export default function PhoneScreen() {
   const [error, setError] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
 
-  useEffect(() => {
-    setTimeout(() => inputRef.current?.focus(), 300)
-  }, [])
+  // No auto-focus — on iOS this triggers keyboard + viewport zoom which
+  // makes the screen appear to disappear. User taps the input to type.
 
   const handleSubmit = useCallback(async () => {
     if (digits.length !== 10 || loading) return
@@ -65,7 +64,7 @@ export default function PhoneScreen() {
           value={digits}
           onChange={e => { setDigits(e.target.value.replace(/\D/g, '').slice(0, 10)); setError('') }}
           onKeyDown={e => { if (e.key === 'Enter') handleSubmit() }}
-          placeholder="9876543210"
+          placeholder="Enter 10-digit number"
           style={{
             flex: 1, background: 'transparent', border: 'none', outline: 'none',
             fontSize: 24, fontFamily: 'var(--sans)', fontWeight: 500,

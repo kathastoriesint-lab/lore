@@ -13,7 +13,7 @@ export default function OTPScreen() {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   useEffect(() => {
-    setTimeout(() => inputRef.current?.focus(), 300)
+    // No auto-focus — iOS keyboard jump makes screen appear to disappear
     timerRef.current = setInterval(() => {
       setCountdown(c => {
         if (c <= 1) { clearInterval(timerRef.current!); return 0 }
