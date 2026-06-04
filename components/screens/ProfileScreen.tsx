@@ -96,7 +96,7 @@ export default function ProfileScreen() {
             <path d="M15 18l-6-6 6-6"/>
           </svg>
         </button>
-        <div style={{ fontWeight:700, fontSize:15 }}>{game.playerName || char.name}</div>
+        <div style={{ fontWeight:700, fontSize:15 }}>{game.playerName || 'You'}</div>
         <div style={{ width:38 }} />
       </div>
 
@@ -127,8 +127,10 @@ export default function ProfileScreen() {
 
           {/* Bio */}
           <div style={{ marginTop:10 }}>
-            <div style={{ fontWeight:700, fontSize:15 }}>{game.playerName || char.name}</div>
-            <div style={{ fontSize:12, color:'var(--ink3)', marginTop:2 }}>@{char.handle} · Creator House</div>
+            <div style={{ fontWeight:700, fontSize:15 }}>{game.playerName || 'You'}</div>
+            <div style={{ fontSize:12, color:'var(--ink3)', marginTop:2 }}>
+              @{(game.playerName || '').toLowerCase().replace(/\s+/g, '') || char.handle} · Creator House
+            </div>
             <div style={{ fontSize:12, color:'var(--ink2)', marginTop:3 }}>
               Day {Math.ceil((game.situation + 1) / 3)} of 10 · {game.choices.length} moves made
             </div>

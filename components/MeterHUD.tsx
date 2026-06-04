@@ -56,7 +56,7 @@ export default function MeterHUD({ right }: Props) {
           {(game.playerName?.[0] ?? 'Y').toUpperCase()}
         </div>
         <div className="mhud-identity">
-          <div className="mhud-name">{game.playerName || char.name}</div>
+          <div className="mhud-name">{game.playerName || 'You'}</div>
           <div key={`fw${game.meters.fame}`} className="mhud-followers">
             {followersStr(game.meters.fame)} followers
           </div>
