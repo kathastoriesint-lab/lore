@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useApp } from '@/lib/context'
 import type { CharId } from '@/lib/types'
 import { CHARS, POST_COMMENTS, PostCommentOption, getVisibleSituations } from '@/lib/data'
+import { CRICKET_CHARS, CRICKET_SITUATIONS } from '@/lib/cricket-data'
 import { applyDeltas, resolveTokens } from '@/lib/game'
 import MeterHUD from '@/components/MeterHUD'
 
@@ -150,7 +151,8 @@ export default function FeedScreen() {
   }, [navigate, enterLive])
 
 
-  const playingChar = game.char ? CHARS[game.char] : null
+  const allChars = { ...CHARS, ...CRICKET_CHARS }
+  const playingChar = game.char ? (allChars[game.char] ?? null) : null
 
   // Replay game state step-by-step to find the correct situation for each choice.
   // Simple index-mapping breaks when conditional situations (D4-HEAT, D5-FAME, D6-IMAGE)
@@ -161,14 +163,20 @@ export default function FeedScreen() {
 
   const completedPosts = useMemo((): FeedPost[] => {
     if (game.choices.length === 0) return []
-    const STARTING_METERS = { fame: 20, heat: 50, image: 30 }
+    const isCricket = game.world === 'cricket'
+    const STARTING_METERS = isCricket
+      ? { fame: 45, heat: 55, image: 35 }
+      : { fame: 20, heat: 50, image: 30 }
     let meters = { ...STARTING_METERS }
     const posts: FeedPost[] = []
-    const playerCharObj = game.char ? CHARS[game.char] : null
+    const playerCharObj = game.char ? (allChars[game.char] ?? null) : null
 
+    const isCricketWorld = game.world === 'cricket'
     for (let i = 0; i < game.choices.length; i++) {
       const letter = game.choices[i]
-      const sitsAtStep = getVisibleSituations(meters, game.choices.slice(0, i) as ('A'|'B')[])
+      const sitsAtStep = isCricketWorld
+        ? CRICKET_SITUATIONS
+        : getVisibleSituations(meters, game.choices.slice(0, i) as ('A'|'B')[])
       const sit = sitsAtStep[i]
       if (!sit) continue
       const ch = sit.choices[letter === 'A' ? 0 : 1]
@@ -176,7 +184,7 @@ export default function FeedScreen() {
       // NPC feedReaction post pushed FIRST — after reverse(), it sits below player post
       const reaction = sit.feedReaction?.[letter]
       if (reaction) {
-        const char = CHARS[reaction.char as CharId]
+        const char = allChars[reaction.char as CharId]
         if (char) posts.push({ type: 'npc', postId: `react-${sit.id}-${letter}`, sit, choice: letter, reaction, char })
       }
 

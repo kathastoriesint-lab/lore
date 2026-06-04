@@ -2,6 +2,7 @@
 import { useMemo } from 'react'
 import { useApp } from '@/lib/context'
 import { CHARS, DM_TRUST, getVisibleSituations } from '@/lib/data'
+import { CRICKET_CHARS } from '@/lib/cricket-data'
 import { fameToFollowers as fameToFollowersNum, applyDeltas, resolveTokens } from '@/lib/game'
 import MeterHUD from '@/components/MeterHUD'
 
@@ -57,8 +58,9 @@ const StatusBar = () => (
 
 export default function ProfileScreen() {
   const { game, navigate, goBack, dmTrust } = useApp()
+  const allChars = { ...CHARS, ...CRICKET_CHARS }
   const charId = (game.char ?? 'kabir') as import('@/lib/types').CharId
-  const char = CHARS[charId]
+  const char = allChars[charId] ?? allChars['kabir']!
 
   const fame = game.meters.fame
   const followers = fameToFollowersStr(fame)

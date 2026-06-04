@@ -2,6 +2,7 @@
 import { useEffect, useRef } from 'react'
 import { useApp } from '@/lib/context'
 import { CHARS } from '@/lib/data'
+import { CRICKET_CHARS } from '@/lib/cricket-data'
 import { fameToFollowers, clamp } from '@/lib/game'
 
 function followersStr(fame: number): string {
@@ -18,8 +19,9 @@ interface Props {
 
 export default function MeterHUD({ right }: Props) {
   const { game } = useApp()
+  const allChars = { ...CHARS, ...CRICKET_CHARS }
   const charId = game.char ?? 'kabir'
-  const char = CHARS[charId]
+  const char = allChars[charId] ?? allChars['kabir']!
 
   const fameRef   = useRef<HTMLElement>(null)
   const heatRef   = useRef<HTMLElement>(null)
