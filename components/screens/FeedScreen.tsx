@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useApp } from '@/lib/context'
 import type { CharId } from '@/lib/types'
 import { CHARS, POST_COMMENTS, PostCommentOption, getVisibleSituations } from '@/lib/data'
-import { applyDeltas } from '@/lib/game'
+import { applyDeltas, resolveTokens } from '@/lib/game'
 import MeterHUD from '@/components/MeterHUD'
 
 const Heart = ({ filled }: { filled: boolean }) => (
@@ -276,7 +276,7 @@ export default function FeedScreen() {
                 STORY DROP · DAY {nextSit.day}
               </div>
               <div className="sd-title">{nextSit.title}</div>
-              <div className="sd-sub">{(nextSit.body[0]?.replace(/<[^>]+>/g, '').slice(0, 72) ?? '')}...</div>
+              <div className="sd-sub">{(resolveTokens(nextSit.body[0] ?? '', game.playerName, game.playerGender).replace(/<[^>]+>/g, '').slice(0, 72))}...</div>
               <button className="sd-cta" onClick={(e) => { e.stopPropagation(); enterLive() }}>
                 <svg viewBox="0 0 24 24" width="16" height="16" fill="#000"><polygon points="5,3 19,12 5,21"/></svg>
                 Play the story
