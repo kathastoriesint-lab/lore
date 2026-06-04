@@ -115,7 +115,7 @@ export default function WorldsScreen() {
                   )
                 })}
               </div>
-              <div className="wc-meta">8 creators · 1.2M following</div>
+              <div className="wc-meta">6 creators · 1.2M following</div>
             </div>
           </button>
 

@@ -55,7 +55,7 @@ export default function WorldIntroScreen() {
 
       <div className="wintro-live">
         <span className="pulse" />
-        LIVE · DAY 1 OF 30
+        LIVE · DAY 1 OF 10
       </div>
 
       <div className="wintro-body">
@@ -65,10 +65,10 @@ export default function WorldIntroScreen() {
             Creator<br />House.
           </div>
           <div className={`wintro-sub${lines[1] ? ' in' : ''}`}>
-            8 creators. Ek villa. 30 din.
+            6 creators. Ek villa. 10 din.
           </div>
           <div className={`wintro-hook${lines[2] ? ' in' : ''}`}>
-            Tonight, the house opens. Tum kaun ho?
+            Tum sabse naye ho. Koi tumhe nahi jaanta — abhi.
           </div>
         </div>
 

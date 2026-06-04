@@ -166,7 +166,7 @@ export default function FeedScreen() {
         </div>
         <div className="feed-live">
           <div className="pulse" />
-          LIVE — Day 1 of 30 · 8 creators just arrived
+          LIVE — Day 1 of 10 · 6 creators just arrived
         </div>
       </div>
 
@@ -450,7 +450,7 @@ export default function FeedScreen() {
           <div className={`wi-line${introLines[0] ? ' in' : ''}`}>
             <div className="wi-pre">
               <div className="pulse" />
-              LIVE · DAY 1 OF 30
+              LIVE · DAY 1 OF 10
             </div>
           </div>
           {/* Line 1: Title */}
@@ -459,7 +459,7 @@ export default function FeedScreen() {
           </div>
           {/* Line 2: Meta */}
           <div className={`wi-line${introLines[2] ? ' in' : ''}`}>
-            <div className="wi-meta">8 creators. Ek villa. 30 din ka experiment.</div>
+            <div className="wi-meta">6 creators. Ek villa. 10 din ka experiment.</div>
           </div>
           {/* Line 3: Drama */}
           <div className={`wi-line${introLines[3] ? ' in' : ''}`}>
@@ -480,7 +480,7 @@ export default function FeedScreen() {
                   )
                 })}
               </div>
-              <div className="wi-chars-label">8 creators · 1.2M following</div>
+              <div className="wi-chars-label">6 creators · 1.2M following</div>
             </div>
           </div>
           {/* Line 5: CTAs */}
