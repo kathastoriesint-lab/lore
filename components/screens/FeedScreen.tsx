@@ -242,11 +242,11 @@ export default function FeedScreen() {
         {/* Post: Ria */}
         <div className="post">
           <div className="post-head">
-            <button className="av c-reya" style={{ width:34, height:34, fontSize:14, padding:0, backgroundImage:'url(/avatars/reya.png)', backgroundSize:'cover', backgroundPosition:'center', border:'none', cursor:'pointer' }} onClick={() => setViewingChar('ria')}>
+            <button className="av c-ria" style={{ width:34, height:34, fontSize:14, padding:0, backgroundImage:'url(/avatars/ria.png)', backgroundSize:'cover', backgroundPosition:'center', border:'none', cursor:'pointer' }} onClick={() => setViewingChar('ria')}>
               <span style={{ opacity: 0 }}>R</span>
             </button>
             <div className="post-id">
-              <div className="h">reya</div>
+              <div className="h">riaofficial</div>
               <div className="s">Creator House · 6h ago</div>
             </div>
             <button className="icon-btn">
@@ -270,7 +270,7 @@ export default function FeedScreen() {
           {commentPost === 'ria' && (
             <div className="comment-sheet">
               <div className="comment-sheet-label">Comment as {playingChar?.name ?? 'you'}</div>
-              {POST_COMMENTS.reya.map((opt, i) => (
+              {POST_COMMENTS.ria.map((opt, i) => (
                 <button key={i} className="comment-option" onClick={() => handleComment('ria', opt)}>
                   {opt.text}
                 </button>
@@ -278,7 +278,7 @@ export default function FeedScreen() {
             </div>
           )}
           <div className="likes">84,291 likes</div>
-          <div className="caption"><b>reya</b> Kaafi log poochte hain — "Ria, tujhe stress nahi hota?" Stress? Main stress ko content mein convert karti hoon. 🤍</div>
+          <div className="caption"><b>riaofficial</b> Kaafi log poochte hain — "Ria, tujhe stress nahi hota?" Stress? Main stress ko content mein convert karti hoon. 🤍</div>
           <div className="comments-link">View all 2,847 comments</div>
           <div className="ts" style={{ padding: '2px 14px 12px' }}>6 HOURS AGO</div>
         </div>
@@ -464,7 +464,7 @@ export default function FeedScreen() {
           {/* Line 3: Drama */}
           <div className={`wi-line${introLines[3] ? ' in' : ''}`}>
             <div className="wi-drama">
-              <b>Aaj raat, villa khul raha hai.</b> 8 strangers pehli baar mile hain. Koi dushman nahi, koi dost nahi — but by morning, alliances ban jaayengi. Tum kaun banna chahte ho?
+              <b>Aaj raat, villa khul raha hai.</b> 6 creators pehli baar mile hain. Koi dushman nahi, koi dost nahi — but by morning, alliances ban jaayengi. Tum kaun banna chahte ho?
             </div>
           </div>
           {/* Line 4: Avatars */}

@@ -91,21 +91,28 @@ export default function App() {
   const startGame = useCallback((name: string, gender: 'male' | 'female') => {
     const newState: GameState = { playerName: name, playerGender: gender, char: 'adi', situation: 0, choices: [], meters: { fame: 20, heat: 50, image: 30 }, narrator_done: true, dayUnlockTime: {} }
     saveAndSet(newState)
+    // Mark feed as seen so the world-intro overlay doesn't re-appear on first Feed visit
+    if (typeof window !== 'undefined') localStorage.setItem('lore_feed_seen', '1')
     navigate('live')
   }, [saveAndSet, navigate])
 
   const advanceSituation = useCallback(() => {
-    const visibleSits = getVisibleSituations(game.meters, game.choices)
-    const currentSit = visibleSits[game.situation]
-    const nextSit = visibleSits[game.situation + 1]
-    const newUnlockTime = { ...game.dayUnlockTime }
-    // Day gate disabled for user testing — restore to 6 * 60 * 60 * 1000 for real launch
-    const gateMs = 0
-    if (nextSit && currentSit && nextSit.day > currentSit.day && !newUnlockTime[nextSit.day]) {
-      newUnlockTime[nextSit.day] = Date.now() + gateMs
-    }
-    saveAndSet({ ...game, situation: game.situation + 1, dayUnlockTime: newUnlockTime })
-  }, [game, saveAndSet])
+    // Functional update: always reads latest game state, never a stale closure
+    setGame(prev => {
+      const visibleSits = getVisibleSituations(prev.meters, prev.choices)
+      const currentSit = visibleSits[prev.situation]
+      const nextSit = visibleSits[prev.situation + 1]
+      const newUnlockTime = { ...prev.dayUnlockTime }
+      // Day gate disabled for user testing — restore to 6 * 60 * 60 * 1000 for real launch
+      const gateMs = 0
+      if (nextSit && currentSit && nextSit.day > currentSit.day && !newUnlockTime[nextSit.day]) {
+        newUnlockTime[nextSit.day] = Date.now() + gateMs
+      }
+      const next = { ...prev, situation: prev.situation + 1, dayUnlockTime: newUnlockTime }
+      saveGameState(next)
+      return next
+    })
+  }, []) // no deps — functional update reads prev directly
 
   const makeChoice = useCallback(async (idx: number) => {
     const visibleSits = getVisibleSituations(game.meters, game.choices)

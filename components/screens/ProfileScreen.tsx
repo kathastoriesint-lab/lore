@@ -96,7 +96,7 @@ export default function ProfileScreen() {
             <path d="M15 18l-6-6 6-6"/>
           </svg>
         </button>
-        <div style={{ fontWeight:700, fontSize:15 }}>{char.handle}</div>
+        <div style={{ fontWeight:700, fontSize:15 }}>{game.playerName || char.name}</div>
         <div style={{ width:38 }} />
       </div>
 
@@ -105,8 +105,8 @@ export default function ProfileScreen() {
         <div style={{ padding:'16px 18px 0' }}>
           <div style={{ display:'flex', alignItems:'center', gap:20 }}>
             {/* Avatar */}
-            <div className={`av ${char.cls}`} style={{ width:72, height:72, fontSize:28, flexShrink:0 }}>
-              {char.init}
+            <div className="av" style={{ width:72, height:72, fontSize:28, flexShrink:0, background:'var(--accent)' }}>
+              {(game.playerName?.[0] ?? 'Y').toUpperCase()}
             </div>
             {/* Stats */}
             <div style={{ display:'flex', gap:20, flex:1, justifyContent:'center' }}>

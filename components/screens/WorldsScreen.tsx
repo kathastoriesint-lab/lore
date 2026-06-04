@@ -101,7 +101,7 @@ export default function WorldsScreen() {
               <div className="wc-name">Creator House</div>
               <div className="wc-status">
                 <div className="pulse" />
-                Day 1 of 30 · Villa opens tonight.
+                Day 1 of 10 · Villa opens tonight.
               </div>
             </div>
             <div className="wc-foot">
