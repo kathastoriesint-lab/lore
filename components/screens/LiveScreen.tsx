@@ -132,9 +132,9 @@ export default function LiveScreen() {
 
     addTimer(() => { scrollRef.current?.scrollTo({ top: 400, behavior: 'smooth' }) }, 200)
 
-    const firstReactor = ch.reactions.find(r => r.char !== '__fan')
+    const firstReactor = ch.reactions.find(rx => rx.char !== '__fan')
     if (firstReactor) {
-      addTimer(() => { injectCharDM(firstReactor.char as CharId, firstReactor.text) }, 1200)
+      addTimer(() => { injectCharDM(firstReactor.char as CharId, r(firstReactor.text)) }, 1200)
     }
 
     // Show "Posted to feed ✓", advance situation (+ single Supabase write), then navigate
@@ -256,7 +256,7 @@ export default function LiveScreen() {
         {sit && (
           <div className="situation">
             <div className="sit-tag">{sit.tag}</div>
-            <div className="sit-title">{sit.title}</div>
+            <div className="sit-title">{r(sit.title)}</div>
             <div className="sit-body">
               {sit.body.map((p, i) => (
                 <p key={i} dangerouslySetInnerHTML={{ __html: r(p) }} />
@@ -265,7 +265,13 @@ export default function LiveScreen() {
 
             {/* Character reaction */}
             {effectiveReact && (() => {
-              const reactChar = CHARS[effectiveReact.char]
+              // Swap kabir↔ananya for female players: kabir=ally for male, ananya=crush for male — roles flip
+              const reactCharId: CharId = game.playerGender === 'female'
+                ? effectiveReact.char === 'kabir' ? 'ananya'
+                : effectiveReact.char === 'ananya' ? 'kabir'
+                : effectiveReact.char
+                : effectiveReact.char
+              const reactChar = CHARS[reactCharId]
               return (
                 <div className="sit-react">
                   <div

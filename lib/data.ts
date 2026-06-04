@@ -55,7 +55,7 @@ export const SITUATIONS: Situation[] = [
         deltas:{ fame:-1, heat:1, image:1 },
         caption:'Pehle observe karo, phir move karo. Is ghar mein sab kuch content hai. 👀 #Day1',
         reactions:[
-          { char:'ria', text:'Smart. Woh dekh raha/rahi hai. Main bhi dekh rahi hoon.' },
+          { char:'ria', text:'Smart. Woh dekh {p|raha/rahi} hai. Main bhi dekh rahi hoon.' },
           { char:'ananya', text:'Quiet one... interesting. 🥺 Main baat karungi.' },
           { char:'__fan', name:'creator.tea', text:'the strategic silence entry?? are they playing chess already??' },
         ],
@@ -70,7 +70,7 @@ export const SITUATIONS: Situation[] = [
     id:'D1-2', day:1, slot:'Afternoon', tag:'⚡ DAY 1 · AFTERNOON',
     title:'Pehli Reel',
     body:[
-      '{ally} tumhare paas aata/aati hai pehle hi afternoon mein. "Yaar, ek reel banaate hain — abhi, is golden light mein. Views guaranteed hain."',
+      '{ally} tumhare paas {p|aata/aati} hai pehle hi afternoon mein. "Yaar, ek reel banaate hain — abhi, is golden light mein. Views guaranteed hain."',
       'Catch yeh hai: reel ka concept Ria ke ek popular format ka parody hai. Funny, viral — aur Ria ko clearly irritate karega.',
       'Tumhara {ally} ke saath yeh pehla real moment hai. Par Ria ka reaction? Unpredictable.',
     ],
@@ -151,7 +151,7 @@ export const SITUATIONS: Situation[] = [
     title:'Challenge Aa Gaya',
     body:[
       'Subah announcement: 48-hour brand challenge. Sab creators compete karenge — aur winner ko 8 lakh ka solo deal milega.',
-      'Ria already planning kar rahi hai. {ally} tumhare paas aata/aati hai: "Saath karte hain ya solo?"',
+      'Ria already planning kar rahi hai. {ally} tumhare paas {p|aata/aati} hai: "Saath karte hain ya solo?"',
       'Solo jaane se tumhara naam banta hai. Par {ally} ke saath jaane se chances better hote hain — aur bond bhi.',
     ],
     react:{ char:'kabir', text:'Yaar 8 lakh hai. Solo bada risk hai. Par tera naam bhi banana hai. Teri call. 😭' },
@@ -164,7 +164,7 @@ export const SITUATIONS: Situation[] = [
         caption:'8 lakh. Ek shot. Solo. Koi alliance nahi, koi share nahi. 🔥 #Challenge',
         reactions:[
           { char:'ria', text:'Solo play. Ambitious. Let\'s see if the content backs it up.' },
-          { char:'kabir', text:'Bhai solo gaya/gayi?? Main dekh raha hoon. 😭' },
+          { char:'kabir', text:'Bhai solo {p|gaya/gayi}?? Main dekh raha hoon. 😭' },
           { char:'__fan', name:'creator.tea', text:'solo challenge attempt against ria?? brave or bold??' },
         ],
       },
@@ -213,7 +213,7 @@ export const SITUATIONS: Situation[] = [
         deltas:{ fame:-1, heat:2, image:-1 },
         caption:'Kuch cheezein hain jo paise se nahi kharidi ja sakti. Loyalty unhi mein se ek hai. 🫶',
         reactions:[
-          { char:'kabir', text:'Tu ne na bola? Bhai/behen seriously... 🥺 Main hoon na.' },
+          { char:'kabir', text:'Tu ne na bola? {p|Bhai/behen} seriously... 🥺 Main hoon na.' },
           { char:'ria', text:'Interesting. They said no. They\'ll regret it or I will.' },
           { char:'__fan', name:'creator.tea', text:'refused ria\'s alliance for {ally}?? real loyalty or naive??' },
         ],
@@ -267,11 +267,11 @@ export const SITUATIONS: Situation[] = [
     id:'D2-4', day:2, slot:'Late Night', tag:'⚡ DAY 2 · LATE NIGHT',
     title:'Ananya, Akeli',
     body:[
-      '{crush} terrace pe akeli/akela baithi/baitha hai. Raat ke 1 baje. Phone neeche rakha hai. Koi performance nahi, koi camera nahi.',
-      '"Main actually thak gayi/gaya hoon is ghar mein sirf ek cheez ki tarah treat hone se," woh kehti/kehta hai. "Sirf dance. Sirf numbers. Koi real baat nahi karta."',
+      '{crush} terrace pe {x|akela/akeli} {x|baitha/baithi} hai. Raat ke 1 baje. Phone neeche rakha hai. Koi performance nahi, koi camera nahi.',
+      '"Main actually thak {x|gaya/gayi} hoon is ghar mein sirf ek cheez ki tarah treat hone se," woh {x|kehta/kehti} hai. "Sirf dance. Sirf numbers. Koi real baat nahi karta."',
       'Yeh {crush} ka sabse real moment hai. Sirf tumhare liye.',
     ],
-    react:{ char:'ananya', text:'Sach mein sun raha/rahi ho? Main usually akele baat nahi karti/karta. 🥺' },
+    react:{ char:'ananya', text:'Sach mein sun {p|raha/rahi} ho? Main usually akele baat nahi {x|karta/karti}. 🥺' },
     q:'{crush} ke saath kya karte ho?',
     choices:[
       {
@@ -291,7 +291,7 @@ export const SITUATIONS: Situation[] = [
         deltas:{ fame:-1, heat:1, image:1 },
         caption:'Real moments bhi hote hain is ghar mein. Par game bhi chalta hai. #Balance',
         reactions:[
-          { char:'ananya', text:'Oh. Okay. Main samajh gayi/gaya. 🥺' },
+          { char:'ananya', text:'Oh. Okay. Main samajh {x|gaya/gayi}. 🥺' },
           { char:'kabir', text:'Smart. Attachment in this house is a weakness. 👀' },
           { char:'__fan', name:'housewatch_india', text:'they kept it short with {crush}... keeping distance or strategy?' },
         ],
@@ -306,11 +306,11 @@ export const SITUATIONS: Situation[] = [
     id:'D2-5', day:2, slot:'Very Late', tag:'⚡ DAY 2 · 2 AM',
     title:'{ally} Ki Warning',
     body:[
-      'Raat ke 2 baje. {ally} tumhare room mein aata/aati hai. Woh concerned dikhi/dikha raha/rahi hai.',
+      'Raat ke 2 baje. {ally} tumhare room mein {p|aata/aati} hai. Woh concerned {p|dikha/dikhi} {p|raha/rahi} hai.',
       '"Yaar, Zoya ne aaj teri kuch baatein Ria ko bata di. Main suna. Tu careful reh. Woh sweet nahi hai."',
-      '{ally} tumhe protect kar raha/rahi hai. Par kya yeh genuine hai ya khud ki politics?',
+      '{ally} tumhe protect kar {p|raha/rahi} hai. Par kya yeh genuine hai ya khud ki politics?',
     ],
-    react:{ char:'kabir', text:'Main serious hoon. Zoya pe trust mat karna. Main galat bhi ho sakta/sakti hoon par... careful reh. 😭' },
+    react:{ char:'kabir', text:'Main serious hoon. Zoya pe trust mat karna. Main galat bhi ho sakta hoon par... careful reh. 😭' },
     q:'{ally} ki warning ke baare mein kya sochte ho?',
     choices:[
       {
@@ -328,7 +328,7 @@ export const SITUATIONS: Situation[] = [
         t:'Apna judgment use karo — neutral raho',
         s:'Don\'t let others decide your alliances.',
         deltas:{ fame:-1, heat:1, image:1 },
-        caption:'Is ghar mein sab ke apne angles hain. Main apna judgment use karunga/karungi. 🎯',
+        caption:'Is ghar mein sab ke apne angles hain. Main apna judgment use {p|karunga/karungi}. 🎯',
         reactions:[
           { char:'kabir', text:'Theek hai. Par main ne bataya tha. 😭' },
           { char:'zoya', text:'Still coming to me. Smart. 💅' },
@@ -400,7 +400,7 @@ export const SITUATIONS: Situation[] = [
         caption:'{ally} ke saath hoon. Is ghar mein clarity matters. 🤝 #CreatorHouse',
         reactions:[
           { char:'ria', text:'They picked a side publicly. That\'s either brave or naive.' },
-          { char:'kabir', text:'Meri taraf aaya/aayi. Main protect karunga/karungi. 😭🔥' },
+          { char:'kabir', text:'Meri taraf {p|aaya/aayi}. Main protect karunga. 😭🔥' },
           { char:'__fan', name:'housewatch_india', text:'publicly aligned with {ally} before eviction?? bold move' },
         ],
       },
@@ -411,7 +411,7 @@ export const SITUATIONS: Situation[] = [
         caption:'Is ghar mein sabse dangerous log woh hain jo chup rehte hain. 👀 #CreatorHouse',
         reactions:[
           { char:'zoya', text:'Smart. Staying neutral gives you power. 💅' },
-          { char:'kabir', text:'Neutral raha/rahi? Theek hai... main dekh raha hoon. 👀' },
+          { char:'kabir', text:'Neutral {p|raha/rahi}? Theek hai... main dekh raha hoon. 👀' },
           { char:'__fan', name:'creator.tea', text:'playing neutral pre-eviction?? power move or fence-sitting?' },
         ],
       },
@@ -426,11 +426,11 @@ export const SITUATIONS: Situation[] = [
     title:'{ally} Ki Request',
     loyaltyChoice:'A',
     body:[
-      '{ally} tumhare paas private mein aata/aati hai. "Yaar mujhe ek cheez chahiye. Vote ke time pe — publicly mere saath bol. Sirf ek baat. Ki tu mere saath hai."',
+      '{ally} tumhare paas private mein {p|aata/aati} hai. "Yaar mujhe ek cheez chahiye. Vote ke time pe — publicly mere saath bol. Sirf ek baat. Ki tu mere saath hai."',
       '"Mujhe pata hai yeh tere liye risky hai. Par is ghar mein ek banda chahiye jo seedha khade rehe mere saath. Kya tu woh hai?"',
       'Yeh {ally} ki direct request hai. Loyalty ka pehla real test.',
     ],
-    react:{ char:'kabir', text:'Main bas jaanna chahta/chahti hoon — tu mere saath hai? Real mein? 😭' },
+    react:{ char:'kabir', text:'Main bas jaanna chahta hoon — tu mere saath hai? Real mein? 😭' },
     q:'{ally} ki public loyalty request — kya karte ho?',
     choices:[
       {
@@ -439,7 +439,7 @@ export const SITUATIONS: Situation[] = [
         deltas:{ fame:1, heat:2, image:-2 },
         caption:'{ally} ke saath hoon — publicly, clearly. Is ghar mein yahi matters. 🤝 #Day3',
         reactions:[
-          { char:'kabir', text:'...Main nahi bhoolega/bhoolungi yeh. Sach mein. 😭🔥' },
+          { char:'kabir', text:'...Main nahi bhoolega yeh. Sach mein. 😭🔥' },
           { char:'ria', text:'Public loyalty Day 3. They committed. File it.' },
           { char:'__fan', name:'housewatch_india', text:'publicly stood with {ally}?? loyalty era 🔥' },
         ],
@@ -450,7 +450,7 @@ export const SITUATIONS: Situation[] = [
         deltas:{ fame:1, heat:-2, image:2 },
         caption:'Real support nahi dikhti hamesha. Kahin se toh hoti hai. 🎯',
         reactions:[
-          { char:'kabir', text:'Theek hai. Main samjha/samjhi. 😔' },
+          { char:'kabir', text:'Theek hai. Main samjha. 😔' },
           { char:'zoya', text:'Interesting choice. Keeping options open. Smart. 💅' },
           { char:'__fan', name:'creator.tea', text:'private support but not public?? calculating or cowardly?' },
         ],
@@ -479,7 +479,7 @@ export const SITUATIONS: Situation[] = [
         t:'Clearly Ria ke saath — openly bol do',
         s:'Declare the alliance. Accept the power dynamics.',
         deltas:{ fame:2, heat:-3, image:1 },
-        caption:'Is ghar mein neutrality ek luxury hai jo afford nahi hoti. Main decide kar chuka/chuki hoon. 🎯',
+        caption:'Is ghar mein neutrality ek luxury hai jo afford nahi hoti. Main decide kar {p|chuka/chuki} hoon. 🎯',
         reactions:[
           { char:'ria', text:'Good. Now we can actually play. Welcome. 🤍' },
           { char:'kabir', text:'Oh. Oh okay. Noted. 😔👀' },
@@ -490,7 +490,7 @@ export const SITUATIONS: Situation[] = [
         t:'Ambiguous raho — "main khud ke saath hoon"',
         s:'Power through mystery. Keep everyone guessing.',
         deltas:{ fame:1, heat:2, image:-1 },
-        caption:'Is ghar mein sab expect karte hain tum choose karo. Main kab choose karta/karti hoon woh main decide karta/karti hoon. 👀',
+        caption:'Is ghar mein sab expect karte hain tum choose karo. Main kab choose {p|karta/karti} hoon woh main decide {p|karta/karti} hoon. 👀',
         reactions:[
           { char:'ria', text:'Ambiguous. Either strategy or cowardice. I\'ll find out which.' },
           { char:'kabir', text:'Ha. Playing both sides. Thoda risky par... interesting. 😭' },
@@ -558,7 +558,7 @@ export const SITUATIONS: Situation[] = [
         t:'Camera pe directly, confidently respond karo',
         s:'Own it. Flip it. Make it your moment.',
         deltas:{ fame:4, heat:-2, image:-3 },
-        caption:'"Small-town authenticity" ko main compliment leti/leta hoon. Yahi meri superpower hai. 🔥 #CreatorHouse',
+        caption:'"Small-town authenticity" ko main compliment {p|leta/leti} hoon. Yahi meri superpower hai. 🔥 #CreatorHouse',
         reactions:[
           { char:'ria', text:'...Okay. Okay that was good. I didn\'t expect that. 🤍' },
           { char:'ananya', text:'YES. That\'s exactly what needed to be said 🔥🥺' },
@@ -572,7 +572,7 @@ export const SITUATIONS: Situation[] = [
         caption:'Silence bhi ek powerful answer hai. Kuch baatein baad bolni chahiye. 🎯',
         reactions:[
           { char:'ria', text:'They smiled. Either unbothered or plotting. Can\'t tell which is worse.' },
-          { char:'kabir', text:'Ice cold. Main yahi chahta/chahti tha/thi. 😭🔥' },
+          { char:'kabir', text:'Ice cold. Main yahi chahta tha. 😭🔥' },
           { char:'__fan', name:'creator.tea', text:'the unbothered smile at ria\'s dig?? chessmaster mode' },
         ],
       },
@@ -588,10 +588,10 @@ export const SITUATIONS: Situation[] = [
     loyaltyChoice:'A',
     body:[
       '{ally} ne ek mimicry video post ki hai — tumhari. Funny, accurate, aur 800k views already. Comments mein sab has rahe hain.',
-      '{ally} tumhe text karta/karti hai: "Yaar sorry — thoda zyada ho gaya. Par content toh ban gaya na? 😭"',
+      '{ally} tumhe text {p|karta/karti} hai: "Yaar sorry — thoda zyada ho gaya. Par content toh ban gaya na? 😭"',
       'Yeh ek real test hai. Kya {ally} ne limits cross ki?',
     ],
-    react:{ char:'kabir', text:'Yaar actually funny tha na? Main seriously apologize karta/karti hoon agar bura laga. 😭' },
+    react:{ char:'kabir', text:'Yaar actually funny tha na? Main seriously apologize karta hoon agar bura laga. 😭' },
     q:'{ally} ki mimicry video ke baad kya karte ho?',
     choices:[
       {
@@ -611,7 +611,7 @@ export const SITUATIONS: Situation[] = [
         deltas:{ fame:2, heat:-3, image:1 },
         caption:'Is ghar mein boundaries bhi hoti hain. Real ones respect them. 🎯 #CreatorHouse',
         reactions:[
-          { char:'kabir', text:'Main samjha/samjhi. Seriously. I\'ll be more careful. 😔' },
+          { char:'kabir', text:'Main samjha. Seriously. I\'ll be more careful. 😔' },
           { char:'ananya', text:'Good for them for saying something. Kabir gets carried away. 🥺' },
           { char:'__fan', name:'housewatch_india', text:'set a private boundary with {ally}?? mature or crack forming?' },
         ],
@@ -678,9 +678,9 @@ export const SITUATIONS: Situation[] = [
         t:'{ally} ka saamna karo — seedha poochho',
         s:'If they betrayed you, you need to know. Now.',
         deltas:{ fame:3, heat:-4, image:-2 },
-        caption:'Is ghar mein trust ek investment hai. Aur main ROI track karti/karta hoon. 👀 #CreatorHouse',
+        caption:'Is ghar mein trust ek investment hai. Aur main ROI track {p|karta/karti} hoon. 👀 #CreatorHouse',
         reactions:[
-          { char:'kabir', text:'Bhai/behen main ne nahi bataya. I promise. Zoya ne koi aur tarika use kiya. 😭' },
+          { char:'kabir', text:'{p|Bhai/behen} main ne nahi bataya. I promise. Zoya ne koi aur tarika use kiya. 😭' },
           { char:'zoya', text:'Ooh. Drama. This is what I was waiting for. 💅' },
           { char:'__fan', name:'housewatch_india', text:'confronted {ally} about the leak?? the tension 😭' },
         ],
@@ -689,16 +689,16 @@ export const SITUATIONS: Situation[] = [
         t:'Chup raho — observe karo kya hota hai',
         s:'Don\'t reveal what you know. Watch everyone\'s moves.',
         deltas:{ fame:-1, heat:1, image:2 },
-        caption:'Is ghar mein jo zyada jaanta/jaanti hai woh zyada powerful hota/hoti hai. Mujhe pata hai. 🎯',
+        caption:'Is ghar mein jo zyada {p|jaanta/jaanti} hai woh zyada powerful {p|hota/hoti} hai. Mujhe pata hai. 🎯',
         reactions:[
           { char:'zoya', text:'They didn\'t react. Either they didn\'t care or... they know. 💅' },
-          { char:'kabir', text:'Tu theek hai aaj? Kuch alag lag raha/rahi hai. 😭' },
+          { char:'kabir', text:'Tu theek hai aaj? Kuch alag lag {p|raha/rahi} hai. 😭' },
           { char:'__fan', name:'creator.tea', text:'no reaction to zoya knowing private info?? playing 4D chess' },
         ],
       },
     ],
     feedReaction:{
-      A:{ char:'kabir', caption:'Is ghar mein kuch aisa hua aaj. Main sunaunga/sunaungi. 😭 #Day5' },
+      A:{ char:'kabir', caption:'Is ghar mein kuch aisa hua aaj. Main sunaunga. 😭 #Day5' },
       B:null,
     },
   },
@@ -718,7 +718,7 @@ export const SITUATIONS: Situation[] = [
         t:'Seedha deny karo — genuinely nahi kiya',
         s:'Truth. Simple. Don\'t over-explain.',
         deltas:{ fame:3, heat:-4, image:-2 },
-        caption:'Main apni growth create karti/karta hoon. Doosron ko compare nahi karta/karti. Real sirf real hota/hoti hai. 🎯',
+        caption:'Main apni growth create {p|karta/karti} hoon. Doosron ko compare nahi {p|karta/karti}. Real sirf real {p|hota/hoti} hai. 🎯',
         reactions:[
           { char:'ria', text:'Either they\'re telling the truth or they\'re very good at lying. Both options are concerning.' },
           { char:'kabir', text:'Stay calm yaar. Ria bait kar rahi hai. 😭' },
@@ -746,11 +746,11 @@ export const SITUATIONS: Situation[] = [
     id:'D5-3', day:5, slot:'Evening', tag:'⚡ DAY 5 · EVENING',
     title:'{crush} Ka Collab',
     body:[
-      '{crush} tumhare paas aata/aati hai — nervous, careful. "Ek collab karna tha. Mujhe pata hai mere followers kam hain. Par mujhe lagta hai humari chemistry achi hai."',
+      '{crush} tumhare paas {x|aata/aati} hai — nervous, careful. "Ek collab karna tha. Mujhe pata hai mere followers kam hain. Par mujhe lagta hai humari chemistry achi hai."',
       'Numbers mein — bad deal. Chemistry mein — amazing. {crush} genuinely excited hai.',
       'Numbers ya connection?',
     ],
-    react:{ char:'ananya', text:'Koi pressure nahi hai. Main genuinely chahti/chahta hoon. Par sirf haan mein haan nahi chahiye. Sochna. 🥺' },
+    react:{ char:'ananya', text:'Koi pressure nahi hai. Main genuinely {x|chahta/chahti} hoon. Par sirf haan mein haan nahi chahiye. Sochna. 🥺' },
     q:'{crush} ke collab offer ka kya karte ho?',
     choices:[
       {
@@ -770,8 +770,8 @@ export const SITUATIONS: Situation[] = [
         deltas:{ fame:1, heat:-2, image:2 },
         caption:'Is ghar mein sab decisions business decisions hain bhi. Par real rehna important hai. #Balance',
         reactions:[
-          { char:'ananya', text:'...okay. Main samajh gayi/gaya. It\'s fine. 🥺' },
-          { char:'kabir', text:'Smart numbers move. Par {crush} sad tha/thi. 😔' },
+          { char:'ananya', text:'...okay. Main samajh {x|gaya/gayi}. It\'s fine. 🥺' },
+          { char:'kabir', text:'Smart numbers move. Par {crush} sad {x|tha/thi}. 😔' },
           { char:'__fan', name:'housewatch_india', text:'declined {crush}\'s collab for business reasons?? harsh or smart?' },
         ],
       },
@@ -786,11 +786,11 @@ export const SITUATIONS: Situation[] = [
     title:'{ally} Sach Bolta Hai',
     loyaltyChoice:'A',
     body:[
-      '{ally} raat ko tumhare saath share karta/karti hai: career tanking tha. Last shot tha yeh show. Real confession.',
-      '"Main sabse funny, most entertaining banna chahta/chahti hoon — par sach mein main sirf relevant rehna chahta/chahti hoon. Kya tujhe yeh jaanna tha? Shayad nahi. Par tu mera banda/bandi hai."',
+      '{ally} raat ko tumhare saath share {p|karta/karti} hai: career tanking tha. Last shot tha yeh show. Real confession.',
+      '"Main sabse funny, most entertaining banna {p|chahta/chahti} hoon — par sach mein main sirf relevant rehna {p|chahta/chahti} hoon. Kya tujhe yeh jaanna tha? Shayad nahi. Par tu mera {p|banda/bandi} hai."',
       '{ally} ka real vulnerable self tumhare saamne hai.',
     ],
-    react:{ char:'kabir', text:'Main usually yeh share nahi karta/karti. Par tere saath honest rehna chahta/chahti hoon. 😭' },
+    react:{ char:'kabir', text:'Main usually yeh share nahi karta. Par tere saath honest rehna chahta hoon. 😭' },
     q:'{ally} ki real vulnerability ke baad kya karte ho?',
     choices:[
       {
@@ -799,7 +799,7 @@ export const SITUATIONS: Situation[] = [
         deltas:{ fame:-1, heat:3, image:1 },
         caption:'Jo log apna sach bolte hain woh brave hote hain. Aur hum brave log saath hain. 🫶 #Day5',
         reactions:[
-          { char:'kabir', text:'Bhai/behen... main nahi sochta/sochti tha/thi koi itna samjhega/samjhegi. 😭🔥' },
+          { char:'kabir', text:'{p|Bhai/behen}... main nahi sochta tha koi itna {p|samjhega/samjhegi}. 😭🔥' },
           { char:'ria', text:'What were they talking about for 2 hours? I need to know. 👀' },
           { char:'__fan', name:'creator.tea', text:'the mutual vulnerability moment with {ally}?? 🥺 this is a friendship' },
         ],
@@ -828,7 +828,7 @@ export const SITUATIONS: Situation[] = [
     title:'Ria, Bina Mask',
     body:[
       'Subah 6 baje. Sirf tum aur Ria terrace pe ho. Coffee. Sunrise. Koi camera nahi.',
-      'Ria — without the performance — shares something: "Main actually thak gayi hoon. Ek image ko maintain karna, hamesha, sab ke liye. Tum kabhi thake/thaki nahi lagti/lagte."',
+      'Ria — without the performance — shares something: "Main actually thak gayi hoon. Ek image ko maintain karna, hamesha, sab ke liye. Tum kabhi {p|thake/thaki} nahi {p|lagte/lagti}."',
       'Yeh Ria ka real face hai. Tumse zyada kisi aur ke saath nahi dikhaya.',
     ],
     react:{ char:'ria', text:'Yeh conversation — yahan rakhna. Please. 🤍' },
@@ -880,7 +880,7 @@ export const SITUATIONS: Situation[] = [
         caption:'Is ghar mein kuch conversations honi chahiye thi. Ab ho rahi hain. 👀 #Day6',
         reactions:[
           { char:'zoya', text:'Oh. We\'re doing this. Fine. 💅' },
-          { char:'kabir', text:'BHAI/BEHEN TU NE ZOYA KO CONFRONT KIYA 😭🔥 I\'m here for it' },
+          { char:'kabir', text:'{p|BHAI/BEHEN} TU NE ZOYA KO CONFRONT KIYA 😭🔥 I\'m here for it' },
           { char:'__fan', name:'housewatch_india', text:'THE ZOYA CONFRONTATION DAY 6?? FINALLY 😭' },
         ],
       },
@@ -920,7 +920,7 @@ export const SITUATIONS: Situation[] = [
         caption:'Hamesha right fit nahi hota. Par fit dhundhna — woh kaam hai. New direction loading. 🎯',
         reactions:[
           { char:'ria', text:'Interesting pivot. They\'re adapting. Note to self.' },
-          { char:'kabir', text:'Image rebuild karna difficult hai par tu kar sakta/sakti hai. 😭🔥' },
+          { char:'kabir', text:'Image rebuild karna difficult hai par tu kar {p|sakta/sakti} hai. 😭🔥' },
           { char:'__fan', name:'housewatch_india', text:'brand rejection sparked a pivot?? growth arc incoming' },
         ],
       },
@@ -928,9 +928,9 @@ export const SITUATIONS: Situation[] = [
         t:'Ignore karo — apna content uthao',
         s:'One brand\'s opinion is not the truth.',
         deltas:{ fame:-2, heat:-3, image:2 },
-        caption:'Brand choices reflect their audience, not my value. Main apna kaam karta/karti hoon. 🔥',
+        caption:'Brand choices reflect their audience, not my value. Main apna kaam {p|karta/karti} hoon. 🔥',
         reactions:[
-          { char:'kabir', text:'Bhai/behen thoda overconfident? Brand feedback bhi important hai. 😭' },
+          { char:'kabir', text:'{p|Bhai/behen} thoda overconfident? Brand feedback bhi important hai. 😭' },
           { char:'ananya', text:'I mean... they\'re not wrong but also ouch 🥺' },
           { char:'__fan', name:'creator.tea', text:'brushed off brand rejection?? confidence or denial?' },
         ],
@@ -945,18 +945,18 @@ export const SITUATIONS: Situation[] = [
     id:'D6-3', day:6, slot:'Night', tag:'⚡ DAY 6 · NIGHT',
     title:'{crush} Ka Sach',
     body:[
-      '{crush} tumhare paas aata/aati hai raat ko. "{name}, main serious poochh rahi/raha hoon — is ghar mein tum kaun ho? Real wala. Game wala nahi."',
-      'Yeh tumhare day 2 midnight conversation ka follow-up hai. {crush} genuinely jaanna chahti/chahta hai.',
+      '{crush} tumhare paas {x|aata/aati} hai raat ko. "{name}, main serious poochh {x|raha/rahi} hoon — is ghar mein tum kaun ho? Real wala. Game wala nahi."',
+      'Yeh tumhare day 2 midnight conversation ka follow-up hai. {crush} genuinely jaanna {x|chahta/chahti} hai.',
       'Kya batate ho?',
     ],
-    react:{ char:'ananya', text:'Main judge nahi karunga/karungi. Main sirf... jaanna chahti/chahta hoon. 🥺' },
+    react:{ char:'ananya', text:'Main judge nahi {x|karunga/karungi}. Main sirf... jaanna {x|chahta/chahti} hoon. 🥺' },
     q:'{crush} ko real jawaab dete ho?',
     choices:[
       {
         t:'Seedha honest raho — real version batao',
         s:'Vulnerability for vulnerability. The real you.',
         deltas:{ fame:-2, heat:4, image:1 },
-        caption:'{crush} ne poocha kaun hoon main real mein. Pehli baar kisi ne poocha. Woh sunna chahti/chahta tha/thi. 🌙',
+        caption:'{crush} ne poocha kaun hoon main real mein. Pehli baar kisi ne poocha. Woh sunna {x|chahta/chahti} {x|tha/thi}. 🌙',
         reactions:[
           { char:'ananya', text:'...Thank you for telling me that. Really. 🥺🤍' },
           { char:'ria', text:'Those two are getting close. Real close. 👀' },
@@ -969,7 +969,7 @@ export const SITUATIONS: Situation[] = [
         deltas:{ fame:1, heat:-3, image:2 },
         caption:'Real toh hoon. Bas... sab ek saath nahi. Is ghar mein bhi nahi. 🎯 #Day6',
         reactions:[
-          { char:'ananya', text:'...Okay. Theek hai. Main understand karti/karta hoon. Maybe someday. 🥺' },
+          { char:'ananya', text:'...Okay. Theek hai. Main understand {x|karta/karti} hoon. Maybe someday. 🥺' },
           { char:'kabir', text:'Smart. Kuch cheezein apni rehni chahiye. 😭' },
           { char:'__fan', name:'housewatch_india', text:'guarded with {crush} even on night 6?? walls are real' },
         ],
@@ -986,8 +986,8 @@ export const SITUATIONS: Situation[] = [
     id:'D7-1', day:7, slot:'Morning', tag:'⚡ DAY 7 · MORNING',
     title:'Sab Saaf Ho Gaya',
     body:[
-      'Day 7. Doosra eviction. {ally} darr raha/rahi hai — aur woh tum se kehta/kehti hai.',
-      '"Mujhe nahi pata main bachega/bachungi ya nahi. Aur main scared hoon yaar. Sach mein."',
+      'Day 7. Doosra eviction. {ally} darr {p|raha/rahi} hai — aur woh tum se {p|kehta/kehti} hai.',
+      '"Mujhe nahi pata main {p|bachega/bachungi} ya nahi. Aur main scared hoon yaar. Sach mein."',
       'Tumhara {ally} real hai is moment mein. Tum kaise respond karte ho?',
     ],
     react:{ char:'kabir', text:'Main seriously scared hoon. Yeh ghar... yahan kuch bhi ho sakta hai. 😔' },
@@ -1005,12 +1005,12 @@ export const SITUATIONS: Situation[] = [
         ],
       },
       {
-        t:'Honest raho — "main koshish karunga/karungi"',
+        t:'Honest raho — "main koshish {p|karunga/karungi}"',
         s:'Don\'t promise what you can\'t guarantee.',
         deltas:{ fame:1, heat:-2, image:2 },
-        caption:'Promises is ghar mein currency hain. Main sirf woh waade karta/karti hoon jo nibha sakta/sakti hoon. 🎯',
+        caption:'Promises is ghar mein currency hain. Main sirf woh waade {p|karta/karti} hoon jo nibha {p|sakta/sakti} hoon. 🎯',
         reactions:[
-          { char:'kabir', text:'Honest. I appreciate it. 😔 Main samjha/samjhi.' },
+          { char:'kabir', text:'Honest. I appreciate it. 😔 Main samjha.' },
           { char:'ananya', text:'Real expectations setting. That\'s actually better than false hope. 🥺' },
           { char:'__fan', name:'housewatch_india', text:'honest about limits pre-eviction?? mature or cold?' },
         ],
@@ -1026,7 +1026,7 @@ export const SITUATIONS: Situation[] = [
     title:'{ally} Ya Zoya',
     body:[
       'Vote time. {ally} ya Zoya. House split hai. Ria tumhare paas aati hai: "Zoya ko vote karo. Main chahti hoon tum mere saath ho is mein."',
-      '{ally} tumhe door se dekh raha/rahi hai. Aankhon mein sawaal hai.',
+      '{ally} tumhe door se dekh {p|raha/rahi} hai. Aankhon mein sawaal hai.',
       'Yeh woh moment hai. {ally} ya Ria. Choose carefully.',
     ],
     react:{ char:'ria', text:'Simple choice hai. Jo zyada useful hai woh rakho. 🤍' },
@@ -1039,7 +1039,7 @@ export const SITUATIONS: Situation[] = [
         caption:'Game mein decisions hote hain. Is ek ne sab kuch clear kar diya. 🎯 #Day7',
         reactions:[
           { char:'ria', text:'Good. Now we\'re working together. 🤍' },
-          { char:'kabir', text:'...Shukriya. Main jaanta/jaanti hoon yeh easy nahi tha. 😭' },
+          { char:'kabir', text:'...Shukriya. Main jaanta hoon yeh easy nahi tha. 😭' },
           { char:'__fan', name:'housewatch_india', text:'voted out zoya?? {ally} safe + ria happy = interesting dynamics ahead' },
         ],
       },
@@ -1047,10 +1047,10 @@ export const SITUATIONS: Situation[] = [
         t:'{ally} ko vote karo — Ria ki baat sunne ke bawajood',
         s:'Ria loses trust. {ally} is shocked. Zoya stays.',
         deltas:{ fame:2, heat:-4, image:3 },
-        caption:'Main apni call khud karti/karta hoon. Chahe jo bhi expect kare. 🎯 #Day7',
+        caption:'Main apni call khud {p|karta/karti} hoon. Chahe jo bhi expect kare. 🎯 #Day7',
         reactions:[
           { char:'ria', text:'...You voted against my advice. Interesting. 👀' },
-          { char:'kabir', text:'Wait... main gaya/gayi? 😔' },
+          { char:'kabir', text:'Wait... main gaya? 😔' },
           { char:'__fan', name:'creator.tea', text:'voted against ria\'s advice?? independent player confirmed' },
         ],
       },
@@ -1068,10 +1068,10 @@ export const SITUATIONS: Situation[] = [
     title:'Jo Bach Gaya',
     body:[
       'Subah. Villa mein ek silence hai. Jo hona tha, hua.',
-      'Agar {ally} bach gaya/gayi — tumhare dono ke beech ek naya level hai. Agar nahi — tum khud ke saath face to face ho.',
+      'Agar {ally} bach {p|gaya/gayi} — tumhare dono ke beech ek naya level hai. Agar nahi — tum khud ke saath face to face ho.',
       'Aaj first move tumhara hai.',
     ],
-    react:{ char:'ria', text:'Kal raat ke baad — is ghar mein sab change ho gaya. Tum dekh rahe/rahi ho? 🤍' },
+    react:{ char:'ria', text:'Kal raat ke baad — is ghar mein sab change ho gaya. Tum dekh {p|rahe/rahi} ho? 🤍' },
     q:'Subah ka pehla move kya hai?',
     choices:[
       {
@@ -1110,7 +1110,7 @@ export const SITUATIONS: Situation[] = [
       'Caption mein subtle reference hai tumhare baare mein. "Someone in this house reminded me that being real is braver than being perfect."',
       'Yeh {crush} ka public brave move hai — tumse inspired.',
     ],
-    react:{ char:'ananya', text:'Tune jo kaha tha — woh mujhe yaad raha. Aur main chahti/chahta tha sach mein woh show karna. 🥺' },
+    react:{ char:'ananya', text:'Tune jo kaha tha — woh mujhe yaad raha. Aur main {x|chahta/chahti} {x|tha/thi} sach mein woh show karna. 🥺' },
     q:'{crush} ki brave post pe kya karte ho?',
     choices:[
       {
@@ -1119,7 +1119,7 @@ export const SITUATIONS: Situation[] = [
         deltas:{ fame:-2, heat:4, image:2 },
         caption:'{crush} ne kuch real kiya aaj. Is ghar mein real cheez rare hai. Aur main iske saath hoon. 🌙',
         reactions:[
-          { char:'ananya', text:'TUMNE COMMENT KIYA?? 🥺🔥 main actually cry kar rahi/raha hoon' },
+          { char:'ananya', text:'TUMNE COMMENT KIYA?? 🥺🔥 main actually cry kar {x|raha/rahi} hoon' },
           { char:'ria', text:'Those two. Interesting. Very interesting. 👀' },
           { char:'__fan', name:'creator.tea', text:'PUBLICLY SUPPORTED {crush}\'S POST?? 🥺 okay this is a vibe' },
         ],
@@ -1151,7 +1151,7 @@ export const SITUATIONS: Situation[] = [
       '"Main actually respect karti hoon jo tum ne kiya yahan. Aur main yeh usually nahi kehti."',
       'Yeh Ria ka acknowledgment hai. Real. Kya karte ho is moment mein?',
     ],
-    react:{ char:'ria', text:'Main genuinely bol rahi hoon. Aur tum jaante/jaanti ho main kisi ko bhi nahi kehti. 🤍' },
+    react:{ char:'ria', text:'Main genuinely bol rahi hoon. Aur tum {p|jaante/jaanti} ho main kisi ko bhi nahi kehti. 🤍' },
     q:'Ria ke genuine respect ke saath kya karte ho?',
     choices:[
       {
@@ -1178,7 +1178,7 @@ export const SITUATIONS: Situation[] = [
       },
     ],
     feedReaction:{
-      A:{ char:'ria', caption:'10 din. Aur ek banda/bandi jo actually game played — aur human bhi raha/rahi. 🤍 #Day9' },
+      A:{ char:'ria', caption:'10 din. Aur ek {p|banda/bandi} jo actually game played — aur human bhi {p|raha/rahi}. 🤍 #Day9' },
       B:{ char:'kabir', caption:'Kal finale hai. Aur main genuinely excited hoon is ke liye. 🔥 #Day9' },
     },
   },
@@ -1190,7 +1190,7 @@ export const SITUATIONS: Situation[] = [
       'Yeh opportunity career-changing hai. Par cost real hai.',
       'Kya tum yeh karte ho?',
     ],
-    react:{ char:'ria', text:'Main seedha bolunga/bolungi — yeh offer life-changing hai. Par tum decide karo. 🤍' },
+    react:{ char:'ria', text:'Main seedha bolungi — yeh offer life-changing hai. Par tum decide karo. 🤍' },
     q:'Viral slot — kissi ko throw under the bus karo ya nahi?',
     choices:[
       {
@@ -1199,7 +1199,7 @@ export const SITUATIONS: Situation[] = [
         deltas:{ fame:9, heat:-12, image:-3 },
         caption:'Kuch opportunities nahi leni chahiye. Yeh ek tha. #CreatorHouse #Values',
         reactions:[
-          { char:'kabir', text:'TU NE MUJHE/UNHE PROTECT KIYA?? 😭🔥 Main iska hisaab nahi bhoolega/bhoolungi.' },
+          { char:'kabir', text:'TU NE PROTECT KIYA?? 😭🔥 Main iska hisaab nahi bhoolega.' },
           { char:'ria', text:'They passed on the slot. Either very principled or very bad at math. 🤍' },
           { char:'__fan', name:'creator.tea', text:'REFUSED THE VIRAL SLOT TO PROTECT {ally}/{crush}?? LOYALTY ERA 😭' },
         ],
@@ -1211,13 +1211,13 @@ export const SITUATIONS: Situation[] = [
         caption:'Is ghar mein final decisions difficult hote hain. Maine le liya. #Finale #CreatorHouse',
         reactions:[
           { char:'ria', text:'They took it. Respect. That\'s the game. 👑' },
-          { char:'kabir', text:'...Main samjha/samjhi. Yeh game hai. Par... 😔' },
+          { char:'kabir', text:'...Main samjha. Yeh game hai. Par... 😔' },
           { char:'__fan', name:'housewatch_india', text:'took the viral slot?? finale villain arc or just playing the game?' },
         ],
       },
     ],
     feedReaction:{
-      A:{ char:'kabir', caption:'Is ghar mein ek banda/bandi tha/thi jo apne values pe tikka/tikki raha/rahi. You know who. 🔥 #Day9' },
+      A:{ char:'kabir', caption:'Is ghar mein ek {p|banda/bandi} {p|tha/thi} jo apne values pe {p|tikka/tikki} {p|raha/rahi}. You know who. 🔥 #Day9' },
       B:{ char:'ria', caption:'Finale decisions reveal character. Always. 👑 #CreatorHouse #Day9' },
     },
   },
@@ -1278,10 +1278,10 @@ export const SITUATIONS: Situation[] = [
         t:'Authentic answer — sab kuch share karo',
         s:'Raw. Real. The whole truth.',
         deltas:{ fame:6, heat:4, image:-4 },
-        caption:'Is ghar mein seekha — log woh nahi hote jo dikhte hain. Aur main bhi nahi tha/thi. Ab hoon. 🎤 #Finale',
+        caption:'Is ghar mein seekha — log woh nahi hote jo dikhte hain. Aur main bhi nahi {p|tha/thi}. Ab hoon. 🎤 #Finale',
         reactions:[
           { char:'ria', text:'...That was real. That was actually real. 🤍' },
-          { char:'kabir', text:'BHAI/BEHEN 😭🔥 THAT\'S THE WINNER SPEECH RIGHT THERE' },
+          { char:'kabir', text:'{p|BHAI/BEHEN} 😭🔥 THAT\'S THE WINNER SPEECH RIGHT THERE' },
           { char:'__fan', name:'housewatch_india', text:'THE FINALE SPEECH IS GOING VIRAL 😭🔥 1.1 LAKH SCREAMING' },
         ],
       },
@@ -1298,7 +1298,7 @@ export const SITUATIONS: Situation[] = [
       },
     ],
     feedReaction:{
-      A:{ char:'ria', caption:'10 din. Ek banda/bandi. Real tha. 🤍 #Finale #CreatorHouse' },
+      A:{ char:'ria', caption:'10 din. Ek {p|banda/bandi}. Real {p|tha/thi}. 🤍 #Finale #CreatorHouse' },
       B:{ char:'kabir', caption:'Finale. Aur yeh moment hamesha yad rahega. 🔥 #Day10 #CreatorHouse' },
     },
   },
@@ -1306,7 +1306,7 @@ export const SITUATIONS: Situation[] = [
 
 export const DM_HOOKS: Record<CharId, string> = {
   ria:    'Tumse kuch baat karni thi. Private mein. Woh public scene alag tha — yeh alag hai. 🤍',
-  kabir:  'Bhai/behen! Finally tere saath directly baat kar sakta hoon. Is ghar mein sab filter hai, tere saath nahi. 😭',
+  kabir:  'Arre yaar! Finally tere saath directly baat kar sakta hoon. Is ghar mein sab filter hai, tere saath nahi. 😭',
   ananya: 'Hi... main usually DM nahi karti but aaj karna tha. Tum bahut different lagte ho baaki sabse. 🥺',
   dev:    'Numbers. That\'s all this is. But you\'re different — I see it. Don\'t tell anyone I said that. 💪',
   zoya:   'Hey! Bas check kar rahi thi tum theek ho. Is ghar mein sab compete karte hain, main genuinely care karti hoon. 🫶',
@@ -1452,7 +1452,7 @@ export const POST_COMMENTS: Record<string, PostCommentOption[]> = {
   dev: [
     { text: 'Numbers never lie 📈 Respect',         deltas:{ fame:4, heat:0, image:3 },  toast:'Dev respects the grind. Fame +4' },
     { text: 'Ye sab brand PR hai na? 😅',           deltas:{ fame:2, heat:5, image:-2 }, toast:'Dev is sceptical. Heat +5' },
-    { text: 'Bhai/behen same thoughts 💪',          deltas:{ fame:3, heat:2, image:2 },  toast:'Dev aligned. Heat +2' },
+    { text: 'Bhai same thoughts 💪',                deltas:{ fame:3, heat:2, image:2 },  toast:'Dev aligned. Heat +2' },
   ],
   meher: [
     { text: 'This is so real 🫶 Thank you',         deltas:{ fame:2, heat:0, image:4 },  toast:'Meher felt this. Image +4' },

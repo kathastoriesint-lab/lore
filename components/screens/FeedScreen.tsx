@@ -240,7 +240,7 @@ export default function FeedScreen() {
               {i === 0 && <div className="new-pill">NEW</div>}
             </div>
             <div className={`post-img grain ${reactChar.cls}`} style={{ background: `linear-gradient(135deg, color-mix(in srgb, var(--cc) 70%, #000) 0%, #000 100%)` }}>
-              <p className="overlay-txt" style={{ fontSize:14 }}>{reaction.caption}</p>
+              <p className="overlay-txt" style={{ fontSize:14 }}>{resolveTokens(reaction.caption, game.playerName, game.playerGender)}</p>
             </div>
             <div className="post-actions">
               <button onClick={() => likePost(postId, reactChar.id, 2)} style={{ background:'none', border:'none', cursor:'pointer', display:'flex', alignItems:'center' }}>
