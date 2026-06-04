@@ -54,8 +54,8 @@ const CHAR_POSTS: Record<string, { caption: string; bg: string }[]> = {
   ],
   adi: [
     { caption: 'New beginnings 🙏', bg: 'linear-gradient(135deg,#d4581a,#5a1a00)' },
-    { caption: 'Still learning the game', bg: 'linear-gradient(135deg,#c44808,#3a0800)' },
-    { caption: 'Creator House 🏠', bg: 'linear-gradient(135deg,#e46828,#6a2800)' },
+    { caption: 'Still learning the game', bg: 'linear-gradient(135deg,#2a6f8f,#081a2a)' },
+    { caption: 'Creator House 🏠', bg: 'linear-gradient(135deg,#7a2a8f,#2a0840)' },
   ],
 }
 
@@ -126,9 +126,12 @@ export default function ProfileScreen() {
           </div>
 
           {/* Bio */}
-          <div style={{ marginTop:12 }}>
-            <div style={{ fontSize:12, color:'var(--ink2)', marginTop:2 }}>Creator • Day {Math.ceil((game.situation + 1) / 3)} of 10</div>
-            <div style={{ fontSize:12, color:'var(--ink3)', marginTop:2 }}>Creator House</div>
+          <div style={{ marginTop:10 }}>
+            <div style={{ fontWeight:700, fontSize:15 }}>{game.playerName || char.name}</div>
+            <div style={{ fontSize:12, color:'var(--ink3)', marginTop:2 }}>@{char.handle} · Creator House</div>
+            <div style={{ fontSize:12, color:'var(--ink2)', marginTop:3 }}>
+              Day {Math.ceil((game.situation + 1) / 3)} of 10 · {game.choices.length} moves made
+            </div>
           </div>
 
         </div>
