@@ -22,9 +22,11 @@ export async function getPhoneSession() {
   return session
 }
 
+// Returns session immediately when sms_autoconfirm is enabled, null otherwise
 export async function sendPhoneOTP(phone: string) {
-  const { error } = await supabase().auth.signInWithOtp({ phone })
+  const { data, error } = await supabase().auth.signInWithOtp({ phone })
   if (error) throw error
+  return data.session ?? null
 }
 
 export async function verifyPhoneOTP(phone: string, token: string) {

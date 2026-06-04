@@ -20,9 +20,15 @@ export default function PhoneScreen() {
     setLoading(true)
     setError('')
     try {
-      await sendPhoneOTP(phone)
+      const session = await sendPhoneOTP(phone)
       setPhone(phone)
-      navigate('otp')
+      if (session) {
+        // sms_autoconfirm: skip OTP screen, go straight to onboarding or worlds
+        const state = await (await import('@/lib/game')).loadGameState()
+        navigate(state.playerName ? 'worlds' : 'onboarding')
+      } else {
+        navigate('otp')
+      }
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Something went wrong')
     } finally {
