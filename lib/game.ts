@@ -1,7 +1,7 @@
 'use client'
 import { createClient } from './supabase'
 import type { CharId, GameState, Meters, DMMessage } from './types'
-import { DM_HOOKS, DM_MOCK } from './data'
+import { CHARS, DM_HOOKS, DM_MOCK } from './data'
 
 // Lazy init — avoids module-level instantiation during SSR/prerender
 let _supabase: ReturnType<typeof createClient> | null = null
@@ -55,7 +55,7 @@ export async function loadGameState(): Promise<GameState> {
   return {
     playerName: data.player_name ?? '',
     playerGender: (data.player_gender ?? 'male') as 'male' | 'female',
-    char: data.char_id,
+    char: (data.char_id && data.char_id in CHARS) ? data.char_id as CharId : null,
     situation: data.situation,
     choices: data.choices ?? [],
     meters,
