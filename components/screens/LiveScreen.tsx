@@ -292,109 +292,114 @@ export default function LiveScreen() {
               )
             })()}
 
-            {/* ── Impact section (Hybrid A+C design) ── */}
+            {/* ── Impact section ── */}
             {showImpact && chosen !== null && sit.choices[chosen] && (() => {
               const ch = sit.choices[chosen]
               const d = ch.deltas
+              const isCritical = game.meters.heat > 75
+
+              // Helper: consequence text for each meter
+              const fameMsg = d.fame > 3 ? 'People are noticing you' : d.fame > 0 ? 'Your name is spreading' : d.fame < -2 ? 'You slipped off the radar' : 'Quiet move'
+              const heatMsg = d.heat > 4 ? 'Ghar mein tension badh gayi' : d.heat > 0 ? 'Drama is building' : d.heat < -2 ? 'You cooled things down' : 'Steady'
+              const imageMsg = d.image > 3 ? 'Brands are watching' : d.image > 0 ? 'Your image improved' : d.image < -2 ? 'Brands are stepping back' : 'Holding'
+
               return (
-                <div style={{ marginTop: 20 }}>
-                  {/* Impact chips row */}
-                  <div className="impact-chips-row">
+                <div style={{ marginTop: 16 }}>
+                  {/* Bold impact card */}
+                  <div className={`impact-card${isCritical ? ' danger' : ''}`}>
+                    {/* Fame row */}
                     {d.fame !== 0 && (
-                      <div className={`impact-chip${d.fame > 0 ? ' positive' : ' negative'} fame`}>
-                        {d.fame > 0 ? '+' : ''}{d.fame} ⭐
+                      <div className="impact-row fame">
+                        <div className="impact-row-glow" />
+                        <div className="impact-delta">{d.fame > 0 ? '+' : ''}{d.fame}</div>
+                        <div className="impact-meta">
+                          <div className="impact-mlabel">⭐ FAME</div>
+                          <div className="impact-bar-track">
+                            <div className="impact-bar-fill" style={{ width: `${Math.max(0, Math.min(100, game.meters.fame))}%` }} />
+                          </div>
+                          <div className="impact-consequence">{fameMsg}</div>
+                        </div>
                       </div>
                     )}
+                    {/* Heat row */}
                     {d.heat !== 0 && (
-                      <div className={`impact-chip${d.heat > 0 ? ' positive' : ' negative'} heat`}>
-                        {d.heat > 0 ? '+' : ''}{d.heat} 🔥
+                      <div className={`impact-row heat${d.heat < 0 ? ' negative' : ''}`}>
+                        <div className="impact-row-glow" />
+                        <div className="impact-delta">{d.heat > 0 ? '+' : ''}{d.heat}</div>
+                        <div className="impact-meta">
+                          <div className="impact-mlabel">
+                            🔥 HEAT
+                            {isCritical && <span className="impact-crit">CRITICAL</span>}
+                          </div>
+                          <div className="impact-bar-track">
+                            <div className="impact-bar-fill" style={{ width: `${Math.max(0, Math.min(100, game.meters.heat))}%` }} />
+                          </div>
+                          <div className="impact-consequence">{heatMsg}</div>
+                        </div>
                       </div>
                     )}
+                    {/* Image row */}
                     {d.image !== 0 && (
-                      <div className={`impact-chip${d.image > 0 ? ' positive' : ' negative'} image`}>
-                        {d.image > 0 ? '+' : ''}{d.image} 🤝
+                      <div className="impact-row image">
+                        <div className="impact-row-glow" />
+                        <div className="impact-delta">{d.image > 0 ? '+' : ''}{d.image}</div>
+                        <div className="impact-meta">
+                          <div className="impact-mlabel">🤝 IMAGE</div>
+                          <div className="impact-bar-track">
+                            <div className="impact-bar-fill" style={{ width: `${Math.max(0, Math.min(100, game.meters.image))}%` }} />
+                          </div>
+                          <div className="impact-consequence">{imageMsg}</div>
+                        </div>
                       </div>
                     )}
                   </div>
 
-                  {/* Consequence banner */}
-                  {(game.meters.heat > 75 || game.meters.image < 20) && (
-                    <div className="consequence-banner">
-                      {game.meters.heat > 75
-                        ? '⚠ Heat critical — someone will address this publicly'
-                        : '⚠ Image low — brands are watching'}
-                    </div>
-                  )}
-
-                  {/* Post preview cards — player's own post + NPC reaction */}
-                  {showPost && char && (() => {
+                  {/* Reactions + NPC post — shown after choice, before CTA */}
+                  {showPost && (() => {
                     const letter = chosen === 0 ? 'A' : 'B'
                     const feedRx = sit.feedReaction?.[letter]
                     const feedRxChar = feedRx ? CHARS[feedRx.char as CharId] : null
-                    // Resolve the displayed char (female player: swap kabir↔ananya)
-                    const displayChar = game.playerGender === 'female'
-                      ? char.id === 'kabir' ? CHARS['ananya'] : char.id === 'ananya' ? CHARS['kabir'] : char
-                      : char
                     return (
-                      <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
-                        {/* Player's own post */}
-                        <div style={{ background: '#16161e', borderRadius: 14, overflow: 'hidden', border: '1px solid rgba(255,45,120,.35)', animation: 'fadeUp .35s ease-out' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px' }}>
-                            <div className={`av ${displayChar.cls}`} style={{ width: 28, height: 28, fontSize: 11, flexShrink: 0, backgroundImage: `url(/avatars/${displayChar.id}.png)`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
-                              <span style={{ opacity: 0 }}>{displayChar.init}</span>
-                            </div>
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                              <div style={{ fontWeight: 700, fontSize: 12, color: '#fff' }}>@{displayChar.handle}</div>
-                              <div style={{ fontSize: 10, color: 'var(--accent)', marginTop: 1 }}>just now · posted</div>
-                            </div>
-                            <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--accent)', background: 'rgba(255,45,120,.15)', padding: '3px 9px', borderRadius: 20, flexShrink: 0 }}>✓ POSTED</div>
-                          </div>
-                          <div className={`post-img grain ${displayChar.cls}`} style={{ margin: '0 12px 0', borderRadius: 10, background: `linear-gradient(135deg, color-mix(in srgb, var(--cc) 70%, #000) 0%, #000 100%)` }}>
-                            <p className="overlay-txt" style={{ fontSize: 13 }}>{r(ch.caption)}</p>
-                          </div>
-                          {/* Threaded reactions as comments */}
-                          {ch.reactions && ch.reactions.length > 0 && (
-                            <div style={{ padding: '8px 14px 10px', display: 'flex', flexDirection: 'column', gap: 5 }}>
-                              {ch.reactions.map((rx, j) => {
-                                const isFan = rx.char === '__fan'
-                                const rxChar = isFan ? null : CHARS[rx.char as CharId]
-                                return (
-                                  <div key={j} style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
-                                    {isFan ? (
-                                      <div style={{ width: 20, height: 20, borderRadius: '50%', background: '#2a2a38', display: 'grid', placeItems: 'center', fontSize: 8, fontWeight: 700, color: 'var(--ink3)', flexShrink: 0 }}>c</div>
-                                    ) : (
-                                      <div className={`av ${rxChar!.cls}`} style={{ width: 20, height: 20, fontSize: 8, flexShrink: 0, backgroundImage: `url(/avatars/${rxChar!.id}.png)`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
-                                        <span style={{ opacity: 0 }}>{rxChar!.init}</span>
-                                      </div>
-                                    )}
-                                    <div style={{ fontSize: 11, lineHeight: 1.4, color: 'rgba(255,255,255,.8)' }}>
-                                      <span style={{ fontWeight: 700, marginRight: 4 }}>
-                                        {isFan ? `@${rx.name ?? 'fan'}` : rxChar!.name}
-                                      </span>
-                                      {isFan && (
-                                        <span style={{ fontSize: 8, fontWeight: 700, color: 'var(--ink3)', background: 'rgba(255,255,255,.08)', padding: '1px 4px', borderRadius: 3, marginRight: 4 }}>FAN</span>
-                                      )}
-                                      {r(rx.text)}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 12 }}>
+                        {/* Threaded reactions */}
+                        {ch.reactions && ch.reactions.length > 0 && (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+                            {ch.reactions.map((rx, j) => {
+                              const isFan = rx.char === '__fan'
+                              const rxChar = isFan ? null : CHARS[rx.char as CharId]
+                              return (
+                                <div key={j} style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+                                  {isFan ? (
+                                    <div style={{ width: 22, height: 22, borderRadius: '50%', background: '#2a2a38', display: 'grid', placeItems: 'center', fontSize: 9, fontWeight: 700, color: 'var(--ink3)', flexShrink: 0 }}>c</div>
+                                  ) : (
+                                    <div className={`av ${rxChar!.cls}`} style={{ width: 22, height: 22, fontSize: 9, flexShrink: 0, backgroundImage: `url(/avatars/${rxChar!.id}.png)`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+                                      <span style={{ opacity: 0 }}>{rxChar!.init}</span>
                                     </div>
+                                  )}
+                                  <div style={{ fontSize: 12, lineHeight: 1.4, color: 'rgba(255,255,255,.85)' }}>
+                                    <span style={{ fontWeight: 700, marginRight: 4 }}>
+                                      {isFan ? `@${rx.name ?? 'fan'}` : rxChar!.name}
+                                    </span>
+                                    {isFan && <span style={{ fontSize: 8, fontWeight: 700, color: 'var(--ink3)', background: 'rgba(255,255,255,.08)', padding: '1px 4px', borderRadius: 3, marginRight: 4 }}>FAN</span>}
+                                    {r(rx.text)}
                                   </div>
-                                )
-                              })}
-                            </div>
-                          )}
-                        </div>
+                                </div>
+                              )
+                            })}
+                          </div>
+                        )}
 
-                        {/* NPC feedReaction post (always when it exists) */}
+                        {/* NPC feedReaction post */}
                         {feedRxChar && feedRx && (
-                          <div style={{ background: '#16161e', borderRadius: 14, overflow: 'hidden', border: '1px solid rgba(255,255,255,.08)', animation: 'fadeUp .4s ease-out .15s both' }}>
+                          <div style={{ background: '#16161e', borderRadius: 14, overflow: 'hidden', border: '1px solid rgba(255,255,255,.08)', animation: 'fadeUp .4s ease-out .1s both' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px' }}>
-                              <div className={`av ${feedRxChar.cls}`} style={{ width: 28, height: 28, fontSize: 11, flexShrink: 0, backgroundImage: `url(/avatars/${feedRxChar.id}.png)`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+                              <div className={`av ${feedRxChar.cls}`} style={{ width: 26, height: 26, fontSize: 10, flexShrink: 0, backgroundImage: `url(/avatars/${feedRxChar.id}.png)`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
                                 <span style={{ opacity: 0 }}>{feedRxChar.init}</span>
                               </div>
                               <div style={{ flex: 1, minWidth: 0 }}>
-                                <div style={{ fontWeight: 700, fontSize: 12, color: '#fff' }}>@{feedRxChar.handle}</div>
-                                <div style={{ fontSize: 10, color: 'var(--ink3)', marginTop: 1 }}>reacting · just now</div>
+                                <div style={{ fontWeight: 700, fontSize: 12 }}>@{feedRxChar.handle}</div>
+                                <div style={{ fontSize: 10, color: 'var(--ink3)', marginTop: 1 }}>posted in response</div>
                               </div>
-                              <div style={{ fontSize: 10, color: 'var(--ink3)', background: 'rgba(255,255,255,.07)', padding: '3px 9px', borderRadius: 20, flexShrink: 0 }}>REACTION</div>
                             </div>
                             <div className={`post-img grain ${feedRxChar.cls}`} style={{ margin: '0 12px 12px', borderRadius: 10, background: `linear-gradient(135deg, color-mix(in srgb, var(--cc) 70%, #000) 0%, #000 100%)` }}>
                               <p className="overlay-txt" style={{ fontSize: 13 }}>{resolveTokens(feedRx.caption, game.playerName, game.playerGender)}</p>
@@ -402,19 +407,19 @@ export default function LiveScreen() {
                           </div>
                         )}
 
-                        {/* CTA row — continue in Live or check Feed */}
-                        <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
+                        {/* CTA buttons */}
+                        <div style={{ display: 'flex', gap: 10, marginTop: 2 }}>
                           <button
                             onClick={resetAfterChoice}
-                            style={{ flex: 2, height: 46, background: 'var(--accent)', color: '#fff', fontWeight: 700, fontSize: 14, borderRadius: 12, border: 'none', cursor: 'pointer' }}
+                            style={{ flex: 2, height: 48, background: 'var(--accent)', color: '#fff', fontWeight: 700, fontSize: 14, borderRadius: 12, border: 'none', cursor: 'pointer' }}
                           >
-                            Agli situation →
+                            Next Situation →
                           </button>
                           <button
                             onClick={() => { resetAfterChoice(); navigate('feed') }}
-                            style={{ flex: 1, height: 46, background: 'rgba(255,255,255,.07)', color: 'var(--ink2)', fontWeight: 600, fontSize: 13, borderRadius: 12, border: '1px solid rgba(255,255,255,.1)', cursor: 'pointer' }}
+                            style={{ flex: 1, height: 48, background: 'rgba(255,255,255,.07)', color: 'var(--ink2)', fontWeight: 600, fontSize: 13, borderRadius: 12, border: '1px solid rgba(255,255,255,.1)', cursor: 'pointer' }}
                           >
-                            Feed dekho
+                            Go to Feed
                           </button>
                         </div>
                       </div>

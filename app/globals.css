@@ -382,16 +382,38 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .send-btn:active{transform:scale(.9)}
 .send-btn:disabled{opacity:.4}
 
-/* ── Live impact chips ── */
+/* ── Live impact card (post-choice bold display) ── */
+.impact-card{
+  background:#0f0f18;border:1px solid rgba(255,255,255,.07);border-radius:16px;
+  overflow:hidden;margin-top:14px;
+  animation:slideUp .4s cubic-bezier(.32,.72,0,1) both}
+.impact-card.danger{border-color:rgba(255,92,58,.3);background:linear-gradient(135deg,rgba(255,92,58,.07) 0%,#0f0f18 60%)}
+.impact-row{display:flex;align-items:center;padding:10px 16px;border-bottom:1px solid rgba(255,255,255,.05);position:relative;overflow:hidden}
+.impact-row:last-child{border-bottom:none}
+.impact-row-glow{position:absolute;inset:0;pointer-events:none}
+.impact-row.fame .impact-row-glow{background:linear-gradient(90deg,rgba(255,176,32,.1) 0%,transparent 55%)}
+.impact-row.heat .impact-row-glow{background:linear-gradient(90deg,rgba(255,92,58,.12) 0%,transparent 55%)}
+.impact-row.image .impact-row-glow{background:linear-gradient(90deg,rgba(61,214,200,.08) 0%,transparent 55%)}
+.impact-delta{font-family:var(--serif);font-weight:600;font-size:34px;line-height:1;width:64px;flex:0 0 64px;position:relative;z-index:1}
+.impact-row.fame .impact-delta{color:var(--fame)}
+.impact-row.heat .impact-delta{color:var(--heat)}
+.impact-row.image .impact-delta{color:var(--trust)}
+.impact-row.heat.negative .impact-delta{color:var(--trust)} /* cooling = teal */
+.impact-meta{flex:1;position:relative;z-index:1}
+.impact-mlabel{font-size:9px;font-weight:800;letter-spacing:.09em;margin-bottom:5px;display:flex;align-items:center;gap:5px}
+.impact-row.fame .impact-mlabel{color:var(--fame)}
+.impact-row.heat .impact-mlabel{color:var(--heat)}
+.impact-row.image .impact-mlabel{color:var(--trust)}
+.impact-crit{font-size:7px;font-weight:800;letter-spacing:.06em;background:rgba(255,92,58,.22);border:1px solid rgba(255,92,58,.45);color:var(--heat);padding:1px 5px;border-radius:4px}
+.impact-bar-track{height:6px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden}
+.impact-bar-fill{height:100%;border-radius:3px;transition:width .6s cubic-bezier(.32,.72,0,1)}
+.impact-row.fame .impact-bar-fill{background:var(--fame)}
+.impact-row.heat .impact-bar-fill{background:var(--heat)}
+.impact-row.image .impact-bar-fill{background:var(--trust)}
+.impact-consequence{font-size:10px;color:var(--ink3);margin-top:4px}
+/* legacy chips kept for any fallback, but unused now */
 .impact-chips-row{display:flex;gap:8px;padding:14px 0 4px;flex-wrap:wrap}
-.impact-chip{padding:8px 14px;border-radius:20px;font-size:13px;font-weight:800;
-  animation:chipPop .35s cubic-bezier(.34,1.56,.64,1) both}
-.impact-chip.fame{background:rgba(255,176,32,.2);border:1px solid rgba(255,176,32,.55);color:var(--fame)}
-.impact-chip.trust.positive{background:rgba(61,214,200,.15);border:1px solid rgba(61,214,200,.45);color:var(--trust)}
-.impact-chip.trust.negative{background:rgba(255,92,58,.14);border:1px solid rgba(255,92,58,.4);color:var(--heat)}
-.impact-chip.heat{background:rgba(255,92,58,.2);border:1px solid rgba(255,92,58,.55);color:var(--heat)}
-.impact-chip.image.positive{background:rgba(61,214,200,.15);border:1px solid rgba(61,214,200,.45);color:var(--trust)}
-.impact-chip.image.negative{background:rgba(255,92,58,.14);border:1px solid rgba(255,92,58,.4);color:var(--heat)}
+.impact-chip{padding:8px 14px;border-radius:20px;font-size:13px;font-weight:800}
 @keyframes chipPop{0%{opacity:0;transform:scale(.5) translateY(10px)}100%{opacity:1;transform:scale(1) translateY(0)}}
 
 /* ── Consequence banner ── */
