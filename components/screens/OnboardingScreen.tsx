@@ -36,16 +36,16 @@ export default function OnboardingScreen() {
       justifyContent: 'center',
     }}>
       <div style={{ fontFamily: 'var(--serif)', fontSize: 32, fontWeight: 600, color: '#fff', marginBottom: 6 }}>
-        Swagat hai
+        Welcome
       </div>
       <div style={{ fontSize: 14, color: 'var(--ink2)', marginBottom: 52 }}>
-        Ek baar batao — phir yeh yaad rakhenge hum.
+        Tell us once — we'll remember it.
       </div>
 
       {/* Name */}
       <div style={{ marginBottom: 36 }}>
         <label style={{ display: 'block', fontSize: 11, fontWeight: 700, letterSpacing: '.1em', color: 'rgba(255,255,255,.45)', marginBottom: 14 }}>
-          APNA NAAM BATAO
+          YOUR NAME
         </label>
         <input
           ref={inputRef}
@@ -53,7 +53,7 @@ export default function OnboardingScreen() {
           value={name}
           onChange={e => setName(e.target.value.slice(0, 24))}
           onKeyDown={handleKey}
-          placeholder="Tumhara naam..."
+          placeholder="Your name..."
           style={{
             width: '100%', boxSizing: 'border-box',
             background: 'transparent', border: 'none', outline: 'none',
@@ -70,10 +70,10 @@ export default function OnboardingScreen() {
       {/* Gender */}
       <div style={{ marginBottom: 44 }}>
         <label style={{ display: 'block', fontSize: 11, fontWeight: 700, letterSpacing: '.1em', color: 'rgba(255,255,255,.45)', marginBottom: 6 }}>
-          TUM HO
+          YOU ARE
         </label>
         <div style={{ fontSize: 12, color: 'rgba(255,255,255,.5)', marginBottom: 14 }}>
-          Yeh batata hai kaun tumhare paas aata hai story mein.
+          This shapes who approaches you inside the story.
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
           {(['male', 'female'] as const).map(g => (
@@ -106,7 +106,7 @@ export default function OnboardingScreen() {
           transition: 'all .2s',
         }}
       >
-        {saving ? 'Saving...' : 'Lore mein aao →'}
+        {saving ? 'Saving...' : 'Enter Lore →'}
       </button>
     </div>
   )

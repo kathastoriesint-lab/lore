@@ -1,11 +1,11 @@
 'use client'
 import { useState, useCallback, useRef, useEffect } from 'react'
 import { useApp } from '@/lib/context'
-import { sendPhoneOTP } from '@/lib/game'
+import { sendEmailOTP } from '@/lib/game'
 
 export default function PhoneScreen() {
   const { navigate, setPhone } = useApp()
-  const [digits, setDigits] = useState('')
+  const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
@@ -14,39 +14,24 @@ export default function PhoneScreen() {
     setTimeout(() => inputRef.current?.focus(), 300)
   }, [])
 
+  const isValidEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)
+
   const handleSubmit = useCallback(async () => {
-    const phone = `+91${digits}`
-    if (digits.length !== 10 || loading) return
+    if (!isValidEmail(email) || loading) return
     setLoading(true)
     setError('')
     try {
-      const session = await sendPhoneOTP(phone)
-      setPhone(phone)
-      if (session) {
-        // sms_autoconfirm: skip OTP screen, go straight to onboarding or worlds
-        const state = await (await import('@/lib/game')).loadGameState()
-        navigate(state.playerName ? 'worlds' : 'onboarding')
-      } else {
-        navigate('otp')
-      }
+      await sendEmailOTP(email)
+      setPhone(email)
+      navigate('otp')
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Something went wrong')
+      setError(e instanceof Error ? e.message : 'Something went wrong. Try again.')
     } finally {
       setLoading(false)
     }
-  }, [digits, loading, navigate, setPhone])
+  }, [email, loading, navigate, setPhone])
 
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value.replace(/\D/g, '').slice(0, 10)
-    setDigits(val)
-    setError('')
-  }, [])
-
-  const handleKey = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') handleSubmit()
-  }, [handleSubmit])
-
-  const ready = digits.length === 10 && !loading
+  const ready = isValidEmail(email) && !loading
 
   return (
     <div style={{
@@ -54,7 +39,6 @@ export default function PhoneScreen() {
       background: 'var(--bg)', padding: '0 28px',
       justifyContent: 'center',
     }}>
-      {/* Wordmark */}
       <div style={{
         fontFamily: 'var(--serif)', fontSize: 36, fontWeight: 600,
         color: '#fff', letterSpacing: '-.01em', marginBottom: 8,
@@ -62,35 +46,30 @@ export default function PhoneScreen() {
         Lore
       </div>
       <div style={{ fontSize: 14, color: 'var(--ink2)', marginBottom: 52 }}>
-        India ka sabse bada interactive story platform
+        India's biggest interactive story platform
       </div>
 
-      {/* Phone input */}
       <label style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.1em', color: 'rgba(255,255,255,.45)', marginBottom: 14 }}>
-        APNA NUMBER BATAO
+        YOUR EMAIL
       </label>
-      <div style={{
-        display: 'flex', alignItems: 'center', gap: 10,
-        borderBottom: `1.5px solid ${digits.length === 10 ? 'var(--accent)' : 'rgba(255,255,255,.2)'}`,
-        paddingBottom: 10, marginBottom: 10,
-        transition: 'border-color .2s',
-      }}>
-        <span style={{ fontSize: 20, color: 'rgba(255,255,255,.5)', fontFamily: 'var(--sans)', fontWeight: 500, flexShrink: 0 }}>+91</span>
-        <input
-          ref={inputRef}
-          type="tel"
-          inputMode="numeric"
-          value={digits}
-          onChange={handleChange}
-          onKeyDown={handleKey}
-          placeholder="9876543210"
-          style={{
-            flex: 1, background: 'transparent', border: 'none', outline: 'none',
-            fontSize: 24, fontFamily: 'var(--sans)', fontWeight: 500,
-            color: '#fff', caretColor: 'var(--accent)', letterSpacing: '.05em',
-          }}
-        />
-      </div>
+      <input
+        ref={inputRef}
+        type="email"
+        inputMode="email"
+        value={email}
+        onChange={e => { setEmail(e.target.value); setError('') }}
+        onKeyDown={e => { if (e.key === 'Enter') handleSubmit() }}
+        placeholder="you@example.com"
+        style={{
+          width: '100%', boxSizing: 'border-box',
+          background: 'transparent', border: 'none', outline: 'none',
+          borderBottom: `1.5px solid ${isValidEmail(email) ? 'var(--accent)' : 'rgba(255,255,255,.2)'}`,
+          paddingBottom: 10, marginBottom: 10,
+          fontSize: 20, fontFamily: 'var(--sans)', fontWeight: 500,
+          color: '#fff', caretColor: 'var(--accent)',
+          transition: 'border-color .2s',
+        }}
+      />
 
       {error && (
         <div style={{ fontSize: 13, color: '#FF5C3A', marginBottom: 8 }}>{error}</div>
@@ -109,11 +88,11 @@ export default function PhoneScreen() {
           transition: 'all .2s',
         }}
       >
-        {loading ? 'Bhej raha hoon...' : 'OTP Bhejo →'}
+        {loading ? 'Sending code...' : 'Send Code →'}
       </button>
 
       <div style={{ marginTop: 24, fontSize: 11, color: 'rgba(255,255,255,.3)', textAlign: 'center', lineHeight: 1.6 }}>
-        Continue karke aap hamare Terms aur Privacy Policy se agree karte ho
+        By continuing, you agree to our Terms and Privacy Policy
       </div>
     </div>
   )

@@ -1,14 +1,14 @@
 'use client'
 import { useState, useCallback, useRef, useEffect } from 'react'
 import { useApp } from '@/lib/context'
-import { verifyPhoneOTP, sendPhoneOTP, loadGameState } from '@/lib/game'
+import { verifyEmailOTP, sendEmailOTP, loadGameState } from '@/lib/game'
 
 export default function OTPScreen() {
   const ctx = useApp()
   const [otp, setOtp] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [countdown, setCountdown] = useState(30)
+  const [countdown, setCountdown] = useState(60)
   const inputRef = useRef<HTMLInputElement>(null)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
@@ -24,11 +24,11 @@ export default function OTPScreen() {
   }, [])
 
   const handleVerify = useCallback(async () => {
-    if (otp.length !== 6 || loading || !ctx.phone) return
+    if (otp.length < 6 || loading || !ctx.phone) return
     setLoading(true)
     setError('')
     try {
-      await verifyPhoneOTP(ctx.phone, otp)
+      await verifyEmailOTP(ctx.phone, otp)
       const state = await loadGameState()
       ctx.navigate(state.playerName ? 'worlds' : 'onboarding')
     } catch (e: unknown) {
@@ -41,8 +41,8 @@ export default function OTPScreen() {
   const handleResend = useCallback(async () => {
     if (countdown > 0 || !ctx.phone) return
     try {
-      await sendPhoneOTP(ctx.phone)
-      setCountdown(30)
+      await sendEmailOTP(ctx.phone)
+      setCountdown(60)
       timerRef.current = setInterval(() => {
         setCountdown(c => {
           if (c <= 1) { clearInterval(timerRef.current!); return 0 }
@@ -52,17 +52,11 @@ export default function OTPScreen() {
     } catch { /* ignore */ }
   }, [countdown, ctx.phone])
 
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value.replace(/\D/g, '').slice(0, 6)
-    setOtp(val)
-    setError('')
-  }, [])
-
   const masked = ctx.phone
-    ? ctx.phone.replace(/(\+\d{2})(\d{3})(\d{4})(\d{3})/, '$1 $2•••• $4')
+    ? ctx.phone.replace(/(.{2}).+(@.+)/, '$1•••$2')
     : ''
 
-  const ready = otp.length === 6 && !loading
+  const ready = otp.length >= 6 && !loading
 
   return (
     <div style={{
@@ -78,24 +72,23 @@ export default function OTPScreen() {
       </button>
 
       <div style={{ fontFamily: 'var(--serif)', fontSize: 28, fontWeight: 600, color: '#fff', marginBottom: 10 }}>
-        Code check karo
+        Check your email
       </div>
       <div style={{ fontSize: 14, color: 'var(--ink2)', marginBottom: 44 }}>
-        {masked} pe ek 6-digit code bheja
+        We sent a 6-digit code to {masked}
       </div>
 
       <input
         ref={inputRef}
-        type="tel"
+        type="text"
         inputMode="numeric"
         value={otp}
-        onChange={handleChange}
+        onChange={e => { setOtp(e.target.value.replace(/\D/g, '').slice(0, 8)); setError('') }}
         onKeyDown={e => { if (e.key === 'Enter') handleVerify() }}
         placeholder="——————"
-        maxLength={6}
         style={{
           width: '100%', background: 'transparent', border: 'none', outline: 'none',
-          borderBottom: `1.5px solid ${otp.length === 6 ? 'var(--accent)' : 'rgba(255,255,255,.2)'}`,
+          borderBottom: `1.5px solid ${otp.length >= 6 ? 'var(--accent)' : 'rgba(255,255,255,.2)'}`,
           paddingBottom: 10, marginBottom: 10,
           fontSize: 36, fontFamily: 'var(--sans)', fontWeight: 600,
           color: '#fff', caretColor: 'var(--accent)',
@@ -121,7 +114,7 @@ export default function OTPScreen() {
           transition: 'all .2s',
         }}
       >
-        {loading ? 'Verify ho raha hai...' : 'Verify karo →'}
+        {loading ? 'Verifying...' : 'Verify →'}
       </button>
 
       <button
@@ -133,7 +126,7 @@ export default function OTPScreen() {
           transition: 'color .2s',
         }}
       >
-        {countdown > 0 ? `Resend in ${countdown}s` : 'Code dobara bhejo'}
+        {countdown > 0 ? `Resend in ${countdown}s` : 'Resend code'}
       </button>
     </div>
   )

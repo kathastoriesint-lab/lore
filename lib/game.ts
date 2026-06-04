@@ -16,21 +16,19 @@ const DEFAULT_STATE: GameState = {
 }
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
-export async function getPhoneSession() {
+export async function getEmailSession() {
   const { data: { session } } = await supabase().auth.getSession()
-  if (!session || !session.user.phone) return null
+  if (!session || !session.user.email) return null
   return session
 }
 
-// Returns session immediately when sms_autoconfirm is enabled, null otherwise
-export async function sendPhoneOTP(phone: string) {
-  const { data, error } = await supabase().auth.signInWithOtp({ phone })
+export async function sendEmailOTP(email: string) {
+  const { error } = await supabase().auth.signInWithOtp({ email })
   if (error) throw error
-  return data.session ?? null
 }
 
-export async function verifyPhoneOTP(phone: string, token: string) {
-  const { data, error } = await supabase().auth.verifyOtp({ phone, token, type: 'sms' })
+export async function verifyEmailOTP(email: string, token: string) {
+  const { data, error } = await supabase().auth.verifyOtp({ email, token, type: 'email' })
   if (error) throw error
   return data.session
 }
