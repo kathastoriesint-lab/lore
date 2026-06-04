@@ -108,6 +108,18 @@ export default function LiveScreen() {
     return id
   }
 
+  // Shared reset — call after post preview to ready the next situation
+  const resetAfterChoice = useCallback(() => {
+    inFlowRef.current = false
+    timersRef.current.forEach(clearTimeout)
+    timersRef.current = []
+    setChosen(null)
+    setShowImpact(false)
+    setShowPost(false)
+    processingRef.current = false
+    scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [])
+
   const handleChoice = useCallback(async (idx: 0 | 1) => {
     if (processingRef.current || !sit) return
     processingRef.current = true
@@ -137,20 +149,10 @@ export default function LiveScreen() {
       addTimer(() => { injectCharDM(firstReactor.char as CharId, r(firstReactor.text)) }, 1200)
     }
 
-    // Show post preview cards, advance situation, then navigate to feed
+    // Show post preview cards + advance situation — user taps to continue (no forced redirect)
     addTimer(() => {
       setShowPost(true)
       advanceSituation()  // ONE write: meters+choices (from makeChoice) + situation
-      addTimer(() => {
-        // Reset all choice state so the NEXT situation is playable when user returns to Live
-        inFlowRef.current = false
-        setChosen(null)
-        setShowImpact(false)
-        setShowPost(false)
-        processingRef.current = false
-        timersRef.current = []
-        navigate('feed')
-      }, 3500)  // 3.5s to read the post cards before navigating
     }, 600)
   }, [sit, makeChoice, advanceSituation, navigate, injectCharDM])
 
@@ -400,9 +402,20 @@ export default function LiveScreen() {
                           </div>
                         )}
 
-                        {/* Footer hint */}
-                        <div style={{ textAlign: 'center', fontSize: 11, color: 'var(--ink3)', paddingBottom: 4 }}>
-                          Ghar react kar raha hai — feed mein dekho →
+                        {/* CTA row — continue in Live or check Feed */}
+                        <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
+                          <button
+                            onClick={resetAfterChoice}
+                            style={{ flex: 2, height: 46, background: 'var(--accent)', color: '#fff', fontWeight: 700, fontSize: 14, borderRadius: 12, border: 'none', cursor: 'pointer' }}
+                          >
+                            Agli situation →
+                          </button>
+                          <button
+                            onClick={() => { resetAfterChoice(); navigate('feed') }}
+                            style={{ flex: 1, height: 46, background: 'rgba(255,255,255,.07)', color: 'var(--ink2)', fontWeight: 600, fontSize: 13, borderRadius: 12, border: '1px solid rgba(255,255,255,.1)', cursor: 'pointer' }}
+                          >
+                            Feed dekho
+                          </button>
                         </div>
                       </div>
                     )

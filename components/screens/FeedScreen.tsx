@@ -173,16 +173,16 @@ export default function FeedScreen() {
       if (!sit) continue
       const ch = sit.choices[letter === 'A' ? 0 : 1]
 
-      // Player's own post (caption + reactions as comments) — always push
-      if (ch?.caption && playerCharObj) {
-        posts.push({ type: 'player', postId: `player-${sit.id}-${letter}`, sit, choice: letter, caption: ch.caption, playerChar: playerCharObj, reactions: ch.reactions ?? [] })
-      }
-
-      // NPC feedReaction post
+      // NPC feedReaction post pushed FIRST — after reverse(), it sits below player post
       const reaction = sit.feedReaction?.[letter]
       if (reaction) {
         const char = CHARS[reaction.char as CharId]
         if (char) posts.push({ type: 'npc', postId: `react-${sit.id}-${letter}`, sit, choice: letter, reaction, char })
+      }
+
+      // Player's own post pushed LAST — after reverse(), it becomes newest (index 0 = NEW badge)
+      if (ch?.caption && playerCharObj) {
+        posts.push({ type: 'player', postId: `player-${sit.id}-${letter}`, sit, choice: letter, caption: ch.caption, playerChar: playerCharObj, reactions: ch.reactions ?? [] })
       }
 
       if (ch) meters = applyDeltas(meters, ch.deltas)
