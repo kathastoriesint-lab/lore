@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useApp } from '@/lib/context'
 import type { CharId } from '@/lib/types'
 import { CHARS, SITUATIONS, STORY_ORDER, SEEN_CHARS, STORY_CONTENT, POST_COMMENTS, PostCommentOption, getVisibleSituations } from '@/lib/data'
+import MeterHUD from '@/components/MeterHUD'
 
 const StatusBar = () => (
   <div className="statusbar">
@@ -104,32 +105,13 @@ export default function FeedScreen() {
 
   // Tab bar
   const handleTab = useCallback((tab: string) => {
-    if (tab === 'home') {
-      // already on feed — no-op (could scroll to top in future)
-    } else if (tab === 'messages') {
-      if (game.char || game.narrator_done) {
-        navigate('dm-inbox')
-      } else {
-        showToast('Pehle koi character chuno 🔥')
-      }
-    } else if (tab === 'live') {
+    if (tab === 'live') {
       enterLive()
     } else if (tab === 'profile') {
-      if (game.char) {
-        navigate('profile')
-      } else {
-        showToast('Choose a character first to see your profile')
-      }
+      navigate('profile')
     }
-  }, [navigate, showToast, game, enterLive])
+  }, [navigate, enterLive])
 
-  const handleDMIcon = useCallback(() => {
-    if (game.char || game.narrator_done) {
-      navigate('dm-inbox')
-    } else {
-      showToast('Pehle Creator House mein andar aao 🔥')
-    }
-  }, [navigate, showToast, game])
 
   const currentStoryContent = storyChar ? STORY_CONTENT[storyChar] : null
   const currentChar = storyChar ? CHARS[storyChar] : null
@@ -176,17 +158,10 @@ export default function FeedScreen() {
               </span>
             ) : 'Creator House'}
           </div>
-          <button className="icon-btn" onClick={() => showToast('Notifications coming soon')}>
+          <button className="icon-btn" onClick={() => navigate('profile')}>
             <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round">
-              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+              <circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/>
             </svg>
-          </button>
-          <button className="icon-btn" style={{ position: 'relative' }} onClick={handleDMIcon}>
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round">
-              <path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/>
-            </svg>
-            <span className="badge-num">3</span>
           </button>
         </div>
         <div className="feed-live">
@@ -194,6 +169,9 @@ export default function FeedScreen() {
           LIVE — Day 1 of 30 · 8 creators just arrived
         </div>
       </div>
+
+      {/* Shared HUD */}
+      <MeterHUD />
 
       {/* Scrollable feed */}
       <div className="scroll" style={{ flex: 1 }}>
@@ -445,17 +423,11 @@ export default function FeedScreen() {
 
       {/* Tab bar */}
       <div className="tabbar">
-        <button className="tab active" onClick={() => handleTab('home')}>
+        <button className="tab active">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
             <path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/>
           </svg>
           <span>Feed</span>
-        </button>
-        <button className="tab" onClick={() => handleTab('messages')}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-            <path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/>
-          </svg>
-          <span>Messages</span>
         </button>
         <button className="tab" onClick={() => handleTab('live')}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">

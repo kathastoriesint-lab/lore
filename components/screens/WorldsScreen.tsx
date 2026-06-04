@@ -41,18 +41,10 @@ export default function WorldsScreen() {
   const shakeTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({})
 
   const handleTab = useCallback((tab: string) => {
-    if (tab === 'messages') {
-      if (game.char || game.narrator_done) {
-        navigate('dm-inbox')
-      } else {
-        showToast('Pehle Creator House mein andar aao 🔥')
-      }
-    } else if (tab === 'live') {
+    if (tab === 'live') {
       navigate('feed')
-    } else if (tab === 'profile') {
-      showToast('Profile jald aayega 🔥')
     }
-  }, [navigate, showToast, game])
+  }, [navigate])
 
   const triggerShake = useCallback((cardId: string, msg: string) => {
     setShakingCard(cardId)
@@ -88,24 +80,19 @@ export default function WorldsScreen() {
         </button>
       </div>
 
-      {/* Hero tagline */}
-      <div className="hero-tag">
-        <h2>Enter the world.</h2>
-        <p>Shape what happens.</p>
-      </div>
-
       {/* World list */}
       <div className="scroll">
         <div className="world-list">
 
-          {/* Creator House */}
+          {/* Creator House — dominant LIVE world */}
           <button
             className={`world-card${shakingCard === 'creator-house' ? ' shake' : ''}`}
             onClick={handleCreatorHouse}
+            style={{ boxShadow: '0 0 0 1.5px rgba(255,45,120,.35), 0 12px 40px rgba(255,45,120,.18)' }}
           >
             <div
               className="wc-cover"
-              style={{ background: 'linear-gradient(135deg,#ff2d78,#7a1140)' }}
+              style={{ background: 'linear-gradient(135deg,#ff2d78,#7a1140)', height: 210 }}
             >
               <div className="wc-badge">
                 <div className="pulse" />
@@ -225,7 +212,7 @@ export default function WorldsScreen() {
           </svg>
           <span>Worlds</span>
         </button>
-        <button className="tab" onClick={() => showToast('Profile jald aayega 🔥')}>
+        <button className="tab" onClick={() => navigate('profile')}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
             <circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/>
           </svg>

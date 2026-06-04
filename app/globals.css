@@ -280,6 +280,15 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .mdelta{position:absolute;right:16px;top:8px;display:flex;gap:8px;opacity:0;transform:translateX(12px);transition:all .3s;pointer-events:none}
 .mdelta.show{opacity:1;transform:none}
 .mdelta span{font-size:10px;font-weight:800}
+
+/* ── Shared MeterHUD ── */
+.meter-hud{flex:0 0 auto;background:rgba(8,8,15,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:8px 16px 10px;position:relative;z-index:4}
+.mhud-top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.mhud-identity{flex:1;min-width:0}
+.mhud-name{font-size:12px;font-weight:700;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mhud-followers{font-size:10px;color:var(--ink3);font-weight:500;margin-top:1px}
+.mhud-right{margin-left:auto;flex-shrink:0}
+.mhud-bars{display:flex;gap:14px}
 .live-scroll{flex:1;overflow-y:auto;position:relative;scrollbar-width:none}
 .live-scroll::-webkit-scrollbar{display:none}
 .situation{padding:18px 16px 8px}

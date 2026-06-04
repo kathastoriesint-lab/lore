@@ -36,6 +36,7 @@ export interface AppCtx {
   goBack: () => void
   showToast: (msg: string) => void
   setChar: (id: CharId) => void
+  startGame: (name: string, gender: 'male' | 'female') => void
   makeChoice: (idx: number) => Promise<void>
   sendDM: (charId: CharId, text: string) => Promise<void>
   openDMThread: (charId: CharId) => void

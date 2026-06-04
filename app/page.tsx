@@ -17,7 +17,6 @@ import DMInboxScreen from '@/components/screens/DMInboxScreen'
 import DMThreadScreen from '@/components/screens/DMThreadScreen'
 import ProfileScreen from '@/components/screens/ProfileScreen'
 import CharProfileScreen from '@/components/screens/CharProfileScreen'
-import ImpactPill from '@/components/ImpactPill'
 import ErrorBoundary from '@/components/ErrorBoundary'
 
 export default function App() {
@@ -89,13 +88,19 @@ export default function App() {
     saveAndSet({ ...game, char: id, situation: 0, choices: [], meters: charMeters(id), narrator_done: true, dayUnlockTime: {} })
   }, [saveAndSet, game])
 
+  const startGame = useCallback((name: string, gender: 'male' | 'female') => {
+    const newState: GameState = { playerName: name, playerGender: gender, char: 'adi', situation: 0, choices: [], meters: { fame: 20, heat: 50, image: 30 }, narrator_done: true, dayUnlockTime: {} }
+    saveAndSet(newState)
+    navigate('live')
+  }, [saveAndSet, navigate])
+
   const advanceSituation = useCallback(() => {
     const visibleSits = getVisibleSituations(game.meters, game.choices)
     const currentSit = visibleSits[game.situation]
     const nextSit = visibleSits[game.situation + 1]
     const newUnlockTime = { ...game.dayUnlockTime }
-    // 6-hour gate on day boundary (demo: set LORE_DAY_GATE_MS=1800000 for 30min)
-    const gateMs = 6 * 60 * 60 * 1000
+    // Day gate disabled for user testing — restore to 6 * 60 * 60 * 1000 for real launch
+    const gateMs = 0
     if (nextSit && currentSit && nextSit.day > currentSit.day && !newUnlockTime[nextSit.day]) {
       newUnlockTime[nextSit.day] = Date.now() + gateMs
     }
@@ -230,18 +235,12 @@ export default function App() {
   return (
     <AppContext.Provider value={{
       screen, prevScreen: prev, dmChar, game, dmHistory, dmTrust, charFame, likedPosts, viewingCharId, toast, impactNotif, showImpact,
-      advanceSituation, navigate, goBack, showToast, setChar,
+      advanceSituation, navigate, goBack, showToast, setChar, startGame,
       makeChoice, sendDM, openDMThread, resetGame, likePost, applyFeedDeltas, injectCharDM, setViewingChar,
     }}>
       <div className="stage">
         <div className="phone">
           <ErrorBoundary>
-          {/* Global impact pill — floats over all screens */}
-          {impactNotif && (
-            <div className="impact-pill-layer">
-              <ImpactPill notif={impactNotif} key={impactNotif.action + impactNotif.followerDelta} />
-            </div>
-          )}
           <div className="viewport">
             <Slot id="worlds"      cur={screen} prev={prev}><WorldsScreen /></Slot>
             <Slot id="world-intro" cur={screen} prev={prev}><WorldIntroScreen /></Slot>

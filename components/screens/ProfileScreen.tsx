@@ -2,6 +2,7 @@
 import { useApp } from '@/lib/context'
 import { CHARS, DM_TRUST } from '@/lib/data'
 import { fameToFollowers as fameToFollowersNum } from '@/lib/game'
+import MeterHUD from '@/components/MeterHUD'
 
 // Fame 0-100 → followers string (formatted)
 function fameToFollowersStr(fame: number): string {
@@ -70,19 +71,8 @@ const StatusBar = () => (
 
 export default function ProfileScreen() {
   const { game, navigate, goBack, dmTrust } = useApp()
-  const charId = game.char
-  const char = charId ? CHARS[charId] : null
-
-  if (!char || !charId) {
-    return (
-      <div style={{ display:'flex', flexDirection:'column', height:'100%', alignItems:'center', justifyContent:'center', background:'var(--bg)' }}>
-        <div style={{ color:'var(--ink2)', fontSize:15 }}>Choose a character to see your profile</div>
-        <button style={{ marginTop:16, color:'var(--accent)', fontWeight:600, padding:12 }} onClick={() => navigate('narrator')}>
-          Choose character →
-        </button>
-      </div>
-    )
-  }
+  const charId = (game.char ?? 'adi') as import('@/lib/types').CharId
+  const char = CHARS[charId]
 
   const fame = game.meters.fame
   const followers = fameToFollowersStr(fame)
@@ -137,24 +127,15 @@ export default function ProfileScreen() {
 
           {/* Bio */}
           <div style={{ marginTop:12 }}>
-            <div style={{ fontWeight:700, fontSize:14 }}>{char.name}</div>
+            <div style={{ fontWeight:700, fontSize:14 }}>{game.playerName || char.name}</div>
             <div style={{ fontSize:12, color:'var(--ink2)', marginTop:2 }}>{char.role}</div>
-            <div style={{ fontSize:12, color:'var(--ink3)', marginTop:4 }}>Creator House • Day 1 of 10</div>
+            <div style={{ fontSize:12, color:'var(--ink3)', marginTop:4 }}>Creator House • Day {Math.ceil((game.situation + 1) / 3)} of 10</div>
           </div>
 
-          {/* Meters — v2: fame, heat, image */}
-          <div style={{ display:'flex', gap:8, marginTop:12, flexWrap:'wrap' }}>
-            <div style={{ padding:'6px 12px', background:'rgba(255,176,32,.12)', border:'1px solid rgba(255,176,32,.3)', borderRadius:20, fontSize:11, fontWeight:700, color:'var(--fame)' }}>
-              ⭐ Fame {game.meters.fame}
-            </div>
-            <div style={{ padding:'6px 12px', background:'rgba(255,92,58,.12)', border:'1px solid rgba(255,92,58,.3)', borderRadius:20, fontSize:11, fontWeight:700, color:'var(--heat)' }}>
-              🔥 Heat {game.meters.heat}
-            </div>
-            <div style={{ padding:'6px 12px', background:'rgba(61,214,200,.12)', border:'1px solid rgba(61,214,200,.3)', borderRadius:20, fontSize:11, fontWeight:700, color:'var(--trust)' }}>
-              🤝 Image {game.meters.image}
-            </div>
-          </div>
         </div>
+
+        {/* Shared HUD — same meters as Live + Feed */}
+        <MeterHUD />
 
         {/* Relationships */}
         {relationships.length > 0 && (
@@ -201,12 +182,6 @@ export default function ProfileScreen() {
             <path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/>
           </svg>
           <span>Feed</span>
-        </button>
-        <button className="tab" onClick={() => navigate('dm-inbox')}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-            <path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/>
-          </svg>
-          <span>Messages</span>
         </button>
         <button className="tab" onClick={() => navigate('live')}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">

@@ -3,7 +3,8 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useApp } from '@/lib/context'
 import type { CharId } from '@/lib/types'
 import { CHARS, SITUATIONS, getVisibleSituations } from '@/lib/data'
-import { getStats, clamp, resolveEnding } from '@/lib/game'
+import { getStats, clamp, resolveEnding, resolveTokens } from '@/lib/game'
+import MeterHUD from '@/components/MeterHUD'
 
 
 const StatusBar = () => (
@@ -25,9 +26,11 @@ const FINALE_DATA = {
 }
 
 export default function LiveScreen() {
-  const { navigate, showToast, game, makeChoice, openDMThread, advanceSituation, injectCharDM } = useApp()
+  const { navigate, game, makeChoice, advanceSituation, injectCharDM } = useApp()
 
   const char = game.char ? CHARS[game.char] : null
+  // Shorthand: resolve {name}/{ally}/{crush} tokens using current player state
+  const r = (text: string) => resolveTokens(text, game.playerName, game.playerGender)
 
   // Get visible situations for current meters/choices
   const visibleSituations = getVisibleSituations(game.meters, game.choices)
@@ -62,47 +65,31 @@ export default function LiveScreen() {
   // Effective react (v2: no per-char override, just sit.react)
   const effectiveReact = sit ? sit.react : null
 
-  // Meter bar refs — fame, heat (was trust), imageBar (was heat)
-  const fameBarRef = useRef<HTMLElement>(null)
-  const heatBarRef = useRef<HTMLElement>(null)
-  const imageBarRef = useRef<HTMLElement>(null)
-
-  // Animate meters
-  useEffect(() => {
-    const set = () => {
-      if (fameBarRef.current)  fameBarRef.current.style.width  = `${clamp(game.meters.fame)}%`
-      if (heatBarRef.current)  heatBarRef.current.style.width  = `${clamp(game.meters.heat)}%`
-      if (imageBarRef.current) imageBarRef.current.style.width = `${clamp(game.meters.image)}%`
-    }
-    // Reset to 0 first, then animate
-    if (fameBarRef.current)  fameBarRef.current.style.width  = '0%'
-    if (heatBarRef.current)  heatBarRef.current.style.width  = '0%'
-    if (imageBarRef.current) imageBarRef.current.style.width = '0%'
-    requestAnimationFrame(() => requestAnimationFrame(set))
-  }, [game.meters.fame, game.meters.heat, game.meters.image])
 
   // Choice state
   const [chosen, setChosen] = useState<0 | 1 | null>(null)
-  const [disabled, setDisabled] = useState(false)
-  const [showImpact, setShowImpact] = useState(false)   // impact chips appear immediately
-  const [showPost, setShowPost] = useState(false)        // IG post slides up
-  const [reactions, setReactions] = useState<boolean[]>([false, false, false])
-  const [likeCount, setLikeCount] = useState(0)
-  const [showNext, setShowNext] = useState(false)
+  const [showImpact, setShowImpact] = useState(false)
+  const [showPost, setShowPost] = useState(false)
   const [stats, setStats] = useState<{ total: number; pctA: number } | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
+  // Ref-based processing guard — synchronously prevents double-tap between React renders
+  const processingRef = useRef(false)
+  // Timer cleanup refs to prevent post-unmount fires
+  const timersRef = useRef<ReturnType<typeof setTimeout>[]>([])
 
   // Reset choice state when situation changes
   useEffect(() => {
     setChosen(null)
-    setDisabled(false)
     setShowImpact(false)
     setShowPost(false)
-    setReactions([false, false, false])
-    setLikeCount(0)
-    setShowNext(false)
     setStats(null)
+    processingRef.current = false
   }, [situation])
+
+  // Clear pending timers on unmount to prevent post-unmount navigate/advanceSituation
+  useEffect(() => {
+    return () => { timersRef.current.forEach(clearTimeout) }
+  }, [])
 
   // Load stats for current situation
   useEffect(() => {
@@ -111,10 +98,16 @@ export default function LiveScreen() {
     }
   }, [situation, sit])
 
+  const addTimer = (fn: () => void, ms: number) => {
+    const id = setTimeout(fn, ms)
+    timersRef.current.push(id)
+    return id
+  }
+
   const handleChoice = useCallback(async (idx: 0 | 1) => {
-    if (disabled || !sit) return
+    if (processingRef.current || !sit) return
+    processingRef.current = true
     setChosen(idx)
-    setDisabled(true)
 
     // Show impact chips immediately — no waiting
     setShowImpact(true)
@@ -124,55 +117,28 @@ export default function LiveScreen() {
     const ch = sit.choices[idx]
 
     // Scroll impact area into view
-    setTimeout(() => {
-      scrollRef.current?.scrollTo({ top: 400, behavior: 'smooth' })
-    }, 200)
+    addTimer(() => { scrollRef.current?.scrollTo({ top: 400, behavior: 'smooth' }) }, 200)
 
     // Auto-DM from first non-fan reactor (world reacts to your choice)
     const firstReactor = ch.reactions.find(r => r.char !== '__fan')
     if (firstReactor) {
-      setTimeout(() => {
-        injectCharDM(firstReactor.char as CharId, firstReactor.text)
-      }, 1200)
+      addTimer(() => { injectCharDM(firstReactor.char as CharId, firstReactor.text) }, 1200)
     }
 
-    // IG post slides up after brief pause
-    setTimeout(() => {
+    // Show "Posted to feed ✓" confirmation, then navigate to feed
+    addTimer(() => {
       setShowPost(true)
-
-      // Animate like count
-      let count = 0
-      const step = () => {
-        count += Math.ceil((1247 - count) / 8)
-        if (count >= 1247) { setLikeCount(1247); return }
-        setLikeCount(count)
-        requestAnimationFrame(step)
-      }
-      requestAnimationFrame(step)
-
-      // Stagger reactions as IG comments
-      ch.reactions.forEach((_, i) => {
-        setTimeout(() => {
-          setReactions(prev => { const n = [...prev]; n[i] = true; return n })
-        }, 650 * (i + 1))
-      })
-
-      // Next button after last reaction
-      setTimeout(() => setShowNext(true), 650 * ch.reactions.length + 500)
+      advanceSituation()
+      addTimer(() => navigate('feed'), 1800)
     }, 500)
-  }, [disabled, sit, makeChoice])
+  }, [sit, makeChoice, advanceSituation, navigate, injectCharDM])
 
-  const handleNext = useCallback(() => {
-    advanceSituation()
-    scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
-  }, [advanceSituation])
 
   // Navigate to tabs
   const handleTab = useCallback((tab: string) => {
     if (tab === 'home') navigate('feed')
-    else if (tab === 'messages') navigate('dm-inbox')
-    else if (tab === 'profile') showToast('Profile jald aayega 🔥')
-  }, [navigate, showToast])
+    else if (tab === 'profile') navigate('profile')
+  }, [navigate])
 
   // Finale arc — uses resolveEnding
   const endingKey = isFinale ? resolveEnding(game.meters) : null
@@ -181,12 +147,12 @@ export default function LiveScreen() {
   if (!char) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', height: '100%', alignItems: 'center', justifyContent: 'center', gap: 16, padding: 32 }}>
-        <div style={{ fontSize: 16, color: 'var(--ink2)', textAlign: 'center' }}>Pehle apna character chuno</div>
+        <div style={{ fontSize: 16, color: 'var(--ink2)', textAlign: 'center' }}>Apna naam aur gender batao pehle</div>
         <button
           style={{ padding: '14px 28px', background: 'var(--accent)', color: '#fff', borderRadius: 14, fontWeight: 700, fontSize: 16 }}
-          onClick={() => navigate('narrator')}
+          onClick={() => navigate('world-intro')}
         >
-          Character chuno →
+          Shuru karo →
         </button>
       </div>
     )
@@ -196,43 +162,18 @@ export default function LiveScreen() {
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', position: 'relative' }}>
       <StatusBar />
 
-      {/* HUD */}
-      <div className="live-head">
-        <div className={`av ${char.cls}`} style={{ width: 28, height: 28, fontSize: 12 }}>
-          {char.init}
-        </div>
-        <div className="nm">{char.name}</div>
-        <div className="ctr">Situation {Math.min(situation + 1, visibleSituations.length)} of {visibleSituations.length}</div>
-        <div className="live-badge">
-          <div className="pulse" />
-          LIVE
-        </div>
-      </div>
-
-      {/* Meter strip */}
-      <div className="meters" style={{ position: 'relative' }}>
-        <div className="meter fame">
-          <div className="ml">
-            <div className="mlabel">⭐ FAME</div>
-            <div key={`f${game.meters.fame}`} className="mval mval-flash">{game.meters.fame}</div>
+      {/* Shared HUD — avatar + name + followers + 3 meters */}
+      <MeterHUD right={
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span style={{ fontSize: 10, color: 'var(--ink3)', fontWeight: 600 }}>
+            Day {visibleSituations[situation]?.day ?? 1}
+          </span>
+          <div className="live-badge">
+            <div className="pulse" />
+            LIVE
           </div>
-          <div className="bar"><i ref={fameBarRef} /></div>
         </div>
-        <div className="meter heat">
-          <div className="ml">
-            <div className="mlabel">🔥 Heat</div>
-            <div key={`h${game.meters.heat}`} className="mval mval-flash">{game.meters.heat}</div>
-          </div>
-          <div className="bar"><i ref={heatBarRef} /></div>
-        </div>
-        <div className="meter image">
-          <div className="ml">
-            <div className="mlabel">🤝 Image</div>
-            <div key={`i${game.meters.image}`} className="mval mval-flash">{game.meters.image}</div>
-          </div>
-          <div className="bar"><i ref={imageBarRef} /></div>
-        </div>
-      </div>
+      } />
 
       {/* Main scroll */}
       <div className="live-scroll" ref={scrollRef}>
@@ -276,15 +217,15 @@ export default function LiveScreen() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 16 }}>
               <button
                 style={{ width: '100%', height: 54, background: 'var(--accent)', color: '#fff', fontWeight: 700, fontSize: 16, borderRadius: 14 }}
-                onClick={() => navigate('dm-inbox')}
+                onClick={() => navigate('profile')}
               >
-                DMs check karo →
+                Profile dekho →
               </button>
               <button
                 style={{ width: '100%', height: 48, background: 'transparent', color: 'var(--ink3)', fontWeight: 500, fontSize: 14, borderRadius: 14, border: '1px solid var(--line)' }}
-                onClick={() => openDMThread('ria')}
+                onClick={() => navigate('feed')}
               >
-                Ria ka reaction →
+                Feed dekho →
               </button>
             </div>
           </div>
@@ -297,7 +238,7 @@ export default function LiveScreen() {
             <div className="sit-title">{sit.title}</div>
             <div className="sit-body">
               {sit.body.map((p, i) => (
-                <p key={i} dangerouslySetInnerHTML={{ __html: p }} />
+                <p key={i} dangerouslySetInnerHTML={{ __html: r(p) }} />
               ))}
             </div>
 
@@ -316,7 +257,7 @@ export default function LiveScreen() {
                   </div>
                   <div className="react-body">
                     <div className="rn">{reactChar.name}</div>
-                    <div className={`react-bubble ${reactChar.cls}`}>{effectiveReact.text}</div>
+                    <div className={`react-bubble ${reactChar.cls}`}>{r(effectiveReact.text)}</div>
                   </div>
                 </div>
               )
@@ -356,95 +297,28 @@ export default function LiveScreen() {
                     </div>
                   )}
 
-                  {/* Instagram post slides up */}
+                  {/* "Posted to feed" confirmation — then auto-navigate */}
                   {showPost && (
-                    <div className={`ig-impact-post${showPost ? ' in' : ''}`}>
-                      {/* Post header */}
-                      <div className="ig-post-head">
-                        <div
-                          className={`av ${char.cls}`}
-                          style={{
-                            width: 34, height: 34, fontSize: 14,
-                            backgroundImage: `url(/avatars/${char.id}.png)`,
-                            backgroundSize: 'cover', backgroundPosition: 'center',
-                          }}
-                        >
-                          <span style={{ opacity:0 }}>{char.init}</span>
-                        </div>
-                        <div>
-                          <div style={{ fontWeight: 700, fontSize: 13 }}>{char.handle}</div>
-                          <div style={{ fontSize: 10, color: 'var(--ink3)' }}>just now</div>
-                        </div>
-                        <div style={{ marginLeft: 'auto', fontSize: 9, fontWeight: 800, letterSpacing: '.06em', color: 'var(--accent)', background: 'rgba(255,45,120,.1)', border: '1px solid rgba(255,45,120,.2)', borderRadius: 10, padding: '3px 8px' }}>
-                          POST
-                        </div>
+                    <div
+                      style={{
+                        marginTop: 16,
+                        padding: '14px 16px',
+                        background: 'rgba(255,45,120,.08)',
+                        border: '1px solid rgba(255,45,120,.22)',
+                        borderRadius: 14,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 12,
+                        animation: 'fadeUp .35s ease-out',
+                      }}
+                    >
+                      <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(255,45,120,.18)', display: 'grid', placeItems: 'center', flexShrink: 0 }}>
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--accent)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                       </div>
-
-                      {/* Post image */}
-                      <div
-                        className="ig-post-img grain"
-                        style={{ background: `linear-gradient(135deg, color-mix(in srgb, var(--cc,#333) 70%, #000) 0%, #000 100%)` }}
-                      >
-                        <p className="overlay-txt" style={{ fontSize: 15, padding: '0 20px' }}>
-                          {ch.caption}
-                        </p>
+                      <div>
+                        <div style={{ fontWeight: 700, fontSize: 13, color: 'var(--accent)' }}>Posted to feed</div>
+                        <div style={{ fontSize: 11, color: 'var(--ink3)', marginTop: 2 }}>Ghar react kar raha hai... feed dekho →</div>
                       </div>
-
-                      {/* Post actions */}
-                      <div style={{ padding: '8px 14px 4px', display: 'flex', alignItems: 'center', gap: 14 }}>
-                        <svg viewBox="0 0 24 24" width="20" height="20" fill="var(--accent)" stroke="var(--accent)" strokeWidth="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                        <div style={{ flex:1 }} />
-                        <span style={{ fontSize: 12, fontWeight: 700 }}>{likeCount.toLocaleString()} likes</span>
-                      </div>
-
-                      {/* Comments appearing as IG comments */}
-                      <div style={{ paddingBottom: 8 }}>
-                        {ch.reactions.filter(r => {
-                          // Don't show reactions from the character the player is playing as
-                          if (r.char !== '__fan' && game.char && r.char === game.char) return false
-                          return true
-                        }).map((r, i) => {
-                          const rChar = r.char !== '__fan' ? CHARS[r.char as CharId] : null
-                          if (r.char !== '__fan' && !rChar) return null
-                          return (
-                            <div
-                              key={i}
-                              style={{
-                                display: 'flex', gap: 8, padding: '5px 14px',
-                                opacity: reactions[i] ? 1 : 0,
-                                transform: reactions[i] ? 'none' : 'translateY(6px)',
-                                transition: 'opacity .35s ease, transform .35s ease',
-                              }}
-                            >
-                              <div
-                                className={rChar ? `av ${rChar.cls}` : 'av'}
-                                style={{
-                                  width: 22, height: 22, fontSize: 9, flex: '0 0 auto',
-                                  background: rChar ? undefined : '#333',
-                                  backgroundImage: rChar ? `url(/avatars/${rChar.id}.png)` : undefined,
-                                  backgroundSize: 'cover', backgroundPosition: 'center',
-                                }}
-                              >
-                                <span style={{ opacity:0 }}>{rChar ? rChar.init : (r.name?.[0] ?? 'F')}</span>
-                              </div>
-                              <div>
-                                <span style={{ fontWeight: 700, fontSize: 11, marginRight: 6 }}>
-                                  {rChar ? rChar.name : (r.name ?? 'fan')}
-                                </span>
-                                <span style={{ fontSize: 12, lineHeight: 1.4 }}>{r.text}</span>
-                              </div>
-                            </div>
-                          )
-                        })}
-                      </div>
-
-                      {/* Next button inside post area */}
-                      {showNext && (
-                        <button className="next-btn" style={{ margin: '8px 14px 14px', width: 'calc(100% - 28px)' }} onClick={handleNext}>
-                          {situation + 1 < visibleSituations.length ? 'NEXT SITUATION →' : 'FINALE DEKHO →'}
-                        </button>
-                      )}
                     </div>
                   )}
                 </div>
@@ -457,54 +331,23 @@ export default function LiveScreen() {
         {sit && <div style={{ height: 240 }} />}
       </div>
 
-      {/* Choice area — sticky bottom, transforms after choice */}
-      {sit && !showNext && (
+      {/* Choice area — sticky bottom, hidden after choice */}
+      {sit && chosen === null && (
         <div className="choice-wrap">
-          {chosen === null ? (
-            // Pre-choice: question + two buttons
-            <>
-              <div className="choice-q">{sit.q}</div>
-              {sit.choices.map((ch, i) => (
-                <button
-                  key={i}
-                  className="choice"
-                  disabled={disabled}
-                  onClick={() => handleChoice(i as 0 | 1)}
-                >
-                  <div className="ct">{ch.t}</div>
-                  <div className="cs">{ch.s}</div>
-                </button>
-              ))}
-              {stats && (
-                <div className="social-proof">
-                  {stats.total.toLocaleString()} played · {stats.pctA}% chose A
-                </div>
-              )}
-            </>
-          ) : (
-            // Post-choice: chosen locked/glowing, unchosen faded
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {sit.choices.map((ch, i) => (
-                <div
-                  key={i}
-                  style={{
-                    borderRadius: 14, padding: '12px 14px',
-                    border: chosen === i ? '2px solid var(--accent)' : '1px solid rgba(255,255,255,.07)',
-                    background: chosen === i ? 'rgba(255,45,120,.1)' : 'rgba(255,255,255,.04)',
-                    opacity: chosen === i ? 1 : 0.28,
-                    transition: 'all .3s ease',
-                    display: 'flex', alignItems: 'center', gap: 10,
-                  }}
-                >
-                  {chosen === i && (
-                    <div style={{ width: 20, height: 20, borderRadius: '50%', background: 'var(--accent)', display: 'grid', placeItems: 'center', flexShrink: 0, fontSize: 11, fontWeight: 800 }}>✓</div>
-                  )}
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 700, fontSize: 13.5, color: chosen === i ? '#fff' : 'var(--ink2)' }}>{ch.t}</div>
-                    {chosen === i && <div style={{ fontSize: 11, color: 'rgba(255,255,255,.55)', marginTop: 2 }}>{ch.s}</div>}
-                  </div>
-                </div>
-              ))}
+          <div className="choice-q">{r(sit.q)}</div>
+          {sit.choices.map((ch, i) => (
+            <button
+              key={i}
+              className="choice"
+              onClick={() => handleChoice(i as 0 | 1)}
+            >
+              <div className="ct">{r(ch.t)}</div>
+              <div className="cs">{r(ch.s)}</div>
+            </button>
+          ))}
+          {stats && (
+            <div className="social-proof">
+              {stats.total.toLocaleString()} played · {stats.pctA}% chose A
             </div>
           )}
         </div>
@@ -517,12 +360,6 @@ export default function LiveScreen() {
             <path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/>
           </svg>
           <span>Feed</span>
-        </button>
-        <button className="tab" onClick={() => handleTab('messages')}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-            <path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/>
-          </svg>
-          <span>Messages</span>
         </button>
         <button className="tab active">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
