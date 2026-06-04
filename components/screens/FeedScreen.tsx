@@ -157,7 +157,7 @@ export default function FeedScreen() {
   // are inserted mid-list — replaying with the actual meters at each step is correct.
   type FeedPost =
     | { type: 'npc';    postId: string; sit: ReturnType<typeof getVisibleSituations>[0]; choice: 'A'|'B'; reaction: { char: string; caption: string }; char: (typeof CHARS)[keyof typeof CHARS] }
-    | { type: 'player'; postId: string; sit: ReturnType<typeof getVisibleSituations>[0]; choice: 'A'|'B'; caption: string; playerChar: (typeof CHARS)[keyof typeof CHARS] }
+    | { type: 'player'; postId: string; sit: ReturnType<typeof getVisibleSituations>[0]; choice: 'A'|'B'; caption: string; playerChar: (typeof CHARS)[keyof typeof CHARS]; reactions: import('@/lib/types').Reaction[] }
 
   const completedPosts = useMemo((): FeedPost[] => {
     if (game.choices.length === 0) return []
@@ -173,9 +173,9 @@ export default function FeedScreen() {
       if (!sit) continue
       const ch = sit.choices[letter === 'A' ? 0 : 1]
 
-      // Player's own post (caption) — always push
+      // Player's own post (caption + reactions as comments) — always push
       if (ch?.caption && playerCharObj) {
-        posts.push({ type: 'player', postId: `player-${sit.id}-${letter}`, sit, choice: letter, caption: ch.caption, playerChar: playerCharObj })
+        posts.push({ type: 'player', postId: `player-${sit.id}-${letter}`, sit, choice: letter, caption: ch.caption, playerChar: playerCharObj, reactions: ch.reactions ?? [] })
       }
 
       // NPC feedReaction post
@@ -249,10 +249,9 @@ export default function FeedScreen() {
         {completedPosts.map((post, i) => {
           const isNew = i === 0
           if (post.type === 'player') {
-            // Player's own caption post
+            // Player's own caption post with threaded reactions as comments
             const pc = post.playerChar
             const liked = likedPosts.has(post.postId)
-            const commented = commentedPosts.has(post.postId)
             return (
               <div key={post.postId} className="post" style={isNew ? { borderTop: '2px solid rgba(255,45,120,.3)', background: 'rgba(255,45,120,.04)' } : {}}>
                 <div className="post-head">
@@ -280,6 +279,35 @@ export default function FeedScreen() {
                   <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
                   <div className="spacer" />
                 </div>
+                {/* Threaded reactions — NPC + fan comments on your post */}
+                {post.reactions.length > 0 && (
+                  <div style={{ padding: '2px 14px 10px', display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    {post.reactions.map((rx, j) => {
+                      const isFan = rx.char === '__fan'
+                      const rxChar = isFan ? null : CHARS[rx.char as CharId]
+                      return (
+                        <div key={j} style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+                          {isFan ? (
+                            <div style={{ width: 22, height: 22, borderRadius: '50%', background: '#2a2a38', display: 'grid', placeItems: 'center', fontSize: 9, fontWeight: 700, color: 'var(--ink3)', flexShrink: 0 }}>c</div>
+                          ) : (
+                            <div className={`av ${rxChar!.cls}`} style={{ width: 22, height: 22, fontSize: 9, flexShrink: 0, backgroundImage: `url(/avatars/${rxChar!.id}.png)`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+                              <span style={{ opacity: 0 }}>{rxChar!.init}</span>
+                            </div>
+                          )}
+                          <div style={{ fontSize: 12, lineHeight: 1.4, color: 'rgba(255,255,255,.85)' }}>
+                            <span style={{ fontWeight: 700, marginRight: 4 }}>
+                              {isFan ? `@${rx.name ?? 'fan'}` : rxChar!.name}
+                            </span>
+                            {isFan && (
+                              <span style={{ fontSize: 9, fontWeight: 700, color: 'var(--ink3)', background: 'rgba(255,255,255,.08)', padding: '1px 5px', borderRadius: 4, marginRight: 5 }}>FAN</span>
+                            )}
+                            {resolveTokens(rx.text, game.playerName, game.playerGender)}
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
               </div>
             )
           }

@@ -347,9 +347,38 @@ export default function LiveScreen() {
                             </div>
                             <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--accent)', background: 'rgba(255,45,120,.15)', padding: '3px 9px', borderRadius: 20, flexShrink: 0 }}>✓ POSTED</div>
                           </div>
-                          <div className={`post-img grain ${displayChar.cls}`} style={{ margin: '0 12px 12px', borderRadius: 10, background: `linear-gradient(135deg, color-mix(in srgb, var(--cc) 70%, #000) 0%, #000 100%)` }}>
+                          <div className={`post-img grain ${displayChar.cls}`} style={{ margin: '0 12px 0', borderRadius: 10, background: `linear-gradient(135deg, color-mix(in srgb, var(--cc) 70%, #000) 0%, #000 100%)` }}>
                             <p className="overlay-txt" style={{ fontSize: 13 }}>{r(ch.caption)}</p>
                           </div>
+                          {/* Threaded reactions as comments */}
+                          {ch.reactions && ch.reactions.length > 0 && (
+                            <div style={{ padding: '8px 14px 10px', display: 'flex', flexDirection: 'column', gap: 5 }}>
+                              {ch.reactions.map((rx, j) => {
+                                const isFan = rx.char === '__fan'
+                                const rxChar = isFan ? null : CHARS[rx.char as CharId]
+                                return (
+                                  <div key={j} style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+                                    {isFan ? (
+                                      <div style={{ width: 20, height: 20, borderRadius: '50%', background: '#2a2a38', display: 'grid', placeItems: 'center', fontSize: 8, fontWeight: 700, color: 'var(--ink3)', flexShrink: 0 }}>c</div>
+                                    ) : (
+                                      <div className={`av ${rxChar!.cls}`} style={{ width: 20, height: 20, fontSize: 8, flexShrink: 0, backgroundImage: `url(/avatars/${rxChar!.id}.png)`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+                                        <span style={{ opacity: 0 }}>{rxChar!.init}</span>
+                                      </div>
+                                    )}
+                                    <div style={{ fontSize: 11, lineHeight: 1.4, color: 'rgba(255,255,255,.8)' }}>
+                                      <span style={{ fontWeight: 700, marginRight: 4 }}>
+                                        {isFan ? `@${rx.name ?? 'fan'}` : rxChar!.name}
+                                      </span>
+                                      {isFan && (
+                                        <span style={{ fontSize: 8, fontWeight: 700, color: 'var(--ink3)', background: 'rgba(255,255,255,.08)', padding: '1px 4px', borderRadius: 3, marginRight: 4 }}>FAN</span>
+                                      )}
+                                      {r(rx.text)}
+                                    </div>
+                                  </div>
+                                )
+                              })}
+                            </div>
+                          )}
                         </div>
 
                         {/* NPC feedReaction post (always when it exists) */}
