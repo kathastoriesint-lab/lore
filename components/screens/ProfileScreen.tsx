@@ -127,9 +127,8 @@ export default function ProfileScreen() {
 
           {/* Bio */}
           <div style={{ marginTop:12 }}>
-            <div style={{ fontWeight:700, fontSize:14 }}>{game.playerName || char.name}</div>
-            <div style={{ fontSize:12, color:'var(--ink2)', marginTop:2 }}>{char.role}</div>
-            <div style={{ fontSize:12, color:'var(--ink3)', marginTop:4 }}>Creator House • Day {Math.ceil((game.situation + 1) / 3)} of 10</div>
+            <div style={{ fontSize:12, color:'var(--ink2)', marginTop:2 }}>Creator • Day {Math.ceil((game.situation + 1) / 3)} of 10</div>
+            <div style={{ fontSize:12, color:'var(--ink3)', marginTop:2 }}>Creator House</div>
           </div>
 
         </div>

@@ -197,7 +197,7 @@ export default function FeedScreen() {
               <span>
                 Creator House
                 <span style={{ fontSize:10, color:'var(--accent)', fontWeight:700, marginLeft:7, letterSpacing:'.04em' }}>
-                  ● {playingChar.name.toUpperCase()}
+                  ● {(game.playerName || playingChar.name).toUpperCase()}
                 </span>
               </span>
             ) : 'Creator House'}

@@ -82,7 +82,7 @@ export default function WorldIntroScreen() {
           >
             {/* Name — underline style, feels like signing into a story */}
             <div style={{ marginBottom: 28 }}>
-              <label style={{ display: 'block', fontSize: 11, fontWeight: 700, letterSpacing: '.1em', color: 'rgba(255,255,255,.38)', marginBottom: 12 }}>
+              <label style={{ display: 'block', fontSize: 11, fontWeight: 700, letterSpacing: '.1em', color: 'rgba(255,255,255,.55)', marginBottom: 12 }}>
                 APNA NAAM BATAO
               </label>
               <input
@@ -113,10 +113,10 @@ export default function WorldIntroScreen() {
 
             {/* Gender */}
             <div style={{ marginBottom: 24 }}>
-              <label style={{ display: 'block', fontSize: 11, fontWeight: 700, letterSpacing: '.1em', color: 'rgba(255,255,255,.38)', marginBottom: 4 }}>
+              <label style={{ display: 'block', fontSize: 11, fontWeight: 700, letterSpacing: '.1em', color: 'rgba(255,255,255,.55)', marginBottom: 4 }}>
                 TUM HO
               </label>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,.4)', marginBottom: 12 }}>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,.6)', marginBottom: 12 }}>
                 Yeh batata hai kaun tumhare paas aata hai ghar mein.
               </div>
               <div style={{ display: 'flex', gap: 10 }}>

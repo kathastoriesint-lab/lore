@@ -57,7 +57,7 @@ export default function MeterHUD({ right }: Props) {
         </div>
         <div className="mhud-identity">
           <div className="mhud-name">{game.playerName || char.name}</div>
-          <div key={`fw${game.meters.fame}`} className="mhud-followers mval-flash">
+          <div key={`fw${game.meters.fame}`} className="mhud-followers">
             {followersStr(game.meters.fame)} followers
           </div>
         </div>
