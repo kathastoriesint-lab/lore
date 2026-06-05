@@ -149,10 +149,12 @@ export default function ProfileScreen() {
           <div style={{ marginTop:10 }}>
             <div style={{ fontWeight:700, fontSize:15 }}>{game.playerName || 'You'}</div>
             <div style={{ fontSize:12, color:'var(--ink3)', marginTop:2 }}>
-              @{(game.playerName || '').toLowerCase().replace(/\s+/g, '') || char.handle} · Creator House
+              @{(game.playerName || '').toLowerCase().replace(/\s+/g, '') || char.handle} · {game.world === 'cricket' ? 'Mumbai Indians' : 'Creator House'}
             </div>
             <div style={{ fontSize:12, color:'var(--ink2)', marginTop:3 }}>
-              Day {Math.ceil((game.situation + 1) / 3)} of 10 · {game.choices.length} moves made
+              {game.world === 'cricket'
+                ? `Season 1 · Situation ${game.situation + 1} · ${game.choices.length} moves made`
+                : `Day ${Math.ceil((game.situation + 1) / 3)} of 10 · ${game.choices.length} moves made`}
             </div>
           </div>
 

@@ -2,6 +2,7 @@
 import { createClient } from './supabase'
 import type { CharId, GameState, Meters, DMMessage } from './types'
 import { CHARS, DM_HOOKS, DM_MOCK } from './data'
+import { CRICKET_DM_HOOKS } from './cricket-data'
 
 // Lazy init — avoids module-level instantiation during SSR/prerender
 let _supabase: ReturnType<typeof createClient> | null = null
@@ -126,7 +127,7 @@ export async function loadDMs(charId: CharId): Promise<DMMessage[]> {
 
   if (!data || data.length === 0) {
     // First time — insert opening hook
-    const hook: DMMessage = { role: 'char', text: DM_HOOKS[charId] ?? 'Hey! Kya chal raha hai?' }
+    const hook: DMMessage = { role: 'char', text: DM_HOOKS[charId] ?? CRICKET_DM_HOOKS[charId] ?? 'Hey! Kya chal raha hai?' }
     await saveDM(charId, hook)
     return [hook]
   }

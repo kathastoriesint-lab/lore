@@ -16,7 +16,7 @@ const CHAR_COLORS_HEX: Record<string, string> = {
 }
 const charBg = (id: string) => {
   const c = CHAR_COLORS_HEX[id] ?? '#1a1a2e'
-  return `linear-gradient(135deg, ${c}cc 0%, #0a0a14 100%)`
+  return `linear-gradient(160deg, ${c} 0%, #0d0d20 100%)`
 }
 
 const Heart = ({ filled }: { filled: boolean }) => (
@@ -200,7 +200,7 @@ function CricketSeedFeed({ likedPosts, commentedPosts, onLike, onComment, commen
   return (
     <>
       {/* Hardik */}
-      {seedPost('hardik-seed', 'hardik', 'url(/avatars/cricket-dressing-room.png) center/cover',
+      {seedPost('hardik-seed', 'hardik', 'linear-gradient(to bottom, rgba(0,0,0,.1) 0%, rgba(0,0,0,.55) 100%), url(/avatars/cricket-dressing-room.png) center/cover',
         '"Ready rehna. Role-ready hota hai, reel-ready nahi." — Wankhede ki pehli practice. Season 1 starts now. 💙',
         'Team set hai. Kaam shuru. #MumbaiIndians #IPL',
         '284,102', '3 HOURS AGO')}
@@ -273,7 +273,7 @@ function CricketSeedFeed({ likedPosts, commentedPosts, onLike, onComment, commen
         '891,204', '2 HOURS AGO')}
 
       {/* Bumrah */}
-      {seedPost('bumrah-seed', 'bumrah', 'url(/avatars/cricket-nets.png) center/cover',
+      {seedPost('bumrah-seed', 'bumrah', 'linear-gradient(to bottom, rgba(0,0,0,.05) 0%, rgba(0,0,0,.6) 100%), url(/avatars/cricket-nets.png) center/cover',
         'Nets mein ego nahi chalta. Bas information. Good players adjust after one mistake.',
         'Work. Always. #Bumrah #MumbaiIndians',
         '1,204,441', '4 HOURS AGO')}
@@ -656,7 +656,7 @@ export default function FeedScreen() {
         {nextSit && (
           <div className="story-drop" onClick={enterLive}>
             <div className="sd-img" style={isCricket
-              ? { backgroundImage: 'url(/avatars/cricket-wankhede.png)', backgroundSize: 'cover', backgroundPosition: 'center' }
+              ? { background: 'linear-gradient(to bottom, rgba(0,0,0,.25) 0%, rgba(0,0,0,.65) 100%), url(/avatars/cricket-wankhede.png) center/cover' }
               : { background: 'linear-gradient(135deg,#ff2d78,#7a1140)' }}>
               <div className="sd-badge" style={isCricket ? { color: '#FFB020' } : {}}>
                 <span className="pulse" style={{ marginRight: 5, background: isCricket ? '#FFB020' : undefined }} />
