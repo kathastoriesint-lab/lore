@@ -18,7 +18,7 @@ const charBg = (id: string) => {
   const c = CHAR_COLORS_HEX[id] ?? '#1a1a2e'
   // Character color stays vivid through midpoint, fades to deep dark at bottom-right
   // Keeps visual richness while preserving caption legibility at bottom
-  return `linear-gradient(160deg, ${c} 0%, ${c}cc 48%, #131323 100%)`
+  return `linear-gradient(to bottom, ${c}bb 0%, ${c}66 55%, #0a0a18 100%)`
 }
 
 const Heart = ({ filled }: { filled: boolean }) => (
@@ -546,8 +546,8 @@ export default function FeedScreen() {
                   </div>
                   {isNew && <div className="new-pill">NEW</div>}
                 </div>
-                <div className={`post-img grain ${pc.cls}`} style={{ background: charBg(pc.id) }}>
-                  <p className="overlay-txt" style={{ fontSize:14 }}>{resolveTokens(post.caption, game.playerName, game.playerGender)}</p>
+                <div className={`post-img grain ${pc.cls}`} style={{ background: charBg(pc.id), alignItems:'flex-end' }}>
+                  <p className="overlay-txt" style={{ fontSize:14, textShadow:'0 1px 8px rgba(0,0,0,.7)' }}>{resolveTokens(post.caption, game.playerName, game.playerGender)}</p>
                 </div>
                 <div className="post-actions">
                   <button

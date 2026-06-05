@@ -350,7 +350,8 @@ export default function LiveScreen() {
                 tilak:'#2a5a8f', coach:'#4a3a1a', friend:'#3a6a4a',
               }
               const charColor = displayChar ? (CHAR_COLORS[displayChar.id] ?? '#1a1a2e') : '#1a1a2e'
-              const postBg = `linear-gradient(160deg, ${charColor} 0%, ${charColor}cc 48%, #131323 100%)`
+              // Gradient: char color fades to dark — lighter mid so text reads at bottom
+              const postBg = `linear-gradient(to bottom, ${charColor}bb 0%, ${charColor}66 55%, #0a0a18 100%)`
 
               // Compact delta summary for collapsed state
               const deltaSummary = [
@@ -449,9 +450,9 @@ export default function LiveScreen() {
                         <div style={{ fontSize: 9, fontWeight: 800, color: 'var(--accent)', background: 'rgba(255,45,120,.12)', padding: '3px 8px', borderRadius: 20 }}>✓ POSTED</div>
                       </div>
 
-                      {/* Post image with caption */}
-                      <div className={`post-img grain ${displayChar.cls}`} style={{ margin: '0 12px', borderRadius: 10, background: postBg }}>
-                        <p className="overlay-txt" style={{ fontSize: 14 }}>{r(ch.caption)}</p>
+                      {/* Post image with caption — align-items:end pins text to bottom */}
+                      <div className={`post-img grain ${displayChar.cls}`} style={{ margin: '0 12px', borderRadius: 10, background: postBg, alignItems: 'flex-end' }}>
+                        <p className="overlay-txt" style={{ fontSize: 14, textShadow: '0 1px 8px rgba(0,0,0,.7)' }}>{r(ch.caption)}</p>
                       </div>
 
                       {/* Reactions as threaded comments */}
