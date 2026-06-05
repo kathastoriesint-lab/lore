@@ -407,7 +407,7 @@ export default function LiveScreen() {
                     <div style={{ marginTop: 12, background: '#0f0f18', borderRadius: 16, overflow: 'hidden', border: '1px solid rgba(255,255,255,.07)', animation: 'slideUp .4s cubic-bezier(.32,.72,0,1) both' }}>
                       {/* Post header */}
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px' }}>
-                        <div className={`av ${displayChar.cls}`} style={{ width: 32, height: 32, fontSize: 12, flexShrink: 0, backgroundImage: `url(/avatars/${displayChar.id}.png)`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+                        <div className={`av ${displayChar.cls}`} style={{ width: 32, height: 32, fontSize: 12, flexShrink: 0, backgroundImage: `url(${game.avatarUrl || `/avatars/${displayChar.id}.png`})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
                           <span style={{ opacity: 0 }}>{displayChar.init}</span>
                         </div>
                         <div style={{ flex: 1 }}>

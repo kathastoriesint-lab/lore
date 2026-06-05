@@ -103,10 +103,21 @@ export default function App() {
     saveAndSet({ ...game, char: id, situation: 0, choices: [], meters: charMeters(id), narrator_done: true, dayUnlockTime: {} })
   }, [saveAndSet, game])
 
-  const saveProfile = useCallback(async (name: string, gender: 'male' | 'female') => {
-    const updated: GameState = { ...game, playerName: name, playerGender: gender }
+  const saveProfile = useCallback(async (name: string, gender: 'male' | 'female', avatarUrl?: string) => {
+    const updated: GameState = { ...game, playerName: name, playerGender: gender, avatarUrl }
     setGame(updated)
     await saveGameState(updated)
+    // Expose a setter on window so the async avatar generator can update without re-rendering onboarding
+    if (typeof window !== 'undefined') {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ;(window as any).__lore_set_avatar = (url: string) => {
+        setGame(prev => {
+          const next = { ...prev, avatarUrl: url }
+          saveGameState(next).catch(() => {})
+          return next
+        })
+      }
+    }
     navigate('worlds')
   }, [game, navigate])
 

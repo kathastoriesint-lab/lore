@@ -6,6 +6,7 @@ import { CRICKET_CHARS, CRICKET_SITUATIONS } from '@/lib/cricket-data'
 import { fameToFollowers as fameToFollowersNum, applyDeltas, resolveTokens, resolveEnding } from '@/lib/game'
 import { resolveCricketEnding, CRICKET_ENDING_DATA } from '@/lib/cricket-data'
 import { houseCast, relationshipFor, computeBond, bondColor } from '@/lib/relationships'
+import PlayerAvatar from '@/components/PlayerAvatar'
 import type { CharId } from '@/lib/types'
 import MeterHUD from '@/components/MeterHUD'
 
@@ -107,9 +108,7 @@ export default function ProfileScreen() {
         {/* Profile info */}
         <div style={{ padding:'12px 18px 0' }}>
           <div style={{ display:'flex', alignItems:'center', gap:20 }}>
-            <div className="av" style={{ width:64, height:64, fontSize:26, flexShrink:0, background:'var(--accent)' }}>
-              {(game.playerName?.[0] ?? 'Y').toUpperCase()}
-            </div>
+            <PlayerAvatar size={64} fontSize={26} />
             <div style={{ flex:1 }}>
               <div style={{ fontWeight:700, fontSize:17 }}>{game.playerName || 'You'}</div>
               <div style={{ fontSize:12, color:'var(--ink3)', marginTop:1 }}>{followers} followers · {worldLabel}</div>

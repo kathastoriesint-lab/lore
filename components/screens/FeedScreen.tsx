@@ -535,7 +535,7 @@ export default function FeedScreen() {
             return (
               <div key={post.postId} className="post" style={isNew ? { borderTop: '2px solid rgba(255,45,120,.3)', background: 'rgba(255,45,120,.04)' } : {}}>
                 <div className="post-head">
-                  <div className={`av ${pc.cls}`} style={{ width:34, height:34, fontSize:14, backgroundImage:`url(/avatars/${pc.id}.png)`, backgroundSize:'cover', backgroundPosition:'center' }}>
+                  <div className={`av ${pc.cls}`} style={{ width:34, height:34, fontSize:14, backgroundImage:`url(${game.avatarUrl || `/avatars/${pc.id}.png`})`, backgroundSize:'cover', backgroundPosition:'center' }}>
                     <span style={{ opacity:0 }}>{pc.init}</span>
                   </div>
                   <div className="post-id">

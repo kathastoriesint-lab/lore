@@ -39,7 +39,7 @@ export interface AppCtx {
   showToast: (msg: string) => void
   phone: string
   setPhone: (phone: string) => void
-  saveProfile: (name: string, gender: 'male' | 'female') => Promise<void>
+  saveProfile: (name: string, gender: 'male' | 'female', avatarUrl?: string) => Promise<void>
   setChar: (id: CharId) => void
   startGame: () => void
   startCricketGame: () => void

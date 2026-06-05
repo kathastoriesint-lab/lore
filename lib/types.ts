@@ -79,4 +79,5 @@ export interface GameState {
   meters: Meters
   narrator_done: boolean
   dayUnlockTime: Record<number, number>
+  avatarUrl?: string   // player's AI-generated avatar (or raw photo while generating)
 }

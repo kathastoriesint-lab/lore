@@ -4,6 +4,7 @@ import { useApp } from '@/lib/context'
 import { CHARS } from '@/lib/data'
 import { CRICKET_CHARS } from '@/lib/cricket-data'
 import { fameToFollowers, clamp } from '@/lib/game'
+import PlayerAvatar from './PlayerAvatar'
 
 function followersStr(fame: number): string {
   const n = fameToFollowers(fame)
@@ -48,15 +49,7 @@ export default function MeterHUD({ right }: Props) {
     <div className="meter-hud">
       {/* Top row: avatar + name + followers | optional right slot */}
       <div className="mhud-top">
-        <div
-          className="av"
-          style={{
-            width: 26, height: 26, fontSize: 11, flexShrink: 0,
-            background: 'var(--accent)', color: '#fff', fontWeight: 800,
-          }}
-        >
-          {(game.playerName?.[0] ?? 'Y').toUpperCase()}
-        </div>
+        <PlayerAvatar size={26} fontSize={11} />
         <div className="mhud-identity">
           <div className="mhud-name">{game.playerName || 'You'}</div>
           <div key={`fw${game.meters.fame}`} className="mhud-followers">

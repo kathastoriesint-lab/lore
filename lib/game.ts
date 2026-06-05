@@ -66,6 +66,7 @@ export async function loadGameState(): Promise<GameState> {
     meters,
     narrator_done: data.narrator_done,
     dayUnlockTime: data.day_unlock_time ?? {},
+    avatarUrl: data.avatar_url ?? undefined,
   }
 }
 
@@ -83,6 +84,7 @@ export async function saveGameState(state: GameState) {
     meters: state.meters,
     narrator_done: state.narrator_done,
     day_unlock_time: state.dayUnlockTime,
+    avatar_url: state.avatarUrl ?? null,
   }, { onConflict: 'user_id' })
 }
 
