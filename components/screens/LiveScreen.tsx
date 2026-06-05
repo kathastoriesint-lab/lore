@@ -349,12 +349,12 @@ export default function LiveScreen() {
                         <div style={{ display: 'flex', gap: 14 }}>
                           {d.fame !== 0 && (
                             <span style={{ fontFamily: 'var(--serif)', fontSize: 22, fontWeight: 600, color: 'var(--fame)', lineHeight: 1 }}>
-                              {d.fame > 0 ? '+' : ''}{d.fame}<span style={{ fontSize: 12, marginLeft: 3 }}>⭐</span>
+                              {d.fame > 0 ? '+' : ''}{d.fame}<span style={{ fontSize: 12, marginLeft: 3 }}>{isCricket ? '🏏' : '⭐'}</span>
                             </span>
                           )}
                           {d.heat !== 0 && (
                             <span style={{ fontFamily: 'var(--serif)', fontSize: 22, fontWeight: 600, color: d.heat < 0 ? 'var(--trust)' : 'var(--heat)', lineHeight: 1 }}>
-                              {d.heat > 0 ? '+' : ''}{d.heat}<span style={{ fontSize: 12, marginLeft: 3 }}>🔥</span>
+                              {d.heat > 0 ? '+' : ''}{d.heat}<span style={{ fontSize: 12, marginLeft: 3 }}>{isCricket ? '⭐' : '🔥'}</span>
                             </span>
                           )}
                           {d.image !== 0 && (
@@ -377,7 +377,7 @@ export default function LiveScreen() {
                               <div className="impact-row-glow" />
                               <div className="impact-delta">{d.fame > 0 ? '+' : ''}{d.fame}</div>
                               <div className="impact-meta">
-                                <div className="impact-mlabel">⭐ FAME</div>
+                                <div className="impact-mlabel">{isCricket ? '🏏 FORM' : '⭐ FAME'}</div>
                                 <div className="impact-bar-track"><div className="impact-bar-fill" style={{ width: `${Math.max(0, Math.min(100, game.meters.fame))}%` }} /></div>
                                 <div className="impact-consequence">{game.meters.fame} now</div>
                               </div>
@@ -388,7 +388,7 @@ export default function LiveScreen() {
                               <div className="impact-row-glow" />
                               <div className="impact-delta">{d.heat > 0 ? '+' : ''}{d.heat}</div>
                               <div className="impact-meta">
-                                <div className="impact-mlabel">🔥 HEAT</div>
+                                <div className="impact-mlabel">{isCricket ? '⭐ FAME' : '🔥 HEAT'}</div>
                                 <div className="impact-bar-track"><div className="impact-bar-fill" style={{ width: `${Math.max(0, Math.min(100, game.meters.heat))}%` }} /></div>
                                 <div className="impact-consequence">{game.meters.heat} now{isCritical ? ' — someone will address this' : ''}</div>
                               </div>
@@ -399,7 +399,7 @@ export default function LiveScreen() {
                               <div className="impact-row-glow" />
                               <div className="impact-delta">{d.image > 0 ? '+' : ''}{d.image}</div>
                               <div className="impact-meta">
-                                <div className="impact-mlabel">🤝 IMAGE</div>
+                                <div className="impact-mlabel">{isCricket ? '🤝 TRUST' : '🤝 IMAGE'}</div>
                                 <div className="impact-bar-track"><div className="impact-bar-fill" style={{ width: `${Math.max(0, Math.min(100, game.meters.image))}%` }} /></div>
                                 <div className="impact-consequence">{game.meters.image} now</div>
                               </div>
@@ -420,7 +420,7 @@ export default function LiveScreen() {
                         </div>
                         <div style={{ flex: 1 }}>
                           <div style={{ fontWeight: 700, fontSize: 13 }}>@{playerHandle}</div>
-                          <div style={{ fontSize: 10, color: 'var(--ink3)' }}>just now · Creator House</div>
+                          <div style={{ fontSize: 10, color: 'var(--ink3)' }}>just now · {isCricket ? 'MI Season 1' : 'Creator House'}</div>
                         </div>
                         <div style={{ fontSize: 9, fontWeight: 800, color: 'var(--accent)', background: 'rgba(255,45,120,.12)', padding: '3px 8px', borderRadius: 20 }}>✓ POSTED</div>
                       </div>
