@@ -80,7 +80,6 @@ export default function LiveScreen() {
   const [chosen, setChosen] = useState<0 | 1 | null>(null)
   const [showImpact, setShowImpact] = useState(false)
   const [showPost, setShowPost] = useState(false)
-  const [impactExpanded, setImpactExpanded] = useState(true) // expanded by default — meters always visible
   const [stats, setStats] = useState<{ total: number; pctA: number } | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
   // Ref-based processing guard — synchronously prevents double-tap between React renders
@@ -94,7 +93,6 @@ export default function LiveScreen() {
     setChosen(null)
     setShowImpact(false)
     setShowPost(false)
-    setImpactExpanded(false)
     setStats(null)
     processingRef.current = false
     timersRef.current = []
@@ -126,7 +124,6 @@ export default function LiveScreen() {
     setChosen(null)
     setShowImpact(false)
     setShowPost(false)
-    setImpactExpanded(false)
     processingRef.current = false
     scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
   }, [])
@@ -363,39 +360,10 @@ export default function LiveScreen() {
               return (
                 <div style={{ marginTop: 16 }}>
 
-                  {/* Collapsible impact card */}
-                  <button
-                    onClick={() => setImpactExpanded(v => !v)}
-                    style={{ width: '100%', background: 'none', border: 'none', cursor: 'pointer', padding: 0, textAlign: 'left' }}
-                  >
-                    <div className={`impact-card${isCritical ? ' danger' : ''}`} style={{ marginTop: 0 }}>
-                      {/* Collapsed header — always visible */}
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 16px' }}>
-                        <div style={{ display: 'flex', gap: 14 }}>
-                          {d.fame !== 0 && (
-                            <span style={{ fontFamily: 'var(--serif)', fontSize: 22, fontWeight: 600, color: 'var(--fame)', lineHeight: 1 }}>
-                              {d.fame > 0 ? '+' : ''}{d.fame}<span style={{ fontSize: 12, marginLeft: 3 }}>{isCricket ? '🏏' : '⭐'}</span>
-                            </span>
-                          )}
-                          {d.heat !== 0 && (
-                            <span style={{ fontFamily: 'var(--serif)', fontSize: 22, fontWeight: 600, color: d.heat < 0 ? 'var(--trust)' : 'var(--heat)', lineHeight: 1 }}>
-                              {d.heat > 0 ? '+' : ''}{d.heat}<span style={{ fontSize: 12, marginLeft: 3 }}>{isCricket ? '⭐' : '🔥'}</span>
-                            </span>
-                          )}
-                          {d.image !== 0 && (
-                            <span style={{ fontFamily: 'var(--serif)', fontSize: 22, fontWeight: 600, color: 'var(--trust)', lineHeight: 1 }}>
-                              {d.image > 0 ? '+' : ''}{d.image}<span style={{ fontSize: 12, marginLeft: 3 }}>🤝</span>
-                            </span>
-                          )}
-                          {isCritical && <span className="impact-crit" style={{ alignSelf: 'center' }}>CRITICAL</span>}
-                        </div>
-                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--ink3)" strokeWidth="2" strokeLinecap="round" style={{ transform: impactExpanded ? 'rotate(180deg)' : 'none', transition: 'transform .2s', flexShrink: 0 }}>
-                          <path d="M6 9l6 6 6-6"/>
-                        </svg>
-                      </div>
-
-                      {/* Expanded detail rows */}
-                      {impactExpanded && (
+                  {/* Impact card — always expanded, no toggle */}
+                  <div className={`impact-card${isCritical ? ' danger' : ''}`} style={{ marginTop: 0 }}>
+                      {/* Always-expanded detail rows */}
+                      {true && (
                         <>
                           {d.fame !== 0 && (
                             <div className="impact-row fame" style={{ borderTop: '1px solid rgba(255,255,255,.05)' }}>
@@ -432,8 +400,7 @@ export default function LiveScreen() {
                           )}
                         </>
                       )}
-                    </div>
-                  </button>
+                  </div>
 
                   {/* Player post + reactions — shown after post is ready */}
                   {showPost && displayChar && (
@@ -450,9 +417,16 @@ export default function LiveScreen() {
                         <div style={{ fontSize: 9, fontWeight: 800, color: 'var(--accent)', background: 'rgba(255,45,120,.12)', padding: '3px 8px', borderRadius: 20 }}>✓ POSTED</div>
                       </div>
 
-                      {/* Post image with caption — align-items:end pins text to bottom */}
-                      <div className={`post-img grain ${displayChar.cls}`} style={{ margin: '0 12px', borderRadius: 10, background: postBg, alignItems: 'flex-end' }}>
-                        <p className="overlay-txt" style={{ fontSize: 14, textShadow: '0 1px 8px rgba(0,0,0,.7)' }}>{r(ch.caption)}</p>
+                      {/* Post image — caption absolutely pinned to bottom, always readable */}
+                      <div style={{ margin: '0 12px', borderRadius: 10, background: postBg, aspectRatio: '4/3', position: 'relative', overflow: 'hidden' }}>
+                        <p style={{
+                          position: 'absolute', bottom: 0, left: 0, right: 0, margin: 0,
+                          padding: '32px 14px 14px',
+                          fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 14,
+                          color: 'rgba(255,255,255,.95)', lineHeight: 1.45,
+                          background: 'linear-gradient(to top, rgba(0,0,0,.55) 0%, transparent 100%)',
+                          textShadow: '0 1px 6px rgba(0,0,0,.5)',
+                        }}>{r(ch.caption)}</p>
                       </div>
 
                       {/* Reactions as threaded comments */}
