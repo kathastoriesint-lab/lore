@@ -269,12 +269,13 @@ export function charMeters(_charId: CharId): Meters {
 }
 
 // ── Token resolution ──────────────────────────────────────────────────────────
-export function resolveTokens(text: string, playerName: string, playerGender: 'male' | 'female'): string {
+export function resolveTokens(text: string, playerName: string, playerGender: 'male' | 'female', friendName = 'Maddy'): string {
   const male = playerGender === 'male'
   const crush = male ? 'Ananya' : 'Kabir'
   const ally  = male ? 'Kabir'  : 'Ananya'
   return text
     .replaceAll('{name}', playerName || 'Tum')
+    .replaceAll('{friend}', friendName)
     .replaceAll('{crush}', crush)
     .replaceAll('{ally}', ally)
     // Gendered word forms, always written {token|male-form/female-form}:
@@ -282,6 +283,8 @@ export function resolveTokens(text: string, playerName: string, playerGender: 'm
     //   {x|…}  → crush & opposite-gender refs (the crush is always the opposite gender)
     .replace(/\{p\|([^/|}]*)\/([^|}]*)\}/g, (_m, a, b) => (male ? a : b))
     .replace(/\{x\|([^/|}]*)\/([^|}]*)\}/g, (_m, a, b) => (male ? b : a))
+    // *text* → <em>text</em> for italic rendering in dangerouslySetInnerHTML
+    .replace(/\*([^*]+)\*/g, '<em>$1</em>')
 }
 
 // ── Loyalty scoring ───────────────────────────────────────────────────────────

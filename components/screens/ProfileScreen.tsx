@@ -59,9 +59,10 @@ export default function ProfileScreen() {
 
   const [tab, setTab] = useState<'posts' | 'house'>('house')
 
-  const fame = game.meters.fame
-  const followers = fameToFollowersStr(fame)
-  const following = fameToFollowing(fame)
+  // In cricket, public Fame ⭐ lives in the heat slot; Creator House uses fame slot
+  const fameMeter = isCricket ? game.meters.heat : game.meters.fame
+  const followers = fameToFollowersStr(fameMeter)
+  const following = fameToFollowing(fameMeter)
   const worldLabel = isCricket ? 'Mumbai Indians' : 'Creator House'
 
   // Player's own posts from choices

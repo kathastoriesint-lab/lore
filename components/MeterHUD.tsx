@@ -73,7 +73,8 @@ export default function MeterHUD({ right }: Props) {
         </div>
         <div style={{ textAlign: 'right', flexShrink: 0 }}>
           <div key={`fw${game.meters.fame}`} style={{ fontWeight: 800, fontSize: 15, color: '#fff', animation: 'meterFlash .4s ease-out', lineHeight: 1.2 }}>
-            {followersStr(game.meters.fame)}
+            {/* In cricket, Fame ⭐ lives in the heat slot; in Creator House it's the fame slot */}
+            {followersStr(isCricket ? game.meters.heat : game.meters.fame)}
           </div>
           <div style={{ fontSize: 10, color: 'var(--ink3)' }}>followers</div>
         </div>

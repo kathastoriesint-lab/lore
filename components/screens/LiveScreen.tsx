@@ -38,7 +38,6 @@ export default function LiveScreen() {
 
   // Shorthand: resolve tokens using current player state
   const r = (text: string) => resolveTokens(text, game.playerName, game.playerGender)
-    .replace(/\{friend\}/g, 'Maddy')  // cricket-world friend token
 
   // Get visible situations for current world + meters/choices
   const visibleSituations = isCricket
@@ -231,7 +230,7 @@ export default function LiveScreen() {
         {/* Finale screen */}
         {isFinale && finaleArc && (
           <div style={{ padding: '32px 24px', display: 'flex', flexDirection: 'column', gap: 20, minHeight: '60%', justifyContent: 'center' }}>
-            <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.1em', color: 'var(--ink3)' }}>CREATOR HOUSE — FINALE</div>
+            <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.1em', color: 'var(--ink3)' }}>{isCricket ? 'INDIAN DRESSING ROOM — SEASON FINALE' : 'CREATOR HOUSE — FINALE'}</div>
             <div style={{
               fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 36, lineHeight: 1.1,
               color: finaleArc.color
@@ -241,13 +240,13 @@ export default function LiveScreen() {
             <div style={{ fontSize: 15, color: 'var(--ink2)', lineHeight: 1.55 }}>{finaleArc.sub}</div>
             <div style={{ display: 'flex', gap: 12, marginTop: 8, flexWrap: 'wrap' }}>
               <div style={{ padding: '10px 16px', background: `color-mix(in srgb, ${finaleArc.color} 20%, transparent)`, border: `1px solid color-mix(in srgb, ${finaleArc.color} 40%, transparent)`, borderRadius: 12, fontSize: 12, fontWeight: 700, color: finaleArc.color }}>
-                Fame {game.meters.fame}
+                {isCricket ? '🏏 Form' : '⭐ Fame'} {game.meters.fame}
               </div>
               <div style={{ padding: '10px 16px', background: 'color-mix(in srgb, #FF5C3A 20%, transparent)', border: '1px solid color-mix(in srgb, #FF5C3A 40%, transparent)', borderRadius: 12, fontSize: 12, fontWeight: 700, color: '#FF5C3A' }}>
-                Heat {game.meters.heat}
+                {isCricket ? '⭐ Fame' : '🔥 Heat'} {game.meters.heat}
               </div>
               <div style={{ padding: '10px 16px', background: 'color-mix(in srgb, #3DD6C8 20%, transparent)', border: '1px solid color-mix(in srgb, #3DD6C8 40%, transparent)', borderRadius: 12, fontSize: 12, fontWeight: 700, color: '#3DD6C8' }}>
-                Image {game.meters.image}
+                🤝 {isCricket ? 'Trust' : 'Image'} {game.meters.image}
               </div>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 16 }}>
