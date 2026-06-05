@@ -154,7 +154,7 @@ export function relationshipFor(charId: string, gender: 'male' | 'female'): Rela
 const POS = ['respect','proud','love','shukriya','samjha','samjhi','better','achha','sahi','welcome','best','genuine','good','khush','🔥','🤝','💙','🥺','🫶','😭','💪','🏏']
 const NEG = ['noted','interesting','hmm','careful','regret','filing','suspicious','plotting','dangerous','cowardice','naive','overconfident','wrong','ouch','desperate','😬','🙄','😔','💅','👀']
 
-function sentimentDelta(text: string): number {
+export function sentimentDelta(text: string): number {
   const t = text.toLowerCase()
   const pos = POS.some(w => t.includes(w))
   const neg = NEG.some(w => t.includes(w))

@@ -32,6 +32,8 @@ function makeCtx(overrides: Partial<AppCtx> = {}): AppCtx {
     setChar: vi.fn(),
     startGame: vi.fn(),
     startCricketGame: vi.fn(),
+    dmBadgeCount: 0,
+    clearDmBadge: vi.fn(),
     makeChoice: vi.fn(),
     sendDM: vi.fn(),
     openDMThread: vi.fn(),

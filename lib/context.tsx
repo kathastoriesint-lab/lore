@@ -27,6 +27,8 @@ export interface AppCtx {
   likedPosts: Set<string>
   toast: string | null
   viewingCharId: CharId | null
+  dmBadgeCount: number
+  clearDmBadge: () => void
   likePost: (postId: string, charId: CharId, fameDelta: number) => void
   applyFeedDeltas: (deltas: { fame: number; heat: number; image: number }, charId?: string, charName?: string) => void
   injectCharDM: (charId: CharId, text: string) => void

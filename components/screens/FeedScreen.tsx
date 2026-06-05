@@ -372,7 +372,7 @@ const StatusBar = () => (
 )
 
 export default function FeedScreen() {
-  const { navigate, goBack, showToast, game, likePost, likedPosts, applyFeedDeltas, setViewingChar } = useApp()
+  const { navigate, goBack, showToast, game, likePost, likedPosts, applyFeedDeltas, setViewingChar, dmBadgeCount } = useApp()
   const [commentPost, setCommentPost] = useState<string | null>(null)
   const [commentedPosts, setCommentedPosts] = useState<Set<string>>(new Set())
 
@@ -811,8 +811,9 @@ export default function FeedScreen() {
           <span>Feed</span>
         </button>
         {isCricket && (
-          <button className="tab" onClick={() => handleTab('dms')}>
+          <button className="tab" onClick={() => handleTab('dms')} style={{ position: 'relative' }}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            {dmBadgeCount > 0 && <div className="badge-num" style={{ top:0, right:8 }}>{dmBadgeCount > 9 ? '9+' : dmBadgeCount}</div>}
             <span>DMs</span>
           </button>
         )}

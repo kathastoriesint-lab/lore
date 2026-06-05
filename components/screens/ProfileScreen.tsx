@@ -3,7 +3,8 @@ import { useMemo, useState } from 'react'
 import { useApp } from '@/lib/context'
 import { CHARS, getVisibleSituations } from '@/lib/data'
 import { CRICKET_CHARS, CRICKET_SITUATIONS } from '@/lib/cricket-data'
-import { fameToFollowers as fameToFollowersNum, applyDeltas, resolveTokens } from '@/lib/game'
+import { fameToFollowers as fameToFollowersNum, applyDeltas, resolveTokens, resolveEnding } from '@/lib/game'
+import { resolveCricketEnding, CRICKET_ENDING_DATA } from '@/lib/cricket-data'
 import { houseCast, relationshipFor, computeBond, bondColor } from '@/lib/relationships'
 import type { CharId } from '@/lib/types'
 import MeterHUD from '@/components/MeterHUD'
@@ -121,6 +122,34 @@ export default function ProfileScreen() {
 
         {/* Shared HUD */}
         <div style={{ marginTop:12 }}><MeterHUD /></div>
+
+        {/* T5: Your Ending trajectory */}
+        {game.choices.length >= 3 && (() => {
+          const FINALE_DATA = {
+            heart: { arc: 'Heat King/Queen', color: '#FF5C3A', emoji: '🔥' },
+            main:  { arc: 'Main Character',  color: '#FFB020', emoji: '⭐' },
+            brand: { arc: 'Brand Icon',       color: '#3DD6C8', emoji: '🤝' },
+            dark:  { arc: 'Dark Horse',       color: '#8a4ab0', emoji: '🌑' },
+            realDeal:        { arc: 'The Real Deal',        color: '#3DD6C8', emoji: '🏏' },
+            captainsProject: { arc: "Captain's Project",    color: '#FFB020', emoji: '💙' },
+            paltanWonderkid: { arc: 'Paltan Wonderkid',     color: '#FF2D78', emoji: '🔥' },
+            tooMuchTooSoon:  { arc: 'Too Much Too Soon',    color: '#FF5C3A', emoji: '⚠️' },
+            quietClimber:    { arc: 'Quiet Climber',        color: '#8a4ab0', emoji: '📈' },
+          } as Record<string, { arc: string; color: string; emoji: string }>
+          const key = isCricket ? resolveCricketEnding(game.meters) : resolveEnding(game.meters)
+          const ending = FINALE_DATA[key]
+          if (!ending) return null
+          return (
+            <div style={{ margin:'8px 16px 0', background:'var(--surf)', border:`1px solid color-mix(in srgb, ${ending.color} 30%, transparent)`, borderRadius:14, padding:'12px 14px', display:'flex', alignItems:'center', gap:12 }}>
+              <div style={{ fontSize:22, flexShrink:0 }}>{ending.emoji}</div>
+              <div style={{ flex:1 }}>
+                <div style={{ fontSize:9, fontWeight:800, letterSpacing:'.08em', color:'var(--ink3)' }}>AT THIS RATE</div>
+                <div style={{ fontFamily:'var(--serif)', fontWeight:600, fontSize:17, color:ending.color, marginTop:2 }}>{ending.arc}</div>
+              </div>
+              <div style={{ fontSize:11, color:'var(--ink3)' }}>ending →</div>
+            </div>
+          )
+        })()}
 
         {/* Tab switcher */}
         <div style={{ display:'flex', borderBottom:'1px solid var(--line)', marginTop:6 }}>

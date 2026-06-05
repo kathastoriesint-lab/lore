@@ -38,6 +38,8 @@ export default function App() {
     ria:85, kabir:55, dev:30, ananya:15, zoya:50
   })
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set())
+  const [dmBadgeCount, setDmBadgeCount] = useState(0)
+  const clearDmBadge = useCallback(() => setDmBadgeCount(0), [])
   const [viewingCharId, setViewingCharId] = useState<CharId | null>(null)
   const [game, setGame] = useState<GameState>({
     playerName: '', playerGender: 'male' as const,
@@ -156,6 +158,7 @@ export default function App() {
   const openDMThread = useCallback(async (charId: CharId) => {
     setDmChar(charId)
     navigate('dm-thread')
+    setDmBadgeCount(0) // clear badge on open
     if (!dmHistory[charId]) {
       const msgs = await loadDMs(charId)
       setDmHistory(prev => ({ ...prev, [charId]: msgs }))
@@ -221,6 +224,7 @@ export default function App() {
     const charMsg: DMMessage = { role: 'char', text }
     setDmHistory(prev => ({ ...prev, [charId]: [...(prev[charId] ?? []), charMsg] }))
     saveDM(charId, charMsg).catch(() => {})
+    setDmBadgeCount(prev => prev + 1) // T4: badge notification
   }, [])
 
   const applyFeedDeltas = useCallback((deltas: { fame: number; heat: number; image: number }, charId?: string, charName?: string) => {
@@ -267,6 +271,7 @@ export default function App() {
   return (
     <AppContext.Provider value={{
       screen, prevScreen: prev, dmChar, game, dmHistory, dmTrust, charFame, likedPosts, viewingCharId, toast, impactNotif, showImpact,
+      dmBadgeCount, clearDmBadge,
       phone, setPhone, saveProfile,
       advanceSituation, navigate, goBack, showToast, setChar, startGame, startCricketGame,
       makeChoice, sendDM, openDMThread, resetGame, likePost, applyFeedDeltas, injectCharDM, setViewingChar,
