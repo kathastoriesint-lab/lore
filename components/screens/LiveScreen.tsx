@@ -154,6 +154,12 @@ export default function LiveScreen() {
     const ch = sit.choices[idx]
     inFlowRef.current = true  // freeze situation-change effect during animation
 
+    // B4 FIX: advance situation IMMEDIATELY after choice is confirmed.
+    // Previously called inside a 600ms timer — if user tapped "Next Situation"
+    // before the timer fired, resetAfterChoice() cleared it and situation never advanced.
+    // Functional updater in advanceSituation chains correctly with makeChoice's setGame.
+    advanceSituation()
+
     addTimer(() => { scrollRef.current?.scrollTo({ top: 400, behavior: 'smooth' }) }, 200)
 
     const firstReactor = ch.reactions.find(rx => rx.char !== '__fan')
@@ -161,11 +167,8 @@ export default function LiveScreen() {
       addTimer(() => { injectCharDM(firstReactor.char as CharId, r(firstReactor.text)) }, 1200)
     }
 
-    // Show post preview + advance situation — user taps to continue
-    addTimer(() => {
-      setShowPost(true)
-      advanceSituation()  // ONE write: meters+choices (from makeChoice) + situation
-    }, 600)
+    // Show post preview after impact card appears
+    addTimer(() => { setShowPost(true) }, 600)
   }, [sit, makeChoice, advanceSituation, navigate, injectCharDM])
 
 
@@ -494,7 +497,7 @@ export default function LiveScreen() {
                 </div>
               )}
             </>
-          ) : (
+          ) : showPost ? (
             <div style={{ display: 'flex', gap: 10 }}>
               <button
                 onClick={resetAfterChoice}
@@ -508,6 +511,11 @@ export default function LiveScreen() {
               >
                 Go to Feed
               </button>
+            </div>
+          ) : (
+            /* chosen but showPost not yet — show a brief loading state */
+            <div style={{ height: 50, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div className="pulse" style={{ width: 8, height: 8 }} />
             </div>
           )}
         </div>

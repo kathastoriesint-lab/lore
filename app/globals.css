@@ -30,7 +30,9 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
   overflow:hidden;box-shadow:0 0 0 8px #0a0a14,0 0 60px rgba(255,45,120,.12),0 30px 80px rgba(0,0,0,.75)}
 .viewport{position:absolute;inset:0;overflow:hidden}
 @media(max-width:480px){body{background:var(--bg);display:block}.stage{padding:0}
-  .phone{width:100vw;height:100vh;height:100dvh;border-radius:0;box-shadow:none}}
+  .phone{width:100vw;height:100vh;height:100dvh;border-radius:0;box-shadow:none}
+  /* Hide fake statusbar on real phones — system bar is already there */
+  .statusbar{display:none}}
 
 /* ── Screens ── */
 .screen{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--bg);
