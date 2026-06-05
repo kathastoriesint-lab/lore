@@ -1,53 +1,25 @@
 'use client'
-import { useCallback, useEffect, useRef, useState } from 'react'
 import { useApp } from '@/lib/context'
 import { CRICKET_CHARS, CRICKET_NARR_CHARS } from '@/lib/cricket-data'
 
 export default function CricketIntroScreen() {
   const { startCricketGame, navigate, game } = useApp()
-  const [lines, setLines] = useState([false, false, false])
-  const [showCast, setShowCast] = useState(false)
-  const [showCta, setShowCta] = useState(false)
-  const timers = useRef<ReturnType<typeof setTimeout>[]>([])
 
-  const t = (ms: number, fn: () => void) => {
-    const id = setTimeout(fn, ms)
-    timers.current.push(id)
-  }
-
-  useEffect(() => {
-    t(300,  () => setLines(p => { const n=[...p]; n[0]=true; return n }))
-    t(1000, () => setLines(p => { const n=[...p]; n[1]=true; return n }))
-    t(1800, () => setLines(p => { const n=[...p]; n[2]=true; return n }))
-    t(2600, () => setShowCast(true))
-    t(3400, () => setShowCta(true))
-    return () => timers.current.forEach(clearTimeout)
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
-
-  const skip = useCallback(() => {
-    timers.current.forEach(clearTimeout)
-    setLines([true, true, true])
-    setShowCast(true)
-    setShowCta(true)
-  }, [])
-
-  const handleEnter = useCallback(() => {
+  const handleEnter = () => {
     if (game.playerName) {
       startCricketGame()
     } else {
       navigate('onboarding')
     }
-  }, [game.playerName, startCricketGame, navigate])
+  }
 
   return (
     <div className="wintro-screen" style={{ background: 'linear-gradient(160deg, #001540 0%, #08080F 60%)' }}>
       <div className="wintro-cover" style={{ background: 'linear-gradient(160deg, rgba(0,48,135,.6) 0%, transparent 70%)' }} />
 
-      <button className="wintro-skip" onClick={skip}>Skip →</button>
-
       <div className="wintro-content">
         {/* Badge */}
-        <div className={`wi-line${lines[0] ? ' in' : ''}`}>
+        <div className="wi-line in">
           <div className="wi-pre" style={{ color: '#FFB020' }}>
             <div className="pulse" style={{ background: '#FFB020' }} />
             MUMBAI INDIANS · IPL SEASON 1
@@ -55,12 +27,12 @@ export default function CricketIntroScreen() {
         </div>
 
         {/* Title */}
-        <div className={`wi-line${lines[1] ? ' in' : ''}`}>
+        <div className="wi-line in">
           <div className="wi-title" style={{ fontSize: 28, lineHeight: 1.15 }}>Indian<br />Dressing Room</div>
         </div>
 
         {/* Premise */}
-        <div className={`wi-line${lines[2] ? ' in' : ''}`}>
+        <div className="wi-line in">
           <div className="wi-meta" style={{ marginBottom: 0 }}>
             You are a 16-year-old batting prodigy. Mumbai Indians just bought you.
           </div>
@@ -72,56 +44,50 @@ export default function CricketIntroScreen() {
         </div>
 
         {/* Cast */}
-        {showCast && (
-          <div className="wintro-chars" style={{ marginTop: 20, animation: 'fadeUp .5s ease forwards' }}>
-            {CRICKET_NARR_CHARS.map(([id, desc]) => {
-              const ch = CRICKET_CHARS[id]
-              if (!ch) return null
-              return (
-                <div key={id} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 14 }}>
-                  <div
-                    className={`av ${ch.cls}`}
-                    style={{ width: 36, height: 36, fontSize: 14, flexShrink: 0 }}
-                  >
-                    {ch.init}
-                  </div>
-                  <div>
-                    <div style={{ fontWeight: 700, fontSize: 13 }}>{ch.name}</div>
-                    <div style={{ fontSize: 11, color: 'var(--ink3)', lineHeight: 1.45, marginTop: 2, whiteSpace: 'pre-line' }}>
-                      {desc}
-                    </div>
+        <div className="wintro-chars" style={{ marginTop: 20 }}>
+          {CRICKET_NARR_CHARS.map(([id, desc]) => {
+            const ch = CRICKET_CHARS[id]
+            if (!ch) return null
+            return (
+              <div key={id} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 14 }}>
+                <div
+                  className={`av ${ch.cls}`}
+                  style={{ width: 36, height: 36, fontSize: 14, flexShrink: 0, backgroundImage: `url(/avatars/${id}.png)`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+                >
+                  <span style={{ opacity: 0 }}>{ch.init}</span>
+                </div>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 13 }}>{ch.name}</div>
+                  <div style={{ fontSize: 11, color: 'var(--ink3)', lineHeight: 1.45, marginTop: 2, whiteSpace: 'pre-line' }}>
+                    {desc}
                   </div>
                 </div>
-              )
-            })}
-          </div>
-        )}
-
-        {/* Meters label */}
-        {showCast && (
-          <div style={{ display: 'flex', gap: 10, marginTop: 4, animation: 'fadeUp .5s ease .1s both' }}>
-            {[
-              { label: '🏏 FORM', color: '#3DD6C8', desc: 'Cricket credibility' },
-              { label: '⭐ FAME', color: '#FFB020', desc: 'Public attention' },
-              { label: '🤝 TRUST', color: '#003087', desc: 'Dressing room belief' },
-            ].map(m => (
-              <div key={m.label} style={{ flex: 1, background: 'rgba(255,255,255,.05)', borderRadius: 10, padding: '8px 10px' }}>
-                <div style={{ fontSize: 9, fontWeight: 800, color: m.color, letterSpacing: '.06em' }}>{m.label}</div>
-                <div style={{ fontSize: 10, color: 'var(--ink3)', marginTop: 3 }}>{m.desc}</div>
               </div>
-            ))}
-          </div>
-        )}
+            )
+          })}
+        </div>
+
+        {/* Meters */}
+        <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
+          {[
+            { label: '🏏 FORM', color: '#3DD6C8', desc: 'Cricket credibility' },
+            { label: '⭐ FAME', color: '#FFB020', desc: 'Public attention' },
+            { label: '🤝 TRUST', color: '#003087', desc: 'Dressing room belief' },
+          ].map(m => (
+            <div key={m.label} style={{ flex: 1, background: 'rgba(255,255,255,.05)', borderRadius: 10, padding: '8px 10px' }}>
+              <div style={{ fontSize: 9, fontWeight: 800, color: m.color, letterSpacing: '.06em' }}>{m.label}</div>
+              <div style={{ fontSize: 10, color: 'var(--ink3)', marginTop: 3 }}>{m.desc}</div>
+            </div>
+          ))}
+        </div>
 
         {/* CTAs */}
-        {showCta && (
-          <div className="wi-cta" style={{ animation: 'fadeUp .5s ease .15s both', marginTop: 20 }}>
-            <button className="wi-btn" style={{ background: '#003087', boxShadow: '0 8px 24px rgba(0,48,135,.4)' }} onClick={handleEnter}>
-              Enter Dressing Room →
-            </button>
-            <button className="wi-skip-btn" onClick={() => navigate('worlds')}>← Back to Worlds</button>
-          </div>
-        )}
+        <div className="wi-cta" style={{ marginTop: 20 }}>
+          <button className="wi-btn" style={{ background: '#003087', boxShadow: '0 8px 24px rgba(0,48,135,.4)' }} onClick={handleEnter}>
+            Enter Dressing Room →
+          </button>
+          <button className="wi-skip-btn" onClick={() => navigate('worlds')}>← Back to Worlds</button>
+        </div>
       </div>
     </div>
   )
