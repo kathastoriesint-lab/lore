@@ -7,6 +7,18 @@ import { CRICKET_CHARS, CRICKET_SITUATIONS } from '@/lib/cricket-data'
 import { applyDeltas, resolveTokens } from '@/lib/game'
 import MeterHUD from '@/components/MeterHUD'
 
+// Inline character background — color-mix(var(--cc)) fails without a parent with the CSS class
+const CHAR_COLORS_HEX: Record<string, string> = {
+  ria:'#b03a5e', kabir:'#2a6f8f', dev:'#3a7a4a', ananya:'#8a4ab0', zoya:'#aa6a8a',
+  meher:'#b07a2a', rishi:'#4a8a2a', adi:'#d4581a',
+  hardik:'#003087', rohit:'#1a3a6e', surya:'#004080', bumrah:'#0a1a4a',
+  tilak:'#2a5a8f', coach:'#4a3a1a', friend:'#3a6a4a',
+}
+const charBg = (id: string) => {
+  const c = CHAR_COLORS_HEX[id] ?? '#1a1a2e'
+  return `linear-gradient(135deg, ${c}cc 0%, #0a0a14 100%)`
+}
+
 const Heart = ({ filled }: { filled: boolean }) => (
   <svg viewBox="0 0 24 24" fill={filled ? 'var(--accent)' : 'none'} stroke={filled ? 'var(--accent)' : '#fff'} strokeWidth="1.8" strokeLinecap="round">
     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
@@ -532,7 +544,7 @@ export default function FeedScreen() {
                   </div>
                   {isNew && <div className="new-pill">NEW</div>}
                 </div>
-                <div className={`post-img grain ${pc.cls}`} style={{ background: `linear-gradient(135deg, color-mix(in srgb, var(--cc) 70%, #000) 0%, #000 100%)` }}>
+                <div className={`post-img grain ${pc.cls}`} style={{ background: charBg(pc.id) }}>
                   <p className="overlay-txt" style={{ fontSize:14 }}>{resolveTokens(post.caption, game.playerName, game.playerGender)}</p>
                 </div>
                 <div className="post-actions">
@@ -550,19 +562,21 @@ export default function FeedScreen() {
                   <div style={{ padding: '2px 14px 10px', display: 'flex', flexDirection: 'column', gap: 6 }}>
                     {post.reactions.map((rx, j) => {
                       const isFan = rx.char === '__fan'
-                      const rxChar = isFan ? null : CHARS[rx.char as CharId]
+                      const rxChar = isFan ? null : (allChars[rx.char as CharId] ?? null)
                       return (
                         <div key={j} style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
-                          {isFan ? (
-                            <div style={{ width: 22, height: 22, borderRadius: '50%', background: '#2a2a38', display: 'grid', placeItems: 'center', fontSize: 9, fontWeight: 700, color: 'var(--ink3)', flexShrink: 0 }}>c</div>
+                          {isFan || !rxChar ? (
+                            <div style={{ width: 22, height: 22, borderRadius: '50%', background: '#2a2a38', display: 'grid', placeItems: 'center', fontSize: 9, fontWeight: 700, color: 'var(--ink3)', flexShrink: 0 }}>
+                              {isFan ? (rx.name ?? 'f')[0].toUpperCase() : '?'}
+                            </div>
                           ) : (
-                            <div className={`av ${rxChar!.cls}`} style={{ width: 22, height: 22, fontSize: 9, flexShrink: 0, backgroundImage: `url(/avatars/${rxChar!.id}.png)`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
-                              <span style={{ opacity: 0 }}>{rxChar!.init}</span>
+                            <div className={`av ${rxChar.cls}`} style={{ width: 22, height: 22, fontSize: 9, flexShrink: 0, backgroundImage: `url(/avatars/${rxChar.id}.png)`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+                              <span style={{ opacity: 0 }}>{rxChar.init}</span>
                             </div>
                           )}
                           <div style={{ fontSize: 12, lineHeight: 1.4, color: 'rgba(255,255,255,.85)' }}>
                             <span style={{ fontWeight: 700, marginRight: 4 }}>
-                              {isFan ? `@${rx.name ?? 'fan'}` : rxChar!.name}
+                              {isFan ? `@${rx.name ?? 'fan'}` : (rxChar?.name ?? rx.char)}
                             </span>
                             {isFan && (
                               <span style={{ fontSize: 9, fontWeight: 700, color: 'var(--ink3)', background: 'rgba(255,255,255,.08)', padding: '1px 5px', borderRadius: 4, marginRight: 5 }}>FAN</span>
@@ -600,7 +614,7 @@ export default function FeedScreen() {
                 </div>
                 {isNew && <div className="new-pill">NEW</div>}
               </div>
-              <div className={`post-img grain ${reactChar.cls}`} style={{ background: `linear-gradient(135deg, color-mix(in srgb, var(--cc) 70%, #000) 0%, #000 100%)` }}>
+              <div className={`post-img grain ${reactChar.cls}`} style={{ background: charBg(reactChar.id) }}>
                 <p className="overlay-txt" style={{ fontSize:14 }}>{resolveTokens(post.reaction.caption, game.playerName, game.playerGender)}</p>
               </div>
               <div className="post-actions">
