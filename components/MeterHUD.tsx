@@ -2,6 +2,7 @@
 import { useEffect, useRef } from 'react'
 import { useApp } from '@/lib/context'
 import { fameToFollowers, clamp } from '@/lib/game'
+import { SITUATIONS } from '@/lib/data'
 import PlayerAvatar from './PlayerAvatar'
 
 function followersStr(fame: number): string {
@@ -40,9 +41,12 @@ export default function MeterHUD({ right }: Props) {
   }, [game.meters.fame, game.meters.heat, game.meters.image])
 
   const handle = `@${(game.playerName || 'you').toLowerCase().replace(/\s+/g, '')}`
+  // Use actual sit.day from data rather than a formula — the formula diverges when
+  // days have unequal numbers of situations (e.g. Day 2 has 5 situations, not 3)
+  const currentDay = SITUATIONS[game.situation]?.day ?? Math.max(1, Math.ceil((game.situation + 1) / 3))
   const worldLine = isCricket
     ? `Mumbai Indians · Season 1`
-    : `Creator House · Day ${Math.max(1, Math.ceil((game.situation + 1) / 3))} of 10`
+    : `Creator House · Day ${currentDay} of 10`
 
   const meters = isCricket
     ? [
@@ -72,8 +76,7 @@ export default function MeterHUD({ right }: Props) {
           <div style={{ fontSize: 11, color: 'var(--ink3)', marginTop: 1 }}>{worldLine}</div>
         </div>
         <div style={{ textAlign: 'right', flexShrink: 0 }}>
-          <div key={`fw${game.meters.fame}`} style={{ fontWeight: 800, fontSize: 15, color: '#fff', animation: 'meterFlash .4s ease-out', lineHeight: 1.2 }}>
-            {/* In cricket, Fame ⭐ lives in the heat slot; in Creator House it's the fame slot */}
+          <div key={`fw${isCricket ? game.meters.heat : game.meters.fame}`} style={{ fontWeight: 800, fontSize: 15, color: '#fff', animation: 'meterFlash .4s ease-out', lineHeight: 1.2 }}>
             {followersStr(isCricket ? game.meters.heat : game.meters.fame)}
           </div>
           <div style={{ fontSize: 10, color: 'var(--ink3)' }}>followers</div>

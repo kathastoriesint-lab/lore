@@ -1308,8 +1308,8 @@ export const CRICKET_DM_HOOKS: Partial<Record<import('./types').CharId, string>>
 // Seed DM mock replies for cricket characters
 export const CRICKET_DM_MOCK: Partial<Record<import('./types').CharId, string[]>> = {
   hardik: ['Role pe focus rakh.', 'Execution pe dhyaan.', 'Team first. Always.'],
-  rohit:  ['Shot tha. Ball nahi tha.', 'Tempo. Bas.', 'Hmm.'],
-  surya:  ['Champion! 😄', 'Shot mast tha, ball thodi jaldi aayi.', 'Field dekh, phir pagal ban.'],
+  rohit:  ['Sahi ja raha hai.', 'Kal baat karte hain.', 'Dekh raha hoon.'],
+  surya:  ['Aye, kya scene hai? 😄', 'Kal nets mein aa, kuch dikhata hoon.', 'Energy mast hai bhai.'],
   bumrah: ['Still late on the slower one.', 'Better.', 'Watch the wrist.'],
   tilak:  ['Good session.', 'Trust build karo. Time lagega.', 'Process pe raho.'],
   coach:  ['Video bhej.', 'Kal subah 6 baje. Throwdowns.', 'Sahi chal raha hai. Chalo.'],

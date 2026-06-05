@@ -47,6 +47,10 @@ export default function App() {
     world: 'creator-house' as const, char: null, situation: 0, choices: [], meters: { fame: 20, heat: 50, image: 30 }, narrator_done: false, dayUnlockTime: {},
   })
   const [dmHistory, setDmHistory] = useState<Record<string, DMMessage[]>>({})
+  // Tracks which chars have had their full DB history loaded — prevents the bug where
+  // injectCharDM populates dmHistory[charId] before openDMThread runs, so the guard
+  // `!dmHistory[charId]` skips the DB load and old messages are never shown.
+  const dmDbLoadedRef = useRef<Set<string>>(new Set())
   const [toast, setToast] = useState<string | null>(null)
   const [ready, setReady] = useState(false)
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -171,11 +175,19 @@ export default function App() {
     setDmChar(charId)
     navigate('dm-thread')
     setDmBadgeCount(0) // clear badge on open
-    if (!dmHistory[charId]) {
+    if (!dmDbLoadedRef.current.has(charId)) {
+      dmDbLoadedRef.current.add(charId)
       const msgs = await loadDMs(charId)
-      setDmHistory(prev => ({ ...prev, [charId]: msgs }))
+      setDmHistory(prev => {
+        // Merge: DB history first, then any in-memory messages not yet in DB
+        // (injectCharDM fires saveDM async — there may be a small timing gap)
+        const inMemory = prev[charId] ?? []
+        const dbKeys = new Set(msgs.map(m => `${m.role}:${m.text}`))
+        const onlyInMemory = inMemory.filter(m => !dbKeys.has(`${m.role}:${m.text}`))
+        return { ...prev, [charId]: [...msgs, ...onlyInMemory] }
+      })
     }
-  }, [dmHistory, navigate])
+  }, [navigate])
 
   const sendDM = useCallback(async (charId: CharId, text: string) => {
     const userMsg: DMMessage = { role: 'me', text }
@@ -215,9 +227,13 @@ export default function App() {
   const likePost = useCallback((postId: string, charId: CharId, fameDelta: number) => {
     if (likedPosts.has(postId)) return  // already liked — full no-op
     setLikedPosts(prev => { const n = new Set(prev); n.add(postId); return n })
-    const newFame = Math.min(100, game.meters.fame + Math.ceil(fameDelta / 3))
+    // In cricket, public Fame lives in the heat slot; Creator House uses fame slot
+    const isCricket = game.world === 'cricket'
+    const fameSlot = isCricket ? 'heat' : 'fame'
+    const currentFameMeter = isCricket ? game.meters.heat : game.meters.fame
+    const newFame = Math.min(100, currentFameMeter + Math.ceil(fameDelta / 3))
     setCharFame(prev => ({ ...prev, [charId]: Math.min(100, (prev[charId] ?? 50) + fameDelta) }))
-    saveAndSet({ ...game, meters: { ...game.meters, fame: newFame } })
+    saveAndSet({ ...game, meters: { ...game.meters, [fameSlot]: newFame } })
     const charName = CHARS[charId]?.name
     showImpact({
       action: `Liked ${charName}'s post`,
