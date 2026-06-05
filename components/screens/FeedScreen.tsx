@@ -16,7 +16,9 @@ const CHAR_COLORS_HEX: Record<string, string> = {
 }
 const charBg = (id: string) => {
   const c = CHAR_COLORS_HEX[id] ?? '#1a1a2e'
-  return `linear-gradient(160deg, ${c} 0%, #0d0d20 100%)`
+  // Character color stays vivid through midpoint, fades to deep dark at bottom-right
+  // Keeps visual richness while preserving caption legibility at bottom
+  return `linear-gradient(160deg, ${c} 0%, ${c}cc 48%, #131323 100%)`
 }
 
 const Heart = ({ filled }: { filled: boolean }) => (

@@ -56,7 +56,7 @@ export default function CricketIntroScreen() {
 
         {/* Title */}
         <div className={`wi-line${lines[1] ? ' in' : ''}`}>
-          <div className="wi-title" style={{ fontSize: 32 }}>Indian Dressing Room</div>
+          <div className="wi-title" style={{ fontSize: 28, lineHeight: 1.15 }}>Indian<br />Dressing Room</div>
         </div>
 
         {/* Premise */}

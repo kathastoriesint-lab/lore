@@ -326,7 +326,7 @@ export default function LiveScreen() {
                 tilak:'#2a5a8f', coach:'#4a3a1a', friend:'#3a6a4a',
               }
               const charColor = displayChar ? (CHAR_COLORS[displayChar.id] ?? '#1a1a2e') : '#1a1a2e'
-              const postBg = `linear-gradient(160deg, ${charColor} 0%, #0d0d20 100%)`
+              const postBg = `linear-gradient(160deg, ${charColor} 0%, ${charColor}cc 48%, #131323 100%)`
 
               // Compact delta summary for collapsed state
               const deltaSummary = [

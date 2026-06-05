@@ -64,7 +64,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
   color:var(--ink3);padding-top:2px}
 .tab svg{width:23px;height:23px}
-.tab span{font-size:10px;font-weight:500}
+.tab span{font-size:11px;font-weight:500}
 .tab.active{color:var(--accent)}
 
 /* ── Avatar ── */
@@ -142,8 +142,8 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .post-head{display:flex;align-items:center;gap:10px;padding:10px 14px}
 .post-head .av{width:34px;height:34px;font-size:14px}
 .post-id{flex:1;line-height:1.2}
-.post-id .h{font-weight:700;font-size:13.5px}
-.post-id .s{font-size:10.5px;color:var(--ink2)}
+.post-id .h{font-weight:700;font-size:14px}
+.post-id .s{font-size:11.5px;color:var(--ink2)}
 .post-img{width:100%;aspect-ratio:1/1;position:relative;display:flex;flex-direction:column;justify-content:flex-end;align-items:flex-start}
 .post-img::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 30%,rgba(0,0,0,.75) 100%);z-index:1}
 .post-img.grain::after{content:"";position:absolute;inset:0;background:var(--grain);background-size:170px 170px;opacity:.4;z-index:1}
@@ -151,8 +151,8 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .post-actions{display:flex;align-items:center;gap:16px;padding:10px 14px 6px}
 .post-actions .spacer{flex:1}
 .post-actions svg{width:24px;height:24px}
-.likes{font-weight:700;font-size:13px;padding:0 14px}
-.caption{font-size:13px;line-height:1.45;padding:5px 14px 2px;color:var(--ink)}
+.likes{font-weight:700;font-size:14px;padding:0 14px}
+.caption{font-size:14px;line-height:1.5;padding:5px 14px 2px;color:var(--ink)}
 .caption b{font-weight:600;margin-right:5px}
 .comments-link{font-size:12.5px;color:var(--ink2);padding:4px 14px 12px}
 .new-pill{background:var(--accent);color:#fff;font-size:8px;font-weight:800;padding:3px 6px;border-radius:6px;letter-spacing:.04em}
@@ -355,10 +355,10 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .thread-head .tinfo{flex:1;line-height:1.2}
 .thread-head .tn{font-weight:700;font-size:14px}
 .thread-head .tsub{font-size:10px;color:var(--ink2)}
-.dm-trust{padding:8px 16px;border-bottom:1px solid var(--line)}
-.dm-trust .tl{display:flex;justify-content:space-between;align-items:center;font-size:9px;font-weight:800;color:var(--trust);letter-spacing:.05em}
-.dm-trust .bar{height:5px;border-radius:3px;background:rgba(255,255,255,.08);margin-top:5px;overflow:hidden}
-.dm-trust .bar i{display:block;height:100%;background:var(--trust);border-radius:3px;transition:width .6s}
+.dm-trust{padding:10px 16px;border-bottom:1px solid var(--line)}
+.dm-trust .tl{display:flex;justify-content:space-between;align-items:center;font-size:11px;font-weight:800;color:var(--trust);letter-spacing:.05em}
+.dm-trust .bar{height:6px;border-radius:3px;background:rgba(255,255,255,.1);margin-top:7px;overflow:hidden}
+.dm-trust .bar i{display:block;height:100%;background:var(--trust);border-radius:3px;transition:width .6s;box-shadow:0 0 8px rgba(61,214,200,.5)}
 .chat{flex:1;overflow-y:auto;padding:14px 14px 6px;display:flex;flex-direction:column;gap:8px;scrollbar-width:none}
 .chat::-webkit-scrollbar{display:none}
 .msg{max-width:78%;font-size:14px;line-height:1.4;padding:10px 14px;border-radius:18px}
