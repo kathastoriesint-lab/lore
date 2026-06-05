@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useApp } from '@/lib/context'
 import type { CharId, DMMessage } from '@/lib/types'
 import { CHARS, DM_TRUST, DM_QUICK } from '@/lib/data'
+import { CRICKET_CHARS, CRICKET_DM_MOCK } from '@/lib/cricket-data'
 
 const StatusBar = () => (
   <div className="statusbar">
@@ -18,8 +19,9 @@ const StatusBar = () => (
 export default function DMThreadScreen() {
   const { goBack, showToast, dmChar, dmHistory, dmTrust, sendDM } = useApp()
 
+  const allChars = { ...CHARS, ...CRICKET_CHARS }
   const charId = dmChar as CharId | null
-  const char = charId ? CHARS[charId] : null
+  const char = charId ? (allChars[charId] ?? null) : null
   const messages: DMMessage[] = charId ? (dmHistory[charId] ?? []) : []
 
   const [input, setInput] = useState('')
@@ -72,7 +74,16 @@ export default function DMThreadScreen() {
     )
   }
 
-  const quickChips = DM_QUICK[charId] ?? []
+  const CRICKET_QUICK: Partial<Record<string, string[]>> = {
+    hardik: ['Role ke baare mein baat karni thi', 'Bench pe hoon — kya karu?', 'Kal match mein nervous hoon'],
+    rohit:  ['Tempo kya hota hai exactly?', 'Pehli ball ke baare mein advice do', 'Kuch dekha mujhme?'],
+    surya:  ['Woh angle wala shot kaise?', 'Field reading sikhao', 'Kal nets pe aaun?'],
+    bumrah: ['Aaj over better tha?', 'Wrist position batao', 'Slower ball kab maaru?'],
+    tilak:  ['Dressing room mein kaise fit hoon?', 'Role clarity kaise aati hai?', 'Hardik ne kya bola?'],
+    coach:  ['Video bhejun kya?', 'Footwork pe kya fix karna hai?', 'Ghabra raha hoon yaar'],
+    friend: ['Bhai kya chal raha hai', 'Ghar yaad aa raha hai', 'Koi sun nahi raha yahan'],
+  }
+  const quickChips = (charId ? (DM_QUICK[charId] ?? CRICKET_QUICK[charId] ?? []) : [])
 
   return (
     <div style={{ display:'flex', flexDirection:'column', height:'100%' }}>
@@ -85,10 +96,12 @@ export default function DMThreadScreen() {
             <path d="M15 18l-6-6 6-6"/>
           </svg>
         </button>
-        <div className={`av ${char.cls}`} style={{ width:30, height:30, fontSize:13, flexShrink:0 }}>{char.init}</div>
+        <div className={`av ${char.cls}`} style={{ width:30, height:30, fontSize:13, flexShrink:0, backgroundImage:`url(/avatars/${charId}.png)`, backgroundSize:'cover', backgroundPosition:'center' }}>
+          <span style={{opacity:0}}>{char.init}</span>
+        </div>
         <div className="tinfo">
           <div className="tn">{char.name}</div>
-          <div className="tsub">Creator House · Online</div>
+          <div className="tsub">{['hardik','rohit','surya','bumrah','tilak','coach','friend'].includes(charId ?? '') ? 'Mumbai Indians · Online' : 'Creator House · Online'}</div>
         </div>
         <button className="icon-btn" onClick={() => showToast('Video call coming soon 📹')}>
           <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round">
@@ -121,7 +134,7 @@ export default function DMThreadScreen() {
             <div key={i} style={{ display:'flex', flexDirection:'column' }}>
               {showAvatar && (
                 <div className="msg-av">
-                  <div className={`av ${char.cls}`} style={{ width:22, height:22, fontSize:10 }}>{char.init}</div>
+                  <div className={`av ${char.cls}`} style={{ width:22, height:22, fontSize:10, backgroundImage:`url(/avatars/${charId}.png)`, backgroundSize:'cover', backgroundPosition:'center' }}><span style={{opacity:0}}>{char.init}</span></div>
                   <div className="lbl">{char.name}</div>
                 </div>
               )}
