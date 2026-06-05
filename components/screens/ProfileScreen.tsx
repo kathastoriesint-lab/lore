@@ -1,49 +1,21 @@
 'use client'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useApp } from '@/lib/context'
-import { CHARS, DM_TRUST, getVisibleSituations } from '@/lib/data'
-import { CRICKET_CHARS } from '@/lib/cricket-data'
+import { CHARS, getVisibleSituations } from '@/lib/data'
+import { CRICKET_CHARS, CRICKET_SITUATIONS } from '@/lib/cricket-data'
 import { fameToFollowers as fameToFollowersNum, applyDeltas, resolveTokens } from '@/lib/game'
+import { houseCast, relationshipFor, computeBond, bondColor } from '@/lib/relationships'
+import type { CharId } from '@/lib/types'
 import MeterHUD from '@/components/MeterHUD'
 
-// Fame 0-100 → followers string (formatted)
 function fameToFollowersStr(fame: number): string {
   const raw = fameToFollowersNum(fame)
   if (raw >= 1_000_000) return `${(raw / 1_000_000).toFixed(1)}M`
   if (raw >= 1_000)     return `${(raw / 1_000).toFixed(0)}K`
   return `${raw}`
 }
-
 function fameToFollowing(fame: number): string {
   return `${Math.round(200 + fame * 3)}`
-}
-
-const CHAR_POSTS: Record<string, { caption: string; bg: string }[]> = {
-  ananya: [
-    { caption: '2.1M views raat mein 🥺✨', bg: 'linear-gradient(135deg,#8a4ab0,#3a1660)' },
-    { caption: 'Reels grind never stops 💜', bg: 'linear-gradient(135deg,#6a3a90,#1a0840)' },
-    { caption: 'Creator House Day 1 🏠', bg: 'linear-gradient(135deg,#aa6ab0,#4a0880)' },
-  ],
-  ria: [
-    { caption: 'Stress → content 🤍', bg: 'linear-gradient(135deg,#b03a5e,#7a1140)' },
-    { caption: 'Mornings. Always.', bg: 'linear-gradient(135deg,#c04a6e,#5a0830)' },
-    { caption: 'No explanation needed 👑', bg: 'linear-gradient(135deg,#903050,#4a0820)' },
-  ],
-  kabir: [
-    { caption: 'Content > everything 😭', bg: 'linear-gradient(135deg,#2a6f8f,#0a2a40)' },
-    { caption: 'Camera never lies 👀', bg: 'linear-gradient(135deg,#1a5f7f,#082030)' },
-    { caption: 'We outside 🔥', bg: 'linear-gradient(135deg,#3a7f9f,#0a3050)' },
-  ],
-  dev: [
-    { caption: '5AM. Always. 💪', bg: 'linear-gradient(135deg,#3a7a4a,#0a2a1a)' },
-    { caption: 'Brand deal incoming 🤝', bg: 'linear-gradient(135deg,#2a6a3a,#081a08)' },
-    { caption: 'Numbers never lie 📈', bg: 'linear-gradient(135deg,#4a8a5a,#0a3020)' },
-  ],
-  zoya: [
-    { caption: 'Hi babies 🥰', bg: 'linear-gradient(135deg,#aa6a8a,#3a1a2a)' },
-    { caption: 'GRWM Creator House edition 💅', bg: 'linear-gradient(135deg,#9a5a7a,#2a0a1a)' },
-    { caption: 'Not saying anything 👀', bg: 'linear-gradient(135deg,#ba7a9a,#4a2a3a)' },
-  ],
 }
 
 const StatusBar = () => (
@@ -56,54 +28,66 @@ const StatusBar = () => (
   </div>
 )
 
+// Avatar with a bond-colored progress ring around it
+function RingAvatar({ id, cls, bond, size = 56 }: { id: string; cls: string; bond: number; size?: number }) {
+  const ring = bondColor(bond)
+  return (
+    <div style={{
+      width: size, height: size, borderRadius: '50%', flexShrink: 0,
+      padding: 2.5,
+      background: `conic-gradient(${ring} ${Math.max(6, bond) * 3.6}deg, rgba(255,255,255,.09) 0deg)`,
+    }}>
+      <div className={`av ${cls}`} style={{
+        width: '100%', height: '100%', fontSize: size * 0.32,
+        backgroundImage: `url(/avatars/${id}.png)`, backgroundSize: 'cover', backgroundPosition: 'center',
+        border: '2.5px solid var(--bg)',
+      }}>
+        <span style={{ opacity: 0 }}>{id[0].toUpperCase()}</span>
+      </div>
+    </div>
+  )
+}
+
 export default function ProfileScreen() {
-  const { game, navigate, goBack, dmTrust } = useApp()
+  const { game, navigate, goBack, dmTrust, setViewingChar } = useApp()
+  const isCricket = game.world === 'cricket'
   const allChars = { ...CHARS, ...CRICKET_CHARS }
-  const charId = (game.char ?? 'kabir') as import('@/lib/types').CharId
+  const charId = (game.char ?? (isCricket ? 'hardik' : 'kabir')) as CharId
   const char = allChars[charId] ?? allChars['kabir']!
+
+  const [tab, setTab] = useState<'posts' | 'house'>('house')
 
   const fame = game.meters.fame
   const followers = fameToFollowersStr(fame)
   const following = fameToFollowing(fame)
+  const worldLabel = isCricket ? 'Mumbai Indians' : 'Creator House'
 
-  // Build player's real posts from choices — same logic as FeedScreen completedPosts
-  const playerHandle = (game.playerName || char.handle).toLowerCase().replace(/\s+/g, '')
+  // Player's own posts from choices
   const posts = useMemo(() => {
     if (game.choices.length === 0) return []
-    const STARTING_METERS = { fame: 20, heat: 50, image: 30 }
-    let meters = { ...STARTING_METERS }
-    // Gradient palette cycling for post tiles — uses char color family
-    const gradients = [
-      'linear-gradient(135deg,color-mix(in srgb,var(--cc) 80%,#000) 0%,#000 100%)',
-      'linear-gradient(160deg,color-mix(in srgb,var(--cc) 60%,#111) 0%,#0a0a14 100%)',
-      'linear-gradient(120deg,color-mix(in srgb,var(--cc) 70%,#080818) 0%,#060610 100%)',
-      'linear-gradient(145deg,color-mix(in srgb,var(--cc) 50%,#0a0a1a) 0%,#000 100%)',
-      'linear-gradient(135deg,color-mix(in srgb,var(--cc) 90%,#1a0a28) 0%,#08080f 100%)',
-      'linear-gradient(110deg,color-mix(in srgb,var(--cc) 65%,#000) 0%,#0d0d1a 100%)',
-    ]
-    const result: { caption: string; bg: string }[] = []
+    const start = isCricket ? { fame: 45, heat: 55, image: 35 } : { fame: 20, heat: 50, image: 30 }
+    let meters = { ...start }
+    const result: { caption: string }[] = []
     for (let i = 0; i < game.choices.length; i++) {
       const letter = game.choices[i]
-      const sitsAtStep = getVisibleSituations(meters, game.choices.slice(0, i) as ('A'|'B')[])
-      const sit = sitsAtStep[i]
+      const sit = isCricket ? CRICKET_SITUATIONS[i] : getVisibleSituations(meters, game.choices.slice(0, i) as ('A'|'B')[])[i]
       if (!sit) continue
       const ch = sit.choices[letter === 'A' ? 0 : 1]
-      if (ch?.caption) {
-        result.push({
-          caption: resolveTokens(ch.caption, game.playerName, game.playerGender),
-          bg: gradients[i % gradients.length],
-        })
-      }
+      if (ch?.caption) result.push({ caption: resolveTokens(ch.caption, game.playerName, game.playerGender) })
       if (ch) meters = applyDeltas(meters, ch.deltas)
     }
-    return result.reverse() // newest first
-  }, [game.choices, game.playerName, game.playerGender, char])
+    return result.reverse()
+  }, [game.choices, game.playerName, game.playerGender, isCricket])
 
-  // Relationships from DM trust
-  const relationships = Object.entries(dmTrust)
-    .filter(([id]) => id !== charId)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 4)
+  // THE HOUSE — all characters with bond + relationship, sorted by bond desc
+  const cast = useMemo(() => {
+    return houseCast(game.world).map(id => {
+      const c = allChars[id]
+      const rel = relationshipFor(id, game.playerGender)
+      const { bond, moments } = computeBond(id, game.world, game.choices, game.playerName, game.playerGender, dmTrust)
+      return { id, c, rel, bond, momentCount: moments.length }
+    }).filter(x => x.c && x.rel).sort((a, b) => b.bond - a.bond)
+  }, [game.world, game.choices, game.playerName, game.playerGender, dmTrust]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div style={{ display:'flex', flexDirection:'column', height:'100%', background:'var(--bg)' }}>
@@ -112,9 +96,7 @@ export default function ProfileScreen() {
       {/* Header */}
       <div className="appbar" style={{ justifyContent:'space-between', padding:'6px 16px 12px' }}>
         <button className="icon-btn" onClick={goBack}>
-          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M15 18l-6-6 6-6"/>
-          </svg>
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
         </button>
         <div style={{ fontWeight:700, fontSize:15 }}>{game.playerName || 'You'}</div>
         <div style={{ width:38 }} />
@@ -122,89 +104,104 @@ export default function ProfileScreen() {
 
       <div className="scroll">
         {/* Profile info */}
-        <div style={{ padding:'16px 18px 0' }}>
+        <div style={{ padding:'12px 18px 0' }}>
           <div style={{ display:'flex', alignItems:'center', gap:20 }}>
-            {/* Avatar */}
-            <div className="av" style={{ width:72, height:72, fontSize:28, flexShrink:0, background:'var(--accent)' }}>
+            <div className="av" style={{ width:64, height:64, fontSize:26, flexShrink:0, background:'var(--accent)' }}>
               {(game.playerName?.[0] ?? 'Y').toUpperCase()}
             </div>
-            {/* Stats */}
-            <div style={{ display:'flex', gap:20, flex:1, justifyContent:'center' }}>
-              <div style={{ textAlign:'center' }}>
-                <div style={{ fontWeight:800, fontSize:16 }}>{posts.length || '—'}</div>
-                <div style={{ fontSize:11, color:'var(--ink2)' }}>Posts</div>
-              </div>
-              <div style={{ textAlign:'center' }}>
-                <div key={followers} style={{ fontWeight:800, fontSize:16, animation:'meterFlash .4s ease-out' }}>{followers}</div>
-                <div style={{ fontSize:11, color:'var(--ink2)' }}>Followers</div>
-              </div>
-              <div style={{ textAlign:'center' }}>
-                <div style={{ fontWeight:800, fontSize:16 }}>{following}</div>
-                <div style={{ fontSize:11, color:'var(--ink2)' }}>Following</div>
+            <div style={{ flex:1 }}>
+              <div style={{ fontWeight:700, fontSize:17 }}>{game.playerName || 'You'}</div>
+              <div style={{ fontSize:12, color:'var(--ink3)', marginTop:1 }}>{followers} followers · {worldLabel}</div>
+              <div style={{ fontSize:11, color:'var(--ink3)', marginTop:2 }}>
+                {isCricket ? `Season 1 · Situation ${game.situation + 1}` : `Day ${Math.ceil((game.situation + 1) / 3)} of 10`}
               </div>
             </div>
           </div>
-
-          {/* Bio */}
-          <div style={{ marginTop:10 }}>
-            <div style={{ fontWeight:700, fontSize:15 }}>{game.playerName || 'You'}</div>
-            <div style={{ fontSize:12, color:'var(--ink3)', marginTop:2 }}>
-              @{(game.playerName || '').toLowerCase().replace(/\s+/g, '') || char.handle} · {game.world === 'cricket' ? 'Mumbai Indians' : 'Creator House'}
-            </div>
-            <div style={{ fontSize:12, color:'var(--ink2)', marginTop:3 }}>
-              {game.world === 'cricket'
-                ? `Season 1 · Situation ${game.situation + 1} · ${game.choices.length} moves made`
-                : `Day ${Math.ceil((game.situation + 1) / 3)} of 10 · ${game.choices.length} moves made`}
-            </div>
-          </div>
-
         </div>
 
-        {/* Shared HUD — same meters as Live + Feed */}
-        <MeterHUD />
+        {/* Shared HUD */}
+        <div style={{ marginTop:12 }}><MeterHUD /></div>
 
-        {/* Relationships */}
-        {relationships.length > 0 && (
-          <div style={{ padding:'16px 18px 0' }}>
-            <div style={{ fontSize:11, fontWeight:700, color:'var(--ink3)', letterSpacing:'.08em', marginBottom:10 }}>RELATIONSHIPS</div>
-            <div style={{ display:'flex', gap:14, overflowX:'auto', paddingBottom:4 }}>
-              {relationships.map(([id, trust]) => {
-                const r = CHARS[id as keyof typeof CHARS]
-                if (!r) return null
-                const trustColor = trust > 60 ? 'var(--trust)' : trust < 35 ? 'var(--heat)' : 'var(--ink2)'
-                return (
-                  <div key={id} style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:5, flexShrink:0 }}>
-                    <div className={`av ${r.cls}`} style={{ width:42, height:42, fontSize:16 }}>{r.init}</div>
-                    <div style={{ fontSize:10, fontWeight:600, color:'var(--ink2)' }}>{r.name}</div>
-                    <div style={{ fontSize:9, fontWeight:800, color:trustColor }}>{trust}% trust</div>
-                  </div>
-                )
-              })}
+        {/* Tab switcher */}
+        <div style={{ display:'flex', borderBottom:'1px solid var(--line)', marginTop:6 }}>
+          <button
+            onClick={() => setTab('house')}
+            style={{ flex:1, padding:'13px 0', background:'none', border:'none', cursor:'pointer',
+              fontFamily:'var(--sans)', fontWeight:800, fontSize:12, letterSpacing:'.08em',
+              color: tab==='house' ? 'var(--ink)' : 'var(--ink3)',
+              borderBottom: tab==='house' ? '2px solid var(--accent)' : '2px solid transparent' }}>
+            {isCricket ? 'THE ROOM' : 'THE HOUSE'}
+          </button>
+          <button
+            onClick={() => setTab('posts')}
+            style={{ flex:1, padding:'13px 0', background:'none', border:'none', cursor:'pointer',
+              fontFamily:'var(--sans)', fontWeight:800, fontSize:12, letterSpacing:'.08em',
+              color: tab==='posts' ? 'var(--ink)' : 'var(--ink3)',
+              borderBottom: tab==='posts' ? '2px solid var(--accent)' : '2px solid transparent' }}>
+            POSTS
+          </button>
+        </div>
+
+        {/* THE HOUSE / THE ROOM */}
+        {tab === 'house' && (
+          <div style={{ padding:'14px 16px 0', display:'flex', flexDirection:'column', gap:10 }}>
+            <div style={{ fontSize:11, color:'var(--ink3)' }}>
+              {cast.length} {isCricket ? 'teammates' : 'creators'} · how they see you so far
             </div>
+            {cast.map(({ id, c, rel, bond, momentCount }) => (
+              <button
+                key={id}
+                onClick={() => setViewingChar(id as CharId)}
+                style={{ display:'flex', alignItems:'center', gap:13, background:'var(--surf)', border:'1px solid var(--line)',
+                  borderRadius:16, padding:'12px 14px', cursor:'pointer', textAlign:'left', width:'100%' }}>
+                <RingAvatar id={id} cls={c!.cls} bond={bond} size={56} />
+                <div style={{ flex:1, minWidth:0 }}>
+                  <div style={{ display:'flex', alignItems:'center', gap:8, flexWrap:'wrap' }}>
+                    <span style={{ fontWeight:700, fontSize:16 }}>{c!.name}</span>
+                    <span style={{ fontSize:9, fontWeight:800, letterSpacing:'.05em', color:rel!.labelColor,
+                      background:`color-mix(in srgb, ${rel!.labelColor} 16%, transparent)`,
+                      border:`1px solid color-mix(in srgb, ${rel!.labelColor} 35%, transparent)`,
+                      padding:'2px 7px', borderRadius:6 }}>{rel!.label}</span>
+                  </div>
+                  <div style={{ fontSize:12, color:'var(--ink3)', marginTop:3, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{rel!.tagline}</div>
+                  <div style={{ fontSize:11, color:'var(--ink3)', marginTop:4, display:'flex', alignItems:'center', gap:5 }}>
+                    <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+                    {momentCount} {momentCount === 1 ? 'moment' : 'moments'} shared
+                  </div>
+                </div>
+                <div style={{ textAlign:'right', flexShrink:0 }}>
+                  <div style={{ fontFamily:'var(--serif)', fontWeight:600, fontSize:26, color:bondColor(bond), lineHeight:1 }}>{bond}</div>
+                  <div style={{ width:46, height:4, borderRadius:2, background:'rgba(255,255,255,.08)', marginTop:6, overflow:'hidden' }}>
+                    <div style={{ width:`${bond}%`, height:'100%', background:bondColor(bond), borderRadius:2 }} />
+                  </div>
+                </div>
+              </button>
+            ))}
+            <div style={{ height:24 }} />
           </div>
         )}
 
-        {/* Posts grid */}
-        <div style={{ marginTop:16, borderTop:'1px solid var(--line)' }}>
-          {posts.length === 0 ? (
-            <div style={{ padding:'32px 20px', textAlign:'center', color:'var(--ink3)', fontSize:13 }}>
-              <div style={{ fontSize:22, marginBottom:8 }}>📸</div>
+        {/* POSTS grid */}
+        {tab === 'posts' && (
+          posts.length === 0 ? (
+            <div style={{ padding:'40px 20px', textAlign:'center', color:'var(--ink3)', fontSize:13 }}>
+              <div style={{ fontSize:24, marginBottom:8 }}>📸</div>
               No posts yet — make your first move in Live
             </div>
           ) : (
-            <div className={`av ${char.cls}`} style={{ display:'none' }} /> /* inject --cc */
-          )}
-          <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:2 }}>
-            {posts.map((p, i) => (
-              <div key={i} className={`av ${char.cls}`} style={{ aspectRatio:'1/1', borderRadius:0, background:p.bg, position:'relative', display:'grid', placeItems:'center', cursor:'pointer', width:'100%', height:'auto' }}>
-                <div style={{ position:'absolute', inset:0, background:'rgba(0,0,0,.18)' }} />
-                <div style={{ position:'relative', fontSize:9, color:'rgba(255,255,255,.88)', textAlign:'left', padding:'0 8px', fontStyle:'italic', fontFamily:'var(--serif)', lineHeight:1.3 }}>
-                  {p.caption}
+            <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:2, marginTop:2 }}>
+              {posts.map((p, i) => (
+                <div key={i} className={`av ${char.cls}`} style={{ aspectRatio:'1/1', borderRadius:0,
+                  background:`linear-gradient(160deg, var(--cc) 0%, #131323 100%)`, position:'relative',
+                  display:'grid', placeItems:'center', cursor:'pointer', width:'100%', height:'auto' }}>
+                  <div style={{ position:'absolute', inset:0, background:'rgba(0,0,0,.2)' }} />
+                  <div style={{ position:'relative', fontSize:9, color:'rgba(255,255,255,.9)', textAlign:'left',
+                    padding:'0 8px', fontStyle:'italic', fontFamily:'var(--serif)', lineHeight:1.3 }}>{p.caption}</div>
                 </div>
-              </div>
-            ))}
-          </div>
-        </div>
+              ))}
+            </div>
+          )
+        )}
 
         <div style={{ height:24 }} />
       </div>
@@ -212,21 +209,21 @@ export default function ProfileScreen() {
       {/* Tab bar */}
       <div className="tabbar">
         <button className="tab" onClick={() => navigate('feed')}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/>
-          </svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
           <span>Feed</span>
         </button>
+        {isCricket && (
+          <button className="tab" onClick={() => navigate('dm-inbox')}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <span>DMs</span>
+          </button>
+        )}
         <button className="tab" onClick={() => navigate('live')}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M13 2L4.5 13.5H11L9 22l9-12h-6.5L13 2z"/>
-          </svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2L4.5 13.5H11L9 22l9-12h-6.5L13 2z"/></svg>
           <span>Live</span>
         </button>
         <button className="tab active">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-            <circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/>
-          </svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>
           <span>Profile</span>
         </button>
       </div>

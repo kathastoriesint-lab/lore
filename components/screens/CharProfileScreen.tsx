@@ -1,52 +1,10 @@
 'use client'
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useApp } from '@/lib/context'
-import { CHARS, DM_TRUST } from '@/lib/data'
-import { fameToFollowers as fameToFollowersNum } from '@/lib/game'
+import { CHARS } from '@/lib/data'
+import { CRICKET_CHARS } from '@/lib/cricket-data'
+import { relationshipFor, computeBond, bondColor, bondWord } from '@/lib/relationships'
 import type { CharId } from '@/lib/types'
-
-function fameToFollowers(fame: number): string {
-  const raw = fameToFollowersNum(fame)
-  if (raw >= 1_000_000) return `${(raw / 1_000_000).toFixed(1)}M`
-  if (raw >= 1_000)     return `${Math.round(raw / 1000)}K`
-  return `${raw}`
-}
-
-const CHAR_POSTS: Record<string, { caption: string; bg: string }[]> = {
-  ria:    [
-    { caption: 'Stress → content 🤍', bg: 'linear-gradient(135deg,#b03a5e,#7a1140)' },
-    { caption: 'Mornings. Always.', bg: 'linear-gradient(135deg,#c04a6e,#5a0830)' },
-    { caption: 'No explanation needed 👑', bg: 'linear-gradient(135deg,#903050,#4a0820)' },
-  ],
-  kabir:  [
-    { caption: 'Content > everything 😭', bg: 'linear-gradient(135deg,#2a6f8f,#0a2a40)' },
-    { caption: 'Camera never lies 👀', bg: 'linear-gradient(135deg,#1a5f7f,#082030)' },
-    { caption: 'We outside 🔥', bg: 'linear-gradient(135deg,#3a7f9f,#0a3050)' },
-  ],
-  dev:    [
-    { caption: '5AM. Always. 💪', bg: 'linear-gradient(135deg,#3a7a4a,#0a2a1a)' },
-    { caption: 'Brand deal incoming 🤝', bg: 'linear-gradient(135deg,#2a6a3a,#081a08)' },
-    { caption: 'Numbers never lie 📈', bg: 'linear-gradient(135deg,#4a8a5a,#0a3020)' },
-  ],
-  ananya: [
-    { caption: '2.1M views raat mein 🥺✨', bg: 'linear-gradient(135deg,#8a4ab0,#3a1660)' },
-    { caption: 'Reels grind 💜', bg: 'linear-gradient(135deg,#6a3a90,#1a0840)' },
-    { caption: 'Creator House Day 1 🏠', bg: 'linear-gradient(135deg,#aa6ab0,#4a0880)' },
-  ],
-  zoya:   [
-    { caption: 'Hi babies 🥰', bg: 'linear-gradient(135deg,#aa6a8a,#3a1a2a)' },
-    { caption: 'GRWM edition 💅', bg: 'linear-gradient(135deg,#9a5a7a,#2a0a1a)' },
-    { caption: 'Not saying anything 👀', bg: 'linear-gradient(135deg,#ba7a9a,#4a2a3a)' },
-  ],
-}
-
-const CHAR_BIO: Record<string, string> = {
-  ria:    'Luxury lifestyle · the house alpha · everything looks effortless',
-  kabir:  'Comedy creator · chaos merchant · everyone\'s friend, nobody\'s ally',
-  dev:    'Fitness creator · grindset · loyalty for sale to highest bidder',
-  ananya: 'Dance creator · 19 · went viral overnight and never slept since',
-  zoya:   'Beauty · sweet on camera · sharp off it · watching everything',
-}
 
 const StatusBar = () => (
   <div className="statusbar">
@@ -59,28 +17,29 @@ const StatusBar = () => (
 )
 
 export default function CharProfileScreen() {
-  const { goBack, viewingCharId, charFame, dmTrust, game, navigate, openDMThread, screen } = useApp()
+  const { goBack, viewingCharId, dmTrust, game, openDMThread, screen } = useApp()
+  const allChars = { ...CHARS, ...CRICKET_CHARS }
   const charId = viewingCharId
-  const char = charId ? CHARS[charId] : null
+  const char = charId ? (allChars[charId] ?? null) : null
 
-  // Guard: if this screen is active but no char is selected, go back immediately
   useEffect(() => {
-    if (screen === 'char-profile' && (!charId || !char)) {
-      goBack()
-    }
+    if (screen === 'char-profile' && (!charId || !char)) goBack()
   }, [screen, charId, char, goBack])
 
-  if (!char || !charId) {
-    // Render nothing while the goBack effect fires
+  const rel = charId ? relationshipFor(charId, game.playerGender) : null
+  const { bond, moments, latestPost } = useMemo(() => {
+    if (!charId) return { bond: 50, moments: [], latestPost: undefined }
+    return computeBond(charId, game.world, game.choices, game.playerName, game.playerGender, dmTrust)
+  }, [charId, game.world, game.choices, game.playerName, game.playerGender, dmTrust])
+
+  if (!char || !charId || !rel) {
     return <div style={{ height: '100%', background: 'var(--bg)' }} />
   }
 
-  const fame = charFame[charId] ?? char.fame
-  const followers = fameToFollowers(fame)
-  const posts = CHAR_POSTS[charId] ?? []
-  const trust = dmTrust[charId] ?? DM_TRUST[charId] ?? 50
   const isPlayingAsThis = game.char === charId
-  const trustColor = trust > 60 ? 'var(--trust)' : trust < 35 ? 'var(--heat)' : 'var(--ink2)'
+  const bc = bondColor(bond)
+  const word = bondWord(bond, rel)
+  const isCricket = game.world === 'cricket'
 
   return (
     <div style={{ display:'flex', flexDirection:'column', height:'100%', background:'var(--bg)' }}>
@@ -91,130 +50,132 @@ export default function CharProfileScreen() {
         <button className="icon-btn" onClick={goBack}>
           <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round"><path d="M15 18l-6-6 6-6"/></svg>
         </button>
-        <div style={{ fontWeight:700, fontSize:15 }}>{char.handle}</div>
+        <div style={{ fontWeight:700, fontSize:15 }}>{char.name}</div>
         <div style={{ width:38 }} />
       </div>
 
       <div className="scroll">
-        {/* Profile header */}
-        <div style={{ padding:'16px 18px 0' }}>
-          <div style={{ display:'flex', alignItems:'center', gap:20 }}>
-            {/* Avatar — image if available, else colored initial */}
-            <div style={{ position:'relative', flexShrink:0 }}>
-              <div
-                className={`av ${char.cls}`}
-                style={{
-                  width:72, height:72, fontSize:28,
-                  backgroundImage:`url(/avatars/${charId}.png)`,
-                  backgroundSize:'cover', backgroundPosition:'center',
-                }}
-              >
-                {char.init}
-              </div>
-              {isPlayingAsThis && (
-                <div style={{
-                  position:'absolute', bottom:-4, right:-4,
-                  background:'var(--accent)', borderRadius:'50%',
-                  width:20, height:20, display:'grid', placeItems:'center',
-                  border:'2px solid var(--bg)', fontSize:10, fontWeight:800,
-                }}>
-                  ✓
-                </div>
-              )}
-            </div>
-
-            {/* Stats */}
-            <div style={{ display:'flex', gap:20, flex:1, justifyContent:'center' }}>
-              <div style={{ textAlign:'center' }}>
-                <div style={{ fontWeight:800, fontSize:16 }}>{posts.length}</div>
-                <div style={{ fontSize:11, color:'var(--ink2)' }}>Posts</div>
-              </div>
-              <div style={{ textAlign:'center' }}>
-                <div key={followers} style={{ fontWeight:800, fontSize:16, animation:'meterFlash .4s ease-out' }}>{followers}</div>
-                <div style={{ fontSize:11, color:'var(--ink2)' }}>Followers</div>
-              </div>
-              <div style={{ textAlign:'center' }}>
-                <div style={{ fontWeight:800, fontSize:16, color:trustColor }}>{trust}%</div>
-                <div style={{ fontSize:11, color:'var(--ink2)' }}>Trust</div>
-              </div>
+        {/* Identity */}
+        <div style={{ padding:'16px 18px 0', display:'flex', alignItems:'center', gap:16 }}>
+          {/* Avatar with bond ring */}
+          <div style={{ width:88, height:88, borderRadius:'50%', flexShrink:0, padding:3,
+            background:`conic-gradient(${bc} ${Math.max(6, bond)*3.6}deg, rgba(255,255,255,.09) 0deg)` }}>
+            <div className={`av ${char.cls}`} style={{ width:'100%', height:'100%', fontSize:30,
+              backgroundImage:`url(/avatars/${charId}.png)`, backgroundSize:'cover', backgroundPosition:'center',
+              border:'3px solid var(--bg)' }}>
+              <span style={{ opacity:0 }}>{char.init}</span>
             </div>
           </div>
-
-          {/* Bio */}
-          <div style={{ marginTop:12 }}>
-            <div style={{ fontWeight:700, fontSize:14 }}>{char.name}</div>
-            <div style={{ fontSize:12, color:'var(--ink2)', marginTop:2 }}>{char.role}</div>
-            <div style={{ fontSize:11, color:'var(--ink3)', marginTop:4 }}>{CHAR_BIO[charId]}</div>
-          </div>
-
-          {/* Action buttons */}
-          <div style={{ display:'flex', gap:8, marginTop:14 }}>
-            {!isPlayingAsThis ? (
-              <button
-                onClick={() => openDMThread(charId)}
-                style={{
-                  flex:1, height:36, background:'var(--surf)',
-                  border:'1px solid var(--line)', borderRadius:10,
-                  fontFamily:'var(--sans)', fontWeight:600, fontSize:13,
-                  color:'var(--ink)', cursor:'pointer'
-                }}
-              >
-                Message
-              </button>
-            ) : (
-              <button
-                onClick={() => navigate('profile')}
-                style={{
-                  flex:1, height:36, background:'var(--accent)',
-                  border:'none', borderRadius:10,
-                  fontFamily:'var(--sans)', fontWeight:700, fontSize:13,
-                  color:'#fff', cursor:'pointer'
-                }}
-              >
-                My Profile →
-              </button>
-            )}
-            <button
-              style={{
-                width:36, height:36, background:'var(--surf)',
-                border:'1px solid var(--line)', borderRadius:10,
-                display:'grid', placeItems:'center', cursor:'pointer'
-              }}
-              onClick={() => {}}
-            >
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#fff" strokeWidth="2">
-                <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
-                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
-              </svg>
-            </button>
+          <div style={{ flex:1, minWidth:0 }}>
+            <div style={{ fontWeight:700, fontSize:22, fontFamily:'var(--serif)' }}>{char.name}</div>
+            <div style={{ fontSize:13, color:'var(--ink3)', marginTop:1 }}>@{char.handle}</div>
+            <div style={{ marginTop:8, display:'inline-block', fontSize:10, fontWeight:800, letterSpacing:'.05em',
+              color:rel.labelColor, background:`color-mix(in srgb, ${rel.labelColor} 16%, transparent)`,
+              border:`1px solid color-mix(in srgb, ${rel.labelColor} 35%, transparent)`, padding:'4px 10px', borderRadius:8 }}>
+              {rel.label}
+            </div>
           </div>
         </div>
 
-        {/* Posts grid */}
-        <div style={{ marginTop:16, borderTop:'1px solid var(--line)' }}>
-          <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:2 }}>
-            {posts.map((p, i) => (
-              <div key={i} style={{
-                aspectRatio:'1/1', background:p.bg, position:'relative',
-                display:'grid', placeItems:'center', cursor:'pointer',
-                backgroundImage:`url(/avatars/${charId}.png)`,
-                backgroundSize:'cover', backgroundPosition:'center',
-              }}>
-                <div style={{ position:'absolute', inset:0, background:'rgba(0,0,0,.35)' }} />
-                <div style={{
-                  position:'relative', fontSize:9, color:'rgba(255,255,255,.9)',
-                  textAlign:'center', padding:'0 6px',
-                  fontStyle:'italic', fontFamily:'var(--serif)',
-                }}>
-                  {p.caption}
-                </div>
-              </div>
-            ))}
+        {/* Bond strength */}
+        <div style={{ margin:'18px 16px 0', background:'var(--surf)', border:'1px solid var(--line)', borderRadius:16, padding:'16px' }}>
+          <div style={{ display:'flex', alignItems:'baseline', justifyContent:'space-between' }}>
+            <div style={{ fontSize:11, fontWeight:800, letterSpacing:'.08em', color:'var(--ink3)' }}>BOND STRENGTH</div>
+            <div>
+              <span style={{ fontFamily:'var(--serif)', fontWeight:600, fontSize:30, color:bc }}>{bond}</span>
+              <span style={{ fontSize:13, color:'var(--ink3)' }}>/100</span>
+            </div>
+          </div>
+          <div style={{ height:8, borderRadius:5, background:'rgba(255,255,255,.07)', marginTop:12, overflow:'hidden' }}>
+            <div style={{ width:`${bond}%`, height:'100%', borderRadius:5,
+              background:`linear-gradient(90deg, color-mix(in srgb, ${bc} 60%, #000), ${bc})` }} />
+          </div>
+          <div style={{ display:'flex', justifyContent:'space-between', marginTop:8, fontSize:11, color:'var(--ink3)' }}>
+            <span>← {rel.spectrumLeft}</span>
+            <span style={{ fontWeight:800, color:bc }}>{word}</span>
+            <span>{rel.spectrumRight} →</span>
           </div>
         </div>
 
-        <div style={{ height:24 }} />
+        {/* About */}
+        <div style={{ padding:'20px 18px 0' }}>
+          <div style={{ fontSize:11, fontWeight:800, letterSpacing:'.08em', color:'var(--ink3)', marginBottom:8 }}>ABOUT</div>
+          <div style={{ fontSize:15, color:'var(--ink2)', lineHeight:1.55 }}>{rel.about}</div>
+        </div>
+
+        {/* Your story — moments with this character */}
+        <div style={{ padding:'22px 18px 0' }}>
+          <div style={{ fontSize:11, fontWeight:800, letterSpacing:'.08em', color:'var(--ink3)', marginBottom:12 }}>YOUR STORY</div>
+          {moments.length === 0 ? (
+            <div style={{ fontSize:13, color:'var(--ink3)', lineHeight:1.5 }}>
+              You haven&apos;t crossed paths yet. Play through the {isCricket ? 'season' : 'house'} and {char.name.split(' ')[0]} will start reacting to your moves.
+            </div>
+          ) : (
+            <div style={{ position:'relative', paddingLeft:18 }}>
+              {/* timeline line */}
+              <div style={{ position:'absolute', left:5, top:6, bottom:6, width:1.5, background:'var(--line)' }} />
+              {moments.map((m, i) => (
+                <div key={i} style={{ position:'relative', marginBottom:18 }}>
+                  <div style={{ position:'absolute', left:-18, top:3, width:11, height:11, borderRadius:'50%',
+                    border:`2px solid ${m.delta >= 0 ? bc : '#FF5C3A'}`, background:'var(--bg)' }} />
+                  <div style={{ fontSize:10, fontWeight:800, letterSpacing:'.06em', color:'var(--ink3)' }}>
+                    {m.tag.replace('⚡', '').trim()}
+                  </div>
+                  <div style={{ fontFamily:'var(--serif)', fontWeight:600, fontSize:17, marginTop:3 }}>{m.title}</div>
+                  <div style={{ fontSize:13, color:'var(--ink2)', lineHeight:1.5, marginTop:5, fontStyle:'italic' }}>
+                    &ldquo;{m.text}&rdquo;
+                  </div>
+                  <div style={{ marginTop:8, display:'inline-block', fontSize:11, fontWeight:800,
+                    color: m.delta >= 0 ? bc : '#FF5C3A',
+                    background: m.delta >= 0 ? `color-mix(in srgb, ${bc} 14%, transparent)` : 'rgba(255,92,58,.14)',
+                    padding:'3px 9px', borderRadius:7 }}>
+                    Bond {m.delta >= 0 ? '+' : ''}{m.delta}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Latest post */}
+        {latestPost && (
+          <div style={{ padding:'14px 16px 0' }}>
+            <div style={{ fontSize:11, fontWeight:800, letterSpacing:'.08em', color:'var(--ink3)', marginBottom:10 }}>LATEST</div>
+            <div style={{ background:'var(--surf)', border:'1px solid var(--line)', borderRadius:14, padding:'12px 14px' }}>
+              <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+                <div className={`av ${char.cls}`} style={{ width:30, height:30, fontSize:12,
+                  backgroundImage:`url(/avatars/${charId}.png)`, backgroundSize:'cover', backgroundPosition:'center' }}>
+                  <span style={{ opacity:0 }}>{char.init}</span>
+                </div>
+                <div>
+                  <div style={{ fontWeight:700, fontSize:13 }}>{char.name}</div>
+                  <div style={{ fontSize:10, color:'var(--ink3)' }}>{isCricket ? 'MI Season 1' : 'Creator House'} · just now</div>
+                </div>
+              </div>
+              <div style={{ fontFamily:'var(--serif)', fontStyle:'italic', fontSize:15, color:'rgba(255,255,255,.9)', marginTop:10, lineHeight:1.45 }}>
+                &ldquo;{latestPost}&rdquo;
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div style={{ height:120 }} />
       </div>
+
+      {/* Sticky message button */}
+      {!isPlayingAsThis && (
+        <div style={{ position:'absolute', left:0, right:0, bottom:0, padding:'12px 16px 18px',
+          background:'linear-gradient(to top, var(--bg) 60%, transparent)' }}>
+          <button
+            onClick={() => openDMThread(charId)}
+            style={{ width:'100%', height:52, background:'var(--accent)', color:'#fff', border:'none', borderRadius:14,
+              fontFamily:'var(--sans)', fontWeight:700, fontSize:15, cursor:'pointer',
+              display:'flex', alignItems:'center', justifyContent:'center', gap:8 }}>
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            Message {char.name.split(' ')[0]}
+          </button>
+        </div>
+      )}
     </div>
   )
 }
