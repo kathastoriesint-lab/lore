@@ -488,7 +488,7 @@ export default function FeedScreen() {
         <div className="row1">
           <button
             onClick={() => navigate('worlds')}
-            style={{ display:'flex', alignItems:'center', gap:4, background:'none', border:'none', cursor:'pointer', color:'var(--ink2)', fontSize:12, fontWeight:600, fontFamily:'var(--sans)', padding:'4px 0' }}
+            style={{ display:'flex', alignItems:'center', gap:4, background:'none', border:'none', cursor:'pointer', color:'var(--ink2)', fontSize:13, fontWeight:600, fontFamily:'var(--sans)', padding:'12px 4px', minHeight:44 }}
           >
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M15 18l-6-6 6-6"/>
