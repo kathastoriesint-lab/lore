@@ -200,7 +200,7 @@ function CricketSeedFeed({ likedPosts, commentedPosts, onLike, onComment, commen
   return (
     <>
       {/* Hardik */}
-      {seedPost('hardik-seed', 'hardik', 'linear-gradient(135deg,#003087,#001540)',
+      {seedPost('hardik-seed', 'hardik', 'url(/avatars/cricket-dressing-room.png) center/cover',
         '"Ready rehna. Role-ready hota hai, reel-ready nahi." — Wankhede ki pehli practice. Season 1 starts now. 💙',
         'Team set hai. Kaam shuru. #MumbaiIndians #IPL',
         '284,102', '3 HOURS AGO')}
@@ -273,7 +273,7 @@ function CricketSeedFeed({ likedPosts, commentedPosts, onLike, onComment, commen
         '891,204', '2 HOURS AGO')}
 
       {/* Bumrah */}
-      {seedPost('bumrah-seed', 'bumrah', 'linear-gradient(135deg,#0a1a4a,#040810)',
+      {seedPost('bumrah-seed', 'bumrah', 'url(/avatars/cricket-nets.png) center/cover',
         'Nets mein ego nahi chalta. Bas information. Good players adjust after one mistake.',
         'Work. Always. #Bumrah #MumbaiIndians',
         '1,204,441', '4 HOURS AGO')}
@@ -655,7 +655,9 @@ export default function FeedScreen() {
         {/* Story Drop — dynamic: shows next pending situation */}
         {nextSit && (
           <div className="story-drop" onClick={enterLive}>
-            <div className="sd-img" style={{ background: 'linear-gradient(135deg,#ff2d78,#7a1140)' }}>
+            <div className="sd-img" style={isCricket
+              ? { backgroundImage: 'url(/avatars/cricket-wankhede.png)', backgroundSize: 'cover', backgroundPosition: 'center' }
+              : { background: 'linear-gradient(135deg,#ff2d78,#7a1140)' }}>
               <div className="sd-badge" style={isCricket ? { color: '#FFB020' } : {}}>
                 <span className="pulse" style={{ marginRight: 5, background: isCricket ? '#FFB020' : undefined }} />
                 {isCricket ? `SITUATION ${game.situation + 1} · ${nextSit.tag.split('·')[1]?.trim() ?? 'NEXT'}` : `STORY DROP · DAY ${nextSit.day}`}
