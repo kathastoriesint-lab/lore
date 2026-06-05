@@ -19,6 +19,7 @@ import ProfileScreen from '@/components/screens/ProfileScreen'
 import CharProfileScreen from '@/components/screens/CharProfileScreen'
 import OnboardingScreen from '@/components/screens/OnboardingScreen'
 import CricketIntroScreen from '@/components/screens/CricketIntroScreen'
+import FeedbackButton from '@/components/FeedbackButton'
 import ErrorBoundary from '@/components/ErrorBoundary'
 
 export default function App() {
@@ -293,6 +294,8 @@ export default function App() {
             <Slot id="char-profile" cur={screen} prev={prev}><CharProfileScreen /></Slot>
           </div>
           </ErrorBoundary>
+          {/* Feedback button — only visible at ?dev=1 */}
+          <FeedbackButton />
         </div>
       </div>
     </AppContext.Provider>
