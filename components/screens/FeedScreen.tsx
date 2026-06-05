@@ -814,7 +814,7 @@ export default function FeedScreen() {
           <button className="tab" onClick={() => handleTab('dms')} style={{ position: 'relative' }}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
             {dmBadgeCount > 0 && <div className="badge-num" style={{ top:0, right:8 }}>{dmBadgeCount > 9 ? '9+' : dmBadgeCount}</div>}
-            <span>DMs</span>
+            <span>Messages</span>
           </button>
         )}
         <button className="tab" onClick={() => handleTab('live')}>

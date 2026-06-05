@@ -203,16 +203,11 @@ export default function LiveScreen() {
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', position: 'relative' }}>
       <StatusBar />
 
-      {/* Shared HUD — avatar + name + followers + 3 meters */}
+      {/* Shared HUD */}
       <MeterHUD right={
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontSize: 10, color: 'var(--ink3)', fontWeight: 600 }}>
-            Day {visibleSituations[situation]?.day ?? 1}
-          </span>
-          <div className="live-badge">
-            <div className="pulse" />
-            LIVE
-          </div>
+        <div className="live-badge">
+          <div className="pulse" />
+          LIVE
         </div>
       } />
 
@@ -275,7 +270,13 @@ export default function LiveScreen() {
         {/* Situation */}
         {sit && (
           <div className="situation">
-            <div className="sit-tag">{sit.tag}</div>
+            <div className="sit-tag" style={{ display:'flex', alignItems:'center', gap:6 }}>
+              {sit.tag}
+              <span style={{ display:'inline-flex', alignItems:'center', gap:4, fontSize:9, fontWeight:800, color:'#ff3b3b', letterSpacing:'.04em' }}>
+                <span style={{ width:6, height:6, borderRadius:'50%', background:'#ff3b3b', display:'inline-block' }} />
+                LIVE
+              </span>
+            </div>
             <div className="sit-title">{r(sit.title)}</div>
             <div className="sit-body">
               {sit.body.map((p, i) => (
@@ -523,7 +524,7 @@ export default function LiveScreen() {
           <button className="tab" onClick={() => handleTab('dms')} style={{ position: 'relative' }}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
             {dmBadgeCount > 0 && <div className="badge-num" style={{ top:0, right:8 }}>{dmBadgeCount > 9 ? '9+' : dmBadgeCount}</div>}
-            <span>DMs</span>
+            <span>Messages</span>
           </button>
         )}
         <button className="tab active">
