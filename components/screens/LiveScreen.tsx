@@ -71,10 +71,6 @@ export default function LiveScreen() {
     return () => clearInterval(t)
   }, [isDayLocked, sit, game.dayUnlockTime])
 
-  // Effective react (v2: no per-char override, just sit.react)
-  const effectiveReact = sit ? sit.react : null
-
-
   // Choice state
   const [chosen, setChosen] = useState<0 | 1 | null>(null)
   const [showImpact, setShowImpact] = useState(false)
@@ -85,6 +81,13 @@ export default function LiveScreen() {
   const processingRef = useRef(false)
   // Timer cleanup refs to prevent post-unmount fires
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([])
+  // Snapshot of the situation at choice-time — keeps displayed content pinned to the
+  // situation the player chose in even after advanceSituation() increments game.situation.
+  const sitSnapshotRef = useRef<NonNullable<typeof sit> | null>(null)
+  const displaySit = (chosen !== null && sitSnapshotRef.current) ? sitSnapshotRef.current : sit
+
+  // Effective react — derived from displaySit so it stays pinned during post-choice flow
+  const effectiveReact = displaySit ? displaySit.react : null
 
   // Reset choice state when situation changes (skip during mid-choice flow)
   useEffect(() => {
@@ -118,6 +121,7 @@ export default function LiveScreen() {
   // Shared reset — call after post preview to ready the next situation
   const resetAfterChoice = useCallback(() => {
     inFlowRef.current = false
+    sitSnapshotRef.current = null
     timersRef.current.forEach(clearTimeout)
     timersRef.current = []
     setChosen(null)
@@ -153,11 +157,10 @@ export default function LiveScreen() {
 
     const ch = sit.choices[idx]
     inFlowRef.current = true  // freeze situation-change effect during animation
+    sitSnapshotRef.current = sit  // freeze displayed content to this situation
 
-    // B4 FIX: advance situation IMMEDIATELY after choice is confirmed.
-    // Previously called inside a 600ms timer — if user tapped "Next Situation"
-    // before the timer fired, resetAfterChoice() cleared it and situation never advanced.
-    // Functional updater in advanceSituation chains correctly with makeChoice's setGame.
+    // Advance situation immediately so "Next Situation" can never race the timer.
+    // sitSnapshotRef keeps the render pinned to the current situation's content.
     advanceSituation()
 
     addTimer(() => { scrollRef.current?.scrollTo({ top: 400, behavior: 'smooth' }) }, 200)
@@ -269,19 +272,20 @@ export default function LiveScreen() {
           </div>
         )}
 
-        {/* Situation */}
-        {sit && (
+        {/* Situation — use displaySit (snapshot) so the content stays pinned
+             to the situation the player chose in, even after advanceSituation() fires */}
+        {displaySit && (
           <div className="situation">
             <div className="sit-tag" style={{ display:'flex', alignItems:'center', gap:6 }}>
-              {sit.tag}
+              {displaySit.tag}
               <span style={{ display:'inline-flex', alignItems:'center', gap:4, fontSize:9, fontWeight:800, color:'#ff3b3b', letterSpacing:'.04em' }}>
                 <span style={{ width:6, height:6, borderRadius:'50%', background:'#ff3b3b', display:'inline-block' }} />
                 LIVE
               </span>
             </div>
-            <div className="sit-title">{r(sit.title)}</div>
+            <div className="sit-title">{r(displaySit.title)}</div>
             <div className="sit-body">
-              {sit.body.map((p, i) => (
+              {displaySit.body.map((p, i) => (
                 <p key={i} dangerouslySetInnerHTML={{ __html: r(p) }} />
               ))}
             </div>
@@ -332,8 +336,8 @@ export default function LiveScreen() {
             })()}
 
             {/* ── Post-choice: collapsible impact + player post + reactions ── */}
-            {showImpact && chosen !== null && sit.choices[chosen] && (() => {
-              const ch = sit.choices[chosen]
+            {showImpact && chosen !== null && displaySit!.choices[chosen] && (() => {
+              const ch = displaySit!.choices[chosen]
               const d = ch.deltas
               const isCritical = game.meters.heat > 75
               // B3: before values (current = after delta was applied)
@@ -482,16 +486,16 @@ export default function LiveScreen() {
         )}
 
         {/* Bottom spacing so content isn't hidden under sticky bar */}
-        {sit && <div style={{ height: 160 }} />}
+        {displaySit && <div style={{ height: 160 }} />}
       </div>
 
       {/* Sticky bottom — choices before pick, CTAs after */}
-      {sit && (
+      {displaySit && (
         <div className="choice-wrap">
           {chosen === null ? (
             <>
-              <div className="choice-q">{r(sit.q)}</div>
-              {sit.choices.map((ch, i) => (
+              <div className="choice-q">{r(displaySit.q)}</div>
+              {displaySit.choices.map((ch, i) => (
                 <button key={i} className="choice" onClick={() => handleChoice(i as 0 | 1)}>
                   <div className="ct">{r(ch.t)}</div>
                   <div className="cs">{r(ch.s)}</div>
