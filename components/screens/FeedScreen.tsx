@@ -541,7 +541,7 @@ export default function FeedScreen() {
                   <div className="post-id">
                     <div className="h">@{(game.playerName || pc.handle).toLowerCase().replace(/\s+/g,'')} <span style={{ fontSize:10, color:'var(--accent)', fontWeight:700, marginLeft:4 }}>YOU</span></div>
                     <div className="s" style={{ color: isNew ? 'var(--accent)' : 'var(--ink3)' }}>
-                      {isCricket ? 'MI Season 1' : 'Creator House'} · {isNew ? 'just now · your post' : `S${post.sit.day}`}
+                      {isCricket ? 'MI Season 1' : 'Creator House'} · {isNew ? 'just now' : i === 1 ? '5 min ago' : i <= 3 ? `${i * 8} min ago` : `Day ${post.sit.day}`}
                     </div>
                   </div>
                   {isNew && <div className="new-pill">NEW</div>}
@@ -611,7 +611,7 @@ export default function FeedScreen() {
                 <div className="post-id">
                   <div className="h">{reactChar.handle}</div>
                   <div className="s" style={{ color: isNew ? 'var(--accent)' : 'var(--ink3)' }}>
-                    {isCricket ? 'MI Season 1' : 'Creator House'} · {isNew ? 'just now · reacting to your move' : `S${post.sit.day}`}
+                    {isCricket ? 'MI Season 1' : 'Creator House'} · {isNew ? 'just now' : i <= 2 ? `${i * 6} min ago` : `Day ${post.sit.day}`}
                   </div>
                 </div>
                 {isNew && <div className="new-pill">NEW</div>}

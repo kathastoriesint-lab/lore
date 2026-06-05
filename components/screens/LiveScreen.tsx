@@ -336,6 +336,12 @@ export default function LiveScreen() {
               const ch = sit.choices[chosen]
               const d = ch.deltas
               const isCritical = game.meters.heat > 75
+              // B3: before values (current = after delta was applied)
+              const before = {
+                fame:  Math.max(0, game.meters.fame  - d.fame),
+                heat:  Math.max(0, game.meters.heat  - d.heat),
+                image: Math.max(0, game.meters.image - d.image),
+              }
               const playerHandle = (game.playerName || char?.handle || 'you').toLowerCase().replace(/\s+/g, '')
               const displayChar = char
                 ? (game.playerGender === 'female'
@@ -375,7 +381,7 @@ export default function LiveScreen() {
                               <div className="impact-meta">
                                 <div className="impact-mlabel">{isCricket ? '🏏 FORM' : '⭐ FAME'}</div>
                                 <div className="impact-bar-track"><div className="impact-bar-fill" style={{ width: `${Math.max(0, Math.min(100, game.meters.fame))}%` }} /></div>
-                                <div className="impact-consequence">{game.meters.fame} now</div>
+                                <div className="impact-consequence">{before.fame} → {game.meters.fame}</div>
                               </div>
                             </div>
                           )}
@@ -386,7 +392,7 @@ export default function LiveScreen() {
                               <div className="impact-meta">
                                 <div className="impact-mlabel">{isCricket ? '⭐ FAME' : '🔥 HEAT'}</div>
                                 <div className="impact-bar-track"><div className="impact-bar-fill" style={{ width: `${Math.max(0, Math.min(100, game.meters.heat))}%` }} /></div>
-                                <div className="impact-consequence">{game.meters.heat} now{isCritical ? ' — someone will address this' : ''}</div>
+                                <div className="impact-consequence">{before.heat} → {game.meters.heat}{isCritical ? ' ⚠️' : ''}</div>
                               </div>
                             </div>
                           )}
@@ -397,7 +403,7 @@ export default function LiveScreen() {
                               <div className="impact-meta">
                                 <div className="impact-mlabel">{isCricket ? '🤝 TRUST' : '🤝 IMAGE'}</div>
                                 <div className="impact-bar-track"><div className="impact-bar-fill" style={{ width: `${Math.max(0, Math.min(100, game.meters.image))}%` }} /></div>
-                                <div className="impact-consequence">{game.meters.image} now</div>
+                                <div className="impact-consequence">{before.image} → {game.meters.image}</div>
                               </div>
                             </div>
                           )}

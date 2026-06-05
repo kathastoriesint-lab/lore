@@ -28,13 +28,13 @@ export default function WorldIntroScreen() {
 
         <div className="wintro-cta-block" style={{ marginTop: 40 }}>
           <button className="wintro-btn-main" onClick={startGame}>
-            Ghar mein aao →
+            Enter the House →
           </button>
           <button
             onClick={() => navigate('worlds')}
             style={{ marginTop: 14, width: '100%', padding: '12px 0', fontSize: 14, color: 'rgba(255,255,255,.45)', fontWeight: 500 }}
           >
-            Baad mein
+            Skip
           </button>
         </div>
       </div>
