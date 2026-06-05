@@ -183,7 +183,7 @@ export async function getAIReply(
   charId: CharId,
   history: DMMessage[],
   playerName: string,
-  gameState?: { char: string | null; meters: Meters; choices: string[]; situation: number }
+  gameState?: { char: string | null; meters: Meters; choices: string[]; situation: number; world?: string }
 ): Promise<string> {
   const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!
   const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -211,7 +211,7 @@ export async function getAIReply(
         player_char: gameState?.char ?? null,
         player_meters: gameState?.meters ?? null,
         player_choices: gameState?.choices ?? null,
-        current_day: gameState ? Math.ceil((gameState.situation + 1) / 3) : 1,
+        current_day: gameState ? (gameState.world === 'cricket' ? gameState.situation + 1 : Math.ceil((gameState.situation + 1) / 3)) : 1,
       }),
     })
     clearTimeout(timer)

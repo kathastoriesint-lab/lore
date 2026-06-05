@@ -169,9 +169,18 @@ export default function App() {
     saveDM(charId, userMsg).catch(() => {})
     const playerName = game.playerName || 'Yaar'
     const raw = await getAIReply(charId, contextHistory, playerName, {
-      char: game.char, meters: game.meters, choices: game.choices, situation: game.situation,
+      char: game.char, meters: game.meters, choices: game.choices, situation: game.situation, world: game.world,
     })
-    const mockArr = DM_MOCK[charId] ?? ['Haan yaar.', 'Kya chal raha hai?', 'Interesting.']
+    const CRICKET_MOCK_FALLBACK: Partial<Record<string, string[]>> = {
+      hardik: ['Role pe focus rakh.', 'Execution dikhao.', 'Theek hai. Kal dekhte hain.'],
+      rohit:  ['Tempo samajh raha hai?', 'Hmm.', 'Process pe raho.'],
+      surya:  ['Champion! Field dekh pehle 😄', 'Energy mast hai. Ball bhi dekh.', 'Aaja kal nets mein.'],
+      bumrah: ['Wrist pehle pick karo.', 'Better. Still early.', 'Kal over milega.'],
+      tilak:  ['Good. Repeat karo.', 'Process pe raho.', 'Hota hai. Seekhte hain.'],
+      coach:  ['Video bhej.', 'Kal subah 6 baje. Throwdowns.', '10 minute rona allowed. Phir bat uthao.'],
+      friend: ['BHAI REPLY KAR 😭', 'Tu theek hai? Genuinely pooch raha hoon.', 'Main hoon yaar. Baat kar.'],
+    }
+    const mockArr = DM_MOCK[charId] ?? CRICKET_MOCK_FALLBACK[charId] ?? ['Haan yaar.', 'Kya chal raha hai?', 'Interesting.']
     const reply = raw?.trim() || mockArr[Math.floor(Math.random() * mockArr.length)]
     const charMsg: DMMessage = { role: 'char', text: reply }
     setDmHistory(prev => ({ ...prev, [charId]: [...(prev[charId] ?? []), charMsg] }))
