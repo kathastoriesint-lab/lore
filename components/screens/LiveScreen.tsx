@@ -80,11 +80,8 @@ export default function LiveScreen() {
   const [chosen, setChosen] = useState<0 | 1 | null>(null)
   const [showImpact, setShowImpact] = useState(false)
   const [showPost, setShowPost] = useState(false)
-  const [impactExpanded, setImpactExpanded] = useState(false)
+  const [impactExpanded, setImpactExpanded] = useState(true) // expanded by default — meters always visible
   const [stats, setStats] = useState<{ total: number; pctA: number } | null>(null)
-  const [autoCountdown, setAutoCountdown] = useState<number | null>(null) // null = inactive, 0-5 = counting
-  const [showStakesCard, setShowStakesCard] = useState(false)
-  const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
   // Ref-based processing guard — synchronously prevents double-tap between React renders
   const processingRef = useRef(false)
@@ -98,11 +95,9 @@ export default function LiveScreen() {
     setShowImpact(false)
     setShowPost(false)
     setImpactExpanded(false)
-    setAutoCountdown(null)
     setStats(null)
     processingRef.current = false
     timersRef.current = []
-    if (countdownRef.current) clearInterval(countdownRef.current)
   }, [situation])
 
   // Clear pending timers on unmount to prevent post-unmount navigate/advanceSituation
@@ -128,37 +123,15 @@ export default function LiveScreen() {
     inFlowRef.current = false
     timersRef.current.forEach(clearTimeout)
     timersRef.current = []
-    if (countdownRef.current) clearInterval(countdownRef.current)
     setChosen(null)
     setShowImpact(false)
     setShowPost(false)
     setImpactExpanded(false)
-    setAutoCountdown(null)
     processingRef.current = false
     scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
   }, [])
 
-  // Start countdown when post is shown — auto-advances to next situation
-  const startCountdown = useCallback(() => {
-    setAutoCountdown(5)
-    countdownRef.current = setInterval(() => {
-      setAutoCountdown(prev => {
-        if (prev === null || prev <= 1) {
-          if (countdownRef.current) clearInterval(countdownRef.current)
-          return null
-        }
-        return prev - 1
-      })
-    }, 1000)
-    // When countdown reaches 0, reset (next situation loads automatically)
-    const id = setTimeout(() => {
-      resetAfterChoice()
-    }, 5500)
-    timersRef.current.push(id)
-  }, [resetAfterChoice])
-
-  const cancelCountdownAndGoFeed = useCallback(() => {
-    if (countdownRef.current) clearInterval(countdownRef.current)
+  const goToFeed = useCallback(() => {
     resetAfterChoice()
     navigate('feed')
   }, [resetAfterChoice, navigate])
@@ -192,20 +165,12 @@ export default function LiveScreen() {
       addTimer(() => { injectCharDM(firstReactor.char as CharId, r(firstReactor.text)) }, 1200)
     }
 
-    // Show post preview + advance situation, then auto-countdown to next situation
+    // Show post preview + advance situation — user taps to continue
     addTimer(() => {
       setShowPost(true)
       advanceSituation()  // ONE write: meters+choices (from makeChoice) + situation
-      // T6: Show stakes card on very first choice ever
-      if (game.choices.length === 0 && typeof window !== 'undefined' && !localStorage.getItem('lore_stakes_seen')) {
-        localStorage.setItem('lore_stakes_seen', '1')
-        setShowStakesCard(true)
-        setTimeout(() => setShowStakesCard(false), 4000)
-      }
     }, 600)
-    // Start countdown 1.2s after post appears
-    addTimer(() => { startCountdown() }, 1800)
-  }, [sit, makeChoice, advanceSituation, navigate, injectCharDM, startCountdown])
+  }, [sit, makeChoice, advanceSituation, navigate, injectCharDM])
 
 
   // Navigate to tabs
@@ -244,9 +209,8 @@ export default function LiveScreen() {
       {/* Shared HUD — avatar + name + followers + 3 meters */}
       <MeterHUD right={
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          {/* T2: Situation progress */}
-          <span style={{ fontSize: 10, color: 'var(--ink3)', fontWeight: 700, letterSpacing: '.03em' }}>
-            S{situation + 1}/{visibleSituations.length}
+          <span style={{ fontSize: 10, color: 'var(--ink3)', fontWeight: 600 }}>
+            Day {visibleSituations[situation]?.day ?? 1}
           </span>
           <div className="live-badge">
             <div className="pulse" />
@@ -556,36 +520,19 @@ export default function LiveScreen() {
               )}
             </>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {/* T1: Countdown progress bar */}
-              {autoCountdown !== null && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <div style={{ flex: 1, height: 3, borderRadius: 2, background: 'rgba(255,255,255,.1)', overflow: 'hidden' }}>
-                    <div style={{
-                      height: '100%', borderRadius: 2, background: 'var(--accent)',
-                      width: `${(autoCountdown / 5) * 100}%`,
-                      transition: 'width 1s linear',
-                    }} />
-                  </div>
-                  <span style={{ fontSize: 11, color: 'var(--ink3)', fontWeight: 700, fontFamily: 'var(--sans)', flexShrink: 0 }}>
-                    Next in {autoCountdown}s
-                  </span>
-                </div>
-              )}
-              <div style={{ display: 'flex', gap: 10 }}>
-                <button
-                  onClick={resetAfterChoice}
-                  style={{ flex: 2, height: 50, background: 'var(--accent)', color: '#fff', fontWeight: 700, fontSize: 15, borderRadius: 14, border: 'none', cursor: 'pointer', fontFamily: 'var(--sans)' }}
-                >
-                  Next Situation →
-                </button>
-                <button
-                  onClick={cancelCountdownAndGoFeed}
-                  style={{ flex: 1, height: 50, background: 'rgba(255,255,255,.07)', color: 'var(--ink2)', fontWeight: 600, fontSize: 13, borderRadius: 14, border: '1px solid rgba(255,255,255,.1)', cursor: 'pointer', fontFamily: 'var(--sans)' }}
-                >
-                  Go to Feed
-                </button>
-              </div>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button
+                onClick={resetAfterChoice}
+                style={{ flex: 2, height: 50, background: 'var(--accent)', color: '#fff', fontWeight: 700, fontSize: 15, borderRadius: 14, border: 'none', cursor: 'pointer', fontFamily: 'var(--sans)' }}
+              >
+                Next Situation →
+              </button>
+              <button
+                onClick={goToFeed}
+                style={{ flex: 1, height: 50, background: 'rgba(255,255,255,.07)', color: 'var(--ink2)', fontWeight: 600, fontSize: 13, borderRadius: 14, border: '1px solid rgba(255,255,255,.1)', cursor: 'pointer', fontFamily: 'var(--sans)' }}
+              >
+                Go to Feed
+              </button>
             </div>
           )}
         </div>
@@ -614,27 +561,6 @@ export default function LiveScreen() {
         </button>
       </div>
 
-      {/* T6: First-time stakes card — shown once after very first choice */}
-      {showStakesCard && (
-        <div
-          onClick={() => setShowStakesCard(false)}
-          style={{
-            position: 'absolute', inset: 0, background: 'rgba(8,8,15,.92)', backdropFilter: 'blur(12px)',
-            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-            padding: 36, gap: 16, zIndex: 20, animation: 'fadeUp .4s ease',
-          }}>
-          <div style={{ fontSize: 32, marginBottom: 4 }}>{isCricket ? '🏏' : '⚡'}</div>
-          <div style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 26, textAlign: 'center', lineHeight: 1.2 }}>
-            Every choice builds your story.
-          </div>
-          <div style={{ fontSize: 14, color: 'var(--ink2)', textAlign: 'center', lineHeight: 1.6, maxWidth: 280 }}>
-            {isCricket
-              ? 'Your Form, Fame, and Trust determine your ending. The dressing room is watching.'
-              : 'Your Fame, Heat, and Image determine your ending. The house is watching.'}
-          </div>
-          <div style={{ marginTop: 8, fontSize: 12, color: 'var(--ink3)' }}>Tap to continue</div>
-        </div>
-      )}
 
     </div>
   )
