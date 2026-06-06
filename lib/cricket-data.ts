@@ -1297,8 +1297,8 @@ export const CRICKET_ENDING_DATA = {
 // DM hooks for cricket characters
 export const CRICKET_DM_HOOKS: Partial<Record<import('./types').CharId, string>> = {
   hardik: 'Role ke baare mein baat karni thi. Practice ke baad milte hain.',
-  rohit:  'Ek baat. Quick. Tempo ke baare mein.',
-  surya:  'Aye champion! Woh session ke baad ek shot dikhana tha tujhe.',
+  rohit:  'Dekh raha hoon tujhe. Kuch poochh agar kuch samajh nahi aa raha.',
+  surya:  'Aye champion! Settle ho gaya thoda? First week tough hota hai.',
   bumrah: 'One technical note from today.',
   tilak:  'Good session. Ek cheez poochhni thi.',
   coach:  'Beta call kar jab free ho. Urgent nahi, important hai.',
