@@ -34,8 +34,14 @@ export default function LiveScreen() {
 
   const isCricket = game.world === 'cricket'
   const allChars = isCricket ? { ...CHARS, ...CRICKET_CHARS } : CHARS
-  // 'player' is the cricket sentinel — the user plays as themselves, not an NPC
+  // 'player' is the cricket sentinel — the user plays as themselves, not an NPC.
+  // char is null in cricket; use a synthetic player object only where post-card needs it.
   const char = game.char && game.char !== 'player' ? allChars[game.char] : null
+  const playerChar = isCricket ? {
+    id: 'player' as CharId, cls: '', init: (game.playerName?.[0] ?? 'N').toUpperCase(),
+    name: game.playerName || 'Player', handle: (game.playerName || 'player').toLowerCase(),
+    fame: 0, role: '',
+  } : null
 
   // Shorthand: resolve tokens using current player state
   const r = (text: string) => resolveTokens(text, game.playerName, game.playerGender)
@@ -212,7 +218,8 @@ export default function LiveScreen() {
     ? (isCricket ? CRICKET_ENDING_DATA[endingKey as keyof typeof CRICKET_ENDING_DATA] : FINALE_DATA[endingKey as keyof typeof FINALE_DATA])
     : null
 
-  if (!char) {
+  // game.char === null means no world started yet; 'player' is the cricket sentinel (user plays as themselves)
+  if (!game.char) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', height: '100%', alignItems: 'center', justifyContent: 'center', gap: 16, padding: 32 }}>
         <div style={{ fontSize: 16, color: 'var(--ink2)', textAlign: 'center' }}>Apna naam aur gender batao pehle</div>
@@ -412,11 +419,14 @@ export default function LiveScreen() {
                 image: Math.max(0, game.meters.image - d.image),
               }
               const playerHandle = (game.playerName || char?.handle || 'you').toLowerCase().replace(/\s+/g, '')
-              const displayChar = char
-                ? (game.playerGender === 'female'
-                    ? char.id === 'kabir' ? allChars['ananya'] : char.id === 'ananya' ? allChars['kabir'] : char
-                    : char)
-                : null
+              // Cricket uses playerChar (player-as-themselves); CH uses char with gender swap
+              const displayChar = isCricket
+                ? playerChar
+                : (char
+                    ? (game.playerGender === 'female'
+                        ? char.id === 'kabir' ? allChars['ananya'] : char.id === 'ananya' ? allChars['kabir'] : char
+                        : char)
+                    : null)
               // Inline char color — must match .c-{id}{--cc} in globals.css (DESIGN.md compliant)
               const CHAR_COLORS: Record<string, string> = {
                 ria:'#c41060', kabir:'#8a1840', dev:'#7a1535', ananya:'#b03060', zoya:'#a02858',
@@ -488,8 +498,18 @@ export default function LiveScreen() {
                     <div style={{ marginTop: 12, background: '#0f0f18', borderRadius: 16, overflow: 'hidden', border: '1px solid rgba(255,255,255,.07)', animation: 'slideUp .4s cubic-bezier(.32,.72,0,1) both' }}>
                       {/* Post header */}
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px' }}>
-                        <div className={`av ${displayChar.cls}`} style={{ width: 32, height: 32, fontSize: 12, flexShrink: 0, backgroundImage: `url(${game.avatarUrl || `/avatars/${displayChar.id}.png`})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
-                          <span style={{ opacity: 0 }}>{displayChar.init}</span>
+                        <div
+                          className={displayChar.cls ? `av ${displayChar.cls}` : 'av'}
+                          style={{
+                            width: 32, height: 32, fontSize: 12, flexShrink: 0,
+                            background: game.avatarUrl ? 'transparent' : 'var(--accent)',
+                            backgroundImage: game.avatarUrl
+                              ? `url(${game.avatarUrl})`
+                              : (!isCricket ? `url(/avatars/${displayChar.id}.png)` : undefined),
+                            backgroundSize: 'cover', backgroundPosition: 'center',
+                          }}
+                        >
+                          {!game.avatarUrl && isCricket && displayChar.init}
                         </div>
                         <div style={{ flex: 1 }}>
                           <div style={{ fontWeight: 700, fontSize: 13 }}>@{playerHandle}</div>
