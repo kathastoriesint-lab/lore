@@ -12,7 +12,7 @@ function makeCtx(overrides: Partial<AppCtx> = {}): AppCtx {
     phone: '',
     setPhone: vi.fn(),
     saveProfile: vi.fn(),
-    game: { playerName: 'Test', playerGender: 'male', world: 'creator-house' as const, char: null, situation: 0, choices: [], meters: { fame: 20, heat: 50, image: 30 }, narrator_done: false, dayUnlockTime: {} },
+    game: { playerName: 'Test', playerGender: 'male', world: 'creator-house' as const, char: null, situation: 0, situationQueue: [], choices: [], meters: { fame: 20, heat: 50, image: 30 }, flags: { mentorTrust:0, hypeRisk:0, roleAcceptance:0, homeGrounding:0, allyLoyalty:0, rivalryScore:0 }, runMemory: {}, narrator_done: false, dayUnlockTime: {} },
     dmHistory: {},
     dmTrust: {},
     charFame: {},

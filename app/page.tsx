@@ -3,11 +3,12 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import type { CharId, DMMessage, GameState, Screen } from '@/lib/types'
 import { AppContext, ImpactNotif } from '@/lib/context'
 import {
-  applyDeltas, charMeters, ensureSession, getAIReply, scoreTrustDelta,
+  applyDeltas, applyFlagDeltas, charMeters, ensureSession, getAIReply, scoreTrustDelta,
   loadDMs, loadGameState, recordChoice, resetGameState, saveDM, saveGameState,
-  fameToFollowers,
+  fameToFollowers, DEFAULT_FLAGS, buildCricketQueue, buildCHQueue, checkConditionals,
 } from '@/lib/game'
 import { CHARS, SITUATIONS, DM_MOCK, getVisibleSituations } from '@/lib/data'
+import { CRICKET_SITUATIONS } from '@/lib/cricket-data'
 import WorldsScreen from '@/components/screens/WorldsScreen'
 import WorldIntroScreen from '@/components/screens/WorldIntroScreen'
 import FeedScreen from '@/components/screens/FeedScreen'
@@ -44,7 +45,11 @@ export default function App() {
   const [viewingCharId, setViewingCharId] = useState<CharId | null>(null)
   const [game, setGame] = useState<GameState>({
     playerName: '', playerGender: 'male' as const,
-    world: 'creator-house' as const, char: null, situation: 0, choices: [], meters: { fame: 20, heat: 50, image: 30 }, narrator_done: false, dayUnlockTime: {},
+    world: 'creator-house' as const, char: null,
+    situation: 0, situationQueue: [], choices: [],
+    meters: { fame: 20, heat: 50, image: 30 },
+    flags: DEFAULT_FLAGS, runMemory: {},
+    narrator_done: false, dayUnlockTime: {},
   })
   const [dmHistory, setDmHistory] = useState<Record<string, DMMessage[]>>({})
   // Tracks which chars have had their full DB history loaded — prevents the bug where
@@ -126,48 +131,82 @@ export default function App() {
   }, [game, navigate])
 
   const startGame = useCallback(() => {
-    const newState: GameState = { playerName: game.playerName, playerGender: game.playerGender, world: 'creator-house', char: 'kabir', situation: 0, choices: [], meters: { fame: 20, heat: 50, image: 30 }, narrator_done: true, dayUnlockTime: {} }
+    const meters = { fame: 20, heat: 50, image: 30 }
+    const choices: ('A'|'B')[] = []
+    const newState: GameState = {
+      playerName: game.playerName, playerGender: game.playerGender,
+      world: 'creator-house', char: 'kabir',
+      situation: 0, situationQueue: buildCHQueue(meters, choices), choices,
+      meters, flags: DEFAULT_FLAGS, runMemory: {},
+      narrator_done: true, dayUnlockTime: {},
+    }
     saveAndSet(newState)
     if (typeof window !== 'undefined') localStorage.setItem('lore_feed_seen', '1')
     navigate('live')
   }, [game.playerName, game.playerGender, saveAndSet, navigate])
 
   const startCricketGame = useCallback(() => {
-    const newState: GameState = { playerName: game.playerName, playerGender: game.playerGender, world: 'cricket', char: 'hardik', situation: 0, choices: [], meters: { fame: 45, heat: 55, image: 35 }, narrator_done: true, dayUnlockTime: {} }
+    // char:'player' sentinel — the player is themselves, not Hardik Pandya
+    const newState: GameState = {
+      playerName: game.playerName, playerGender: game.playerGender,
+      world: 'cricket', char: 'player',
+      situation: 0, situationQueue: buildCricketQueue(), choices: [],
+      meters: { fame: 45, heat: 55, image: 35 },
+      flags: DEFAULT_FLAGS, runMemory: {},
+      narrator_done: true, dayUnlockTime: {},
+    }
     saveAndSet(newState)
     if (typeof window !== 'undefined') localStorage.setItem('lore_feed_seen', '1')
     navigate('live')
   }, [game.playerName, game.playerGender, saveAndSet, navigate])
 
   const advanceSituation = useCallback(() => {
-    // Functional update: always reads latest game state, never a stale closure
     setGame(prev => {
-      const visibleSits = getVisibleSituations(prev.meters, prev.choices)
-      const currentSit = visibleSits[prev.situation]
-      const nextSit = visibleSits[prev.situation + 1]
+      const nextIdx = prev.situation + 1
+      // Check for conditional triggers to insert after current position
+      const newConditionals = checkConditionals(
+        prev.world, prev.situationQueue, prev.situation, prev.meters, prev.flags, prev.choices
+      )
+      const newQueue = newConditionals.length > 0
+        ? [...prev.situationQueue.slice(0, nextIdx), ...newConditionals, ...prev.situationQueue.slice(nextIdx)]
+        : prev.situationQueue
+
+      // Day gate: look up next situation by ID
+      const sitMap = prev.world === 'cricket'
+        ? Object.fromEntries(CRICKET_SITUATIONS.map(s => [s.id, s]))
+        : Object.fromEntries(getVisibleSituations(prev.meters, prev.choices).map(s => [s.id, s]))
+      const currentSit = sitMap[newQueue[prev.situation]]
+      const nextSit    = sitMap[newQueue[nextIdx]]
       const newUnlockTime = { ...prev.dayUnlockTime }
-      // Day gate disabled for user testing — restore to 6 * 60 * 60 * 1000 for real launch
+      // Day gate: 0 for testing — restore to 6 * 60 * 60 * 1000 before launch (T26)
       const gateMs = 0
       if (nextSit && currentSit && nextSit.day > currentSit.day && !newUnlockTime[nextSit.day]) {
         newUnlockTime[nextSit.day] = Date.now() + gateMs
       }
-      const next = { ...prev, situation: prev.situation + 1, dayUnlockTime: newUnlockTime }
+      const next = { ...prev, situation: nextIdx, situationQueue: newQueue, dayUnlockTime: newUnlockTime }
       saveGameState(next)
       return next
     })
   }, []) // no deps — functional update reads prev directly
 
   const makeChoice = useCallback(async (idx: number) => {
-    const visibleSits = getVisibleSituations(game.meters, game.choices)
-    const sit = visibleSits[game.situation]
+    // Look up current situation by ID from the queue (world-aware, index-shift-safe)
+    const currentId = game.situationQueue[game.situation]
+    const sitMap = game.world === 'cricket'
+      ? Object.fromEntries(CRICKET_SITUATIONS.map(s => [s.id, s]))
+      : Object.fromEntries(getVisibleSituations(game.meters, game.choices).map(s => [s.id, s]))
+    const sit = sitMap[currentId]
     const ch = sit?.choices?.[idx]
     if (!ch) return
     const letter = idx === 0 ? 'A' : 'B'
     const newMeters = applyDeltas(game.meters, ch.deltas)
+    const newFlags = applyFlagDeltas(game.flags, ch.flagDeltas)
     const newChoices = [...game.choices, letter] as ('A'|'B')[]
-    // Update meters + choices in React state only — situation advance + single Supabase write
-    // happens in advanceSituation (called 500ms later after the impact animation plays)
-    setGame(prev => ({ ...prev, meters: newMeters, choices: newChoices }))
+    // Write run memory if this is a match situation
+    const newRunMemory = ch.runWrite
+      ? { ...game.runMemory, [`${ch.runWrite}Runs`]: newMeters.fame, [`${ch.runWrite}Balls`]: undefined }
+      : game.runMemory
+    setGame(prev => ({ ...prev, meters: newMeters, flags: newFlags, choices: newChoices, runMemory: newRunMemory }))
     await recordChoice(game.situation, letter)
   }, [game])
 
@@ -281,7 +320,7 @@ export default function App() {
 
   const resetGame = useCallback(async () => {
     await resetGameState()
-    setGame({ playerName: '', playerGender: 'male' as const, world: 'creator-house', char: null, situation: 0, choices: [], meters: { fame: 20, heat: 50, image: 30 }, narrator_done: false, dayUnlockTime: {} })
+    setGame({ playerName: '', playerGender: 'male' as const, world: 'creator-house', char: null, situation: 0, situationQueue: [], choices: [], meters: { fame: 20, heat: 50, image: 30 }, flags: DEFAULT_FLAGS, runMemory: {}, narrator_done: false, dayUnlockTime: {} })
     setDmHistory({})
     navigate('worlds', { replace: true })
   }, [navigate])

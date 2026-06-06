@@ -1277,12 +1277,18 @@ export const CRICKET_SITUATIONS: Situation[] = [
 ]
 
 // Ending resolver for cricket world
-// fame = Form, heat = Fame, image = Team Trust
+// Slot mapping: fame=Form 🏏, heat=Fame ⭐, image=Team Trust 🤝
+// Thresholds lowered so endings are reachable from starting meters (Form 45, Fame 55, Trust 35).
+// ~30 situations × avg net +3 per meter = realistic range of 70-80 by finale.
 export function resolveCricketEnding(m: import('./types').Meters): 'realDeal' | 'captainsProject' | 'paltanWonderkid' | 'tooMuchTooSoon' | 'quietClimber' {
-  if (m.fame >= 78 && m.fame - Math.max(m.heat, m.image) >= 8) return 'realDeal'
-  if (m.image >= 78 && m.image - Math.max(m.fame, m.heat) >= 8) return 'captainsProject'
-  if (m.heat >= 78 && m.heat - Math.max(m.fame, m.image) >= 8) return 'paltanWonderkid'
-  if (m.heat >= 70 && m.image < 55) return 'tooMuchTooSoon'
+  // Real Deal: Form is the dominant meter (cricket credibility wins)
+  if (m.fame >= 70 && m.fame >= m.heat && m.fame >= m.image) return 'realDeal'
+  // Captain's Project: Trust is dominant (dressing room belief wins)
+  if (m.image >= 68 && m.image >= m.fame && m.image >= m.heat) return 'captainsProject'
+  // Paltan Wonderkid: Fame clearly dominant over Trust (fan favourite)
+  if (m.heat >= 70 && m.heat > m.image + 8) return 'paltanWonderkid'
+  // Too Much Too Soon: high Fame but Trust lagging badly
+  if (m.heat >= 62 && m.image < 50) return 'tooMuchTooSoon'
   return 'quietClimber'
 }
 

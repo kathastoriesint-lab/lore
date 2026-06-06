@@ -19,6 +19,10 @@ create table if not exists public.game_state (
 alter table public.game_state add column if not exists player_name   text;
 alter table public.game_state add column if not exists player_gender text;
 alter table public.game_state add column if not exists day_unlock_time jsonb not null default '{}';
+-- v2: game_data stores situationQueue, flags, runMemory (all new fields)
+alter table public.game_state add column if not exists game_data jsonb not null default '{}';
+alter table public.game_state add column if not exists world text not null default 'creator-house';
+alter table public.game_state add column if not exists avatar_url text;
 -- Fix old meter format (trust→heat, heat→image) for any existing rows
 update public.game_state
   set meters = jsonb_build_object(

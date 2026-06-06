@@ -164,8 +164,10 @@ function WorldsProfileView() {
 export default function ProfileScreen() {
   const { game, navigate, goBack, dmTrust, setViewingChar } = useApp()
 
-  // When the user hasn't entered any world yet, show the simple worlds-level profile
-  if (!game.char) return <WorldsProfileView />
+  // When the user hasn't entered any world yet, or is in cricket (player sentinel), show simple profile
+  if (!game.char || game.char === 'player') {
+    if (game.world !== 'cricket') return <WorldsProfileView />
+  }
 
   const isCricket = game.world === 'cricket'
   const allChars = { ...CHARS, ...CRICKET_CHARS }
@@ -188,7 +190,13 @@ export default function ProfileScreen() {
     const result: { caption: string }[] = []
     for (let i = 0; i < game.choices.length; i++) {
       const letter = game.choices[i]
-      const sit = isCricket ? CRICKET_SITUATIONS[i] : getVisibleSituations(meters, game.choices.slice(0, i) as ('A'|'B')[])[i]
+      // Use situationQueue for world-aware, index-shift-safe lookup
+      const sitId = game.situationQueue[i]
+      const sit = sitId
+        ? (isCricket
+            ? CRICKET_SITUATIONS.find(s => s.id === sitId)
+            : getVisibleSituations(meters, game.choices.slice(0, i) as ('A'|'B')[]).find(s => s.id === sitId))
+        : undefined
       if (!sit) continue
       const ch = sit.choices[letter === 'A' ? 0 : 1]
       if (ch?.caption) result.push({ caption: resolveTokens(ch.caption, game.playerName, game.playerGender) })

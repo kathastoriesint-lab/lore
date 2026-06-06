@@ -1,6 +1,6 @@
 'use client'
 import { createClient } from './supabase'
-import type { CharId, GameState, Meters, DMMessage } from './types'
+import type { CharId, GameState, GameFlags, RunMemory, Meters, DMMessage, Situation } from './types'
 import { CHARS, DM_HOOKS, DM_MOCK } from './data'
 import { CRICKET_DM_HOOKS } from './cricket-data'
 
@@ -10,15 +10,63 @@ const supabase = () => { if (!_supabase) _supabase = createClient(); return _sup
 
 const DEFAULT_METERS: Meters = { fame: 20, heat: 50, image: 30 }
 const CRICKET_START_METERS: Meters = { fame: 45, heat: 55, image: 35 } // Form 45 · Fame 55 · Team Trust 35
+
+export const DEFAULT_FLAGS: GameFlags = {
+  mentorTrust: 0, hypeRisk: 0, roleAcceptance: 0, homeGrounding: 0,
+  allyLoyalty: 0, rivalryScore: 0,
+}
+
 const DEFAULT_STATE: GameState = {
   playerName: '', playerGender: 'male' as const,
   world: 'creator-house',
-  char: null, situation: 0, choices: [],
-  meters: DEFAULT_METERS, narrator_done: false,
-  dayUnlockTime: {},
+  char: null, situation: 0, situationQueue: [], choices: [],
+  meters: DEFAULT_METERS, flags: DEFAULT_FLAGS, runMemory: {},
+  narrator_done: false, dayUnlockTime: {},
 }
 
 export const CRICKET_STARTING_METERS = CRICKET_START_METERS
+
+// ── Situation queue builders ───────────────────────────────────────────────────
+export function buildCricketQueue(): string[] {
+  // Lazy import to avoid circular deps — cricket-data imports from types, not game
+  const { CRICKET_SITUATIONS } = require('./cricket-data')
+  return (CRICKET_SITUATIONS as Situation[]).map(s => s.id)
+}
+
+export function buildCHQueue(meters: Meters, choices: ('A'|'B')[]): string[] {
+  const { getVisibleSituations } = require('./data')
+  return (getVisibleSituations(meters, choices) as Situation[]).map(s => s.id)
+}
+
+/** Apply flag deltas from a choice, clamping to 0–5. */
+export function applyFlagDeltas(flags: GameFlags, deltas?: Partial<GameFlags>): GameFlags {
+  if (!deltas) return flags
+  const clamp5 = (n: number) => Math.max(0, Math.min(5, n))
+  return {
+    mentorTrust:    clamp5(flags.mentorTrust    + (deltas.mentorTrust    ?? 0)),
+    hypeRisk:       clamp5(flags.hypeRisk       + (deltas.hypeRisk       ?? 0)),
+    roleAcceptance: clamp5(flags.roleAcceptance + (deltas.roleAcceptance ?? 0)),
+    homeGrounding:  clamp5(flags.homeGrounding  + (deltas.homeGrounding  ?? 0)),
+    allyLoyalty:    clamp5(flags.allyLoyalty    + (deltas.allyLoyalty    ?? 0)),
+    rivalryScore:   clamp5(flags.rivalryScore   + (deltas.rivalryScore   ?? 0)),
+  }
+}
+
+/** Check conditional triggers and return IDs to insert after currentIdx. */
+export function checkConditionals(
+  world: string, situationQueue: string[], currentIdx: number,
+  meters: Meters, flags: GameFlags, choices: ('A'|'B')[]
+): string[] {
+  if (world === 'cricket') {
+    const { CRICKET_SITUATIONS } = require('./cricket-data') as { CRICKET_SITUATIONS: Situation[] }
+    const conditionals = CRICKET_SITUATIONS.filter(s => s.id.startsWith('CR-C') && s.condition)
+    const alreadyQueued = new Set(situationQueue)
+    return conditionals
+      .filter(c => !alreadyQueued.has(c.id) && c.condition!(meters, flags))
+      .map(c => c.id)
+  }
+  return []
+}
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 export async function getPhoneSession() {
@@ -53,17 +101,25 @@ export async function loadGameState(): Promise<GameState> {
   if (!data) return DEFAULT_STATE
   // Guard against old meter format (trust/heat keys from v1)
   const rawMeters = data.meters ?? DEFAULT_METERS
-  const meters: Meters = rawMeters?.image !== undefined
-    ? rawMeters as Meters
-    : DEFAULT_METERS
+  const meters: Meters = rawMeters?.image !== undefined ? rawMeters as Meters : DEFAULT_METERS
+  // Extra fields stored in game_data JSONB column (nullable — old saves won't have it)
+  const extra = (data.game_data as Record<string, unknown> | null) ?? {}
+  const world = (data.world ?? 'creator-house') as import('./types').World
+  const choices = (data.choices ?? []) as ('A'|'B')[]
+  const situationQueue = Array.isArray(extra.situationQueue)
+    ? (extra.situationQueue as string[])
+    : (world === 'cricket' ? buildCricketQueue() : buildCHQueue(meters, choices))
   return {
     playerName: data.player_name ?? '',
     playerGender: (data.player_gender ?? 'male') as 'male' | 'female',
-    world: (data.world ?? 'creator-house') as import('./types').World,
-    char: (data.char_id) ? data.char_id as CharId : null,
+    world,
+    char: data.char_id ? data.char_id as CharId : null,
     situation: data.situation,
-    choices: data.choices ?? [],
+    situationQueue,
+    choices,
     meters,
+    flags: (extra.flags as GameFlags) ?? DEFAULT_FLAGS,
+    runMemory: (extra.runMemory as RunMemory) ?? {},
     narrator_done: data.narrator_done,
     dayUnlockTime: data.day_unlock_time ?? {},
     avatarUrl: data.avatar_url ?? undefined,
@@ -85,6 +141,11 @@ export async function saveGameState(state: GameState) {
     narrator_done: state.narrator_done,
     day_unlock_time: state.dayUnlockTime,
     avatar_url: state.avatarUrl ?? null,
+    game_data: {
+      situationQueue: state.situationQueue,
+      flags: state.flags,
+      runMemory: state.runMemory,
+    },
   }, { onConflict: 'user_id' })
 }
 
@@ -297,10 +358,13 @@ export function allyLoyalty(choices: ('A' | 'B')[], situations: import('./types'
 }
 
 // ── Ending resolution ─────────────────────────────────────────────────────────
+// Thresholds lowered to 65-70 (from 78) so endings are reachable.
+// Starting meters: CH=20/50/30, Cricket=45/55/35.
+// ~30 situations × avg net +3 per meter = realistic reach of 65-75 per meter.
 export function resolveEnding(m: Meters): 'heart' | 'main' | 'brand' | 'dark' {
-  if (m.heat  >= 78 && m.heat  - Math.max(m.fame, m.image) >= 8) return 'heart'
-  if (m.fame  >= 78 && m.fame  - Math.max(m.heat, m.image) >= 8) return 'main'
-  if (m.image >= 78 && m.image - Math.max(m.fame, m.heat)  >= 8) return 'brand'
+  if (m.heat  >= 67 && m.heat  > m.fame  && m.heat  > m.image) return 'heart'
+  if (m.fame  >= 67 && m.fame  > m.heat  && m.fame  > m.image) return 'main'
+  if (m.image >= 67 && m.image > m.fame  && m.image > m.heat)  return 'brand'
   return 'dark'
 }
 

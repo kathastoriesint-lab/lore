@@ -1193,7 +1193,7 @@ export const SITUATIONS: Situation[] = [
       {
         t:'Na — {ally}/{crush} ko protect karo',
         s:'The opportunity isn\'t worth it.',
-        deltas:{ fame:9, heat:-12, image:-3 },
+        deltas:{ fame:-5, heat:-8, image:6 },
         caption:'Kuch opportunities nahi leni chahiye. Yeh ek tha. #CreatorHouse #Values',
         reactions:[
           { char:'kabir', text:'TU NE PROTECT KIYA?? 😭🔥 Main iska hisaab nahi bhoolega.' },
@@ -1204,7 +1204,7 @@ export const SITUATIONS: Situation[] = [
       {
         t:'Le lo — yeh game hai',
         s:'The slot is too big to pass. Make the call.',
-        deltas:{ fame:-4, heat:8, image:3 },
+        deltas:{ fame:8, heat:10, image:-5 },
         caption:'Is ghar mein final decisions difficult hote hain. Maine le liya. #Finale #CreatorHouse',
         reactions:[
           { char:'ria', text:'They took it. Respect. That\'s the game. 👑' },
@@ -1348,9 +1348,9 @@ export function getVisibleSituations(meters?: import('./types').Meters, _choices
   const ordered: Situation[] = []
   for (const sit of core) {
     ordered.push(sit)
-    if (sit.id === 'D4-1') { const c = conds.find(s => s.id === 'D4-HEAT'); if (c && c.condition!(meters)) ordered.push(c) }
-    if (sit.id === 'D5-2') { const c = conds.find(s => s.id === 'D5-FAME'); if (c && c.condition!(meters)) ordered.push(c) }
-    if (sit.id === 'D6-2') { const c = conds.find(s => s.id === 'D6-IMAGE'); if (c && c.condition!(meters)) ordered.push(c) }
+    if (sit.id === 'D4-1') { const c = conds.find(s => s.id === 'D4-HEAT'); if (c && c.condition!(meters, {} as import('./types').GameFlags)) ordered.push(c) }
+    if (sit.id === 'D5-2') { const c = conds.find(s => s.id === 'D5-FAME'); if (c && c.condition!(meters, {} as import('./types').GameFlags)) ordered.push(c) }
+    if (sit.id === 'D6-2') { const c = conds.find(s => s.id === 'D6-IMAGE'); if (c && c.condition!(meters, {} as import('./types').GameFlags)) ordered.push(c) }
   }
   return ordered
 }

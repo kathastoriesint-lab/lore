@@ -34,22 +34,25 @@ export default function LiveScreen() {
 
   const isCricket = game.world === 'cricket'
   const allChars = isCricket ? { ...CHARS, ...CRICKET_CHARS } : CHARS
-  const char = game.char ? allChars[game.char] : null
+  // 'player' is the cricket sentinel — the user plays as themselves, not an NPC
+  const char = game.char && game.char !== 'player' ? allChars[game.char] : null
 
   // Shorthand: resolve tokens using current player state
   const r = (text: string) => resolveTokens(text, game.playerName, game.playerGender)
 
-  // Get visible situations for current world + meters/choices
-  const visibleSituations = isCricket
-    ? CRICKET_SITUATIONS  // cricket doesn't use meter-conditional filtering yet
-    : getVisibleSituations(game.meters, game.choices)
+  // Build situation lookup map from the active world's list
+  const allSituations = isCricket
+    ? Object.fromEntries(CRICKET_SITUATIONS.map(s => [s.id, s]))
+    : Object.fromEntries(getVisibleSituations(game.meters, game.choices).map(s => [s.id, s]))
 
+  // Resolve current and adjacent situations by ID from the queue
   const situation = game.situation
-  const sit = situation < visibleSituations.length ? visibleSituations[situation] : null
-  const isFinale = situation >= visibleSituations.length
+  const queue = game.situationQueue
+  const sit = queue[situation] ? allSituations[queue[situation]] ?? null : null
+  const isFinale = situation >= queue.length
 
   // Day-lock: detect if next situation is in a future day that hasn't unlocked yet
-  const prevSit = situation > 0 ? visibleSituations[situation - 1] : null
+  const prevSit = situation > 0 && queue[situation - 1] ? allSituations[queue[situation - 1]] ?? null : null
   const isDayLocked = sit && prevSit && sit.day > prevSit.day &&
     game.dayUnlockTime[sit.day] != null &&
     game.dayUnlockTime[sit.day] > Date.now()
@@ -224,7 +227,7 @@ export default function LiveScreen() {
   }
 
   // Next situation for chapter beat display
-  const nextSitForBeat = visibleSituations[game.situation]
+  const nextSitForBeat = queue[game.situation] ? allSituations[queue[game.situation]] ?? null : null
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', position: 'relative' }}>
@@ -262,7 +265,7 @@ export default function LiveScreen() {
             {game.situation}
           </div>
           <div style={{ fontSize: 16, color: 'var(--ink3)', fontWeight: 500, letterSpacing: '.05em', animation: 'fadeIn .3s ease .1s both', opacity: 0 }}>
-            of {visibleSituations.length}
+            of {queue.length}
           </div>
           <div style={{ fontFamily: 'var(--serif)', fontWeight: 500, fontSize: 20, color: 'rgba(255,255,255,.6)', marginTop: 6, animation: 'fadeIn .3s ease .2s both', opacity: 0 }}>
             {nextSitForBeat.title}
