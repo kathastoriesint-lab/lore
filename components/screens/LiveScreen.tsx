@@ -76,6 +76,10 @@ export default function LiveScreen() {
   const [showImpact, setShowImpact] = useState(false)
   const [showPost, setShowPost] = useState(false)
   const [stats, setStats] = useState<{ total: number; pctA: number } | null>(null)
+  // Chapter beat — brief full-screen card between situations
+  const [showBeat, setShowBeat] = useState(false)
+  // DM notification banner — shows after injectCharDM fires
+  const [dmNotif, setDmNotif] = useState<{ name: string; cls: string; id: string } | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
   // Ref-based processing guard — synchronously prevents double-tap between React renders
   const processingRef = useRef(false)
@@ -118,8 +122,8 @@ export default function LiveScreen() {
     return id
   }
 
-  // Shared reset — call after post preview to ready the next situation
-  const resetAfterChoice = useCallback(() => {
+  // Inner reset — called after beat (or directly by Go to Feed)
+  const doReset = useCallback(() => {
     inFlowRef.current = false
     sitSnapshotRef.current = null
     timersRef.current.forEach(clearTimeout)
@@ -127,9 +131,17 @@ export default function LiveScreen() {
     setChosen(null)
     setShowImpact(false)
     setShowPost(false)
+    setShowBeat(false)
     processingRef.current = false
     scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
   }, [])
+
+  // Show chapter beat, then reset after 1.2s
+  const resetAfterChoice = useCallback(() => {
+    if (isFinale) { doReset(); return }
+    setShowBeat(true)
+    setTimeout(() => doReset(), 1200)
+  }, [isFinale, doReset])
 
   const goToFeed = useCallback(() => {
     resetAfterChoice()
@@ -167,7 +179,14 @@ export default function LiveScreen() {
 
     const firstReactor = ch.reactions.find(rx => rx.char !== '__fan')
     if (firstReactor) {
-      addTimer(() => { injectCharDM(firstReactor.char as CharId, r(firstReactor.text)) }, 1200)
+      addTimer(() => {
+        injectCharDM(firstReactor.char as CharId, r(firstReactor.text))
+        const reactChar = allChars[firstReactor.char as CharId]
+        if (reactChar) {
+          setDmNotif({ name: reactChar.name, cls: reactChar.cls, id: reactChar.id })
+          setTimeout(() => setDmNotif(null), 3000)
+        }
+      }, 1200)
     }
 
     // Show post preview after impact card appears
@@ -204,9 +223,52 @@ export default function LiveScreen() {
     )
   }
 
+  // Next situation for chapter beat display
+  const nextSitForBeat = visibleSituations[game.situation]
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', position: 'relative' }}>
       <StatusBar />
+
+      {/* DM notification banner — slides in from top after a character DMs */}
+      {dmNotif && (
+        <div style={{
+          position: 'absolute', top: 44, left: 12, right: 12, zIndex: 50,
+          background: 'rgba(18,18,20,.97)', backdropFilter: 'blur(16px)',
+          border: '1px solid rgba(255,255,255,.1)', borderRadius: 16,
+          padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 10,
+          animation: 'slideUp .35s cubic-bezier(.32,.72,0,1) both',
+          boxShadow: '0 8px 30px rgba(0,0,0,.5)',
+          cursor: 'pointer',
+        }} onClick={() => navigate('dm-inbox')}>
+          <div className={`av ${dmNotif.cls}`} style={{ width: 34, height: 34, fontSize: 13, flexShrink: 0, backgroundImage: `url(/avatars/${dmNotif.id}.png)`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontWeight: 700, fontSize: 13 }}>{dmNotif.name}</div>
+            <div style={{ fontSize: 12, color: 'var(--ink2)', marginTop: 1 }}>ne message kiya 💬</div>
+          </div>
+          <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--accent)', flexShrink: 0 }} />
+        </div>
+      )}
+
+      {/* Chapter beat overlay — brief full-screen card between situations */}
+      {showBeat && nextSitForBeat && (
+        <div style={{
+          position: 'absolute', inset: 0, background: 'var(--bg)', zIndex: 40,
+          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6,
+          animation: 'fadeIn .25s ease both',
+        }}>
+          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.12em', color: 'var(--accent)', marginBottom: 4, animation: 'fadeIn .3s ease .1s both', opacity: 0 }}>SITUATION</div>
+          <div style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 80, lineHeight: 1, color: '#fff', animation: 'fadeIn .3s ease .05s both', opacity: 0 }}>
+            {game.situation}
+          </div>
+          <div style={{ fontSize: 16, color: 'var(--ink3)', fontWeight: 500, letterSpacing: '.05em', animation: 'fadeIn .3s ease .1s both', opacity: 0 }}>
+            of {visibleSituations.length}
+          </div>
+          <div style={{ fontFamily: 'var(--serif)', fontWeight: 500, fontSize: 20, color: 'rgba(255,255,255,.6)', marginTop: 6, animation: 'fadeIn .3s ease .2s both', opacity: 0 }}>
+            {nextSitForBeat.title}
+          </div>
+        </div>
+      )}
 
       {/* Shared HUD */}
       <MeterHUD right={
