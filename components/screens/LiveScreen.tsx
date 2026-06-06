@@ -76,11 +76,16 @@ export default function LiveScreen() {
 
   // Countdown timer for locked day
   const [countdown, setCountdown] = useState('')
+  const [, forceUpdate] = useState(0)  // triggers re-render when timer expires
   useEffect(() => {
     if (!isDayLocked || !sit) return
     const update = () => {
       const ms = game.dayUnlockTime[sit.day] - Date.now()
-      if (ms <= 0) { setCountdown('00:00:00'); return }
+      if (ms <= 0) {
+        setCountdown('00:00:00')
+        forceUpdate(n => n + 1)  // re-render so isDayLocked re-evaluates to false
+        return
+      }
       const h = Math.floor(ms / 3_600_000)
       const m = Math.floor((ms % 3_600_000) / 60_000)
       const s = Math.floor((ms % 60_000) / 1_000)
@@ -375,16 +380,103 @@ export default function LiveScreen() {
       {/* Main scroll */}
       <div className="live-scroll" ref={scrollRef}>
 
-        {/* Day-lock screen — next day not yet unlocked */}
+        {/* Day-lock screen — full-screen overlay when next day is locked */}
         {isDayLocked && sit && (
-          <div className="day-lock-screen">
-            <div className="day-lock-bg" />
-            <div className="day-lock-card">
-              <div className="day-lock-tag">⚡ DAY {sit.day} · UNLOCKS IN</div>
-              <div className="day-lock-countdown">{countdown}</div>
-              <button className="day-lock-btn" disabled>
-                COME BACK IN {countdown.split(':')[0]}h {countdown.split(':')[1]}m
+          <div style={{
+            position: 'absolute', inset: 0, zIndex: 30,
+            background: 'var(--bg)',
+            display: 'flex', flexDirection: 'column',
+            alignItems: 'center', justifyContent: 'center',
+            padding: '32px 28px',
+          }}>
+            {/* Subtle glow */}
+            <div style={{
+              position: 'absolute', top: '20%', left: '50%', transform: 'translateX(-50%)',
+              width: 260, height: 260, borderRadius: '50%',
+              background: 'radial-gradient(ellipse, rgba(255,45,120,.12) 0%, transparent 70%)',
+              pointerEvents: 'none',
+            }} />
+
+            {/* Day complete badge */}
+            <div style={{
+              fontSize: 11, fontWeight: 800, letterSpacing: '.12em',
+              color: 'var(--accent)', marginBottom: 16, opacity: 0.8,
+              animation: 'fadeIn .4s ease both',
+            }}>
+              {isCricket ? `SEASON 1 · IPL` : `CREATOR HOUSE`}
+            </div>
+
+            {/* Large day number */}
+            <div style={{
+              fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 72, lineHeight: 1,
+              color: '#fff', marginBottom: 6,
+              animation: 'fadeIn .4s ease .1s both', opacity: 0,
+            }}>
+              Day {sit.day - 1}
+            </div>
+            <div style={{
+              fontSize: 16, color: 'var(--ink2)', marginBottom: 8,
+              animation: 'fadeIn .4s ease .15s both', opacity: 0,
+            }}>
+              complete
+            </div>
+
+            {/* Divider */}
+            <div style={{ width: 40, height: 1, background: 'rgba(255,255,255,.12)', margin: '20px 0',
+              animation: 'fadeIn .4s ease .2s both', opacity: 0 }} />
+
+            {/* Next day teaser */}
+            <div style={{
+              fontSize: 13, color: 'var(--ink3)', marginBottom: 8, textAlign: 'center',
+              animation: 'fadeIn .4s ease .25s both', opacity: 0,
+            }}>
+              Day {sit.day} unlocks in
+            </div>
+
+            {/* Countdown */}
+            <div style={{
+              fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 48, lineHeight: 1,
+              color: 'var(--ink)', letterSpacing: '.02em', fontVariantNumeric: 'tabular-nums',
+              marginBottom: 32,
+              animation: 'fadeIn .4s ease .3s both', opacity: 0,
+            }}>
+              {countdown}
+            </div>
+
+            {/* CTA buttons */}
+            <div style={{
+              display: 'flex', flexDirection: 'column', gap: 12, width: '100%',
+              animation: 'fadeIn .4s ease .4s both', opacity: 0,
+            }}>
+              <button
+                onClick={() => navigate('feed')}
+                style={{
+                  width: '100%', height: 54, background: 'var(--accent)', color: '#fff',
+                  fontWeight: 700, fontSize: 15, borderRadius: 14, border: 'none',
+                  cursor: 'pointer', fontFamily: 'var(--sans)',
+                  boxShadow: '0 8px 24px rgba(255,45,120,.35)',
+                }}
+              >
+                Go to Feed →
               </button>
+              <button
+                onClick={() => navigate('dm-inbox')}
+                style={{
+                  width: '100%', height: 50, background: 'rgba(255,255,255,.07)', color: 'var(--ink2)',
+                  fontWeight: 600, fontSize: 14, borderRadius: 14,
+                  border: '1px solid rgba(255,255,255,.1)', cursor: 'pointer', fontFamily: 'var(--sans)',
+                }}
+              >
+                Go to Messages →
+              </button>
+            </div>
+
+            {/* Small note */}
+            <div style={{
+              marginTop: 24, fontSize: 12, color: 'var(--ink3)', textAlign: 'center',
+              animation: 'fadeIn .4s ease .5s both', opacity: 0,
+            }}>
+              Come back when the timer ends — the next scene is waiting.
             </div>
           </div>
         )}

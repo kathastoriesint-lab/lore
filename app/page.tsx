@@ -173,8 +173,8 @@ export default function App() {
       const currentSit = sitMap[queue[prev.situation]]
       const nextSit    = sitMap[queue[nextIdx]]
       const newUnlockTime = { ...prev.dayUnlockTime }
-      // Day gate: 0 for testing — restore to 6 * 60 * 60 * 1000 before launch (T26)
-      const gateMs = 0
+      // Day gate: 1 hour between days
+      const gateMs = 60 * 60 * 1000
       if (nextSit && currentSit && nextSit.day > currentSit.day && !newUnlockTime[nextSit.day]) {
         newUnlockTime[nextSit.day] = Date.now() + gateMs
       }
