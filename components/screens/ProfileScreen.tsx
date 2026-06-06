@@ -141,7 +141,7 @@ function WorldsProfileView() {
           onClick={() => resetGame()}
           style={{ marginTop:8, fontSize:13, color:'var(--ink3)', fontWeight:500, textAlign:'left', padding:'4px 0' }}
         >
-          Naya shuru karein (reset) →
+          Start over →
         </button>
 
       </div>

@@ -227,7 +227,7 @@ export default function LiveScreen() {
           style={{ padding: '14px 28px', background: 'var(--accent)', color: '#fff', borderRadius: 14, fontWeight: 700, fontSize: 16 }}
           onClick={() => navigate('world-intro')}
         >
-          Shuru karo →
+          Get started →
         </button>
       </div>
     )
@@ -332,13 +332,13 @@ export default function LiveScreen() {
                 style={{ width: '100%', height: 54, background: 'var(--accent)', color: '#fff', fontWeight: 700, fontSize: 16, borderRadius: 14 }}
                 onClick={() => navigate('profile')}
               >
-                Profile dekho →
+                View Profile →
               </button>
               <button
                 style={{ width: '100%', height: 48, background: 'transparent', color: 'var(--ink3)', fontWeight: 500, fontSize: 14, borderRadius: 14, border: '1px solid var(--line)' }}
                 onClick={() => navigate('feed')}
               >
-                Feed dekho →
+                View Feed →
               </button>
             </div>
           </div>

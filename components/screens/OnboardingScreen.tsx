@@ -195,7 +195,7 @@ function Card3({
         fontWeight:700, fontSize:16, fontFamily:'var(--sans)',
         transition:'all .2s', marginBottom:32,
       }}>
-        {saving ? 'Saving...' : 'Shuru karte hain →'}
+        {saving ? 'Saving...' : 'Start →'}
       </button>
     </div>
   )
@@ -308,7 +308,7 @@ export default function OnboardingScreen() {
             </button>
           )}
           <button onClick={() => setCard(c => c + 1)} style={{ flex:2, height:50, background:'var(--accent)', color:'#fff', fontWeight:700, fontSize:15, borderRadius:14, border:'none', cursor:'pointer', fontFamily:'var(--sans)', boxShadow:'0 8px 24px rgba(255,45,120,.35)' }}>
-            Aage →
+            Next →
           </button>
         </div>
       )}

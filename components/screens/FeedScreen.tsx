@@ -869,7 +869,7 @@ export default function FeedScreen() {
           <div className={`wi-line${introLines[5] ? ' in' : ''}`}>
             <div className="wi-cta">
               <button className="wi-btn" style={isCricket ? { background: '#003087', boxShadow: '0 8px 24px rgba(0,48,135,.4)' } : {}} onClick={dismissIntro}>
-                {isCricket ? 'Dressing room mein jao →' : 'Andar aao →'}
+                {isCricket ? 'Enter Dressing Room →' : 'Enter the House →'}
               </button>
               <button className="wi-skip-btn" onClick={dismissIntro}>Skip</button>
             </div>
