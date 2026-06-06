@@ -122,6 +122,32 @@ export default function WorldsScreen() {
             </div>
           </button>
 
+          {/* Locked worlds — coming soon */}
+          {[
+            { id: 'college-hostel',   name: 'College Hostel',    sub: 'Ragging, crush, exams, politics.', gradient: 'linear-gradient(135deg,#1a5a3a,#0a2a1a)', accent: '#2a9a6a' },
+            { id: 'indian-mythology', name: 'Indian Mythology',  sub: 'Gods, wars, dharma, destiny.',      gradient: 'linear-gradient(135deg,#7a3a1a,#3a1a0a)', accent: '#FFB020' },
+            { id: 'corporate-drama',  name: 'Corporate Drama',   sub: 'Office politics. Real money.',      gradient: 'linear-gradient(135deg,#1a2a5a,#0a1020)', accent: '#6a8aff' },
+          ].map(w => (
+            <button
+              key={w.id}
+              className={`world-card${shakingCard === w.id ? ' shake' : ''}`}
+              onClick={() => triggerShake(w.id, 'Yeh world jald aayega 🔐')}
+              style={{ opacity: 0.72 }}
+            >
+              <div className="wc-cover" style={{ background: w.gradient, height: 140 }}>
+                <div className="wc-badge" style={{ color: w.accent, borderColor: `${w.accent}44` }}>
+                  <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                    <rect x="5" y="11" width="14" height="9" rx="2"/>
+                    <path d="M8 11V7a4 4 0 0 1 8 0v4"/>
+                  </svg>
+                  COMING SOON
+                </div>
+                <div className="wc-name" style={{ fontSize: 22, opacity: 0.9 }}>{w.name}</div>
+                <div className="wc-status" style={{ opacity: 0.6 }}>{w.sub}</div>
+              </div>
+            </button>
+          ))}
+
           {/* Creator House */}
           <button
             className={`world-card${shakingCard === 'creator-house' ? ' shake' : ''}`}

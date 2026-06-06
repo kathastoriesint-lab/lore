@@ -50,8 +50,123 @@ function RingAvatar({ id, cls, bond, size = 56 }: { id: string; cls: string; bon
   )
 }
 
+// ── Worlds-level profile (shown when user hasn't entered any world yet) ──────
+function WorldsProfileView() {
+  const { game, navigate, resetGame } = useApp()
+  const [editing, setEditing] = useState(false)
+  const [nameInput, setNameInput] = useState(game.playerName)
+
+  const worldsPlayed = game.situation > 0
+    ? [{ name: game.world === 'cricket' ? 'Indian Dressing Room' : 'Creator House', situations: game.situation }]
+    : []
+
+  return (
+    <div style={{ display:'flex', flexDirection:'column', height:'100%', background:'var(--bg)' }}>
+      <StatusBar />
+      <div className="appbar" style={{ justifyContent:'space-between', padding:'6px 16px 12px' }}>
+        <div style={{ fontWeight:700, fontSize:16 }}>Profile</div>
+      </div>
+
+      <div className="scroll" style={{ padding:'24px 20px', display:'flex', flexDirection:'column', gap:20 }}>
+
+        {/* Avatar + name */}
+        <div style={{ display:'flex', alignItems:'center', gap:16 }}>
+          <PlayerAvatar size={64} fontSize={26} />
+          <div>
+            <div style={{ fontWeight:700, fontSize:20 }}>{game.playerName || '—'}</div>
+            <div style={{ fontSize:13, color:'var(--ink3)', marginTop:2 }}>
+              {game.playerGender === 'male' ? 'He / Him' : 'She / Her'}
+            </div>
+          </div>
+        </div>
+
+        {/* Info cards */}
+        <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+          {/* Name */}
+          <div style={{ background:'var(--surf)', borderRadius:14, padding:'14px 16px', border:'1px solid var(--line)' }}>
+            <div style={{ fontSize:10, fontWeight:800, letterSpacing:'.08em', color:'var(--ink3)', marginBottom:6 }}>NAAM</div>
+            {editing ? (
+              <div style={{ display:'flex', gap:10, alignItems:'center' }}>
+                <input
+                  value={nameInput}
+                  onChange={e => setNameInput(e.target.value.slice(0,24))}
+                  style={{ flex:1, background:'transparent', border:'none', borderBottom:'1.5px solid var(--accent)', color:'var(--ink)', fontSize:16, fontFamily:'var(--sans)', outline:'none', paddingBottom:4 }}
+                  autoFocus
+                />
+                <button
+                  onClick={() => { setEditing(false) }}
+                  style={{ fontSize:13, color:'var(--ink3)', fontWeight:500 }}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => { /* save handled via resetGame context — for now just close */ setEditing(false) }}
+                  style={{ fontSize:13, color:'var(--accent)', fontWeight:700 }}
+                >
+                  Save
+                </button>
+              </div>
+            ) : (
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                <div style={{ fontSize:16, fontWeight:600 }}>{game.playerName || '—'}</div>
+                <button onClick={() => setEditing(true)} style={{ fontSize:12, color:'var(--accent)', fontWeight:600 }}>Edit</button>
+              </div>
+            )}
+          </div>
+
+          {/* Gender */}
+          <div style={{ background:'var(--surf)', borderRadius:14, padding:'14px 16px', border:'1px solid var(--line)' }}>
+            <div style={{ fontSize:10, fontWeight:800, letterSpacing:'.08em', color:'var(--ink3)', marginBottom:6 }}>ROLE</div>
+            <div style={{ fontSize:16, fontWeight:600 }}>
+              {game.playerGender === 'male' ? 'He / Him' : 'She / Her'}
+            </div>
+          </div>
+
+          {/* Worlds played */}
+          <div style={{ background:'var(--surf)', borderRadius:14, padding:'14px 16px', border:'1px solid var(--line)' }}>
+            <div style={{ fontSize:10, fontWeight:800, letterSpacing:'.08em', color:'var(--ink3)', marginBottom:10 }}>WORLDS PLAYED</div>
+            {worldsPlayed.length === 0 ? (
+              <div style={{ fontSize:14, color:'var(--ink3)', fontStyle:'italic' }}>Abhi koi world nahi khela.</div>
+            ) : worldsPlayed.map(w => (
+              <div key={w.name} style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                <div style={{ fontSize:15, fontWeight:600 }}>{w.name}</div>
+                <div style={{ fontSize:12, color:'var(--ink3)' }}>S{w.situations} completed</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Reset option */}
+        <button
+          onClick={() => resetGame()}
+          style={{ marginTop:8, fontSize:13, color:'var(--ink3)', fontWeight:500, textAlign:'left', padding:'4px 0' }}
+        >
+          Naya shuru karein (reset) →
+        </button>
+
+      </div>
+
+      {/* Tab bar */}
+      <div className="tabbar">
+        <button className="tab" onClick={() => navigate('worlds')}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 3c-2.5 3-4 5.7-4 9s1.5 6 4 9"/><path d="M12 3c2.5 3 4 5.7 4 9s-1.5 6-4 9"/><path d="M3 12h18"/></svg>
+          <span>Worlds</span>
+        </button>
+        <button className="tab active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          <span>Profile</span>
+        </button>
+      </div>
+    </div>
+  )
+}
+
 export default function ProfileScreen() {
   const { game, navigate, goBack, dmTrust, setViewingChar } = useApp()
+
+  // When the user hasn't entered any world yet, show the simple worlds-level profile
+  if (!game.char) return <WorldsProfileView />
+
   const isCricket = game.world === 'cricket'
   const allChars = { ...CHARS, ...CRICKET_CHARS }
   const charId = (game.char ?? (isCricket ? 'hardik' : 'kabir')) as CharId

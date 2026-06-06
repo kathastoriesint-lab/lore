@@ -186,6 +186,8 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 
 /* Meter value flash when it changes */
 @keyframes meterFlash{0%{color:#fff;transform:scale(1.4)}100%{transform:scale(1)}}
+/* Loading shimmer for DM thread */
+@keyframes shimmer{0%,100%{opacity:.4}50%{opacity:.8}}
 .mval-flash{animation:meterFlash .45s ease-out forwards}
 .sv-top{display:flex;align-items:center;gap:10px;padding:10px 14px 0;position:relative;z-index:3}
 .sv-top .av{width:34px;height:34px;font-size:14px}

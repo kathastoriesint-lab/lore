@@ -27,6 +27,11 @@ export default function DMThreadScreen() {
   const [input, setInput] = useState('')
   const [sending, setSending] = useState(false)
   const [typing, setTyping] = useState(false)
+  // Show shimmer while DM history is loading from DB (messages empty + char set)
+  const [loadedOnce, setLoadedOnce] = useState(false)
+  useEffect(() => {
+    if (messages.length > 0) setLoadedOnce(true)
+  }, [messages.length])
 
   // Trust: LLM-scored live value from context, falls back to static default
   const trustVal = charId
@@ -124,6 +129,21 @@ export default function DMThreadScreen() {
 
       {/* Messages rendered directly from context — no local copy */}
       <div className="chat" ref={chatRef}>
+        {/* Shimmer while loading from DB */}
+        {!loadedOnce && messages.length === 0 && [0,1,2].map(i => (
+          <div key={i} style={{ display:'flex', flexDirection:'column', gap:8, marginBottom:4 }}>
+            {i === 0 && <div style={{ display:'flex', alignItems:'center', gap:8, alignSelf:'flex-start', margin:'4px 0' }}>
+              <div style={{ width:22, height:22, borderRadius:'50%', background:'rgba(255,255,255,.08)', animation:'shimmer 1.4s ease-in-out infinite' }} />
+              <div style={{ width:80, height:10, borderRadius:6, background:'rgba(255,255,255,.08)', animation:'shimmer 1.4s ease-in-out infinite' }} />
+            </div>}
+            <div style={{
+              alignSelf: i % 2 === 0 ? 'flex-start' : 'flex-end',
+              width: `${[55,40,65][i]}%`, height: 42, borderRadius:18,
+              background:'rgba(255,255,255,.07)',
+              animation:`shimmer 1.4s ease-in-out ${i * 0.2}s infinite`,
+            }} />
+          </div>
+        ))}
         {messages.map((msg, i) => {
           const isIn = msg.role === 'char'
           const isOut = msg.role === 'me'
