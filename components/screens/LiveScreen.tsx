@@ -352,12 +352,12 @@ export default function LiveScreen() {
                     ? char.id === 'kabir' ? allChars['ananya'] : char.id === 'ananya' ? allChars['kabir'] : char
                     : char)
                 : null
-              // Inline char color — color-mix(var(--cc)) fails without a parent with the class
+              // Inline char color — must match .c-{id}{--cc} in globals.css (DESIGN.md compliant)
               const CHAR_COLORS: Record<string, string> = {
-                ria:'#b03a5e', kabir:'#2a6f8f', dev:'#3a7a4a', ananya:'#8a4ab0', zoya:'#aa6a8a',
-                meher:'#b07a2a', rishi:'#4a8a2a', adi:'#d4581a',
+                ria:'#c41060', kabir:'#8a1840', dev:'#7a1535', ananya:'#b03060', zoya:'#a02858',
+                meher:'#952050', rishi:'#6a1030', adi:'#b54070',
                 hardik:'#003087', rohit:'#1a3a6e', surya:'#004080', bumrah:'#0a1a4a',
-                tilak:'#2a5a8f', coach:'#4a3a1a', friend:'#3a6a4a',
+                tilak:'#2a5a8f', coach:'#3a2a5a', friend:'#1a4a6a',
               }
               const charColor = displayChar ? (CHAR_COLORS[displayChar.id] ?? '#1a1a2e') : '#1a1a2e'
               // Gradient: char color fades to dark — lighter mid so text reads at bottom

@@ -281,9 +281,9 @@ export function bondWord(bond: number, rel: Relationship | null): string {
   return 'TIGHT'
 }
 
-/** Color for a bond value. */
+/** Color for a bond value — uses meter trio only (DESIGN.md). */
 export function bondColor(bond: number): string {
-  if (bond >= 65) return '#3DD6C8'
-  if (bond >= 40) return '#FFB020'
-  return '#FF5C3A'
+  if (bond >= 65) return '#3DD6C8'   // --trust
+  if (bond >= 40) return '#FFB020'   // --fame
+  return 'rgba(255,255,255,0.09)'    // faded — no new colour
 }
