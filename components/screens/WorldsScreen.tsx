@@ -85,7 +85,44 @@ export default function WorldsScreen() {
       <div className="scroll">
         <div className="world-list">
 
-          {/* Creator House — dominant LIVE world */}
+          {/* Indian Dressing Room — lead world for India */}
+          <button
+            className="world-card"
+            onClick={() => navigate('cricket-intro')}
+            style={{ boxShadow: '0 0 0 1.5px rgba(0,48,135,.5), 0 12px 40px rgba(0,48,135,.25)' }}
+          >
+            <div
+              className="wc-cover"
+              style={{ background: 'linear-gradient(135deg,#003087,#001540)', height: 210 }}
+            >
+              <div className="wc-badge" style={{ color: '#FFB020' }}>
+                <div className="pulse" style={{ background: '#FFB020' }} />
+                LIVE · SEASON 1
+              </div>
+              <div className="wc-name">Indian Dressing Room</div>
+              <div className="wc-status">
+                <div className="pulse" style={{ background: '#FFB020' }} />
+                16 saal. Mumbai Indians. Pehla IPL.
+              </div>
+            </div>
+            <div className="wc-foot">
+              <div className="av-stack">
+                {[
+                  { init: 'H', cls: 'c-hardik' },
+                  { init: 'R', cls: 'c-rohit' },
+                  { init: 'S', cls: 'c-surya' },
+                  { init: 'J', cls: 'c-bumrah' },
+                ].map((c) => (
+                  <div key={c.init} className={`av ${c.cls}`} style={{ width: 24, height: 24, fontSize: 10 }}>
+                    {c.init}
+                  </div>
+                ))}
+              </div>
+              <div className="wc-meta">Mumbai Indians · 30 situations · 5 endings</div>
+            </div>
+          </button>
+
+          {/* Creator House */}
           <button
             className={`world-card${shakingCard === 'creator-house' ? ' shake' : ''}`}
             onClick={handleCreatorHouse}
@@ -117,43 +154,6 @@ export default function WorldsScreen() {
                 })}
               </div>
               <div className="wc-meta">6 creators · 1.2M following</div>
-            </div>
-          </button>
-
-          {/* Indian Dressing Room */}
-          <button
-            className="world-card"
-            onClick={() => navigate('cricket-intro')}
-            style={{ boxShadow: '0 0 0 1.5px rgba(0,48,135,.5), 0 12px 40px rgba(0,48,135,.2)' }}
-          >
-            <div
-              className="wc-cover"
-              style={{ background: 'linear-gradient(135deg,#003087,#001540)', height: 210 }}
-            >
-              <div className="wc-badge" style={{ color: '#FFB020' }}>
-                <div className="pulse" style={{ background: '#FFB020' }} />
-                SEASON 1
-              </div>
-              <div className="wc-name">Indian Dressing Room</div>
-              <div className="wc-status">
-                <div className="pulse" />
-                16 years old. Mumbai Indians. Your first IPL.
-              </div>
-            </div>
-            <div className="wc-foot">
-              <div className="av-stack">
-                {[
-                  { init: 'H', bg: '#003087' },
-                  { init: 'R', bg: '#1a3a6e' },
-                  { init: 'S', bg: '#004080' },
-                  { init: 'J', bg: '#0a1a4a' },
-                ].map((c) => (
-                  <div key={c.init} className="av" style={{ width: 24, height: 24, fontSize: 10, background: c.bg }}>
-                    {c.init}
-                  </div>
-                ))}
-              </div>
-              <div className="wc-meta">Mumbai Indians · 30 situations · 5 endings</div>
             </div>
           </button>
 

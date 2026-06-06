@@ -86,10 +86,10 @@ export default function OnboardingScreen() {
       justifyContent: 'center',
     }}>
       <div style={{ fontFamily: 'var(--serif)', fontSize: 32, fontWeight: 600, color: '#fff', marginBottom: 6 }}>
-        Welcome
+        Ek second.
       </div>
-      <div style={{ fontSize: 14, color: 'var(--ink2)', marginBottom: 40 }}>
-        Tell us once — we'll remember it.
+      <div style={{ fontSize: 14, color: 'var(--ink2)', marginBottom: 40, lineHeight: 1.5 }}>
+        Tumhara naam chahiye — baaki sab story sambhal legi.
       </div>
 
       {/* Photo upload */}
@@ -139,7 +139,7 @@ export default function OnboardingScreen() {
       {/* Name */}
       <div style={{ marginBottom: 32 }}>
         <label style={{ display: 'block', fontSize: 11, fontWeight: 700, letterSpacing: '.1em', color: 'rgba(255,255,255,.45)', marginBottom: 14 }}>
-          YOUR NAME
+          TUMHARA NAAM
         </label>
         <input
           type="text"
@@ -163,10 +163,10 @@ export default function OnboardingScreen() {
       {/* Gender */}
       <div style={{ marginBottom: 40 }}>
         <label style={{ display: 'block', fontSize: 11, fontWeight: 700, letterSpacing: '.1em', color: 'rgba(255,255,255,.45)', marginBottom: 6 }}>
-          YOU ARE
+          TUMHARA ROLE
         </label>
         <div style={{ fontSize: 12, color: 'rgba(255,255,255,.5)', marginBottom: 14 }}>
-          This shapes who approaches you inside the story.
+          Story mein kaunse characters tumse pehle baat karenge — yeh isse decide hoga.
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
           {(['male', 'female'] as const).map(g => (
@@ -199,7 +199,7 @@ export default function OnboardingScreen() {
           transition: 'all .2s',
         }}
       >
-        {saving ? 'Saving...' : 'Enter Lore →'}
+        {saving ? 'Saving...' : 'Shuru karte hain →'}
       </button>
     </div>
   )

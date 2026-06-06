@@ -319,10 +319,10 @@ export default function LiveScreen() {
                         const pos = delta > 0
                         return (
                           <span style={{
-                            fontSize: 9, fontWeight: 800, letterSpacing: '.03em',
+                            fontSize: 12, fontWeight: 700, letterSpacing: '.01em',
                             color: pos ? '#3DD6C8' : '#FF5C3A',
                             background: pos ? 'rgba(61,214,200,.12)' : 'rgba(255,92,58,.12)',
-                            padding: '2px 6px', borderRadius: 5,
+                            padding: '2px 8px', borderRadius: 6,
                           }}>
                             {pos ? '+' : ''}{delta} bond
                           </span>
@@ -416,7 +416,10 @@ export default function LiveScreen() {
                   </div>
 
                   {/* Player post + reactions — shown after post is ready */}
-                  {showPost && displayChar && (
+                  {/* Caption starting with "*(" is a meta-note (no public post was made) */}
+                  {(() => {
+                    const hasRealPost = ch.caption && !ch.caption.startsWith('*(')
+                    return showPost && displayChar && (
                     <div style={{ marginTop: 12, background: '#0f0f18', borderRadius: 16, overflow: 'hidden', border: '1px solid rgba(255,255,255,.07)', animation: 'slideUp .4s cubic-bezier(.32,.72,0,1) both' }}>
                       {/* Post header */}
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px' }}>
@@ -427,20 +430,32 @@ export default function LiveScreen() {
                           <div style={{ fontWeight: 700, fontSize: 13 }}>@{playerHandle}</div>
                           <div style={{ fontSize: 10, color: 'var(--ink3)' }}>just now · {isCricket ? 'MI Season 1' : 'Creator House'}</div>
                         </div>
-                        <div style={{ fontSize: 9, fontWeight: 800, color: 'var(--accent)', background: 'rgba(255,45,120,.12)', padding: '3px 8px', borderRadius: 20 }}>✓ POSTED</div>
+                        {hasRealPost
+                          ? <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--accent)', background: 'rgba(255,45,120,.12)', padding: '3px 8px', borderRadius: 20 }}>✓ POSTED</div>
+                          : <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--ink3)', background: 'rgba(255,255,255,.06)', padding: '3px 8px', borderRadius: 20 }}>offline</div>
+                        }
                       </div>
 
-                      {/* Post image — caption absolutely pinned to bottom, always readable */}
-                      <div style={{ margin: '0 12px', borderRadius: 10, background: postBg, aspectRatio: '4/3', position: 'relative', overflow: 'hidden' }}>
-                        <p style={{
-                          position: 'absolute', bottom: 0, left: 0, right: 0, margin: 0,
-                          padding: '32px 14px 14px',
-                          fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 14,
-                          color: 'rgba(255,255,255,.95)', lineHeight: 1.45,
-                          background: 'linear-gradient(to top, rgba(0,0,0,.55) 0%, transparent 100%)',
-                          textShadow: '0 1px 6px rgba(0,0,0,.5)',
-                        }}>{r(ch.caption)}</p>
-                      </div>
+                      {hasRealPost ? (
+                        /* Post image — caption pinned to bottom */
+                        <div style={{ margin: '0 12px', borderRadius: 10, background: postBg, aspectRatio: '4/3', position: 'relative', overflow: 'hidden' }}>
+                          <p style={{
+                            position: 'absolute', bottom: 0, left: 0, right: 0, margin: 0,
+                            padding: '32px 14px 14px',
+                            fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 14,
+                            color: 'rgba(255,255,255,.95)', lineHeight: 1.45,
+                            background: 'linear-gradient(to top, rgba(0,0,0,.55) 0%, transparent 100%)',
+                            textShadow: '0 1px 6px rgba(0,0,0,.5)',
+                          }}>{r(ch.caption)}</p>
+                        </div>
+                      ) : (
+                        /* No post made — quiet offline note */
+                        <div style={{ margin: '0 12px 12px', padding: '14px 16px', borderRadius: 10, background: 'rgba(255,255,255,.03)', border: '1px solid rgba(255,255,255,.06)' }}>
+                          <div style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 14, color: 'var(--ink3)', lineHeight: 1.5 }}>
+                            {r(ch.caption).replace(/<\/?em>/g, '').replace(/^\(|\)$/g, '')}
+                          </div>
+                        </div>
+                      )}
 
                       {/* Reactions as threaded comments */}
                       {ch.reactions && ch.reactions.length > 0 && (
@@ -478,7 +493,8 @@ export default function LiveScreen() {
                         </div>
                       )}
                     </div>
-                  )}
+                  )
+                  })()}
                 </div>
               )
             })()}
