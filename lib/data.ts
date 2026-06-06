@@ -501,46 +501,6 @@ export const SITUATIONS: Situation[] = [
     },
   },
   {
-    id:'D4-HEAT', day:4, slot:'Afternoon', tag:'⚡ DAY 4 · AFTERNOON',
-    condition:(m) => m.heat >= 57,
-    title:'Zyada Dost, Zyada Khatra',
-    body:[
-      'Tumne suna — accidentally. Ria aur Zoya kitchen mein the. "Jo zyada popular hota hai," Ria bol rahi thi, "woh zyada target banta hai. Hamesha."',
-      '"Unhe control karna hoga before they realise they\'re a threat." Woh tumhare baare mein baat kar rahi thi.',
-      'Popularity = target. Yeh Creator House ka real rule hai.',
-    ],
-    react:{ char:'zoya', text:'Main innocent hoon. Ria ne woh kaha — main bas... sun rahi thi. 🫶' },
-    q:'Ria ki yeh strategy sunke kya karte ho?',
-    choices:[
-      {
-        t:'Ria ko directly confront karo',
-        s:'I heard. We need to talk.',
-        deltas:{ fame:-1, heat:-4, image:2 },
-        caption:'Is ghar mein conversations sunna aur sochna — yeh bhi ek skill hai. 👀 #CreatorHouse',
-        reactions:[
-          { char:'ria', text:'...Interesting. You came to me directly. Respect. 🤍' },
-          { char:'kabir', text:'Bhai tune Ria ko confront kiya?? WHAT 😭' },
-          { char:'__fan', name:'housewatch_india', text:'confronted ria about the popular=target strategy?? brave' },
-        ],
-      },
-      {
-        t:'Information store karo — act normal',
-        s:'Don\'t show your hand. Use this when it matters.',
-        deltas:{ fame:2, heat:1, image:-1 },
-        caption:'Jo sunna woh suna. Jo dikhna woh dikhna. Is ghar mein timing sab kuch hai. 🎯',
-        reactions:[
-          { char:'ria', text:'They\'re acting normal. Maybe they didn\'t hear. Or maybe... 👀' },
-          { char:'kabir', text:'Tu bahut shant hai aaj. Kuch hua? 😭' },
-          { char:'__fan', name:'creator.tea', text:'playing it cool after hearing ria\'s strategy?? dangerous game' },
-        ],
-      },
-    ],
-    feedReaction:{
-      A:{ char:'ria', caption:'Honesty is a luxury in this house. Some people still choose it. Interesting. 🤍' },
-      B:null,
-    },
-  },
-  {
     id:'D4-2', day:4, slot:'Late Afternoon', tag:'⚡ DAY 4 · LATE AFTERNOON',
     title:'Ria, Public Mein',
     body:[
@@ -700,46 +660,6 @@ export const SITUATIONS: Situation[] = [
     },
   },
   {
-    id:'D5-FAME', day:5, slot:'Late Afternoon', tag:'⚡ DAY 5 · LATE AFTERNOON',
-    condition:(m) => m.fame >= 46,
-    title:'Trending Comparison',
-    body:[
-      '@housewatch_india ne ek thread daala hai: "Creator House mein naya threat Ria ke liye — comparison thread." Numbers. Views. Engagement. Tumhara sab kuch zyada hai.',
-      'Ria ne tumhe pull aside kiya. "Woh comparison thread — kya tumhara team ne yeh coordinate kiya?" Direct question. Cold eyes.',
-      'Tumhara public image Ria se compete kar raha hai. Woh clearly bothered hai.',
-    ],
-    react:{ char:'ria', text:'Main seedha poochh rahi hoon. Simple question. 🤍' },
-    q:'Ria ke comparison thread question ka kya karte ho?',
-    choices:[
-      {
-        t:'Seedha deny karo — genuinely nahi kiya',
-        s:'Truth. Simple. Don\'t over-explain.',
-        deltas:{ fame:3, heat:-4, image:-2 },
-        caption:'Main apni growth create {p|karta/karti} hoon. Doosron ko compare nahi {p|karta/karti}. Real sirf real {p|hota/hoti} hai. 🎯',
-        reactions:[
-          { char:'ria', text:'Either they\'re telling the truth or they\'re very good at lying. Both options are concerning.' },
-          { char:'kabir', text:'Stay calm yaar. Ria bait kar rahi hai. 😭' },
-          { char:'__fan', name:'housewatch_india', text:'denied coordinating the comparison thread?? are we believing??' },
-        ],
-      },
-      {
-        t:'Lean in — "organic hai, main kya karun"',
-        s:'Own the comparison. Don\'t apologize for your numbers.',
-        deltas:{ fame:-1, heat:1, image:2 },
-        caption:'Numbers organic hote hain ya nahi hote. Mere organic hain. Woh zaroor zyada hain. 🔥 #CreatorHouse',
-        reactions:[
-          { char:'ria', text:'...Okay. They just told me they\'re coming for the top spot. Message received. 👑' },
-          { char:'ananya', text:'The confidence!! 🔥🥺' },
-          { char:'__fan', name:'creator.tea', text:'OWNED THE COMPARISON TO RIA\'S FACE?? legendary' },
-        ],
-      },
-    ],
-    feedReaction:{
-      A:null,
-      B:{ char:'ria', caption:'When someone tells you who they are — believe them. 👑 #CreatorHouse' },
-    },
-  },
-  {
     id:'D5-3', day:5, slot:'Evening', tag:'⚡ DAY 5 · EVENING',
     title:'{crush} Ka Collab',
     body:[
@@ -895,46 +815,6 @@ export const SITUATIONS: Situation[] = [
     ],
     feedReaction:{
       A:{ char:'zoya', caption:'Honest conversations. Is ghar mein rare hain. Par hoti hain. 💅 #Day6' },
-      B:null,
-    },
-  },
-  {
-    id:'D6-IMAGE', day:6, slot:'Late Afternoon', tag:'⚡ DAY 6 · LATE AFTERNOON',
-    condition:(m) => m.image <= 62,
-    title:'Brand Pull Out',
-    body:[
-      'Ek brand ne email kiya — politely lekin clearly. "We\'ve decided to go in a different direction. We loved your content, but the fit isn\'t quite right for us."',
-      'Translation: tumhara image score unhe convince nahi kiya. Yeh real-world consequence hai.',
-      'Kya karte ho is moment mein?',
-    ],
-    react:{ char:'kabir', text:'Yaar brand rejection hota hai. Rebuild kar. Aur is ghar mein abhi bhi time hai. 😭' },
-    q:'Brand rejection ke baad kya karte ho?',
-    choices:[
-      {
-        t:'Pivotify — image shift karo deliberately',
-        s:'Acknowledge the gap. Rebuild with intention.',
-        deltas:{ fame:-1, heat:1, image:4 },
-        caption:'Hamesha right fit nahi hota. Par fit dhundhna — woh kaam hai. New direction loading. 🎯',
-        reactions:[
-          { char:'ria', text:'Interesting pivot. They\'re adapting. Note to self.' },
-          { char:'kabir', text:'Image rebuild karna difficult hai par tu kar {p|sakta/sakti} hai. 😭🔥' },
-          { char:'__fan', name:'housewatch_india', text:'brand rejection sparked a pivot?? growth arc incoming' },
-        ],
-      },
-      {
-        t:'Ignore karo — apna content uthao',
-        s:'One brand\'s opinion is not the truth.',
-        deltas:{ fame:-2, heat:-3, image:2 },
-        caption:'Brand choices reflect their audience, not my value. Main apna kaam {p|karta/karti} hoon. 🔥',
-        reactions:[
-          { char:'kabir', text:'{p|Bhai/behen} thoda overconfident? Brand feedback bhi important hai. 😭' },
-          { char:'ananya', text:'I mean... they\'re not wrong but also ouch 🥺' },
-          { char:'__fan', name:'creator.tea', text:'brushed off brand rejection?? confidence or denial?' },
-        ],
-      },
-    ],
-    feedReaction:{
-      A:{ char:'ria', caption:'Growth isn\'t always up. Sometimes it\'s a redirect. 🤍 #Day6' },
       B:null,
     },
   },
@@ -1341,18 +1221,8 @@ export const DM_QUICK: Partial<Record<string, string[]>> = {
   zoya:   ['Kya notice kiya tune?', 'Seedhi baat kar', 'Kispe nazar hai teri?'],
 }
 
-export function getVisibleSituations(meters?: import('./types').Meters, _choices?: ('A' | 'B')[]): Situation[] {
-  const core = SITUATIONS.filter(s => !s.condition)
-  if (!meters) return core
-  const conds = SITUATIONS.filter(s => s.condition)
-  const ordered: Situation[] = []
-  for (const sit of core) {
-    ordered.push(sit)
-    if (sit.id === 'D4-1') { const c = conds.find(s => s.id === 'D4-HEAT'); if (c && c.condition!(meters, {} as import('./types').GameFlags)) ordered.push(c) }
-    if (sit.id === 'D5-2') { const c = conds.find(s => s.id === 'D5-FAME'); if (c && c.condition!(meters, {} as import('./types').GameFlags)) ordered.push(c) }
-    if (sit.id === 'D6-2') { const c = conds.find(s => s.id === 'D6-IMAGE'); if (c && c.condition!(meters, {} as import('./types').GameFlags)) ordered.push(c) }
-  }
-  return ordered
+export function getVisibleSituations(_meters?: import('./types').Meters, _choices?: ('A' | 'B')[]): Situation[] {
+  return SITUATIONS
 }
 
 

@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useApp } from '@/lib/context'
 import type { CharId, DMMessage } from '@/lib/types'
 import { CHARS, DM_TRUST, DM_QUICK } from '@/lib/data'
-import { CRICKET_CHARS, CRICKET_DM_MOCK } from '@/lib/cricket-data'
+import { CRICKET_CHARS } from '@/lib/cricket-data'
 
 const StatusBar = () => (
   <div className="statusbar">
@@ -27,11 +27,7 @@ export default function DMThreadScreen() {
   const [input, setInput] = useState('')
   const [sending, setSending] = useState(false)
   const [typing, setTyping] = useState(false)
-  // Show shimmer while DM history is loading from DB (messages empty + char set)
-  const [loadedOnce, setLoadedOnce] = useState(false)
-  useEffect(() => {
-    if (messages.length > 0) setLoadedOnce(true)
-  }, [messages.length])
+  const hasStarted = messages.length > 0
 
   // Trust: LLM-scored live value from context, falls back to static default
   const trustVal = charId
@@ -129,21 +125,15 @@ export default function DMThreadScreen() {
 
       {/* Messages rendered directly from context — no local copy */}
       <div className="chat" ref={chatRef}>
-        {/* Shimmer while loading from DB */}
-        {!loadedOnce && messages.length === 0 && [0,1,2].map(i => (
-          <div key={i} style={{ display:'flex', flexDirection:'column', gap:8, marginBottom:4 }}>
-            {i === 0 && <div style={{ display:'flex', alignItems:'center', gap:8, alignSelf:'flex-start', margin:'4px 0' }}>
-              <div style={{ width:22, height:22, borderRadius:'50%', background:'rgba(255,255,255,.08)', animation:'shimmer 1.4s ease-in-out infinite' }} />
-              <div style={{ width:80, height:10, borderRadius:6, background:'rgba(255,255,255,.08)', animation:'shimmer 1.4s ease-in-out infinite' }} />
-            </div>}
-            <div style={{
-              alignSelf: i % 2 === 0 ? 'flex-start' : 'flex-end',
-              width: `${[55,40,65][i]}%`, height: 42, borderRadius:18,
-              background:'rgba(255,255,255,.07)',
-              animation:`shimmer 1.4s ease-in-out ${i * 0.2}s infinite`,
-            }} />
+        {!hasStarted && (
+          <div style={{ height:'100%', display:'grid', placeItems:'center', textAlign:'center', color:'var(--ink3)', padding:'0 28px' }}>
+            <div>
+              <div style={{ fontSize:22, marginBottom:8 }}>💬</div>
+              <div style={{ fontWeight:700, color:'var(--ink)', marginBottom:5 }}>No messages yet</div>
+              <div style={{ fontSize:13, lineHeight:1.45 }}>{char.name} will appear here after they message you in the story.</div>
+            </div>
           </div>
-        ))}
+        )}
         {messages.map((msg, i) => {
           const isIn = msg.role === 'char'
           const isOut = msg.role === 'me'
@@ -178,31 +168,35 @@ export default function DMThreadScreen() {
       </div>
 
       {/* Quick reply chips */}
-      <div className="quick-chips">
-        {quickChips.map((chip, i) => (
-          <button key={i} className="chip" onClick={() => handleQuickChip(chip)}>{chip}</button>
-        ))}
-      </div>
+      {hasStarted && (
+        <div className="quick-chips">
+          {quickChips.map((chip, i) => (
+            <button key={i} className="chip" onClick={() => handleQuickChip(chip)}>{chip}</button>
+          ))}
+        </div>
+      )}
 
       {/* Input bar */}
-      <div className="input-bar">
-        <div className="field">
-          <input
-            ref={inputRef}
-            type="text"
-            placeholder={`Message ${char.name}...`}
-            value={input}
-            onChange={e => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            disabled={sending}
-          />
+      {hasStarted && (
+        <div className="input-bar">
+          <div className="field">
+            <input
+              ref={inputRef}
+              type="text"
+              placeholder={`Message ${char.name}...`}
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              disabled={sending}
+            />
+          </div>
+          <button className="send-btn" onClick={handleSend} disabled={!input.trim() || sending}>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/>
+            </svg>
+          </button>
         </div>
-        <button className="send-btn" onClick={handleSend} disabled={!input.trim() || sending}>
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/>
-          </svg>
-        </button>
-      </div>
+      )}
     </div>
   )
 }

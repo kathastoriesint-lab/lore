@@ -30,7 +30,7 @@ export const CRICKET_STARTING_METERS = CRICKET_START_METERS
 export function buildCricketQueue(): string[] {
   // Lazy import to avoid circular deps — cricket-data imports from types, not game
   const { CRICKET_SITUATIONS } = require('./cricket-data')
-  return (CRICKET_SITUATIONS as Situation[]).map(s => s.id)
+  return (CRICKET_SITUATIONS as Situation[]).filter(s => s.id !== 'CR-S28').map(s => s.id)
 }
 
 export function buildCHQueue(meters: Meters, choices: ('A'|'B')[]): string[] {
@@ -50,22 +50,6 @@ export function applyFlagDeltas(flags: GameFlags, deltas?: Partial<GameFlags>): 
     allyLoyalty:    clamp5(flags.allyLoyalty    + (deltas.allyLoyalty    ?? 0)),
     rivalryScore:   clamp5(flags.rivalryScore   + (deltas.rivalryScore   ?? 0)),
   }
-}
-
-/** Check conditional triggers and return IDs to insert after currentIdx. */
-export function checkConditionals(
-  world: string, situationQueue: string[], currentIdx: number,
-  meters: Meters, flags: GameFlags, choices: ('A'|'B')[]
-): string[] {
-  if (world === 'cricket') {
-    const { CRICKET_SITUATIONS } = require('./cricket-data') as { CRICKET_SITUATIONS: Situation[] }
-    const conditionals = CRICKET_SITUATIONS.filter(s => s.id.startsWith('CR-C') && s.condition)
-    const alreadyQueued = new Set(situationQueue)
-    return conditionals
-      .filter(c => !alreadyQueued.has(c.id) && c.condition!(meters, flags))
-      .map(c => c.id)
-  }
-  return []
 }
 
 // ── Auth ──────────────────────────────────────────────────────────────────────

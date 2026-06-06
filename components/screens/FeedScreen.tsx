@@ -1,7 +1,7 @@
 'use client'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useApp } from '@/lib/context'
-import type { CharId } from '@/lib/types'
+import type { CharId, Choice, ChoicePost, Meters, Reaction } from '@/lib/types'
 import { CHARS, POST_COMMENTS, PostCommentOption, getVisibleSituations } from '@/lib/data'
 import { CRICKET_CHARS, CRICKET_SITUATIONS } from '@/lib/cricket-data'
 import { applyDeltas, resolveTokens } from '@/lib/game'
@@ -12,13 +12,45 @@ const CHAR_COLORS_HEX: Record<string, string> = {
   ria:'#b03a5e', kabir:'#2a6f8f', dev:'#3a7a4a', ananya:'#8a4ab0', zoya:'#aa6a8a',
   meher:'#b07a2a', rishi:'#4a8a2a', adi:'#d4581a',
   hardik:'#003087', rohit:'#1a3a6e', surya:'#004080', bumrah:'#0a1a4a',
-  tilak:'#2a5a8f', coach:'#4a3a1a', friend:'#3a6a4a',
+  tilak:'#2a5a8f', coach:'#4a3a1a', friend:'#3a6a4a', player:'#FF2D78',
 }
 const charBg = (id: string) => {
   const c = CHAR_COLORS_HEX[id] ?? '#1a1a2e'
   // Character color stays vivid through midpoint, fades to deep dark at bottom-right
   // Keeps visual richness while preserving caption legibility at bottom
   return `linear-gradient(to bottom, ${c}bb 0%, ${c}66 55%, #0a0a18 100%)`
+}
+
+const feedLikes = (index: number, isCricket: boolean) => {
+  const base = isCricket ? [94102, 128441, 76220, 183004, 52018, 211908] : [18420, 22810, 14390, 31502, 9024, 27118]
+  return base[index % base.length].toLocaleString('en-IN')
+}
+
+const postAgeLabel = (stepIndex: number, completedChoices: number, offsetMinutes = 0, uppercase = false) => {
+  const currentStep = Math.max(0, completedChoices - 1)
+  const ageMinutes = Math.max(0, (currentStep - stepIndex) * 45 + offsetMinutes)
+  let label: string
+  if (ageMinutes === 0) label = 'just now'
+  else if (ageMinutes < 60) label = `${ageMinutes} min ago`
+  else if (ageMinutes < 24 * 60) label = `${Math.floor(ageMinutes / 60)}h ago`
+  else label = `${Math.floor(ageMinutes / (24 * 60))}d ago`
+  return uppercase ? label.toUpperCase() : label
+}
+
+const postContextLabel = (label: string | undefined, fallback: string, time: string) => {
+  const clean = label?.replace(/\s*·\s*(just now|\d+\s*(?:m|h|d)|\d+\s*(?:min|mins|minutes?)\s+ago)$/i, '').trim()
+  return `${clean || fallback} · ${time}`
+}
+
+const resolveChoiceOutcome = (choice: Choice, meters: Meters) => {
+  const gate = choice.outcomeGate
+  if (!gate) return null
+  return meters[gate.metric] > gate.threshold ? gate.pass : gate.fail
+}
+
+const asArray = <T,>(value: T | T[] | null | undefined): T[] => {
+  if (value == null) return []
+  return Array.isArray(value) ? value : [value]
 }
 
 const Heart = ({ filled }: { filled: boolean }) => (
@@ -430,8 +462,19 @@ export default function FeedScreen() {
   // Simple index-mapping breaks when conditional situations (D4-HEAT, D5-FAME, D6-IMAGE)
   // are inserted mid-list — replaying with the actual meters at each step is correct.
   type FeedPost =
-    | { type: 'npc';    postId: string; sit: ReturnType<typeof getVisibleSituations>[0]; choice: 'A'|'B'; reaction: { char: string; caption: string }; char: (typeof CHARS)[keyof typeof CHARS] }
-    | { type: 'player'; postId: string; sit: ReturnType<typeof getVisibleSituations>[0]; choice: 'A'|'B'; caption: string; playerChar: (typeof CHARS)[keyof typeof CHARS]; reactions: import('@/lib/types').Reaction[] }
+    | { type: 'npc';    postId: string; sit: ReturnType<typeof getVisibleSituations>[0]; stepIndex: number; postOffset: number; choice: 'A'|'B'; reaction: { char: string; caption: string }; char: (typeof CHARS)[keyof typeof CHARS] }
+    | {
+        type: 'authored'
+        postId: string
+        sit: ReturnType<typeof getVisibleSituations>[0]
+        stepIndex: number
+        postOffset: number
+        choice: 'A'|'B'
+        caption: string
+        owner: { id: string; cls: string; init: string; handle: string; avatarUrl?: string; color: string; isPlayer: boolean; likeTarget?: CharId }
+        label?: string
+        reactions: Reaction[]
+      }
 
   const completedPosts = useMemo((): FeedPost[] => {
     if (game.choices.length === 0) return []
@@ -440,7 +483,17 @@ export default function FeedScreen() {
       : { fame: 20, heat: 50, image: 30 }
     let meters = { ...STARTING_METERS }
     const posts: FeedPost[] = []
-    const playerCharObj = game.char ? (allChars[game.char] ?? null) : null
+    const playerCharObj = isCricket
+      ? {
+          id: 'player' as CharId,
+          cls: '',
+          init: (game.playerName?.[0] ?? 'N').toUpperCase(),
+          name: game.playerName || 'Player',
+          handle: (game.playerName || 'player').toLowerCase().replace(/\s+/g, ''),
+          fame: 0,
+          role: '',
+        }
+      : game.char ? (allChars[game.char] ?? null) : null
 
     for (let i = 0; i < game.choices.length; i++) {
       const letter = game.choices[i]
@@ -452,15 +505,72 @@ export default function FeedScreen() {
       const ch = sit.choices[letter === 'A' ? 0 : 1]
 
       // NPC feedReaction post pushed FIRST — after reverse(), it sits below player post
-      const reaction = sit.feedReaction?.[letter]
+      const reaction = isCricket ? null : sit.feedReaction?.[letter]
       if (reaction) {
         const char = allChars[reaction.char as CharId]
-        if (char) posts.push({ type: 'npc', postId: `react-${sit.id}-${letter}`, sit, choice: letter, reaction, char })
+        if (char) posts.push({ type: 'npc', postId: `react-${sit.id}-${letter}`, sit, stepIndex: i, postOffset: 2, choice: letter, reaction, char })
       }
 
-      // Player's own post pushed LAST — after reverse(), it becomes newest (index 0 = NEW badge)
-      if (ch?.caption && playerCharObj) {
-        posts.push({ type: 'player', postId: `player-${sit.id}-${letter}`, sit, choice: letter, caption: ch.caption, playerChar: playerCharObj, reactions: ch.reactions ?? [] })
+      const legacyPost: ChoicePost | null = ch?.caption
+        ? { source: 'player', caption: ch.caption, reactions: ch.reactions ?? [] }
+        : null
+      const outcome = ch ? resolveChoiceOutcome(ch, meters) : null
+      const authoredPosts = asArray(outcome?.post !== undefined ? outcome.post : (ch?.post !== undefined ? ch.post : (isCricket ? null : legacyPost)))
+        .filter(post => post.display !== 'live-only')
+      if (authoredPosts.length > 0 && playerCharObj) {
+        authoredPosts.forEach((authoredPost, postIndex) => {
+          const owner = (() => {
+          if (authoredPost.source === 'account') {
+            const handle = authoredPost.handle ?? authoredPost.name?.toLowerCase().replace(/\s+/g, '') ?? 'update'
+            return {
+              id: '__account',
+              cls: '',
+              init: authoredPost.avatarText ?? (authoredPost.name ?? handle)[0]?.toUpperCase() ?? 'U',
+              handle,
+              color: '#003087',
+              isPlayer: false,
+            }
+          }
+          if (authoredPost.source === 'character' && authoredPost.char) {
+            const c = allChars[authoredPost.char]
+            if (!c) return null
+            return {
+              id: c.id,
+              cls: c.cls,
+              init: c.init,
+              handle: c.handle,
+              avatarUrl: `/avatars/${c.id}.png`,
+              color: CHAR_COLORS_HEX[c.id] ?? '#1a1a2e',
+              isPlayer: false,
+              likeTarget: c.id as CharId,
+            }
+          }
+          return {
+            id: playerCharObj.id,
+            cls: playerCharObj.cls,
+            init: playerCharObj.init,
+            handle: authoredPost.handle ?? (game.playerName || playerCharObj.handle).toLowerCase().replace(/\s+/g, ''),
+            avatarUrl: isCricket ? game.avatarUrl : `/avatars/${playerCharObj.id}.png`,
+            color: CHAR_COLORS_HEX[playerCharObj.id] ?? '#1a1a2e',
+            isPlayer: true,
+            likeTarget: playerCharObj.id as CharId,
+          }
+        })()
+          if (owner) {
+            posts.push({
+              type: 'authored',
+              postId: `post-${sit.id}-${letter}-${postIndex}`,
+              sit,
+              stepIndex: i,
+              postOffset: postIndex * 2,
+              choice: letter,
+              caption: authoredPost.caption,
+              owner,
+              label: authoredPost.label,
+              reactions: authoredPost.reactions ?? [],
+            })
+          }
+        })
       }
 
       if (ch) meters = applyDeltas(meters, ch.deltas)
@@ -528,68 +638,57 @@ export default function FeedScreen() {
         {/* Accumulated posts — newest first: player's own posts + NPC reactions */}
         {completedPosts.map((post, i) => {
           const isNew = i === 0
-          if (post.type === 'player') {
-            // Player's own caption post with threaded reactions as comments
-            const pc = post.playerChar
+          const timeLabel = postAgeLabel(post.stepIndex, game.choices.length, post.postOffset)
+          const timeLabelUpper = postAgeLabel(post.stepIndex, game.choices.length, post.postOffset, true)
+          if (post.type === 'authored') {
+            const pc = post.owner
             const liked = likedPosts.has(post.postId)
             return (
               <div key={post.postId} className="post" style={isNew ? { borderTop: '2px solid rgba(255,45,120,.3)', background: 'rgba(255,45,120,.04)' } : {}}>
                 <div className="post-head">
-                  <div className={`av ${pc.cls}`} style={{ width:34, height:34, fontSize:14, backgroundImage:`url(${game.avatarUrl || `/avatars/${pc.id}.png`})`, backgroundSize:'cover', backgroundPosition:'center' }}>
-                    <span style={{ opacity:0 }}>{pc.init}</span>
+                  <div className={pc.cls ? `av ${pc.cls}` : 'av'} style={{ width:34, height:34, fontSize:14, background: pc.avatarUrl ? undefined : pc.color, backgroundImage: pc.avatarUrl ? `url(${pc.avatarUrl})` : undefined, backgroundSize:'cover', backgroundPosition:'center' }}>
+                    {!pc.avatarUrl && pc.init}
                   </div>
                   <div className="post-id">
-                    <div className="h">@{(game.playerName || pc.handle).toLowerCase().replace(/\s+/g,'')} <span style={{ fontSize:10, color:'var(--accent)', fontWeight:700, marginLeft:4 }}>YOU</span></div>
+                    <div className="h">{pc.handle} {pc.isPlayer && <span style={{ fontSize:10, color:'var(--accent)', fontWeight:700, marginLeft:4 }}>YOU</span>}</div>
                     <div className="s" style={{ color: isNew ? 'var(--accent)' : 'var(--ink3)' }}>
-                      {isCricket ? 'MI Season 1' : 'Creator House'} · {isNew ? 'just now' : i === 1 ? '5 min ago' : i <= 3 ? `${i * 8} min ago` : `Day ${post.sit.day}`}
+                      {postContextLabel(post.label, isCricket ? 'MI Season 1' : 'Creator House', timeLabel)}
                     </div>
                   </div>
-                  {isNew && <div className="new-pill">NEW</div>}
+                  <button className="icon-btn"><svg viewBox="0 0 24 24" width="20" height="20" fill="#fff"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
                 </div>
-                <div className={`post-img grain ${pc.cls}`} style={{ background: charBg(pc.id), alignItems:'flex-end' }}>
+                <div className={`post-img grain ${pc.cls}`} style={{ background: pc.id === '__account' ? `linear-gradient(to bottom, ${pc.color}bb 0%, ${pc.color}66 55%, #0a0a18 100%)` : charBg(pc.id), alignItems:'flex-end' }}>
                   <p className="overlay-txt" style={{ fontSize:14, textShadow:'0 1px 8px rgba(0,0,0,.7)' }}>{resolveTokens(post.caption, game.playerName, game.playerGender)}</p>
                 </div>
                 <div className="post-actions">
                   <button
-                    onClick={() => !liked && likePost(post.postId, pc.id, 2)}
-                    style={{ background:'none', border:'none', cursor: liked ? 'default' : 'pointer', display:'flex', alignItems:'center', opacity: liked ? 0.6 : 1 }}
+                    onClick={() => !liked && pc.likeTarget && likePost(post.postId, pc.likeTarget, 2)}
+                    style={{ background:'none', border:'none', cursor: liked || !pc.likeTarget || pc.isPlayer ? 'default' : 'pointer', display:'flex', alignItems:'center', opacity: liked || !pc.likeTarget || pc.isPlayer ? 0.6 : 1 }}
+                    disabled={pc.isPlayer}
                   >
                     <svg viewBox="0 0 24 24" fill={liked ? 'var(--accent)' : 'none'} stroke={liked ? 'var(--accent)' : '#fff'} strokeWidth="1.8" strokeLinecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
                   </button>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                   <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
                   <div className="spacer" />
                 </div>
+                <div className="likes">{feedLikes(i, isCricket)} likes</div>
+                <div className="caption"><b>{pc.handle}</b> {resolveTokens(post.caption, game.playerName, game.playerGender)}</div>
                 {/* Threaded reactions — NPC + fan comments on your post */}
                 {post.reactions.length > 0 && (
-                  <div style={{ padding: '2px 14px 10px', display: 'flex', flexDirection: 'column', gap: 6 }}>
-                    {post.reactions.map((rx, j) => {
+                  <div style={{ padding: '4px 14px 4px', display: 'flex', flexDirection: 'column', gap: 5 }}>
+                    {post.reactions.slice(0, 1).map((rx, j) => {
                       const isFan = rx.char === '__fan'
                       const rxChar = isFan ? null : (allChars[rx.char as CharId] ?? null)
                       return (
-                        <div key={j} style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
-                          {isFan || !rxChar ? (
-                            <div style={{ width: 22, height: 22, borderRadius: '50%', background: '#2a2a38', display: 'grid', placeItems: 'center', fontSize: 9, fontWeight: 700, color: 'var(--ink3)', flexShrink: 0 }}>
-                              {isFan ? (rx.name ?? 'f')[0].toUpperCase() : '?'}
-                            </div>
-                          ) : (
-                            <div className={`av ${rxChar.cls}`} style={{ width: 22, height: 22, fontSize: 9, flexShrink: 0, backgroundImage: `url(/avatars/${rxChar.id}.png)`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
-                              <span style={{ opacity: 0 }}>{rxChar.init}</span>
-                            </div>
-                          )}
-                          <div style={{ fontSize: 12, lineHeight: 1.4, color: 'rgba(255,255,255,.85)' }}>
-                            <span style={{ fontWeight: 700, marginRight: 4 }}>
-                              {isFan ? `@${rx.name ?? 'fan'}` : (rxChar?.name ?? rx.char)}
-                            </span>
-                            {isFan && (
-                              <span style={{ fontSize: 9, fontWeight: 700, color: 'var(--ink3)', background: 'rgba(255,255,255,.08)', padding: '1px 5px', borderRadius: 4, marginRight: 5 }}>FAN</span>
-                            )}
-                            {resolveTokens(rx.text, game.playerName, game.playerGender)}
-                          </div>
+                        <div key={j} className="caption" style={{ padding: 0, color: 'rgba(255,255,255,.78)' }}>
+                          <b>{isFan ? (rx.name ?? 'fan') : (rxChar?.handle ?? rx.char)}</b> {resolveTokens(rx.text, game.playerName, game.playerGender)}
                         </div>
                       )
                     })}
                   </div>
                 )}
+                <div className="ts" style={{ padding:'2px 14px 12px' }}>{timeLabelUpper}</div>
               </div>
             )
           }
@@ -611,10 +710,10 @@ export default function FeedScreen() {
                 <div className="post-id">
                   <div className="h">{reactChar.handle}</div>
                   <div className="s" style={{ color: isNew ? 'var(--accent)' : 'var(--ink3)' }}>
-                    {isCricket ? 'MI Season 1' : 'Creator House'} · {isNew ? 'just now' : i <= 2 ? `${i * 6} min ago` : `Day ${post.sit.day}`}
+                    {(isCricket ? 'MI Season 1' : 'Creator House') + ` · ${timeLabel}`}
                   </div>
                 </div>
-                {isNew && <div className="new-pill">NEW</div>}
+                <button className="icon-btn"><svg viewBox="0 0 24 24" width="20" height="20" fill="#fff"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
               </div>
               <div className={`post-img grain ${reactChar.cls}`} style={{ background: charBg(reactChar.id) }}>
                 <p className="overlay-txt" style={{ fontSize:14 }}>{resolveTokens(post.reaction.caption, game.playerName, game.playerGender)}</p>
@@ -640,6 +739,8 @@ export default function FeedScreen() {
                 <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
                 <div className="spacer" />
               </div>
+              <div className="likes">{feedLikes(i, isCricket)} likes</div>
+              <div className="caption"><b>{reactChar.handle}</b> {resolveTokens(post.reaction.caption, game.playerName, game.playerGender)}</div>
               {commentPost === post.postId && POST_COMMENTS[reactChar.id] && !commented && (
                 <div className="comment-sheet">
                   <div className="comment-sheet-label">Comment as {playingChar?.name ?? 'you'}</div>
@@ -650,6 +751,7 @@ export default function FeedScreen() {
                   ))}
                 </div>
               )}
+              <div className="ts" style={{ padding:'2px 14px 12px' }}>{timeLabelUpper}</div>
             </div>
           )
         })}

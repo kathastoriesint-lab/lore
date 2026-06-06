@@ -7,7 +7,7 @@ import { fameToFollowers as fameToFollowersNum, applyDeltas, resolveTokens, reso
 import { resolveCricketEnding, CRICKET_ENDING_DATA } from '@/lib/cricket-data'
 import { houseCast, relationshipFor, computeBond, bondColor } from '@/lib/relationships'
 import PlayerAvatar from '@/components/PlayerAvatar'
-import type { CharId } from '@/lib/types'
+import type { CharId, ChoicePost } from '@/lib/types'
 import MeterHUD from '@/components/MeterHUD'
 
 function fameToFollowersStr(fame: number): string {
@@ -18,6 +18,11 @@ function fameToFollowersStr(fame: number): string {
 }
 function fameToFollowing(fame: number): string {
   return `${Math.round(200 + fame * 3)}`
+}
+
+const asArray = <T,>(value: T | T[] | null | undefined): T[] => {
+  if (value == null) return []
+  return Array.isArray(value) ? value : [value]
 }
 
 const StatusBar = () => (
@@ -199,7 +204,13 @@ export default function ProfileScreen() {
         : undefined
       if (!sit) continue
       const ch = sit.choices[letter === 'A' ? 0 : 1]
-      if (ch?.caption) result.push({ caption: resolveTokens(ch.caption, game.playerName, game.playerGender) })
+      const legacyPlayerPost: ChoicePost | null = ch?.caption ? { source: 'player', caption: ch.caption } : null
+      const authoredPosts = asArray(ch?.post !== undefined ? ch.post : (isCricket ? null : legacyPlayerPost))
+      authoredPosts.forEach(authoredPost => {
+        if (authoredPost.source === 'player') {
+          result.push({ caption: resolveTokens(authoredPost.caption, game.playerName, game.playerGender) })
+        }
+      })
       if (ch) meters = applyDeltas(meters, ch.deltas)
     }
     return result.reverse()

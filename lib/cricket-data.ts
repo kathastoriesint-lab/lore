@@ -27,6 +27,24 @@ export const CRICKET_CHARS: Record<string, Character> = {
   mahela: { id:'mahela', name:'Mahela Jayawardene', handle:'mahela2006', cls:'c-mahela',  init:'Mj', fame:85, role:'Head Coach · Selection logic · Role clarity' },
 }
 
+// Reusable non-player accounts for authored choice.post objects.
+// Example:
+// post: {
+//   source: 'account',
+//   ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
+//   surface: 'story',
+//   caption: 'Training visuals from Wankhede. Young guns putting in the work.',
+//   reactions: []
+// }
+export const CRICKET_SOCIAL_ACCOUNTS = {
+  miPaltan:       { name: 'MI Paltan',          handle: 'mipaltan',          avatarText: 'MI', label: 'MI Paltan · just now' },
+  mumbaiIndians: { name: 'Mumbai Indians',     handle: 'mumbaiindians',     avatarText: 'MI', label: 'Mumbai Indians · official' },
+  paltanPulse:   { name: 'Paltan Pulse',       handle: 'paltanpulse',       avatarText: 'P',  label: 'Paltan Pulse · fan page' },
+  cricketroom:   { name: 'Cricketroom India',  handle: 'cricketroom_india', avatarText: 'C',  label: 'Cricketroom India · analysis' },
+  futurexi:      { name: 'Future XI',          handle: 'futurexi',          avatarText: 'F',  label: 'Future XI · prospects' },
+  memeovers:     { name: 'Meme Overs',         handle: 'memeovers',         avatarText: 'M',  label: 'Meme Overs · cricket memes' },
+} as const
+
 // CSS color tokens for cricket characters
 // Add to globals.css if not already: .c-hardik{--cc:#1a3a6e} .c-rohit{--cc:#003087} etc.
 
@@ -63,22 +81,47 @@ export const CRICKET_SITUATIONS: Situation[] = [
         t:'Phone side pe rakho, family ke saath raho',
         s:'Yeh pehle ghar ka pal hai. Internet baad mein.',
         deltas:{ fame:1, heat:-1, image:2 },
-        caption:'Family ke saath first. Wankhede baad mein. 💙',
-        reactions:[
-          { char:'coach', text:'Sahi. Pehle ghar. Kal se kaam.' },
-          { char:'friend', text:'{name} bro tu call nahi utha raha?? Theek hai superstar, main tujhe abhi se humble rakhunga.' },
-          { char:'__fan', name:'cricketroom_india', text:'No immediate post from MI\'s teenage pick. Either media-trained or still processing.' },
+        post:{
+          source:'account',
+          ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
+          caption:'Mumbai Indians dressing room mein ek naya sensation aa gaya hai. Young, fearless, and already carrying a city-sized dream. Welcome to the Paltan, {name}. 💙',
+          reactions:[
+            { char:'coach', text:'Sahi. Pehle ghar. Kal se kaam.' },
+            { char:'friend', text:'MI Paltan ne post kar diya aur tu phone nahi utha raha?? Superstar era officially scary hai.' },
+            { char:'__fan', name:'cricketroom_india', text:'MI introduces their teenage pick. The curiosity around this kid is real.' },
+          ],
+        },
+        dm:[
+          { char:'friend', text:'Bro call kar. Main khush hoon, jealous bhi hoon, aur thoda emotional bhi. Family ke saath reh pehle, phir mujhe full story chahiye.' },
+          { char:'coach', text:'Beta, aaj ghar ke saath rehna sahi decision tha. Kal subah se phone kam, practice zyada.' },
         ],
       },
       {
         t:'Emotional MI story post karo',
         s:'Moment bada hai. Duniya ko pata chalna chahiye ki tum aa gaye ho.',
         deltas:{ fame:0, heat:5, image:-1 },
-        caption:'From academy nets to Mumbai Indians. Dream begins tonight. Paltan, see you soon. 💙 #OneFamily',
-        reactions:[
-          { char:'friend', text:'CAPTION READY THA KYA?? 😭 bro sold hua aur influencer mode on.' },
-          { char:'coach', text:'Post theek hai. Ab comments mat padhna. Kal subah shadow practice.' },
-          { char:'__fan', name:'paltanpulse', text:'OUR KID ALREADY POSTED. He gets it. Paltan is going to love him.' },
+        post:[
+          {
+            source:'account',
+            ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
+            caption:'Mumbai Indians dressing room mein ek naya sensation aa gaya hai. Paltan, remember this face. The journey starts now. 💙',
+            reactions:[
+              { char:'__fan', name:'paltanpulse', text:'OUR KID IS HERE. This is exactly the kind of story Paltan loves.' },
+            ],
+          },
+          {
+            source:'player',
+            caption:'First time MI jersey haath mein aayi toh samajh nahi aaya smile karun ya ro doon. From academy nets to this blue. Dream begins tonight. 💙',
+            reactions:[
+              { char:'friend', text:'CAPTION READY THA KYA?? 😭 bro sold hua aur influencer mode on.' },
+              { char:'coach', text:'Post theek hai. Ab comments mat padhna. Kal subah shadow practice.' },
+              { char:'__fan', name:'paltanpulse', text:'The emotional jersey post landed. Paltan is already adopting him.' },
+            ],
+          },
+        ],
+        dm:[
+          { char:'friend', text:'Bro emotional MI jersey post ne group chat tod diya. Proud of you. Bas ab mujhe seen pe mat chhod.' },
+          { char:'coach', text:'Photo achha tha. Lekin yaad rakh, jersey pehna start hai. Us jersey ko justify karna kaam hai.' },
         ],
       },
     ],
@@ -105,6 +148,30 @@ export const CRICKET_SITUATIONS: Situation[] = [
         t:'Read the room — pehle observe karo',
         s:'Senior room hai. Pehle rhythm samjho, phir apni jagah banao.',
         deltas:{ fame:1, heat:-1, image:3 },
+        post:[
+          {
+            source:'player',
+            display:'live-only',
+            caption:'First day in blue. Less talking, more learning. 🏏',
+            reactions:[
+              { char:'tilak', text:'Good. Pehle din observe karna underrated hai.' },
+              { char:'rohit', text:'Naya hai. Dekh raha hai. Theek hai.' },
+              { char:'__fan', name:'cricketroom_india', text:'MI\'s young pick looked quiet in first training visuals. Some players enter listening.' },
+            ],
+          },
+          {
+            source:'account',
+            ...CRICKET_SOCIAL_ACCOUNTS.mumbaiIndians,
+            display:'feed-only',
+            caption:'Training day at Wankhede. New faces, old standards, and the same blue intensity. 💙',
+          },
+          {
+            source:'account',
+            ...CRICKET_SOCIAL_ACCOUNTS.cricketroom,
+            display:'feed-only',
+            caption:'MI training visuals show Rohit speaking quietly with the young group while Hardik and Mahela keep the focus on roles. Early days, useful signals.',
+          },
+        ],
         caption:'First day in blue. Less talking, more learning. 🏏',
         reactions:[
           { char:'tilak', text:'Good. Pehle din observe karna underrated hai.' },
@@ -116,6 +183,30 @@ export const CRICKET_SITUATIONS: Situation[] = [
         t:'Energy dikhao — sabse quickly bond karo',
         s:'Agar room mein jagah leni hai, toh invisible mat raho.',
         deltas:{ fame:0, heat:2, image:1 },
+        post:[
+          {
+            source:'player',
+            display:'live-only',
+            caption:'First training. First blue kit. Energy different hai. 💙',
+            reactions:[
+              { char:'surya', text:'Good good, energy hai. Ab dekhte hain ball aane pe energy kahan jaati hai 😄' },
+              { char:'hardik', text:'Confident lag raha hai. Bas confidence ka output bhi chahiye.' },
+              { char:'__fan', name:'paltanpulse', text:'He looks like he belongs already. Play him soon.' },
+            ],
+          },
+          {
+            source:'account',
+            ...CRICKET_SOCIAL_ACCOUNTS.mumbaiIndians,
+            display:'feed-only',
+            caption:'Wankhede training had the full range today: Hardik in tactical chats, SKY bringing the smiles, and the young guns settling into blue. 💙',
+          },
+          {
+            source:'account',
+            ...CRICKET_SOCIAL_ACCOUNTS.paltanPulse,
+            display:'feed-only',
+            caption:'First training visuals are out. The new kid looks excited, not overwhelmed. Paltan timeline is already asking for more clips.',
+          },
+        ],
         caption:'First training. First blue kit. Energy different hai. 💙',
         reactions:[
           { char:'surya', text:'Good good, energy hai. Ab dekhte hain ball aane pe energy kahan jaati hai 😄' },
@@ -147,23 +238,31 @@ export const CRICKET_SITUATIONS: Situation[] = [
         t:'Defend karo, seekho, poochho kya miss hua',
         s:'Publicly beaten hona embarrassing hai. Par information yahi hai.',
         deltas:{ fame:4, heat:-1, image:4 },
-        caption:'Nets mein beat hua. Sahi jagah hai seekhne ke liye. 🏏',
-        reactions:[
-          { char:'bumrah', text:'Better. Is baar tumne dekha.' },
-          { char:'rohit', text:'Good. Ego bahar rakha.' },
-          { char:'__fan', name:'cricketroom_india', text:'Young MI batter spent extra time after a Bumrah net. Serious teams test prospects like this.' },
-        ],
+        post:{
+          source:'player',
+          caption:'Bumrah bhai ko saamne se dekh ke samjha: best player sirf ball nahi daalta, poora problem solve karwata hai. Learning from the best. 🏏',
+          reactions:[
+            { char:'bumrah', text:'Better. Is baar tumne dekha.' },
+            { char:'rohit', text:'Good. Ego bahar rakha.' },
+            { char:'__fan', name:'cricketroom_india', text:'Young MI batter calling Bumrah the best after a net over. Smart respect, smarter learning.' },
+          ],
+        },
+        dm:{ char:'bumrah', text:'Good that you asked. Next time, release point pehle pick karo. Shot baad mein decide karna.' },
       },
       {
         t:'Charge karo — statement shot maaro',
         s:'Agar sab dekh rahe hain, toh sabko dikhna bhi chahiye.',
         deltas:{ fame:-2, heat:4, image:-3 },
-        caption:'First MI nets. First lesson: fear is optional. 🏏',
-        reactions:[
-          { char:'surya', text:'Shot intent mast tha. Ball thoda jaldi aa gaya tere plan se 😄' },
-          { char:'hardik', text:'Intent hai. Control chahiye.' },
-          { char:'__fan', name:'memeovers', text:'Bro tried to charge Bumrah on day one. Confidence 100, survival pending.' },
-        ],
+        post:{
+          source:'player',
+          caption:'Tried to take on Bumrah bhai and got the real lesson: best player wahi hai jo intent ko bhi test bana deta hai. Respect. 🏏',
+          reactions:[
+            { char:'surya', text:'Shot intent mast tha. Ball thoda jaldi aa gaya tere plan se 😄' },
+            { char:'hardik', text:'Intent hai. Control chahiye.' },
+            { char:'__fan', name:'memeovers', text:'Bro tried to charge Bumrah and still posted respect. Confidence 100, survival pending.' },
+          ],
+        },
+        dm:{ char:'bumrah', text:'Intent useful hai. Bas pehle ball ko identify karo. Mere against guess karoge toh net bhi long lagta hai.' },
       },
     ],
     feedReaction:{
@@ -177,6 +276,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
     id:'CR-S4', day:2, slot:'Evening', tag:'⚡ NETS · EVENING',
     title:'Surya Ka Angle',
     body:[
+      'Bumrah ke session ke baad tum abhi bhi us over ko dimaag mein rewind kar rahe ho. Tabhi Surya practice ke side-net se awaaz deta hai. Bumrah ne tumhe ball padhna sikhaya; Surya ab tumhe field padhna sikhane wala hai.',
       'Official practice khatam ho chuki hai, par Surya abhi bhi side-net mein hai. Do cones, ek side-arm thrower, aur woh impossible angles jo TV pe casual lagte hain.',
       'Surya tumhe bulata hai. "Aa. Ek cheez dikhaata hoon." Woh pehli ball ko wrist se scoop karta hai. Dusri ko extra cover ke upar. Teesri ko itna late guide karta hai ki tumhe samajhne mein ek second lagta hai ki shot hua bhi ya nahi.',
       'Phir bat tumhe deta hai. "Kar. Par yaad rakh — shot cool lagna alag cheez hai. Shot correct hona alag."',
@@ -194,6 +294,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
           { char:'tilak', text:'Range hai. Control build karna padega.' },
           { char:'__fan', name:'paltanpulse', text:'Surya teaching the kid range-hitting. This is the content we signed up for.' },
         ],
+        dm:{ char:'surya', text:'Range dikh gaya champion 😄 Ab next time pehle field bata, phir shot. Tab maza aayega.' },
       },
       {
         t:'Poochho kaunsi ball pe kaunsa shot',
@@ -205,6 +306,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
           { char:'rohit', text:'Shot sab dekhte hain. Sawal kam log poochte hain.' },
           { char:'__fan', name:'cricketroom_india', text:'The viral part is SKY teaching the shot. The important part is the youngster asking about field logic.' },
         ],
+        dm:{ char:'surya', text:'Good question tha. Kal 10 minute jaldi aa. Field map pehle banayenge, shots baad mein.' },
       },
     ],
     feedReaction:{
@@ -218,8 +320,9 @@ export const CRICKET_SITUATIONS: Situation[] = [
     id:'CR-S5', day:3, slot:'Morning', tag:'⚡ NETS · LATE EVENING',
     title:'Rohit Ka Tempo',
     body:[
-      'Dus minute ke liye tum bhool jaate ho ki kaun dekh raha hai. Throwdowns clean lag rahe hain. Cover drive middle. Pull controlled. Ek on-drive itna sweet hai ki side-net ke bahar khade Naman bolta hai: "Shot."',
-      'Rohit poore time kuch nahi bolta. Session khatam hota hai. Tum gloves nikaal rahe ho jab woh paas se guzarta hai. Bina rukhe sirf ek line:',
+      'Dus minute ke liye tum bhool jaate ho ki kaun dekh raha hai. Throwdowns clean lag rahe hain. Cover drive middle. Pull controlled. Ek on-drive itna sweet hai ki side-net ke bahar khade Naman Dhir bolta hai: "Shot."',
+      'Naman Dhir bolta hai, "Rohit bhai poore time kuch nahi bolte. Jab bolte hain na, seedha kaam ki baat hoti hai."',
+      'Session khatam hota hai. Tum gloves nikaal rahe ho jab Rohit paas se guzarte hain. Bina rukhe sirf ek line:',
       '"Tempo samajh raha hai?"',
       'Tum smile karte ho, par andar se question seedha chubh gaya. Tumne shots khele. Kya tumne innings bhi kheli?',
     ],
@@ -230,6 +333,16 @@ export const CRICKET_SITUATIONS: Situation[] = [
         t:'Seedha poochho — tempo kaise build karun?',
         s:'Senior ne door khola hai. Ego leke khade mat raho.',
         deltas:{ fame:3, heat:-1, image:4 },
+        post:{
+          source:'account',
+          ...CRICKET_SOCIAL_ACCOUNTS.paltanPulse,
+          caption:'Quiet Rohit masterclass at MI nets today. No speeches, no drama. Just one line to a newcomer and suddenly the whole session had meaning. This is how seniors guide the next batch.',
+          reactions:[
+            { char:'rohit', text:'Bas game samajhna hai. Baaki aa jaata hai.' },
+            { char:'naman', text:'Maine bola tha. Rohit bhai ka one line = full chapter.' },
+            { char:'__fan', name:'mipaltan', text:'These mentoring moments are why the MI pathway matters.' },
+          ],
+        },
         caption:'Aaj seekha: innings aur shots alag hoti hain. 🏏',
         reactions:[
           { char:'rohit', text:'Pehle 12 ball survive nahi. Samajh. Phir game tera.' },
@@ -241,6 +354,16 @@ export const CRICKET_SITUATIONS: Situation[] = [
         t:'Confident laugh — pressure nahi hai dikhao',
         s:'Nervous nahi lagna. Senior ko over-respect bhi weakness lag sakta hai.',
         deltas:{ fame:0, heat:2, image:-1 },
+        post:{
+          source:'account',
+          ...CRICKET_SOCIAL_ACCOUNTS.paltanPulse,
+          caption:'Rohit quietly guiding newcomers again. One line after nets, one confused smile from the kid, and a lot for MI fans to decode.',
+          reactions:[
+            { char:'surya', text:'Rohit bhai one-liners ko lightly mat lena 😄' },
+            { char:'naman', text:'Paas se guzarte hain aur homework de jaate hain.' },
+            { char:'__fan', name:'cricketroom_india', text:'The young batter looked confident, but Rohit\'s tempo point may matter more than the shots.' },
+          ],
+        },
         caption:'Good first hit at Wankhede. Rhythm aa raha hai. 🏏',
         reactions:[
           { char:'rohit', text:'Hmm.' },
@@ -278,6 +401,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
           { char:'tilak', text:'Yahi se chances open hote hain. Seriously.' },
           { char:'__fan', name:'cricketroom_india', text:'Role acceptance may decide how soon MI use their teenage batter.' },
         ],
+        dm:{ char:'hardik', text:'Good answer. Role clear rakhna. Jab chance aayega, mujhe flexibility chahiye, explanation nahi.' },
       },
       {
         t:'Bol do opening tumhara best use hai',
@@ -289,6 +413,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
           { char:'rohit', text:'Opener banna hai toh wait kar. Player banna hai toh adapt kar.' },
           { char:'__fan', name:'paltanpulse', text:'Let the kid open! Why buy a prodigy and then hide him at 6?' },
         ],
+        dm:{ char:'hardik', text:'I like clarity, but team balance pehle aata hai. Apni strength rakh, par role ke liye ready reh.' },
       },
     ],
     feedReaction:{
@@ -321,6 +446,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
           { char:'bumrah', text:'Over kal nahi milega.' },
           { char:'__fan', name:'paltanpulse', text:'Sponsor reel already? Starboy behaviour. Need debut now.' },
         ],
+        dm:null,
       },
       {
         t:'Extra nets lo — Bumrah ka over',
@@ -332,6 +458,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
           { char:'hardik', text:'Noted.' },
           { char:'__fan', name:'cricketroom_india', text:'MI\'s young batter skipped a sponsor capture for extra nets. Small thing. Serious signal.' },
         ],
+        dm:null,
       },
     ],
     feedReaction:{
@@ -357,23 +484,44 @@ export const CRICKET_SITUATIONS: Situation[] = [
         t:'Congratulate karo aur poochho kya socha tha',
         s:'Benchmark se jalna easy hai. Usse seekhna useful hai.',
         deltas:{ fame:3, heat:-1, image:3 },
+        post:{
+          source:'player',
+          caption:'Tilak bhai ka finish dekh ke samjha: good shots alag cheez hain, right situation mein right shot alag. Public praise because this was a lesson. 💙',
+          reactions:[
+            { char:'tilak', text:'Respect. Ab next chase mein tu bata bowler ka plan kya tha.' },
+            { char:'rohit', text:'Competition se zyada learning important hai pehle.' },
+            { char:'__fan', name:'cricketroom_india', text:'Publicly praising Tilak after a practice chase is a mature dressing-room signal.' },
+          ],
+        },
         caption:'Benchmark hai toh seekhna padega. Simple. 🏏',
         reactions:[
           { char:'tilak', text:'Good question. Main bataata hoon kaunsa bowler target tha.' },
           { char:'rohit', text:'Competition se zyada learning important hai pehle.' },
           { char:'__fan', name:'cricketroom_india', text:'Tilak remains the template for MI\'s young Indian batting pathway. New kid watching closely.' },
         ],
+        dm:{ char:'tilak', text:'Good that you asked. Next time chase dekhte waqt sirf shot mat dekh, bowler ka over plan dekh.' },
       },
       {
         t:'Personal lo aur late tak akela train karo',
         s:'Agar trust nahi mil raha, toh extra work se lo.',
         deltas:{ fame:2, heat:1, image:-2 },
+        post:{
+          source:'account',
+          ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
+          caption:'Lights stayed on late at the MI nets tonight. The young group is pushing hard, and {name} was among the last to leave. Work quietly. Grow loudly. 💙',
+          reactions:[
+            { char:'tilak', text:'Work good hai. Bas isolation ko process mat samajh.' },
+            { char:'surya', text:'Akela maarna easy hai. Match mein 10 log saath hote hain.' },
+            { char:'__fan', name:'futurexi', text:'Late-night nets after watching Tilak finish. Competition in MI camp is real.' },
+          ],
+        },
         caption:'Extra work. No shortcuts. 🏏',
         reactions:[
           { char:'tilak', text:'Work good hai. Bas isolation ko process mat samajh.' },
           { char:'surya', text:'Akela maarna easy hai. Match mein 10 log saath hote hain.' },
           { char:'__fan', name:'futurexi', text:'The kid stayed late after Tilak\'s practice chase. Competition in MI camp is real.' },
         ],
+        dm:{ char:'tilak', text:'Extra work achha hai. Par next time saath mein karenge. Young table bhi process ka part hai.' },
       },
     ],
     feedReaction:{
@@ -399,23 +547,44 @@ export const CRICKET_SITUATIONS: Situation[] = [
         t:'Stay ready — drills, drinks, full involvement',
         s:'Playing XI nahi, par team se bahar bhi nahi.',
         deltas:{ fame:2, heat:-1, image:5 },
+        post:{
+          source:'player',
+          caption:'Not in the XI yet, but drills, drinks, fielding, energy — full involvement. Bench phase bhi team ka part hai. 💙',
+          reactions:[
+            { char:'hardik', text:'Good. Yeh attitude useful hai.' },
+            { char:'tilak', text:'I know it sucks. Par yahi phase kaam aata hai.' },
+            { char:'__fan', name:'cricketroom_india', text:'Body language watch: active in drills despite another benching. Staff notice this.' },
+          ],
+        },
         caption:'Not in the XI yet. Still in the work. Still in the team. 💙',
         reactions:[
           { char:'hardik', text:'Good. Yeh attitude useful hai.' },
           { char:'tilak', text:'I know it sucks. Par yahi phase kaam aata hai.' },
           { char:'__fan', name:'cricketroom_india', text:'Body language watch: young MI batter active in drills despite third straight benching. Staff will notice.' },
         ],
+        dm:null,
       },
       {
         t:'Fan posts like karo — public pressure bolne do',
         s:'Agar fans sach bol rahe hain, toh unhe ignore kyun karein?',
         deltas:{ fame:0, heat:5, image:-4 },
+        post:{
+          source:'account',
+          ...CRICKET_SOCIAL_ACCOUNTS.paltanPulse,
+          caption:'Question needs asking: why draft a 16-year-old prodigy if the plan is only orange bibs and drinks duty? Paltan wants clarity. The kid looks ready. Does MI trust him yet?',
+          reactions:[
+            { char:'surya', text:'Likes bhi screenshots ban jaate hain champion.' },
+            { char:'hardik', text:'Public pressure selection meeting mein kaam nahi karta.' },
+            { char:'__fan', name:'memeovers', text:'From wonderkid to waterboy discourse in three matches. IPL timeline never sleeps.' },
+          ],
+        },
         caption:'Paltan dekh raha hai. Main ready hoon. 💙',
         reactions:[
           { char:'surya', text:'Likes bhi screenshots ban jaate hain champion.' },
           { char:'hardik', text:'Public pressure selection meeting mein kaam nahi karta.' },
           { char:'__fan', name:'paltanpulse', text:'HE LIKED OUR POST. The kid wants to play. Give him the debut.' },
         ],
+        dm:{ char:'surya', text:'Champion, mat kar yeh. Fan post like karna chhota lagta hai, par dressing room mein screenshot bada ho jaata hai.' },
       },
     ],
     feedReaction:{
@@ -429,6 +598,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
     id:'CR-S10', day:6, slot:'Afternoon', tag:'⚡ TACTICAL ROOM',
     title:'Mahela Ka Screen',
     body:[
+      'Mahela meeting start karte hi acknowledge karta hai: "You have not played yet. That is not punishment. That is preparation time. What we do with this time matters."',
       'Hotel meeting room thanda hai. AC zyada. Screen par tumhara wagon wheel. Uske side mein numbers: vs leg spin, vs left-arm orthodox, first 10 balls, balls 11-20.',
       'Mahela pointer se ek red zone highlight karta hai. "This is where teams will bowl to you."',
       'Tumhare stomach mein halka sa drop. Yeh wahi area hai jahan tum domestic/U19 mein hands se nikal jaate the. Yahan woh data ban gaya hai.',
@@ -447,6 +617,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
           { char:'tilak', text:'Admit karna hard hota hai. But plan tabhi banta hai.' },
           { char:'__fan', name:'cricketroom_india', text:'If MI use the youngster, watch his spin matchup. That may decide batting position.' },
         ],
+        dm:null,
       },
       {
         t:'Bol do ready ho kisi bhi matchup ke liye',
@@ -458,6 +629,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
           { char:'bumrah', text:'Opponent plan ke saath aayega. Statement ke saath nahi.' },
           { char:'__fan', name:'futurexi', text:'Love the confidence. Big players believe before others do.' },
         ],
+        dm:null,
       },
     ],
     feedReaction:{
@@ -488,6 +660,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
           { char:'tilak', text:'Ab chance aayega toh ready rehna. Yeh line easy nahi hoti.' },
           { char:'__fan', name:'cricketroom_india', text:'Role flexibility may be the reason MI finally use their young batter.' },
         ],
+        dm:null,
       },
       {
         t:'Top-order chance maango',
@@ -499,6 +672,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
           { char:'rohit', text:'Opening ka pressure glamorous lagta hai jab tak pehli ball swing nahi karti.' },
           { char:'__fan', name:'paltanpulse', text:'Give him top order. Don\'t waste him. Wankhede wants the kid.' },
         ],
+        dm:null,
       },
     ],
     feedReaction:{
@@ -524,6 +698,38 @@ export const CRICKET_SITUATIONS: Situation[] = [
         t:'Build the chase — gap mein do lo',
         s:'Moment bada hai. Ball utni badi nahi.',
         deltas:{ fame:6, heat:2, image:5 },
+        outcomeGate:{
+          metric:'fame',
+          threshold:60,
+          pass:{
+            title:'YOU PLAYED WELL',
+            note:'Your Form is above 60, so the first-ball nerves settle quickly. You watch the pace-off ball, find the gap, and the debut starts with control.',
+            post:{
+              source:'account',
+              ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
+              caption:'Calm first touch from {name} on debut. Noise around, eyes still. Found the gap, ran hard, and gave the chase exactly what it needed. 💙',
+              reactions:[
+                { char:'hardik', text:'Good first decision. Scorecard se pehle decision dikhta hai.' },
+                { char:'rohit', text:'Panic nahi kiya. Good.' },
+                { char:'__fan', name:'cricketroom_india', text:'First ball: no slog, found the gap. That says more than a highlight would have.' },
+              ],
+            },
+          },
+          fail:{
+            title:'OUT EARLY',
+            note:'Your Form is below 60, and it shows under lights. The shot starts before the read is complete. Early edge, short stay. Poor Form has caught up at the worst time.',
+            post:{
+              source:'account',
+              ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
+              caption:'Tough first outing for {name}. Debut pressure is real, and today the stay was short. The work continues. Paltan stays behind the kid. 💙',
+              reactions:[
+                { char:'rohit', text:'Happens. But learn quickly.' },
+                { char:'hardik', text:'Short stay. Long season.' },
+                { char:'__fan', name:'cricketroom_india', text:'Early wicket on debut. The question now is how MI protect and rebuild the youngster.' },
+              ],
+            },
+          },
+        },
         caption:'First IPL innings. Noise alag tha. Lesson simple: ball by ball. 💙🏏',
         reactions:[
           { char:'hardik', text:'Good first decision. Scorecard se pehle decision dikhta hai.' },
@@ -535,6 +741,38 @@ export const CRICKET_SITUATIONS: Situation[] = [
         t:'Big shot early — announce yourself',
         s:'Wankhede ko yaad rehna chahiye ki tum aaye the.',
         deltas:{ fame:2, heat:7, image:-2 },
+        outcomeGate:{
+          metric:'fame',
+          threshold:60,
+          pass:{
+            title:'YOU PLAYED WELL',
+            note:'Your Form is above 60, so the aggressive option comes from timing, not panic. You clear the infield and Wankhede finally learns your name.',
+            post:{
+              source:'account',
+              ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
+              caption:'First ball, first roar. {name} backed the shot and Wankhede felt the spark. Fearless, yes. But the timing made it work. 💙🔥',
+              reactions:[
+                { char:'surya', text:'Intent mast. Field bhi padha, isliye shot nikla.' },
+                { char:'hardik', text:'Crowd ko pasand aaya. Dressing room ko timing bhi dikha.' },
+                { char:'__fan', name:'paltanpulse', text:'THE KID WENT FOR IT FIRST BALL. Wankhede has a new sound.' },
+              ],
+            },
+          },
+          fail:{
+            title:'OUT EARLY',
+            note:'Your Form is below 60, so the big shot becomes a guess. The crowd rises, the ball hangs, and the fielder settles under it. Early wicket because the base was not ready.',
+            post:{
+              source:'account',
+              ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
+              caption:'A bold first-ball intent from {name}, but debut nights are unforgiving. Out early today. Back to work tomorrow. 💙',
+              reactions:[
+                { char:'surya', text:'Intent tha. Base missing tha.' },
+                { char:'hardik', text:'Fearless is useful only with clarity.' },
+                { char:'__fan', name:'memeovers', text:'First-ball hero shot became first-ball lesson. IPL is brutal.' },
+              ],
+            },
+          },
+        },
         caption:'First IPL ball. First instinct. No fear. 💙🔥',
         reactions:[
           { char:'surya', text:'Intent mast. Bas field bhi dekh le next time champion.' },
@@ -566,22 +804,94 @@ export const CRICKET_SITUATIONS: Situation[] = [
         t:'Team seniors ko message, recovery, then phone',
         s:'Public moment hai. Par dressing room routine pe chalta hai.',
         deltas:{ fame:1, heat:1, image:4 },
+        post:[
+          {
+            source:'character',
+            char:'hardik',
+            display:'feed-only',
+            caption:'Debut nights are special. What matters more is how a young player comes back the next morning. Good start, {name}. Long season. 💙',
+            reactions:[{ char:'__fan', name:'mipaltan', text:'Captain backing the kid after debut. Big moment.' }],
+          },
+          {
+            source:'character',
+            char:'surya',
+            display:'feed-only',
+            caption:'First match pressure hits different. Kid handled the room well. Ab kal nets mein real fun 😄💙',
+            reactions:[{ char:'__fan', name:'paltanpulse', text:'SKY approval after debut. We are seated.' }],
+          },
+          {
+            source:'account',
+            ...CRICKET_SOCIAL_ACCOUNTS.paltanPulse,
+            display:'feed-only',
+            caption:'DEBUT WATCH: {name} has officially played for Mumbai Indians. Whatever the scorecard says, this is the start of a very serious Indian cricket story.',
+            reactions:[{ char:'__fan', name:'futurexi', text:'The timeline will remember this first appearance.' }],
+          },
+          {
+            source:'character',
+            char:'friend',
+            display:'feed-only',
+            caption:'My bro really debuted for MI and still owes me a call. Proud? Yes. Angry? Also yes. BROOOOOOOOOOOOO.',
+            reactions:[{ char:'__fan', name:'memeovers', text:'Maddy is all of us after that debut.' }],
+          },
+        ],
         caption:'Debut done. Work continues. Thank you Paltan. 💙',
         reactions:[
           { char:'hardik', text:'Good. Recovery first means you listened.' },
           { char:'coach', text:'Ab call kar. Score discuss karenge, emotions nahi.' },
           { char:'__fan', name:'cricketroom_india', text:'Understated post after debut. MI will like that more than fans do.' },
         ],
+        dm:[
+          { char:'hardik', text:'Good. Recovery first. Kal review mein specifics chahiye, emotions nahi.' },
+          { char:'coach', text:'Call jab stretching khatam. Pehle body cool down. Phir innings todte hain.' },
+          { char:'friend', text:'BROOOOOOOOOOOOO. Tu TV pe tha. Main normal behave nahi kar pa raha.' },
+          { char:'surya', text:'Debut ho gaya champion. Ab second game mein same energy, thoda kam drama 😄' },
+        ],
       },
       {
         t:'Cinematic celebration reel post karo',
         s:'Yeh moment dobara nahi aayega. Own it.',
         deltas:{ fame:0, heat:6, image:-3 },
+        post:[
+          {
+            source:'character',
+            char:'hardik',
+            display:'feed-only',
+            caption:'Debut is one step. The league tests repeatability. Back to work, {name}.',
+            reactions:[{ char:'__fan', name:'cricketroom_india', text:'Captain keeping the hype grounded.' }],
+          },
+          {
+            source:'character',
+            char:'surya',
+            display:'feed-only',
+            caption:'Debut reel fire tha. Bas kal bowling machine bhi reel banayegi if late hua 😄💙',
+            reactions:[{ char:'__fan', name:'paltanpulse', text:'SKY teasing him after debut is wholesome content.' }],
+          },
+          {
+            source:'account',
+            ...CRICKET_SOCIAL_ACCOUNTS.paltanPulse,
+            display:'feed-only',
+            caption:'The debut reel is everywhere. {name} has arrived on the IPL timeline, and Paltan has already started making edits.',
+            reactions:[{ char:'__fan', name:'futurexi', text:'This is how star arcs begin.' }],
+          },
+          {
+            source:'character',
+            char:'friend',
+            display:'feed-only',
+            caption:'Debut reel viral. Group chat finished. I am accepting interviews as childhood friend from today.',
+            reactions:[{ char:'__fan', name:'memeovers', text:'Maddy monetizing friendship faster than brands.' }],
+          },
+        ],
         caption:'Dreamt it. Lived it. Wankhede, you were unreal. 💙🔥 #DebutNight',
         reactions:[
           { char:'friend', text:'Reel fire. Comments warzone. Main moderation sambhal raha hoon.' },
           { char:'surya', text:'Good edit. Ab kal bowling machine edit karegi tujhe if late hua.' },
           { char:'__fan', name:'paltanpulse', text:'Debut reel gave chills. This kid understands the stage.' },
+        ],
+        dm:[
+          { char:'friend', text:'BROOOOO reel viral. Main comments mein logon se lad raha hoon. Proud but tu reply kar.' },
+          { char:'surya', text:'Good edit champion. Bas kal late mat hona. Viral reel se bowling machine slow nahi hoti 😄' },
+          { char:'hardik', text:'Enjoy tonight. Tomorrow review. Debut cannot become distraction.' },
+          { char:'coach', text:'Reel dekh li. Ab video call pe footwork dekhunga.' },
         ],
       },
     ],
@@ -591,45 +901,64 @@ export const CRICKET_SITUATIONS: Situation[] = [
     },
   },
 
-  // ── S14 · SAME PROCESS? ──────────────────────────────────────────────────────
+  // ── S14 · PUBLIC INTERVIEW ───────────────────────────────────────────────────
   {
-    id:'CR-S14', day:8, slot:'Evening', tag:'⚡ NEXT MATCH · AFTERNOON',
-    title:'Same Process?',
+    id:'CR-S14', day:8, slot:'Evening', tag:'⚡ MEDIA ROOM · BRAND DESK',
+    title:'First Match Interview',
     body:[
-      'Agla match. Ab tum unknown nahi ho. Analyst screen par opposition plan clear hai: hard length early, spin into pads, no width. Public expects repeat.',
-      'Nets mein tum thoda late ho jaate ho ek ball pe. Bumrah notice karta hai. Tilak notice karta hai. Hardik kuch nahi bolta.',
-      'Rohit tumhare paas se guzarta hai. Sirf do words: "Same process?"',
-      'Pehle match mein tumne duniya ko surprise kiya. Ab duniya tumhe plan kar rahi hai. Yeh second test zyada real hai.',
+      'Next afternoon, MI media room ka setup ready hai. Backdrop par sponsor logos, table par mic, aur side mein ek brand bottle exactly frame ke center mein rakhi hui.',
+      'Reporter poochta hai: "First match ke baad kaisa feel ho raha hai? Nervous? Proud? Pressure?"',
+      'MI media manager aankhon se signal deta hai: brand line miss mat karna. Dressing room ka ek assistant quietly record kar raha hai. Yeh sirf interview nahi hai; yeh public image ka first test hai.',
+      'Tum jaante ho fans emotional answer chahenge. Brand polished line chahega. Team bas yeh dekh rahi hai ki tum fake toh nahi lag rahe.',
     ],
-    react:{ char:'rohit', text:'Repeat karne ki koshish mat kar. Process repeat kar.' },
-    q:'Next match pressure kaise handle karte ho?',
+    react:{ char:'hardik', text:'Media mein sach bolo, par headline mat gift karo.' },
+    q:'Public interview ka answer kaise dete ho?',
     choices:[
       {
-        t:'Same process — ball, role, situation',
-        s:'Repeat highlight nahi, repeat decision-making.',
-        deltas:{ fame:5, heat:1, image:4 },
-        caption:'Second game. Same process. New problem. 🏏',
+        t:'Honest answer do, brand ko natural rakho',
+        s:'Emotion real rakho. Sponsor line ko plastic mat banao.',
+        deltas:{ fame:3, heat:1, image:4 },
+        post:{
+          source:'account',
+          ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
+          caption:'First interview after debut. {name} kept it honest: nerves, gratitude, and back to work. Presented by our hydration partner. 💙',
+          reactions:[
+            { char:'hardik', text:'Good. No headline. Clear answer.' },
+            { char:'__fan', name:'cricketroom_india', text:'Handled the brand integration without sounding scripted. Rare for a teenager.' },
+          ],
+        },
+        caption:'First interview done. Nerves bhi the, gratitude bhi. Back to work. 💙',
         reactions:[
-          { char:'rohit', text:'Good. Yeh mature answer hai.' },
-          { char:'hardik', text:'This is useful.' },
-          { char:'__fan', name:'cricketroom_india', text:'The second match will tell us more than the debut. Watch decision-making, not just runs.' },
+          { char:'hardik', text:'Good. No headline. Clear answer.' },
+          { char:'__fan', name:'cricketroom_india', text:'The answer felt honest, not media-trained.' },
         ],
+        dm:null,
       },
       {
-        t:'Headline chase karo — public ko second clip do',
-        s:'Momentum public ka hai. Thande pad gaye toh story khatam.',
-        deltas:{ fame:-2, heat:5, image:-3 },
-        caption:'No hiding now. Bigger stage, bigger intent. 🔥',
+        t:'Big emotional quote do, brand line push karo',
+        s:'Interview bhi moment hai. Clip banana hai.',
+        deltas:{ fame:-1, heat:5, image:-2 },
+        post:{
+          source:'account',
+          ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
+          caption:'Debut interview: big emotions, bigger dreams. {name} says the first match was "only the trailer" while thanking Paltan and our hydration partner. 💙',
+          reactions:[
+            { char:'surya', text:'Trailer line mast tha. Bas series bhi achhi banana 😄' },
+            { char:'__fan', name:'paltanpulse', text:'ONLY THE TRAILER. Clip this. Star language already here.' },
+          ],
+        },
+        caption:'First match was only the trailer. Paltan, thank you. 💙',
         reactions:[
-          { char:'surya', text:'Intent achha hai. Bas intent ke naam pe wicket mat gift kar.' },
-          { char:'bumrah', text:'Plans change. You also have to.' },
-          { char:'__fan', name:'memeovers', text:'Cricket fans after one debut: either future captain or fraud, no middle overs.' },
+          { char:'surya', text:'Trailer line mast tha. Bas series bhi achhi banana 😄' },
+          { char:'hardik', text:'Headline mil gaya. Ab performance bhi repeat kar.' },
+          { char:'__fan', name:'paltanpulse', text:'ONLY THE TRAILER. Clip this.' },
         ],
+        dm:null,
       },
     ],
     feedReaction:{
-      A:{ char:'coach', caption:'Ab cricket shuru.' },
       B:null,
+      A:null,
     },
   },
 
@@ -655,6 +984,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
           { char:'bumrah', text:'You saw the mistake. Now reduce repeat.' },
           { char:'__fan', name:'cricketroom_india', text:'Post-debut review will decide whether MI use him as a one-off spark or a serious role option.' },
         ],
+        dm:null,
       },
       {
         t:'Positive spin rakho — confidence project karo',
@@ -666,6 +996,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
           { char:'surya', text:'Confidence rakho. Bas feedback ko enemy mat samjho.' },
           { char:'__fan', name:'futurexi', text:'Loved the confidence after debut. This kid carries himself like he belongs.' },
         ],
+        dm:null,
       },
     ],
     feedReaction:{
@@ -680,7 +1011,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
     body:[
       'Rest evening. No nets. No media. Officially recovery.',
       'Young Table mein Tilak, Naman, Robin aur Raj Bawa cards khel rahe hain. Surya side se commentary kar raha hai jaise yeh World Cup final ho.',
-      'Tumhare phone par {friend} ke 12 memes unread hain. Coach Sir ka message bhi: "Kal subah video call. Footwork."',
+      'Tumhare phone par Maddy ke 12 memes unread hain: ek mein tum helmet pehne toddler lag rahe ho, dusre mein caption hai "MI prodigy waiting for free dessert." Coach Sir ka exact message bhi aaya hai: "Kal subah video call. Footwork."',
       'Ek taraf squad mein ghulna. Dusri taraf woh log jo tumhe tab jaante the jab tumhare paas MI kit nahi thi.',
     ],
     react:{ char:'tilak', text:'Aaja. Har cheez nets mein nahi seekhte.' },
@@ -696,6 +1027,10 @@ export const CRICKET_SITUATIONS: Situation[] = [
           { char:'surya', text:'Cards mein bhi shot selection weak hai iska.' },
           { char:'__fan', name:'paltanpulse', text:'Young MI group bonding clips are too wholesome.' },
         ],
+        dm:[
+          { char:'friend', text:'Meme dump incoming. 1) tu helmet mein toddler. 2) tu free dessert ke liye serious face. 3) "prodigy but can he reply?"' },
+          { char:'coach', text:'Kal subah video call. Footwork.' },
+        ],
       },
       {
         t:'Home Circle ko call karo',
@@ -706,6 +1041,10 @@ export const CRICKET_SITUATIONS: Situation[] = [
           { char:'coach', text:'Good. Ab stance dikha.' },
           { char:'friend', text:'Finally. I had 14 jokes loaded.' },
           { char:'__fan', name:'cricketroom_india', text:'Young players who keep old anchors often handle hype better.' },
+        ],
+        dm:[
+          { char:'friend', text:'Finally call kiya. Meme no. 7 best hai, wait. Also genuinely, proud of you yaar.' },
+          { char:'coach', text:'Kal subah video call. Footwork.' },
         ],
       },
     ],
@@ -724,29 +1063,37 @@ export const CRICKET_SITUATIONS: Situation[] = [
       'Problem yahi hai. Tum abhi finisher ho ya nahi, yeh dressing room bhi decide kar raha hai. Brand ne decide kar liya.',
     ],
     react:{ char:'coach', text:'Bat pe sticker badalne se middle nahi badalta.' },
-    q:'Brand offer kaise handle karte ho?',
+    q:'Brand paperwork sign ho gaya. Continue?',
     choices:[
       {
-        t:'Deal sign karo, campaign bhi commit karo',
-        s:'IPL career short ho sakta hai. Market jab aaye, pakadna chahiye.',
-        deltas:{ fame:-1, heat:6, image:-3 },
-        caption:'Big partnership announcement soon. Grateful for the journey. 🏏',
-        reactions:[
-          { char:'friend', text:'Bro got bat sticker money before I got internship.' },
-          { char:'hardik', text:'Just make sure practice schedule doesn\'t move.' },
-          { char:'__fan', name:'futurexi', text:'Brand deals already. Star trajectory has started.' },
-        ],
+        t:'Sign quietly, practice first',
+        s:'Deal ho gaya. Announcement simple rakho, schedule untouched.',
+        deltas:{ fame:1, heat:4, image:0 },
+        post:{
+          source:'player',
+          caption:'Proud to partner with StrikePro Cricket. Same bat, bigger responsibility. Work continues. 🏏 #StrikePro',
+          reactions:[
+            { char:'friend', text:'Bro got bat sticker money before I got internship.' },
+            { char:'hardik', text:'Just make sure practice schedule doesn\'t move.' },
+            { char:'__fan', name:'futurexi', text:'Brand deals already. Star trajectory has started.' },
+          ],
+        },
+        dm:null,
       },
       {
-        t:'Performance clauses rakho, shoots delay karo',
-        s:'Paisa lo, par cricket calendar pehle.',
-        deltas:{ fame:2, heat:1, image:3 },
-        caption:'Kaam pehle. Baaki sab baad mein. 🏏',
-        reactions:[
-          { char:'mahela', text:'Professional answer.' },
-          { char:'coach', text:'Pehle bat ka kaam. Sticker baad mein.' },
-          { char:'__fan', name:'cricketroom_india', text:'Delaying commercial noise until role stabilizes — mature call for a young IPL player.' },
-        ],
+        t:'Lean into the launch',
+        s:'Sponsor post polished rakho. Moment ko professional banaao.',
+        deltas:{ fame:1, heat:4, image:0 },
+        post:{
+          source:'player',
+          caption:'Proud to partner with StrikePro Cricket. Same bat, bigger responsibility. Work continues. 🏏 #StrikePro',
+          reactions:[
+            { char:'friend', text:'Bro got bat sticker money before I got internship.' },
+            { char:'hardik', text:'Just make sure practice schedule doesn\'t move.' },
+            { char:'__fan', name:'futurexi', text:'Brand deals already. Star trajectory has started.' },
+          ],
+        },
+        dm:null,
       },
     ],
     feedReaction:{
@@ -770,6 +1117,16 @@ export const CRICKET_SITUATIONS: Situation[] = [
         t:'Pitch accept karo, gaps mein build karo',
         s:'Ugly runs bhi runs hote hain. Especially away.',
         deltas:{ fame:5, heat:-1, image:4 },
+        post:{
+          source:'account',
+          ...CRICKET_SOCIAL_ACCOUNTS.paltanPulse,
+          caption:'Superstar in the making? {name} just found ugly, useful away runs in Chennai. Not every future star arrives through sixes. Some arrive through hard singles.',
+          reactions:[
+            { char:'tilak', text:'Good. Pitch ko ego se nahi, plan se khela.' },
+            { char:'rohit', text:'Useful runs.' },
+            { char:'__fan', name:'cricketroom_india', text:'These were difficult away runs for a 16-year-old. They matter.' },
+          ],
+        },
         caption:'Away runs teach different things. Not every innings is pretty. 🏏',
         reactions:[
           { char:'tilak', text:'Good. Pitch ko ego se nahi, plan se khela.' },
@@ -781,6 +1138,16 @@ export const CRICKET_SITUATIONS: Situation[] = [
         t:'Spinner ko pressure mein daalo',
         s:'Dot balls se pressure ban raha hai. Ek over palatna padega.',
         deltas:{ fame:1, heat:5, image:-2 },
+        post:{
+          source:'account',
+          ...CRICKET_SOCIAL_ACCOUNTS.futurexi,
+          caption:'There is a superstar shape here. {name} tried to change Chennai\'s mood instead of surviving it. Risky? Yes. Box office? Also yes.',
+          reactions:[
+            { char:'surya', text:'Agar nikal gaya toh genius. Agar nahi nikla toh clip. Dono mein farak hai.' },
+            { char:'hardik', text:'Risk samajh ke liya tha ya pressure mein?' },
+            { char:'__fan', name:'paltanpulse', text:'He is not scared of conditions.' },
+          ],
+        },
         caption:'Sometimes you have to change the pitch\'s mood. 🔥',
         reactions:[
           { char:'surya', text:'Agar nikal gaya toh genius. Agar nahi nikla toh clip. Dono mein farak hai.' },
@@ -799,16 +1166,26 @@ export const CRICKET_SITUATIONS: Situation[] = [
     id:'CR-S19', day:11, slot:'Night', tag:'⚡ HOTEL CORRIDOR · MIDNIGHT',
     title:'Runs Ke Baad Silence',
     body:[
-      'Away match ke baad hotel corridor quiet hai. Tumhare room ke bahar kit bag pada hai, shoes abhi bhi mitti se bhare.',
-      'Rohit lift ke paas milta hai. Poochta nahi kitne banaye. Sirf poochta hai: "Kya seekha?"',
+      'Chennai waale match ke baad hotel corridor quiet hai. Tumne effort dala, ugly runs nikaale, pressure absorb kiya — par team match haar gayi.',
+      'Scorecard tumhara contribution dikha raha hai. Dressing room loss feel kar raha hai. Yeh confusing hota hai: tumne apna kaam kiya, par team jeeti nahi.',
+      'Rohit lift ke paas milta hai. Tum usko honestly batana chahte ho ki andar kya chal raha hai. Woh poochta nahi kitne banaye. Sirf poochta hai: "Kya seekha?"',
     ],
     react:{ char:'rohit', text:'Runs yaad rahenge thode din. Learning rehni chahiye.' },
-    q:'Match ke baad apni story kaise frame karte ho?',
+    q:'Rohit ko kya bolte ho?',
     choices:[
       {
-        t:'Learning note banao, public low rakho',
-        s:'Har innings ko event mat banao. Kuch cheezein andar rehni chahiye.',
+        t:'"Runs aaye, par loss zyada feel ho raha hai"',
+        s:'Apna score side mein rakho. Team result pe baat karo.',
         deltas:{ fame:3, heat:-2, image:3 },
+        post:{
+          source:'character',
+          char:'rohit',
+          caption:'Young blood ko runs se zyada result feel hona chahiye. Aaj ek kid ne woh line samjhi. Good sign.',
+          reactions:[
+            { char:'hardik', text:'This is the right pain.' },
+            { char:'__fan', name:'cricketroom_india', text:'Rohit posting about young blood after the Chennai loss is a serious endorsement.' },
+          ],
+        },
         caption:'Tough conditions. Good lessons. Onwards. 🏏',
         reactions:[
           { char:'rohit', text:'Good. Short rakha.' },
@@ -817,9 +1194,18 @@ export const CRICKET_SITUATIONS: Situation[] = [
         ],
       },
       {
-        t:'Result ko narrative banao',
-        s:'Public ko context chahiye. Tum khud do, warna woh bana lenge.',
+        t:'"Mujhe lag raha hai meri innings waste ho gayi"',
+        s:'Emotion real hai. Rohit ko batao.',
         deltas:{ fame:0, heat:4, image:-2 },
+        post:{
+          source:'character',
+          char:'rohit',
+          caption:'Young blood ko yeh samajhna padta hai: good innings bhi loss mein incomplete lagti hai. That discomfort is useful.',
+          reactions:[
+            { char:'coach', text:'Sahi discomfort.' },
+            { char:'__fan', name:'paltanpulse', text:'Rohit guiding the kid after a loss. This is cinema.' },
+          ],
+        },
         caption:'Every away game teaches who really wants it. I want it. Badly.',
         reactions:[
           { char:'friend', text:'Caption intense. Comments worse. I am tired as your unofficial admin.' },
@@ -849,6 +1235,12 @@ export const CRICKET_SITUATIONS: Situation[] = [
         t:'Analysis clips dekho',
         s:'Boring hours. Useful hours.',
         deltas:{ fame:3, heat:-1, image:3 },
+        post:{
+          source:'account',
+          ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
+          caption:'Travel day. Recovery, analysis, and a young squad learning how long seasons are built between games. 💙',
+          reactions:[{ char:'__fan', name:'cricketroom_india', text:'Generic travel post, but the process is visible.' }],
+        },
         caption:'Flight mein homework. 🏏',
         reactions:[
           { char:'mahela', text:'Good. We discuss tomorrow.' },
@@ -860,6 +1252,12 @@ export const CRICKET_SITUATIONS: Situation[] = [
         t:'Young Table ke saath bond karo',
         s:'Season long hai. Room mein apne log bhi chahiye.',
         deltas:{ fame:-1, heat:1, image:3 },
+        post:{
+          source:'account',
+          ...CRICKET_SOCIAL_ACCOUNTS.paltanPulse,
+          caption:'MI travel day scenes: young table memes, seniors locked into analysis, and the season rolling into its serious phase.',
+          reactions:[{ char:'__fan', name:'memeovers', text:'Young table content is undefeated.' }],
+        },
         caption:'Squad vibes. 💙',
         reactions:[
           { char:'naman', text:'Prodigy finally has bad memes. Good sign.' },
@@ -882,7 +1280,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       'Ek 11-year-old tumse poochta hai: "Aapko darr lagta hai kya batting karte time?"',
       'Camera side mein hai. Brand backdrop bhi hai. Yeh answer cute bhi ban sakta hai, real bhi.',
     ],
-    react:{ char:'surya', text:'Bachche PR answer pakad lete hain. Sambhal ke.' },
+    react:null,
     q:'Kids clinic mein kya answer dete ho?',
     choices:[
       {
@@ -930,22 +1328,68 @@ export const CRICKET_SITUATIONS: Situation[] = [
         t:'Game deep le jao, matchups target karo',
         s:'Ek over aur. Right bowler, right ball.',
         deltas:{ fame:5, heat:2, image:5 },
+        post:[
+          {
+            source:'account',
+            ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
+            caption:'17 off 8. Finished in blue. {name} stayed calm, picked the right matchup, and took MI home in a must-win game. Paltan, remember this night. 💙',
+            reactions:[{ char:'hardik', text:'That is finishing.' }],
+          },
+          {
+            source:'character',
+            char:'hardik',
+            display:'feed-only',
+            caption:'Finish ka matlab game khatam karna. Tonight {name} did that.',
+            reactions:[{ char:'__fan', name:'paltanpulse', text:'Captain stamp after a win. Huge.' }],
+          },
+          {
+            source:'character',
+            char:'rohit',
+            display:'feed-only',
+            caption:'Good. Situation jeeta.',
+            reactions:[{ char:'__fan', name:'cricketroom_india', text:'Rohit does not waste words. This means something.' }],
+          },
+        ],
         caption:'Finish means staying there. Huge win. 💙',
         reactions:[
           { char:'hardik', text:'That is finishing.' },
           { char:'rohit', text:'Good. Situation jeeta.' },
           { char:'__fan', name:'cricketroom_india', text:'This was the most mature innings of his season if you watched the balls, not just the score.' },
         ],
+        dm:[
+          { char:'hardik', text:'That is finishing. You won the game, not just a moment.' },
+          { char:'rohit', text:'Good. Situation jeeta. Remember this feeling, not the noise.' },
+          { char:'friend', text:'BHAIIII YOU WON IT. I have watched the last over 19 times.' },
+        ],
       },
       {
         t:'Abhi over palto — early boundary dhoondo',
         s:'Pressure bowler pe daalo. Wait karoge toh equation tumhe kha jaayegi.',
         deltas:{ fame:1, heat:6, image:-2 },
+        post:[
+          {
+            source:'account',
+            ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
+            caption:'Must-win night, massive pressure, and {name} went for the early boundary. The finish got tense, but the spark changed the over. 💙',
+            reactions:[{ char:'surya', text:'Intent clear tha. Finish cleaner ho sakta tha.' }],
+          },
+          {
+            source:'character',
+            char:'surya',
+            display:'feed-only',
+            caption:'Pressure mein intent dikh gaya. Ab finishing ka shape aur clean karna hai.',
+            reactions:[{ char:'__fan', name:'paltanpulse', text:'SKY mentoring arc continues.' }],
+          },
+        ],
         caption:'Pressure is a choice. Tonight I chose to hit back. 🔥',
         reactions:[
           { char:'surya', text:'Agar connect karta hai toh hero. Agar nahi, toh meeting.' },
           { char:'hardik', text:'Intent was clear. Execution decides whether it was right.' },
           { char:'__fan', name:'paltanpulse', text:'Fearless finish attempt. This kid is box office.' },
+        ],
+        dm:[
+          { char:'surya', text:'Intent good tha champion. But finish ko thoda cleaner karna padega. Win ke baad bhi review hota hai.' },
+          { char:'friend', text:'You nearly gave me a heart attack. Also hero. Also never do this again.' },
         ],
       },
     ],
@@ -957,36 +1401,44 @@ export const CRICKET_SITUATIONS: Situation[] = [
 
   {
     id:'CR-S23', day:14, slot:'Evening', tag:'⚡ SPONSOR NIGHT · POST-WIN',
-    title:'Party Ya Recovery',
+    title:'Post-Win Brand Deal',
     body:[
-      'Win ke baad sponsor dinner. Hotel rooftop. Blue lights, mocktails, brand cameras, players rotating through photo booths. Tumhara name card front table par hai now.',
-      '"Just thirty minutes," social team bolti hai. Physio bolta hai: "Ice bath in fifteen." Young Table bolta hai: "Aaja, free dessert."',
-      'Season mein pehli baar tumhe feel hota hai ki success bhi schedule tod sakti hai.',
+      'Must-win finish ke baad brand room ka mood badal gaya hai. Jo offer pehle "potential" par tha, ab "match-winner" language mein aa raha hai.',
+      'StrikePro team tumhe ek limited-edition bat sticker aur short campaign line pitch karti hai: "Built for the finish."',
+      'Is baar choice jaisi koi cheez nahi lagti. Win ne market khol diya hai. Ab sirf public announcement hona baaki hai.',
     ],
-    react:{ char:'bumrah', text:'Recovery bhi skill hai.' },
-    q:'Post-win night kaise handle karte ho?',
+    react:{ char:'hardik', text:'Win ke baad deals aayengi. Bas deals ko game ke upar mat bithana.' },
+    q:'Brand announcement live hota hai. Continue?',
     choices:[
       {
-        t:'Sponsor presence do, phir recovery',
-        s:'Professional balance. Dikho bhi, ready bhi raho.',
-        deltas:{ fame:1, heat:2, image:3 },
-        caption:'Big win. Bigger recovery. Long season. 💙',
-        reactions:[
-          { char:'bumrah', text:'Good.' },
-          { char:'mahela', text:'Professional.' },
-          { char:'__fan', name:'cricketroom_india', text:'Young players learning schedule discipline early is a good sign.' },
-        ],
+        t:'Keep it team-first',
+        s:'Brand post mein win aur MI ko center rakho.',
+        deltas:{ fame:1, heat:4, image:1 },
+        post:{
+          source:'player',
+          caption:'Built for the finish. Proud to announce my match-week partnership with StrikePro Cricket after a special win for MI. Work continues. 🏏 #StrikePro',
+          reactions:[
+            { char:'hardik', text:'Good. Keep the work first.' },
+            { char:'friend', text:'Bro brand deal after winning a match. Movie script.' },
+            { char:'__fan', name:'futurexi', text:'Match-winning knock into brand deal. Superstar lane opening.' },
+          ],
+        },
+        dm:null,
       },
       {
-        t:'Full sponsor night enjoy karo',
-        s:'Win rare hoti hai. Team bonding bhi important hai.',
-        deltas:{ fame:-2, heat:5, image:-1 },
-        caption:'Nights like these. Paltan energy unmatched. 💙🔥',
-        reactions:[
-          { char:'friend', text:'Bro party stories are insane. Also Coach Sir has seen them. RIP.' },
-          { char:'coach', text:'Kal subah call mat miss karna.' },
-          { char:'__fan', name:'paltanpulse', text:'He is enjoying the season and we love to see it.' },
-        ],
+        t:'Own the match-winner tag',
+        s:'Campaign line bold rakho: built for the finish.',
+        deltas:{ fame:1, heat:4, image:1 },
+        post:{
+          source:'player',
+          caption:'Built for the finish. Proud to announce my match-week partnership with StrikePro Cricket after a special win for MI. Work continues. 🏏 #StrikePro',
+          reactions:[
+            { char:'hardik', text:'Good. Keep the work first.' },
+            { char:'friend', text:'Bro brand deal after winning a match. Movie script.' },
+            { char:'__fan', name:'futurexi', text:'Match-winning knock into brand deal. Superstar lane opening.' },
+          ],
+        },
+        dm:null,
       },
     ],
     feedReaction:{
@@ -1010,6 +1462,16 @@ export const CRICKET_SITUATIONS: Situation[] = [
         t:'MI role pe focus rakho',
         s:'Future ke chakkar mein present mat kho.',
         deltas:{ fame:2, heat:-2, image:4 },
+        post:{
+          source:'account',
+          ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
+          caption:'India question came early. {name} kept the focus on Mumbai Indians: one role, one game at a time. 💙',
+          reactions:[
+            { char:'hardik', text:'Good.' },
+            { char:'rohit', text:'Sahi answer.' },
+            { char:'__fan', name:'cricketroom_india', text:'Mature answer. India talk can wait; role clarity cannot.' },
+          ],
+        },
         caption:'Right now, my job is Mumbai Indians. One role, one game at a time.',
         reactions:[
           { char:'hardik', text:'Good.' },
@@ -1021,6 +1483,16 @@ export const CRICKET_SITUATIONS: Situation[] = [
         t:'Dream accept karo — India is the goal',
         s:'Sapna chhupana kyun? Har player ka goal wahi hai.',
         deltas:{ fame:0, heat:5, image:-2 },
+        post:{
+          source:'account',
+          ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
+          caption:'Big dreams, bigger work. {name} admits every kid dreams of India, but says the current job is still Mumbai Indians. 🇮🇳💙',
+          reactions:[
+            { char:'hardik', text:'Work first wala part yaad rakh.' },
+            { char:'coach', text:'India word bol diya. Ab extra practice.' },
+            { char:'__fan', name:'paltanpulse', text:'He said the India dream out loud. Timeline is moving.' },
+          ],
+        },
         caption:'Every kid dreams of India. I do too. But work first. 🇮🇳',
         reactions:[
           { char:'friend', text:'HE SAID IT. Bro I am putting this in my bio.' },
@@ -1050,6 +1522,37 @@ export const CRICKET_SITUATIONS: Situation[] = [
         t:'Do plans banao — attack aur hold dono',
         s:'Flexibility boring prep hai, exciting payoff.',
         deltas:{ fame:4, heat:-1, image:4 },
+        outcomeGate:{
+          metric:'fame',
+          threshold:70,
+          pass:{
+            title:'MATCH WON',
+            note:'Your Form is strong, and the two-plan preparation pays off. You read the chase correctly, switch gears, and win it for MI.',
+            post:{
+              source:'account',
+              ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
+              caption:'NRR pressure, two roles, one calm finish. {name} switched gears and won the match for MI. Playoff race is alive. 💙',
+              reactions:[
+                { char:'rohit', text:'Good. Match situation samjha.' },
+                { char:'mahela', text:'This is why preparation matters.' },
+                { char:'__fan', name:'cricketroom_india', text:'He did not just score. He solved the equation.' },
+              ],
+            },
+            dm:{ char:'rohit', text:'Good. You won the situation, not just the match. Keep this template.' },
+          },
+          fail:{
+            title:'GENERIC WIN',
+            note:'The team gets through, but your role stays small. Preparation was fine, impact was not big enough to become the story.',
+            post:{
+              source:'account',
+              ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
+              caption:'Qualification race stays alive. Team effort, sharp fielding, and calm late overs get MI over the line. 💙',
+              reactions:[
+                { char:'__fan', name:'paltanpulse', text:'Win is a win. Bigger tests coming.' },
+              ],
+            },
+          },
+        },
         caption:'Same player. Different modes. Ready. 🏏',
         reactions:[
           { char:'mahela', text:'This is the right preparation.' },
@@ -1061,6 +1564,36 @@ export const CRICKET_SITUATIONS: Situation[] = [
         t:'Attack role demand karo',
         s:'NRR game mein conservative player yaad nahi rehta.',
         deltas:{ fame:1, heat:4, image:-2 },
+        outcomeGate:{
+          metric:'fame',
+          threshold:70,
+          pass:{
+            title:'MATCH WON',
+            note:'Your Form is high enough to back the attacking call. You find the early boundary, break the equation, and MI win because of your intent.',
+            post:{
+              source:'account',
+              ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
+              caption:'Intent under NRR pressure. {name} attacked early, broke the chase open, and MI got the margin they needed. 💙🔥',
+              reactions:[
+                { char:'hardik', text:'Intent worked because execution was there.' },
+                { char:'__fan', name:'paltanpulse', text:'This is the fearless cricket qualification needed.' },
+              ],
+            },
+            dm:{ char:'rohit', text:'Shot selection risky tha, but execution clear tha. Good impact.' },
+          },
+          fail:{
+            title:'NOT YOUR NIGHT',
+            note:'The attacking call does not become the headline. MI get a generic result around you, but your personal impact stays limited.',
+            post:{
+              source:'account',
+              ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
+              caption:'Qualification equation goes down to the wire. MI stay alive through a full-team effort. 💙',
+              reactions:[
+                { char:'__fan', name:'cricketroom_india', text:'The youngster wanted the attacking role, but this was more team grind than individual story.' },
+              ],
+            },
+          },
+        },
         caption:'Some games need intent from ball one. Ready.',
         reactions:[
           { char:'hardik', text:'Intent noted. Flexibility pending.' },
@@ -1080,7 +1613,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
     title:'Slow Pitch, Big Crowd',
     loyaltyChoice:'A',
     body:[
-      'Semi-final. Neutral venue, par blue shirts har jagah. Pitch dry. Ball grip kar rahi hai. Scoreboard pressure slow poison jaisa.',
+      'MI qualify kar gaya. Ab semi-final. Neutral venue, par blue shirts har jagah. Pitch dry. Ball grip kar rahi hai. Scoreboard pressure slow poison jaisa.',
       'MI 62/3. Tum walk in. Required rate manageable hai, par ek wicket aur game khol dega. Bowler spinner hai, long boundary leg side. Short boundary off side. Field tumhe invite kar rahi hai ek shot ke liye jo TV pe beautiful lagega.',
       'Dugout mein Hardik khada hai. Rohit baitha hai, helmet ke neeche aankhen fixed. Surya towel chew kar raha hai.',
     ],
@@ -1091,6 +1624,36 @@ export const CRICKET_SITUATIONS: Situation[] = [
         t:'Anchor karo, match ko 18th over tak le jao',
         s:'Bada shot baad mein. Pehle game zinda.',
         deltas:{ fame:6, heat:1, image:6 },
+        outcomeGate:{
+          metric:'fame',
+          threshold:75,
+          pass:{
+            title:'FINAL MEIN MI',
+            note:'Your Form is high enough for knockout control. You hold the chase together, and MI reach the final because of your innings.',
+            post:{
+              source:'account',
+              ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
+              caption:'MI ARE IN THE FINAL. On a slow pitch, {name} stayed longer than the noise and carried the chase into safe waters. 💙',
+              reactions:[
+                { char:'rohit', text:'Good. Game samjha.' },
+                { char:'hardik', text:'This was serious cricket.' },
+                { char:'__fan', name:'cricketroom_india', text:'That semi-final innings was structurally massive.' },
+              ],
+            },
+          },
+          fail:{
+            title:'TEAM REACHES FINAL',
+            note:'MI qualify for the final, but not because of a defining innings from you. Your Form is not high enough to own the semi-final story.',
+            post:{
+              source:'account',
+              ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
+              caption:'MI ARE IN THE FINAL. A full-team semi-final grind takes the Paltan to the big night. 💙',
+              reactions:[
+                { char:'__fan', name:'paltanpulse', text:'Final time. Everyone breathe.' },
+              ],
+            },
+          },
+        },
         caption:'Knockout cricket. Stay longer than the noise. 💙',
         reactions:[
           { char:'rohit', text:'Good. Game samjha.' },
@@ -1102,6 +1665,36 @@ export const CRICKET_SITUATIONS: Situation[] = [
         t:'Counterattack karo — pressure wapas bhejo',
         s:'Semi-final mein momentum wait nahi karta.',
         deltas:{ fame:2, heat:7, image:-3 },
+        outcomeGate:{
+          metric:'fame',
+          threshold:75,
+          pass:{
+            title:'FINAL MEIN MI',
+            note:'Your Form is high, so the counterattack lands. You flip the semi-final pressure and become the reason MI reach the final.',
+            post:{
+              source:'account',
+              ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
+              caption:'Counterattack in a semi-final. {name} changed the pressure, changed the chase, and MI are in the final. 💙🔥',
+              reactions:[
+                { char:'surya', text:'Aaj tera ball tha. Good.' },
+                { char:'hardik', text:'Brave and right.' },
+                { char:'__fan', name:'paltanpulse', text:'This is why you play fearless kids in playoffs.' },
+              ],
+            },
+          },
+          fail:{
+            title:'TEAM REACHES FINAL',
+            note:'The counterattack does not fully land. MI still reach the final through the team, but your personal semi-final impact stays uncertain.',
+            post:{
+              source:'account',
+              ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
+              caption:'MI ARE IN THE FINAL. Not the cleanest chase, not the easiest night, but the team finds a way. 💙',
+              reactions:[
+                { char:'__fan', name:'cricketroom_india', text:'Youngster tried to counterattack, but the team story was bigger tonight.' },
+              ],
+            },
+          },
+        },
         caption:'Knockouts don\'t scare me. They wake me up. 🔥',
         reactions:[
           { char:'surya', text:'Agar yeh tera ball tha, genius. Agar nahi tha, meeting mein milte hain.' },
@@ -1120,6 +1713,8 @@ export const CRICKET_SITUATIONS: Situation[] = [
     id:'CR-S27', day:17, slot:'Late Night', tag:'⚡ SEMI-FINAL AFTERMATH',
     title:'Hero Ya Passenger',
     body:[
+      'MI final mai pahoch gayi hai. Ab pressure ka shape badal gaya hai. Selection, batting position, fan edits — sab final ke lens se dekha ja raha hai.',
+      'Tumhaare pe pressure bahot hai ab. Semi-final ke contribution par debate chal raha hai: hero, passenger, or unfinished story?',
       'Semi-final ke baad dressing room ka mood result ke hisaab se nahi, contribution ke hisaab se tumhare andar settle ho raha hai.',
       'Team bus ke bahar fan chillata hai: "{name}, final mein century!"',
       'Coach Sir ka message: "Final mein zero se start."',
@@ -1199,33 +1794,57 @@ export const CRICKET_SITUATIONS: Situation[] = [
     id:'CR-S29', day:18, slot:'Night', tag:'⚡ IPL FINAL · NIGHT',
     title:'Last 12 Balls',
     body:[
-      'IPL Final. Stadium ka noise body ke andar vibrate kar raha hai. MI need 24 off 12. Tum crease par ho. Non-striker Tilak. Dugout mein Hardik khada. Rohit bilkul still. Surya hands on head.',
-      'Bowler pace-off specialist. Field spread, par fine leg andar. Ek ramp possible hai. Ek hard two possible hai. Ek wrong shot possible hai jo poore season ka headline ban sakta hai.',
-      'Scoreboard simple hai. Moment nahi. 24 off 12. Trophy line ke us paar hai.',
+      'IPL Final. Stadium ka noise body ke andar vibrate kar raha hai. Tum 92 par ho. MI need 18 off 10. Non-striker Tilak. Dugout mein Hardik khada. Rohit bilkul still. Surya hands on head.',
+      'Bowler pace-off specialist. Fine leg andar. Ek ramp se tum 98/100 ke paas ja sakte ho. Ek hard two aur strike rotate se match safer ho sakta hai.',
+      'Scoreboard simple nahi hai ab. Personal milestone ek taraf. Trophy doosri taraf. Season ka sach yahin likha jaayega.',
     ],
     react:{ char:'tilak', text:'Hero banne ke liye pehle game finish kar.' },
-    q:'Final ke last 12 balls kaise play karte ho?',
+    q:'Final ke last 10 balls kaise play karte ho?',
     choices:[
       {
-        t:'Partnership finish — strike rotate, right ball boundary',
-        s:'Trophy highlight se badi hai. Galat ball hero nahi banati.',
-        deltas:{ fame:7, heat:3, image:6 },
+        t:'Trophy pehle — strike rotate, win close karo',
+        s:'Hundred wait karega. Trophy nahi.',
+        deltas:{ fame:7, heat:3, image:10 },
+        post:{
+          source:'account',
+          ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
+          caption:'Trophy over hundred. {name} put the win first, trusted Tilak, and MI crossed the line. Young blood, team heart. 💙🏆',
+          reactions:[
+            { char:'hardik', text:'Great innings, bud. Team-first.' },
+            { char:'rohit', text:'Mature. Very mature.' },
+            { char:'__fan', name:'cricketroom_india', text:'A teenager choosing the trophy over the hundred is the season-defining moment.' },
+          ],
+        },
         caption:'Finals are not played in captions. They are played one ball at a time. 💙🏆',
         reactions:[
           { char:'hardik', text:'That is how you finish.' },
           { char:'rohit', text:'Mature. Very mature.' },
           { char:'__fan', name:'cricketroom_india', text:'For a teenager, that final-over decision-making was absurdly composed.' },
         ],
+        dm:[
+          { char:'rohit', text:'Great innings, bud. Hundred chhod ke trophy choose ki. That is serious cricket.' },
+          { char:'hardik', text:'Great innings, bud. Trust gained massively tonight.' },
+        ],
       },
       {
-        t:'Ramp/six option lo — final ko apna moment banao',
-        s:'Fine leg up hai. Shot hai. Agar nikal gaya, history.',
-        deltas:{ fame:2, heat:9, image:-3 },
+        t:'Hundred ke liye jao — personal milestone lo',
+        s:'Final hundred history hota hai. Shot hai. Naam amar ho sakta hai.',
+        deltas:{ fame:2, heat:9, image:-5 },
+        post:{
+          source:'account',
+          ...CRICKET_SOCIAL_ACCOUNTS.paltanPulse,
+          caption:'MI WON THE TROPHY, but the debate has started. {name} chased the hundred, and Tilak\'s last-over brilliance finished the final. Young blood, big talent, bigger questions.',
+          reactions:[
+            { char:'tilak', text:'Trophy aa gayi. Baaki baad mein.' },
+            { char:'hardik', text:'We will talk.' },
+            { char:'__fan', name:'cricketroom_india', text:'This is complicated: MI champions, Tilak closes it, and the youngster\'s milestone call will be debated.' },
+          ],
+        },
         caption:'Final night. No fear. No hiding. 💙🔥',
         reactions:[
-          { char:'surya', text:'Shot option tha. Bas execution gods bhi chahiye hote hain.' },
-          { char:'bumrah', text:'High risk means you accept both results.' },
-          { char:'__fan', name:'paltanpulse', text:'My heart stopped. This kid is cinema.' },
+          { char:'surya', text:'Hundred ka pull samajhta hoon. Trophy ka context bhi samajh.' },
+          { char:'bumrah', text:'High risk means you accept both conversations.' },
+          { char:'__fan', name:'paltanpulse', text:'MI won but this debate is not ending tonight.' },
         ],
       },
     ],
@@ -1239,9 +1858,9 @@ export const CRICKET_SITUATIONS: Situation[] = [
     id:'CR-S30', day:19, slot:'Night', tag:'⚡ FINAL NIGHT · DRESSING ROOM',
     title:'Trophy Ke Baad',
     body:[
-      'Final khatam. Result jo bhi ho, dressing room mein ek ajeeb sa vacuum hai. Noise bahar chhoot gaya. Andar sirf kit bags, sweat, tape, empty bottles.',
-      'Tumhare phone par 999+ notifications. Hardik trophy table ke paas khada hai. Rohit door ke frame se bahar field dekh raha hai. Surya tumhari taraf phone hila ke bolta hai: "Caption ready?"',
-      'Yeh final choice scorecard se zyada identity ka hai.',
+      'Final khatam. MI trophy jeet chuki hai. Dressing room mein blue shirts, sweat, tape, empty bottles aur trophy ke aas-paas woh silence hai jo sirf winning ke baad aata hai.',
+      'Agar tumne trophy ko hundred se upar rakha tha, seniors ki aankhon mein ek alag trust hai. Agar tum milestone ke peeche gaye the, trophy table par hai, par conversation pending hai.',
+      'Tumhare phone par 999+ notifications. Hardik trophy ke paas khada hai. Rohit door ke frame se bahar field dekh raha hai. Surya tumhari taraf phone hila ke bolta hai: "Caption ready?"',
     ],
     react:{ char:'rohit', text:'Season ka last post bhi season ka part hota hai.' },
     q:'Final night ka public/private close kaise karte ho?',
@@ -1250,6 +1869,16 @@ export const CRICKET_SITUATIONS: Situation[] = [
         t:'Team-first note, private calls, quiet close',
         s:'Trophy ya heartbreak, dono team ke saath close karo.',
         deltas:{ fame:2, heat:-2, image:6 },
+        post:{
+          source:'account',
+          ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
+          caption:'Champions. {name} closes the season with a team-first note and a quiet dressing-room moment. The first season in blue is only the beginning. 💙🏆',
+          reactions:[
+            { char:'hardik', text:'Good season. Good close.' },
+            { char:'rohit', text:'Next one starts tomorrow.' },
+            { char:'__fan', name:'cricketroom_india', text:'The closing tone matters after the final. This was mature.' },
+          ],
+        },
         caption:'This season taught me what team means. Thank you, Mumbai. Work continues. 💙',
         reactions:[
           { char:'hardik', text:'Good season. Good close.' },
@@ -1261,6 +1890,16 @@ export const CRICKET_SITUATIONS: Situation[] = [
         t:'Cinematic season reel — own the story',
         s:'Yeh tumhara season bhi tha. Public ko ending do.',
         deltas:{ fame:0, heat:8, image:-4 },
+        post:{
+          source:'account',
+          ...CRICKET_SOCIAL_ACCOUNTS.paltanPulse,
+          caption:'Season reel is out. Trophy, lights, pressure, debate, and a 16-year-old who became impossible to ignore. Whether you loved every choice or questioned some, {name} owned the timeline.',
+          reactions:[
+            { char:'surya', text:'Good reel. Ab offseason mein real work.' },
+            { char:'coach', text:'Beginning bol diya. Ab prove kar.' },
+            { char:'__fan', name:'futurexi', text:'This reel will be in every future India comp for the next five years.' },
+          ],
+        },
         caption:'16. First season. Mumbai. Lights. Lessons. This is only the beginning. 💙🔥',
         reactions:[
           { char:'surya', text:'Good reel. Ab offseason mein real work.' },

@@ -20,6 +20,7 @@ export interface AppCtx {
   dmChar: CharId | null
   game: GameState
   dmHistory: Record<string, DMMessage[]>
+  dmLastUpdated: Record<string, number>
   dmTrust: Record<string, number>
   impactNotif: ImpactNotif | null
   showImpact: (n: ImpactNotif) => void

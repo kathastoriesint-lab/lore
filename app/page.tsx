@@ -5,7 +5,7 @@ import { AppContext, ImpactNotif } from '@/lib/context'
 import {
   applyDeltas, applyFlagDeltas, charMeters, ensureSession, getAIReply, scoreTrustDelta,
   loadDMs, loadGameState, recordChoice, resetGameState, saveDM, saveGameState,
-  fameToFollowers, DEFAULT_FLAGS, buildCricketQueue, buildCHQueue, checkConditionals,
+  fameToFollowers, DEFAULT_FLAGS, buildCricketQueue, buildCHQueue,
 } from '@/lib/game'
 import { CHARS, SITUATIONS, DM_MOCK, getVisibleSituations } from '@/lib/data'
 import { CRICKET_SITUATIONS } from '@/lib/cricket-data'
@@ -52,6 +52,7 @@ export default function App() {
     narrator_done: false, dayUnlockTime: {},
   })
   const [dmHistory, setDmHistory] = useState<Record<string, DMMessage[]>>({})
+  const [dmLastUpdated, setDmLastUpdated] = useState<Record<string, number>>({})
   // Tracks which chars have had their full DB history loaded — prevents the bug where
   // injectCharDM populates dmHistory[charId] before openDMThread runs, so the guard
   // `!dmHistory[charId]` skips the DB load and old messages are never shown.
@@ -163,27 +164,21 @@ export default function App() {
   const advanceSituation = useCallback(() => {
     setGame(prev => {
       const nextIdx = prev.situation + 1
-      // Check for conditional triggers to insert after current position
-      const newConditionals = checkConditionals(
-        prev.world, prev.situationQueue, prev.situation, prev.meters, prev.flags, prev.choices
-      )
-      const newQueue = newConditionals.length > 0
-        ? [...prev.situationQueue.slice(0, nextIdx), ...newConditionals, ...prev.situationQueue.slice(nextIdx)]
-        : prev.situationQueue
+      const queue = prev.situationQueue
 
       // Day gate: look up next situation by ID
       const sitMap = prev.world === 'cricket'
         ? Object.fromEntries(CRICKET_SITUATIONS.map(s => [s.id, s]))
         : Object.fromEntries(getVisibleSituations(prev.meters, prev.choices).map(s => [s.id, s]))
-      const currentSit = sitMap[newQueue[prev.situation]]
-      const nextSit    = sitMap[newQueue[nextIdx]]
+      const currentSit = sitMap[queue[prev.situation]]
+      const nextSit    = sitMap[queue[nextIdx]]
       const newUnlockTime = { ...prev.dayUnlockTime }
       // Day gate: 0 for testing — restore to 6 * 60 * 60 * 1000 before launch (T26)
       const gateMs = 0
       if (nextSit && currentSit && nextSit.day > currentSit.day && !newUnlockTime[nextSit.day]) {
         newUnlockTime[nextSit.day] = Date.now() + gateMs
       }
-      const next = { ...prev, situation: nextIdx, situationQueue: newQueue, dayUnlockTime: newUnlockTime }
+      const next = { ...prev, situation: nextIdx, situationQueue: queue, dayUnlockTime: newUnlockTime }
       saveGameState(next)
       return next
     })
@@ -223,7 +218,9 @@ export default function App() {
         const inMemory = prev[charId] ?? []
         const dbKeys = new Set(msgs.map(m => `${m.role}:${m.text}`))
         const onlyInMemory = inMemory.filter(m => !dbKeys.has(`${m.role}:${m.text}`))
-        return { ...prev, [charId]: [...msgs, ...onlyInMemory] }
+        const merged = [...msgs, ...onlyInMemory]
+        if (merged.length > 0) setDmLastUpdated(times => ({ ...times, [charId]: times[charId] ?? Date.now() }))
+        return { ...prev, [charId]: merged }
       })
     }
   }, [navigate])
@@ -232,6 +229,7 @@ export default function App() {
     const userMsg: DMMessage = { role: 'me', text }
     const contextHistory = [...(dmHistory[charId] ?? []), userMsg]
     setDmHistory(prev => ({ ...prev, [charId]: [...(prev[charId] ?? []), userMsg] }))
+    setDmLastUpdated(prev => ({ ...prev, [charId]: Date.now() }))
     saveDM(charId, userMsg).catch(() => {})
     const playerName = game.playerName || 'Yaar'
     const raw = await getAIReply(charId, contextHistory, playerName, {
@@ -250,6 +248,7 @@ export default function App() {
     const reply = raw?.trim() || mockArr[Math.floor(Math.random() * mockArr.length)]
     const charMsg: DMMessage = { role: 'char', text: reply }
     setDmHistory(prev => ({ ...prev, [charId]: [...(prev[charId] ?? []), charMsg] }))
+    setDmLastUpdated(prev => ({ ...prev, [charId]: Date.now() }))
     saveDM(charId, charMsg).catch(() => {})
     // Score trust impact in background — LLM evaluates the exchange
     scoreTrustDelta(charId, text, reply).then(delta => {
@@ -290,6 +289,7 @@ export default function App() {
   const injectCharDM = useCallback((charId: CharId, text: string) => {
     const charMsg: DMMessage = { role: 'char', text }
     setDmHistory(prev => ({ ...prev, [charId]: [...(prev[charId] ?? []), charMsg] }))
+    setDmLastUpdated(prev => ({ ...prev, [charId]: Date.now() }))
     saveDM(charId, charMsg).catch(() => {})
     setDmBadgeCount(prev => prev + 1) // T4: badge notification
   }, [])
@@ -322,6 +322,7 @@ export default function App() {
     await resetGameState()
     setGame({ playerName: '', playerGender: 'male' as const, world: 'creator-house', char: null, situation: 0, situationQueue: [], choices: [], meters: { fame: 20, heat: 50, image: 30 }, flags: DEFAULT_FLAGS, runMemory: {}, narrator_done: false, dayUnlockTime: {} })
     setDmHistory({})
+    setDmLastUpdated({})
     navigate('worlds', { replace: true })
   }, [navigate])
 
@@ -337,7 +338,7 @@ export default function App() {
 
   return (
     <AppContext.Provider value={{
-      screen, prevScreen: prev, dmChar, game, dmHistory, dmTrust, charFame, likedPosts, viewingCharId, toast, impactNotif, showImpact,
+      screen, prevScreen: prev, dmChar, game, dmHistory, dmLastUpdated, dmTrust, charFame, likedPosts, viewingCharId, toast, impactNotif, showImpact,
       dmBadgeCount, clearDmBadge,
       phone, setPhone, saveProfile,
       advanceSituation, navigate, goBack, showToast, setChar, startGame, startCricketGame,

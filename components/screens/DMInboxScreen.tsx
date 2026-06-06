@@ -1,10 +1,10 @@
 'use client'
 import { useApp } from '@/lib/context'
 import type { CharId } from '@/lib/types'
-import { CHARS, DM_ORDER, DM_PREVIEW, DM_TIME, DM_UNREAD } from '@/lib/data'
-import { CRICKET_CHARS, CRICKET_DM_HOOKS } from '@/lib/cricket-data'
+import { CHARS, DM_ORDER } from '@/lib/data'
+import { CRICKET_CHARS } from '@/lib/cricket-data'
 
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 const StatusBar = () => (
   <div className="statusbar">
@@ -18,29 +18,40 @@ const StatusBar = () => (
 )
 
 const CRICKET_DM_ORDER: CharId[] = ['hardik', 'rohit', 'surya', 'bumrah', 'tilak', 'coach', 'friend']
-const CRICKET_DM_TIMES: Partial<Record<string, string>> = {
-  hardik: '2m', rohit: '15m', surya: '8m', bumrah: '1h', tilak: '30m', coach: '3h', friend: 'just now'
-}
-const CRICKET_DM_UNREAD = ['friend', 'surya', 'hardik']
 
 export default function DMInboxScreen() {
-  const { goBack, navigate, showToast, openDMThread, dmHistory, game } = useApp()
+  const { goBack, navigate, showToast, openDMThread, dmHistory, dmLastUpdated, game } = useApp()
   const isCricket = game.world === 'cricket'
   const allChars = { ...CHARS, ...CRICKET_CHARS }
 
   // Cricket world: player plays as themselves, show all characters including Hardik
   // Creator House: filter out the character being played as
-  const visibleChars = isCricket
-    ? CRICKET_DM_ORDER
-    : DM_ORDER.filter(id => id !== game.char)
+  const visibleChars = useMemo(() => {
+    const baseOrder = isCricket
+      ? CRICKET_DM_ORDER
+      : DM_ORDER.filter(id => id !== game.char)
+    return baseOrder
+      .sort((a, b) => {
+        const aHasMessages = (dmHistory[a]?.length ?? 0) > 0
+        const bHasMessages = (dmHistory[b]?.length ?? 0) > 0
+        if (aHasMessages !== bHasMessages) return aHasMessages ? -1 : 1
+        const timeDelta = (dmLastUpdated[b] ?? 0) - (dmLastUpdated[a] ?? 0)
+        if (timeDelta !== 0) return timeDelta
+        return baseOrder.indexOf(a) - baseOrder.indexOf(b)
+      })
+  }, [dmHistory, dmLastUpdated, game.char, isCricket])
 
   // Track which chars have been opened (remove unread dot)
   const [opened, setOpened] = useState<Set<CharId>>(new Set())
 
   const handleOpen = useCallback((charId: CharId) => {
+    if ((dmHistory[charId]?.length ?? 0) === 0) {
+      showToast('No messages yet')
+      return
+    }
     setOpened(prev => new Set([...prev, charId]))
     openDMThread(charId)
-  }, [openDMThread])
+  }, [dmHistory, openDMThread, showToast])
 
   const handleTab = useCallback((tab: string) => {
     if (tab === 'home') navigate('feed')
@@ -61,21 +72,9 @@ export default function DMInboxScreen() {
             </svg>
           </button>
           <div className="title">Messages</div>
-          <button className="icon-btn" onClick={() => showToast('New message coming soon')}>
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round">
-              <path d="M12 5v14M5 12h14"/>
-            </svg>
-          </button>
+          <div style={{ width:38 }} />
         </div>
-        <div className="sub">{isCricket ? 'Indian Dressing Room · 7 contacts' : 'Creator House · 8 characters'}</div>
-      </div>
-
-      {/* Search bar (decorative) */}
-      <div className="dm-search">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-        </svg>
-        Search
+        <div className="sub">{isCricket ? 'Indian Dressing Room' : 'Creator House'} · {visibleChars.length} contacts</div>
       </div>
 
       {/* DM list */}
@@ -83,12 +82,10 @@ export default function DMInboxScreen() {
         {visibleChars.map((charId) => {
           const char = allChars[charId]
           if (!char) return null
-          const isUnread = (isCricket ? CRICKET_DM_UNREAD : DM_UNREAD).includes(charId) && !opened.has(charId)
-          const history = dmHistory[charId]
-          const dmPreview = isCricket ? (CRICKET_DM_HOOKS[charId] ?? '...') : (DM_PREVIEW[charId] ?? '...')
-          const lastMsg = history && history.length > 0
-            ? history[history.length - 1].text
-            : dmPreview
+          const history = dmHistory[charId] ?? []
+          const hasMessages = history.length > 0
+          const isUnread = hasMessages && !opened.has(charId)
+          const lastMsg = hasMessages ? history[history.length - 1].text : 'No messages yet'
           const preview = lastMsg.length > 42 ? lastMsg.slice(0, 42) + '…' : lastMsg
 
           return (
@@ -101,7 +98,7 @@ export default function DMInboxScreen() {
                 <div className="prev">{preview}</div>
               </div>
               <div className="meta">
-                <div className="ts">{isCricket ? (CRICKET_DM_TIMES[charId] ?? '1h') : (DM_TIME[charId] ?? '1h')}</div>
+                <div className="ts">{hasMessages ? 'now' : ''}</div>
                 {isUnread && <div className="unread" />}
               </div>
             </button>

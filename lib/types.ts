@@ -47,12 +47,69 @@ export interface Choice {
   t: string
   s: string
   deltas: Meters
-  caption: string
-  reactions: Reaction[]
+  /** Legacy player-caption field. Creator House still uses this as fallback. */
+  caption?: string
+  /** Legacy post/comment reactions. Creator House still uses this as fallback. */
+  reactions?: Reaction[]
+  /**
+   * Explicit post surface shown after a choice.
+   * - undefined: use legacy fallback for Creator House, no auto-post for cricket
+   * - null: no post/card for this choice
+   * - object: render this authored post/card
+   */
+  post?: ChoicePost | ChoicePost[] | null
+  /** Conditional outcome resolved from the meters before this choice applies. */
+  outcomeGate?: ChoiceOutcomeGate
+  /**
+   * Explicit DM caused by this choice.
+   * - undefined: legacy auto-DM for Creator House only
+   * - null: no DM
+   * - object: inject this authored DM
+   */
+  dm?: ChoiceDM | ChoiceDM[] | null
   /** Flag deltas applied when this choice is made */
   flagDeltas?: Partial<GameFlags>
   /** Which run-memory slot this choice writes to (match situations only) */
   runWrite?: 'debut' | 'league' | 'clutch' | 'semi' | 'final'
+}
+
+export interface ChoiceOutcomeGate {
+  metric: keyof Meters
+  threshold: number
+  pass: ChoiceOutcome
+  fail: ChoiceOutcome
+}
+
+export interface ChoiceOutcome {
+  title?: string
+  note: string
+  post?: ChoicePost | ChoicePost[] | null
+  dm?: ChoiceDM | ChoiceDM[] | null
+}
+
+export interface ChoicePost {
+  source: 'player' | 'character' | 'account'
+  /** Required when source is character */
+  char?: CharId
+  /** Account/player display name for account posts */
+  name?: string
+  /** Account/player handle without @ */
+  handle?: string
+  /** Avatar initial for account posts */
+  avatarText?: string
+  /** Small context label, e.g. "MI Paltan · just now" */
+  label?: string
+  /** Future-proof rendering hook: post, story, scorecard, news, live, etc. */
+  surface?: 'post' | 'story' | 'scorecard' | 'news' | 'live' | 'dm' | 'note'
+  /** Where this authored post appears. Default: both live preview and feed. */
+  display?: 'live-and-feed' | 'live-only' | 'feed-only'
+  caption: string
+  reactions?: Reaction[]
+}
+
+export interface ChoiceDM {
+  char: CharId
+  text: string
 }
 
 export interface Reaction {
@@ -68,7 +125,7 @@ export interface Situation {
   tag: string
   title: string
   body: string[]
-  react: { char: CharId; text: string }
+  react?: { char: CharId; text: string } | null
   q: string
   choices: [Choice, Choice]
   feedReaction?: {
@@ -76,7 +133,6 @@ export interface Situation {
     B: { char: CharId; caption: string } | null
   }
   loyaltyChoice?: 'A' | 'B'
-  condition?: (meters: Meters, flags: GameFlags) => boolean
 }
 
 export interface DMMessage {
