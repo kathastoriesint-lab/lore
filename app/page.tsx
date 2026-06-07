@@ -20,6 +20,7 @@ import ProfileScreen from '@/components/screens/ProfileScreen'
 import CharProfileScreen from '@/components/screens/CharProfileScreen'
 import OnboardingScreen from '@/components/screens/OnboardingScreen'
 import CricketIntroScreen from '@/components/screens/CricketIntroScreen'
+import CricketCarouselScreen from '@/components/screens/CricketCarouselScreen'
 import FeedbackButton from '@/components/FeedbackButton'
 import ErrorBoundary from '@/components/ErrorBoundary'
 
@@ -164,19 +165,9 @@ export default function App() {
   }, [game, navigate])
 
   const startGame = useCallback(() => {
-    const meters = { fame: 20, heat: 50, image: 30 }
-    const choices: ('A'|'B')[] = []
-    const newState: GameState = {
-      playerName: game.playerName, playerGender: game.playerGender,
-      world: 'creator-house', char: 'kabir',
-      situation: 0, situationQueue: buildCHQueue(meters, choices), choices,
-      meters, flags: DEFAULT_FLAGS, runMemory: {},
-      narrator_done: true, dayUnlockTime: {},
-    }
-    saveAndSet(newState)
-    if (typeof window !== 'undefined') localStorage.setItem('lore_feed_seen', '1')
-    navigate('live')
-  }, [game.playerName, game.playerGender, saveAndSet, navigate])
+    showToast('Creator House is temporarily locked while we fix it 🔒')
+    navigate('worlds')
+  }, [navigate, showToast])
 
   const startCricketGame = useCallback(() => {
     // char:'player' sentinel — the player is themselves, not Hardik Pandya
@@ -528,7 +519,8 @@ export default function App() {
             <Slot id="onboarding"    cur={screen} prev={prev}><OnboardingScreen /></Slot>
             <Slot id="worlds"        cur={screen} prev={prev}><WorldsScreen /></Slot>
             <Slot id="world-intro"   cur={screen} prev={prev}><WorldIntroScreen /></Slot>
-            <Slot id="cricket-intro" cur={screen} prev={prev}><CricketIntroScreen /></Slot>
+            <Slot id="cricket-intro"    cur={screen} prev={prev}><CricketIntroScreen /></Slot>
+            <Slot id="cricket-carousel" cur={screen} prev={prev}><CricketCarouselScreen /></Slot>
             <Slot id="feed"        cur={screen} prev={prev}><FeedScreen /></Slot>
             <Slot id="narrator"    cur={screen} prev={prev}><NarratorScreen /></Slot>
             <Slot id="live"        cur={screen} prev={prev}><LiveScreen /></Slot>

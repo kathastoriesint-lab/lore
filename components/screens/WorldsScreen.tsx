@@ -1,5 +1,5 @@
 'use client'
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useApp } from '@/lib/context'
 
 const StatusBar = () => (
@@ -40,11 +40,31 @@ export default function WorldsScreen() {
   const [shakingCard, setShakingCard] = useState<string | null>(null)
   const shakeTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({})
 
+  const [appIntroSlide, setAppIntroSlide] = useState(0)
+  const [showAppIntro, setShowAppIntro] = useState(false)
+  useEffect(() => {
+    if (typeof window !== 'undefined' && !localStorage.getItem('seen_app_intro')) {
+      const t = setTimeout(() => setShowAppIntro(true), 550)
+      return () => clearTimeout(t)
+    }
+  }, [])
+
+  const dismissAppIntro = useCallback(() => {
+    localStorage.setItem('seen_app_intro', '1')
+    setShowAppIntro(false)
+  }, [])
+
+  const nextAppIntro = useCallback(() => {
+    if (appIntroSlide < 2) setAppIntroSlide(s => s + 1)
+    else dismissAppIntro()
+  }, [appIntroSlide, dismissAppIntro])
+
   const handleTab = useCallback((tab: string) => {
     if (tab === 'live') {
-      navigate('feed')
+      if (game.world === 'cricket') navigate('feed')
+      else showToast('Creator House is temporarily locked while we fix it 🔒')
     }
-  }, [navigate])
+  }, [navigate, game.world, showToast])
 
   const triggerShake = useCallback((cardId: string, msg: string) => {
     setShakingCard(cardId)
@@ -54,9 +74,8 @@ export default function WorldsScreen() {
   }, [showToast])
 
   const handleCreatorHouse = useCallback(() => {
-    if (game.char && game.world === 'creator-house') navigate('feed')
-    else navigate('world-intro')
-  }, [navigate, game.char, game.world])
+    triggerShake('creator-house', 'Creator House is temporarily locked while we fix it 🔒')
+  }, [triggerShake])
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
@@ -88,7 +107,7 @@ export default function WorldsScreen() {
           {/* Indian Dressing Room — lead world for India */}
           <button
             className="world-card"
-            onClick={() => navigate('cricket-intro')}
+            onClick={() => navigate('cricket-carousel')}
             style={{ boxShadow: '0 0 0 1.5px rgba(0,48,135,.5), 0 12px 40px rgba(0,48,135,.25)' }}
           >
             <div
@@ -133,13 +152,12 @@ export default function WorldsScreen() {
               style={{ background: 'linear-gradient(135deg,#ff2d78,#7a1140)', height: 210 }}
             >
               <div className="wc-badge">
-                <div className="pulse" />
-                LIVE
+                <LockIcon />
+                TEMP LOCKED
               </div>
               <div className="wc-name">Creator House</div>
               <div className="wc-status">
-                <div className="pulse" />
-                Day 1 of 10 · Villa opens tonight.
+                Fix in progress · Reopening soon.
               </div>
             </div>
             <div className="wc-foot">
@@ -207,6 +225,93 @@ export default function WorldsScreen() {
 
       {/* Toast */}
       {/* Toast is rendered by parent via context; individual screens don't render it */}
+
+      {/* App Intro Overlay */}
+      <div className={`app-intro-overlay${showAppIntro ? ' show' : ''}`}>
+        <div className="app-intro-sheet">
+          <div className="app-intro-handle" />
+          <div className="app-intro-window">
+            <div className="app-intro-track" style={{ transform: `translateX(-${appIntroSlide * 100}%)` }}>
+
+              {/* Slide 1 — What is Lore */}
+              <div className="app-intro-slide">
+                <div className="app-intro-logo">
+                  <svg viewBox="0 0 32 32" fill="none" width="28" height="28">
+                    <defs>
+                      <linearGradient id="aiG" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0" stopColor="#ff2d78"/>
+                        <stop offset=".55" stopColor="#ff8a3d"/>
+                        <stop offset="1" stopColor="#ffd24d"/>
+                      </linearGradient>
+                    </defs>
+                    <circle cx="16" cy="16" r="13.5" stroke="url(#aiG)" strokeWidth="3" strokeDasharray="58 12" strokeLinecap="round"/>
+                    <circle cx="16" cy="16" r="6.4" stroke="#ff2d78" strokeWidth="2.4"/>
+                    <circle cx="16" cy="16" r="1.9" fill="#ffd24d"/>
+                  </svg>
+                  <span>Lore</span>
+                </div>
+                <div className="app-intro-h">Pick a world.<br />Become a character.</div>
+                <p className="app-intro-p">
+                  Every choice has fallout.<br /><br />
+                  This isn&apos;t a story you read —<br />it&apos;s a world you live in.
+                </p>
+              </div>
+
+              {/* Slide 2 — How it works */}
+              <div className="app-intro-slide">
+                <div className="app-intro-h">Teen tarike hain duniya jeene ke.</div>
+                <div className="app-intro-rows">
+                  <div className="app-intro-row">
+                    <span className="app-intro-icon">🎮</span>
+                    <div>
+                      <div className="app-intro-row-label">Live</div>
+                      <div className="app-intro-row-sub">Choices karo. Story shape karo. Meters track karte hain tumhara standing.</div>
+                    </div>
+                  </div>
+                  <div className="app-intro-row">
+                    <span className="app-intro-icon">💬</span>
+                    <div>
+                      <div className="app-intro-row-label">DMs</div>
+                      <div className="app-intro-row-sub">Characters message karte hain. Trust ke saath unka tone badalta hai.</div>
+                    </div>
+                  </div>
+                  <div className="app-intro-row">
+                    <span className="app-intro-icon">📲</span>
+                    <div>
+                      <div className="app-intro-row-label">Feed</div>
+                      <div className="app-intro-row-sub">Duniya react karti hai tumhari moves pe. Viral ya forgotten.</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Slide 3 — CTA */}
+              <div className="app-intro-slide" style={{ justifyContent: 'center', display: 'flex', flexDirection: 'column' }}>
+                <div className="app-intro-h" style={{ fontSize: 36 }}>Ab shuru karo.</div>
+                <p className="app-intro-p" style={{ marginTop: 16 }}>
+                  Ek world chunno.<br />Apni story jeeo.
+                </p>
+              </div>
+
+            </div>
+          </div>
+
+          <div className="app-intro-dots">
+            {[0, 1, 2].map(i => (
+              <span key={i} className={`app-intro-dot${i === appIntroSlide ? ' active' : ''}`} />
+            ))}
+          </div>
+
+          <div className="app-intro-foot">
+            <button className="app-intro-cta-btn" onClick={nextAppIntro}>
+              {appIntroSlide === 2 ? 'Explore Worlds →' : 'Next →'}
+            </button>
+            {appIntroSlide < 2 && (
+              <button className="app-intro-skip-btn" onClick={dismissAppIntro}>Skip</button>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
