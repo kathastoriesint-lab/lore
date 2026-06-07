@@ -158,9 +158,9 @@ function Card3({
             <button key={g} onClick={() => setGender(g)} style={{
               flex:1, padding:'14px 0', borderRadius:14,
               fontWeight:700, fontSize:14, fontFamily:'var(--sans)',
-              background: gender===g ? 'rgba(255,45,120,.15)' : 'rgba(255,255,255,.05)',
-              border:`1.5px solid ${gender===g ? 'var(--accent)' : 'rgba(255,255,255,.1)'}`,
-              color: gender===g ? 'var(--accent)' : 'rgba(255,255,255,.4)',
+              background: gender===g ? 'rgba(255,45,120,.15)' : 'rgba(255,255,255,.07)',
+              border:`1.5px solid ${gender===g ? 'var(--accent)' : 'rgba(255,255,255,.25)'}`,
+              color: gender===g ? 'var(--accent)' : 'var(--ink2)',
               transition:'all .2s',
             }}>
               {g === 'male' ? 'He / Him' : 'She / Her'}
@@ -271,7 +271,7 @@ export default function OnboardingScreen() {
       {card < 2 && (
         <button
           onClick={() => setCard(2)}
-          style={{ position:'absolute', top:12, right:16, fontSize:12, color:'rgba(255,255,255,.35)', fontWeight:600, padding:'8px 12px', background:'none', border:'none', cursor:'pointer', fontFamily:'var(--sans)', zIndex:10 }}
+          style={{ position:'absolute', top:8, right:12, fontSize:12, color:'var(--ink3)', fontWeight:600, padding:'12px 16px', minHeight:44, background:'none', border:'none', cursor:'pointer', fontFamily:'var(--sans)', zIndex:10 }}
         >
           Skip →
         </button>
