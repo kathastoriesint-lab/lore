@@ -14,6 +14,14 @@ export interface ImpactNotif {
   tasksTotal?: number      // 6
 }
 
+export interface RelationshipAlert {
+  id: string
+  charId: CharId
+  handle: string
+  caption: string
+  createdAt: number
+}
+
 export interface AppCtx {
   screen: Screen
   prevScreen: Screen | null
@@ -22,6 +30,7 @@ export interface AppCtx {
   dmHistory: Record<string, DMMessage[]>
   dmLastUpdated: Record<string, number>
   dmTrust: Record<string, number>
+  relationshipAlerts: RelationshipAlert[]
   impactNotif: ImpactNotif | null
   showImpact: (n: ImpactNotif) => void
   charFame: Record<string, number>

@@ -69,6 +69,8 @@ export interface Choice {
   dm?: ChoiceDM | ChoiceDM[] | null
   /** Flag deltas applied when this choice is made */
   flagDeltas?: Partial<GameFlags>
+  /** Optional per-character relationship deltas. Cricket can also infer these from Team Trust and involved characters. */
+  relationshipDeltas?: Partial<Record<CharId, number>>
   /** Which run-memory slot this choice writes to (match situations only) */
   runWrite?: 'debut' | 'league' | 'clutch' | 'semi' | 'final'
 }

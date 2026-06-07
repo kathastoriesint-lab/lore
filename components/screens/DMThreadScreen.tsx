@@ -4,6 +4,7 @@ import { useApp } from '@/lib/context'
 import type { CharId, DMMessage } from '@/lib/types'
 import { CHARS, DM_TRUST, DM_QUICK } from '@/lib/data'
 import { CRICKET_CHARS } from '@/lib/cricket-data'
+import { CRICKET_DM_TRUST_START } from '@/lib/cricket-data'
 
 const DM_CAP = 20
 
@@ -27,7 +28,7 @@ const StatusBar = () => (
 )
 
 export default function DMThreadScreen() {
-  const { goBack, showToast, dmChar, dmHistory, dmTrust, sendDM } = useApp()
+  const { goBack, showToast, dmChar, dmHistory, dmTrust, sendDM, game } = useApp()
 
   const allChars = { ...CHARS, ...CRICKET_CHARS }
   const charId = dmChar as CharId | null
@@ -42,8 +43,9 @@ export default function DMThreadScreen() {
 
   // Trust: LLM-scored live value from context, falls back to static default
   const trustVal = charId
-    ? (dmTrust[charId] ?? DM_TRUST[charId] ?? 50)
+    ? (dmTrust[charId] ?? (game.world === 'cricket' ? CRICKET_DM_TRUST_START[charId] : DM_TRUST[charId]) ?? 50)
     : 50
+  const trustBand = trustVal < 30 ? 'LOW' : trustVal < 60 ? 'NORMAL' : 'HIGH'
 
   // Cap / lock state — re-reads localStorage on every render (tick keeps it live)
   const capState = charId ? getDmCap(charId) : { count: 0, lockedUntil: 0 }
@@ -146,7 +148,7 @@ export default function DMThreadScreen() {
       {/* Trust meter — updates live as conversation grows */}
       <div className="dm-trust">
         <div className="tl">
-          <span>TRUST LEVEL</span>
+          <span>TRUST LEVEL · {trustBand}</span>
           <span key={trustVal} style={{ animation:'meterFlash .4s ease-out' }}>{trustVal}%</span>
         </div>
         <div className="bar">

@@ -27,6 +27,30 @@ export const CRICKET_CHARS: Record<string, Character> = {
   mahela: { id:'mahela', name:'Mahela Jayawardene', handle:'mahela2006', cls:'c-mahela',  init:'Mj', fame:85, role:'Head Coach · Selection logic · Role clarity' },
 }
 
+export const CRICKET_DM_TRUST_START: Partial<Record<CharId, number>> = {
+  hardik: 30,
+  rohit: 30,
+  surya: 35,
+  bumrah: 25,
+  tilak: 45,
+  coach: 70,
+  friend: 75,
+  naman: 40,
+  robin: 40,
+  mahela: 25,
+}
+
+export const CRICKET_LOW_TRUST_FEED: Partial<Record<CharId, string>> = {
+  hardik: 'Body language watch from MI training: the captain looked colder than usual around the new kid today. Talent hai, but role discipline ka sawaal abhi open hai.',
+  rohit: 'Quiet Rohit moment caught at nets. No public drama, but the senior did not look fully convinced by the youngster today.',
+  surya: 'Usually Surya keeps every session light. Today the vibe around the new kid looked a little off. Paltan noticed.',
+  bumrah: 'Bumrah rarely reacts, which is exactly why today stood out. The technical conversation with the youngster looked short and serious.',
+  tilak: 'Young table update: the friendly energy around the new MI kid looks slightly complicated now. Competition is normal. Distance is new.',
+  mahela: 'Selection watch: MI staff still rate the talent, but role trust around the youngster looks like a work in progress.',
+  coach: 'Old coach, new pressure. People close to the youngster feel the IPL noise is starting to change the way he listens.',
+  friend: 'Off-field watch: childhood friends do not always fit easily into a sudden IPL life. Something feels a little distant around the new kid.',
+}
+
 // Reusable non-player accounts for authored choice.post objects.
 // Example:
 // post: {

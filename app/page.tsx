@@ -1,14 +1,14 @@
 'use client'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { CharId, DMMessage, GameState, Screen } from '@/lib/types'
-import { AppContext, ImpactNotif } from '@/lib/context'
+import { AppContext, ImpactNotif, RelationshipAlert } from '@/lib/context'
 import {
   applyDeltas, applyFlagDeltas, charMeters, ensureSession, getAIReply, scoreTrustDelta,
   loadDMs, loadGameState, recordChoice, resetGameState, saveDM, saveGameState,
   fameToFollowers, DEFAULT_FLAGS, buildCricketQueue, buildCHQueue,
 } from '@/lib/game'
 import { CHARS, SITUATIONS, DM_MOCK, getVisibleSituations } from '@/lib/data'
-import { CRICKET_CHARS, CRICKET_SITUATIONS } from '@/lib/cricket-data'
+import { CRICKET_CHARS, CRICKET_DM_TRUST_START, CRICKET_LOW_TRUST_FEED, CRICKET_SITUATIONS } from '@/lib/cricket-data'
 import WorldsScreen from '@/components/screens/WorldsScreen'
 import WorldIntroScreen from '@/components/screens/WorldIntroScreen'
 import FeedScreen from '@/components/screens/FeedScreen'
@@ -23,12 +23,44 @@ import CricketIntroScreen from '@/components/screens/CricketIntroScreen'
 import FeedbackButton from '@/components/FeedbackButton'
 import ErrorBoundary from '@/components/ErrorBoundary'
 
+const clampTrust = (n: number) => Math.max(0, Math.min(100, Math.round(n)))
+
+const trustBandFor = (trust: number): 'low' | 'normal' | 'high' => {
+  if (trust < 30) return 'low'
+  if (trust < 60) return 'normal'
+  return 'high'
+}
+
+const trustGuidanceFor = (trust: number, teamTrust?: number) => {
+  const band = trustBandFor(trust)
+  const teamLine = typeof teamTrust === 'number'
+    ? ` Team Trust is ${teamTrust}/100; use it as the dressing-room climate, but keep this character's personal trust primary.`
+    : ''
+  if (band === 'low') {
+    return `Trust band: LOW (<30). Reply colder, shorter, more guarded. Do not reveal private advice, warmth, or vulnerability. If the user is rude, set a boundary or end the chat naturally.${teamLine}`
+  }
+  if (band === 'high') {
+    return `Trust band: HIGH (60+). Reply with earned warmth and specificity. You can reference relevant past choices, give more honest advice, and ask sharper follow-up questions. Do not offer future preference unlocks yet.${teamLine}`
+  }
+  return `Trust band: NORMAL (30-60). Reply professionally and helpfully, but with limited emotional access. Give useful advice without treating the player as inner circle.${teamLine}`
+}
+
+const defaultDmTrustFor = (world: GameState['world'], charId: CharId) => (
+  world === 'cricket' ? (CRICKET_DM_TRUST_START[charId] ?? 50) : 50
+)
+
+const asArray = <T,>(value: T | T[] | null | undefined): T[] => {
+  if (value == null) return []
+  return Array.isArray(value) ? value : [value]
+}
+
 export default function App() {
   const [screen, setScreen] = useState<Screen>('worlds')
   const [navHistory, setNavHistory] = useState<Screen[]>(['worlds'])
   const [phone, setPhone] = useState('')
   const [dmChar, setDmChar] = useState<CharId | null>(null)
   const [dmTrust, setDmTrust] = useState<Record<string, number>>({})
+  const [relationshipAlerts, setRelationshipAlerts] = useState<RelationshipAlert[]>([])
   const [impactNotif, setImpactNotif] = useState<ImpactNotif | null>(null)
 
   const showImpact = useCallback((n: ImpactNotif) => {
@@ -156,10 +188,86 @@ export default function App() {
       flags: DEFAULT_FLAGS, runMemory: {},
       narrator_done: true, dayUnlockTime: {},
     }
+    setDmTrust({ ...CRICKET_DM_TRUST_START })
+    setRelationshipAlerts([])
     saveAndSet(newState)
     if (typeof window !== 'undefined') localStorage.setItem('lore_feed_seen', '1')
     navigate('live')
   }, [game.playerName, game.playerGender, saveAndSet, navigate])
+
+  const queueLowTrustAlert = useCallback((charId: CharId) => {
+    if (game.world !== 'cricket') return
+    const char = CRICKET_CHARS[charId]
+    const caption = CRICKET_LOW_TRUST_FEED[charId]
+    if (!char || !caption) return
+    setRelationshipAlerts(prev => {
+      const id = `low-trust-${charId}`
+      if (prev.some(alert => alert.id === id)) return prev
+      return [{
+        id,
+        charId,
+        handle: 'paltanpulse',
+        caption,
+        createdAt: Date.now(),
+      }, ...prev]
+    })
+  }, [game.world])
+
+  const adjustIndividualTrust = useCallback((charId: CharId, delta: number) => {
+    if (!delta || charId === 'player') return
+    setDmTrust(prev => {
+      const base = prev[charId] ?? defaultDmTrustFor(game.world, charId)
+      const next = clampTrust(base + delta)
+      if (game.world === 'cricket' && base >= 30 && next < 30) queueLowTrustAlert(charId)
+      return { ...prev, [charId]: next }
+    })
+  }, [game.world, queueLowTrustAlert])
+
+  const applyChoiceRelationshipEffects = useCallback((sit: { react?: { char: CharId } | null }, ch: NonNullable<typeof CRICKET_SITUATIONS[number]['choices'][number]>, previousMeters: GameState['meters'], nextMeters: GameState['meters']) => {
+    if (game.world !== 'cricket') return
+    const deltas: Partial<Record<CharId, number>> = {}
+    const add = (id: CharId, delta: number) => {
+      if (!delta || id === 'player') return
+      deltas[id] = (deltas[id] ?? 0) + delta
+    }
+    const touched = new Set<CharId>()
+    if (sit.react?.char) touched.add(sit.react.char)
+    ch.reactions?.forEach(rx => { if (rx.char !== '__fan') touched.add(rx.char) })
+    asArray(ch.dm).forEach(dm => touched.add(dm.char))
+    asArray(ch.post).forEach(post => { if (post.source === 'character' && post.char) touched.add(post.char) })
+    Object.keys(ch.relationshipDeltas ?? {}).forEach(id => touched.add(id as CharId))
+
+    const teamDelta = nextMeters.image - previousMeters.image
+    const formDelta = nextMeters.fame - previousMeters.fame
+    const fameDelta = nextMeters.heat - previousMeters.heat
+    const leadership: CharId[] = ['hardik', 'rohit', 'mahela']
+    const technical: CharId[] = ['rohit', 'bumrah', 'coach', 'mahela']
+    const fameSensitive: CharId[] = ['hardik', 'rohit', 'mahela', 'bumrah']
+
+    if (teamDelta !== 0) {
+      const touchedDelta = teamDelta > 0
+        ? Math.min(3, Math.ceil(teamDelta / 2))
+        : Math.max(-3, Math.floor(teamDelta / 2))
+      touched.forEach(id => add(id, touchedDelta))
+      if (Math.abs(teamDelta) >= 2) leadership.forEach(id => add(id, teamDelta > 0 ? 1 : -1))
+    }
+
+    if (formDelta >= 2) {
+      technical.forEach(id => { if (touched.has(id)) add(id, 1) })
+    }
+    if (fameDelta >= 2 && teamDelta < 0) {
+      fameSensitive.forEach(id => add(id, -1))
+    }
+    if (fameDelta <= -1 && teamDelta > 0) {
+      leadership.forEach(id => add(id, 1))
+    }
+
+    Object.entries(ch.relationshipDeltas ?? {}).forEach(([id, delta]) => {
+      add(id as CharId, delta ?? 0)
+    })
+
+    Object.entries(deltas).forEach(([id, delta]) => adjustIndividualTrust(id as CharId, delta ?? 0))
+  }, [adjustIndividualTrust, game.world])
 
   const advanceSituation = useCallback(() => {
     setGame(prev => {
@@ -202,8 +310,9 @@ export default function App() {
       ? { ...game.runMemory, [`${ch.runWrite}Runs`]: newMeters.fame, [`${ch.runWrite}Balls`]: undefined }
       : game.runMemory
     setGame(prev => ({ ...prev, meters: newMeters, flags: newFlags, choices: newChoices, runMemory: newRunMemory }))
+    applyChoiceRelationshipEffects(sit, ch, game.meters, newMeters)
     await recordChoice(game.situation, letter)
-  }, [game])
+  }, [applyChoiceRelationshipEffects, game])
 
   const openDMThread = useCallback(async (charId: CharId) => {
     setDmChar(charId)
@@ -283,6 +392,8 @@ export default function App() {
     }
 
     const playerName = game.playerName || 'Yaar'
+    const currentTrust = dmTrust[charId] ?? defaultDmTrustFor(game.world, charId)
+    const trustBand = trustBandFor(currentTrust)
     const raw = await getAIReply(charId, contextHistory, playerName, {
       char: game.char,
       meters: game.meters,
@@ -291,7 +402,10 @@ export default function App() {
       world: game.world,
       flags: game.flags,
       story: buildStorySummary() ?? undefined,
-      trustWithChar: dmTrust[charId] ?? 50,
+      trustWithChar: currentTrust,
+      trustBand,
+      trustGuidance: trustGuidanceFor(currentTrust, game.world === 'cricket' ? game.meters.image : undefined),
+      teamTrust: game.world === 'cricket' ? game.meters.image : undefined,
     })
     const CRICKET_MOCK_FALLBACK: Partial<Record<string, string[]>> = {
       hardik: ['Role pe focus rakh. Kya soch raha hai abhi?', 'Execution dikhao. Simple hai na?', 'Theek hai. Kal kya plan hai?'],
@@ -308,15 +422,11 @@ export default function App() {
     setDmHistory(prev => ({ ...prev, [charId]: [...(prev[charId] ?? []), charMsg] }))
     setDmLastUpdated(prev => ({ ...prev, [charId]: Date.now() }))
     saveDM(charId, charMsg).catch(() => {})
-    scoreTrustDelta(charId, text, reply).then(delta => {
+    scoreTrustDelta(charId, text, reply, currentTrust).then(delta => {
       if (delta === 0) return
-      setDmTrust(prev => {
-        const base = prev[charId] ?? 50
-        const next = Math.max(0, Math.min(100, base + delta))
-        return { ...prev, [charId]: next }
-      })
+      adjustIndividualTrust(charId, delta)
     }).catch(() => {})
-  }, [dmHistory, game, dmTrust, getDmCapState, setDmCapState, buildStorySummary])
+  }, [adjustIndividualTrust, dmHistory, game, dmTrust, getDmCapState, setDmCapState, buildStorySummary])
 
   // Like a post — updates player fame + target character's fame (idempotent: no double-like)
   const likePost = useCallback((postId: string, charId: CharId, fameDelta: number) => {
@@ -388,6 +498,8 @@ export default function App() {
     setGame({ playerName: '', playerGender: 'male' as const, world: 'creator-house', char: null, situation: 0, situationQueue: [], choices: [], meters: { fame: 20, heat: 50, image: 30 }, flags: DEFAULT_FLAGS, runMemory: {}, narrator_done: false, dayUnlockTime: {} })
     setDmHistory({})
     setDmLastUpdated({})
+    setDmTrust({})
+    setRelationshipAlerts([])
     navigate('worlds', { replace: true })
   }, [navigate])
 
@@ -403,7 +515,7 @@ export default function App() {
 
   return (
     <AppContext.Provider value={{
-      screen, prevScreen: prev, dmChar, game, dmHistory, dmLastUpdated, dmTrust, charFame, likedPosts, viewingCharId, toast, impactNotif, showImpact,
+      screen, prevScreen: prev, dmChar, game, dmHistory, dmLastUpdated, dmTrust, relationshipAlerts, charFame, likedPosts, viewingCharId, toast, impactNotif, showImpact,
       dmBadgeCount, clearDmBadge,
       phone, setPhone, saveProfile,
       advanceSituation, navigate, goBack, showToast, setChar, startGame, startCricketGame,

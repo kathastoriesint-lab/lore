@@ -198,7 +198,8 @@ export async function saveDM(charId: CharId, msg: DMMessage) {
 export async function scoreTrustDelta(
   charId: CharId,
   playerMessage: string,
-  charReply: string
+  charReply: string,
+  currentTrust?: number
 ): Promise<number> {
   const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!
   const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -212,6 +213,8 @@ export async function scoreTrustDelta(
       body: JSON.stringify({
         mode: 'trust_score',
         character_id: charId,
+        current_trust: currentTrust ?? null,
+        trust_band: currentTrust == null ? null : currentTrust < 30 ? 'low' : currentTrust < 60 ? 'normal' : 'high',
         messages: [
           { role: 'user', content: playerMessage },
           { role: 'assistant', content: charReply },
@@ -231,7 +234,7 @@ export async function getAIReply(
   charId: CharId,
   history: DMMessage[],
   playerName: string,
-  gameState?: { char: string | null; meters: Meters; choices: string[]; situation: number; world?: string; flags?: GameFlags; story?: string; trustWithChar?: number }
+  gameState?: { char: string | null; meters: Meters; choices: string[]; situation: number; world?: string; flags?: GameFlags; story?: string; trustWithChar?: number; trustBand?: 'low' | 'normal' | 'high'; trustGuidance?: string; teamTrust?: number }
 ): Promise<string> {
   const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!
   const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -262,6 +265,9 @@ export async function getAIReply(
         player_flags: gameState?.flags ?? null,
         player_story: gameState?.story ?? null,
         trust_with_char: gameState?.trustWithChar ?? null,
+        trust_band: gameState?.trustBand ?? null,
+        trust_guidance: gameState?.trustGuidance ?? null,
+        team_trust: gameState?.teamTrust ?? null,
         current_day: gameState ? (gameState.world === 'cricket' ? gameState.situation + 1 : Math.ceil((gameState.situation + 1) / 3)) : 1,
       }),
     })

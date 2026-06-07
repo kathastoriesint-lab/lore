@@ -404,7 +404,7 @@ const StatusBar = () => (
 )
 
 export default function FeedScreen() {
-  const { navigate, goBack, showToast, game, likePost, likedPosts, applyFeedDeltas, setViewingChar, dmBadgeCount } = useApp()
+  const { navigate, goBack, showToast, game, likePost, likedPosts, applyFeedDeltas, setViewingChar, dmBadgeCount, relationshipAlerts } = useApp()
   const [commentPost, setCommentPost] = useState<string | null>(null)
   const [commentedPosts, setCommentedPosts] = useState<Set<string>>(new Set())
 
@@ -638,6 +638,43 @@ export default function FeedScreen() {
 
       {/* Scrollable feed */}
       <div className="scroll" style={{ flex: 1 }}>
+
+        {/* Relationship fallout posts — only when an individual trust crosses below 30 */}
+        {isCricket && relationshipAlerts.map((alert, i) => {
+          const timeLabel = i === 0 ? 'just now' : `${i + 1} min ago`
+          return (
+            <div key={alert.id} className="post" style={{ borderTop: '2px solid rgba(255,45,120,.3)', background: 'rgba(255,45,120,.04)' }}>
+              <div className="post-head">
+                <div className="av" style={{ width:34, height:34, fontSize:14, background:'#0047AB' }}>P</div>
+                <div className="post-id">
+                  <div className="h">{alert.handle}</div>
+                  <div className="s" style={{ color: 'var(--accent)' }}>
+                    {postContextLabel('Paltan Pulse · fan page', 'MI Season 1', timeLabel)}
+                  </div>
+                </div>
+                <button className="icon-btn"><svg viewBox="0 0 24 24" width="20" height="20" fill="#fff"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
+              </div>
+              <div
+                className="post-img grain"
+                style={{
+                  background: 'linear-gradient(to bottom, #0047ABbb 0%, #0047AB66 55%, #0a0a18 100%)',
+                  alignItems:'flex-end',
+                }}
+              >
+                <p className="overlay-txt" style={{ fontSize:14, textShadow:'0 1px 8px rgba(0,0,0,.7)' }}>{resolveTokens(alert.caption, game.playerName, game.playerGender)}</p>
+              </div>
+              <div className="post-actions">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+                <div className="spacer" />
+              </div>
+              <div className="likes">{feedLikes(i, isCricket)} likes</div>
+              <div className="caption"><b>{alert.handle}</b> {resolveTokens(alert.caption, game.playerName, game.playerGender)}</div>
+              <div className="ts" style={{ padding:'2px 14px 12px' }}>{timeLabel.toUpperCase()}</div>
+            </div>
+          )
+        })}
 
         {/* Accumulated posts — newest first: player's own posts + NPC reactions */}
         {completedPosts.map((post, i) => {
