@@ -20,8 +20,8 @@ export default function CricketIntroScreen() {
       <div className="wintro-content">
         {/* Badge */}
         <div className="wi-line in">
-          <div className="wi-pre" style={{ color: '#FFB020' }}>
-            <div className="pulse" style={{ background: '#FFB020' }} />
+          <div className="wi-pre" style={{ color: 'var(--fame)' }}>
+            <div className="pulse" style={{ background: 'var(--fame)' }} />
             MUMBAI INDIANS · IPL SEASON 1
           </div>
         </div>
@@ -36,10 +36,10 @@ export default function CricketIntroScreen() {
           <div className="wi-meta" style={{ marginBottom: 0 }}>
             You are a 16-year-old batting prodigy. Mumbai Indians just bought you.
           </div>
-          <div className="wi-drama" style={{ borderLeftColor: '#003087', background: 'rgba(0,48,135,.1)', marginTop: 12 }}>
+          <div className="wi-drama" style={{ borderLeftColor: 'var(--c-rohit, #003087)', background: 'rgba(0,48,135,.1)', marginTop: 12 }}>
             The internet calls you the future. The dressing room asks a simpler question:
             <br /><br />
-            <b style={{ color: '#FFB020' }}>Can you actually play?</b>
+            <b style={{ color: 'var(--fame)' }}>Can you actually play?</b>
           </div>
         </div>
 
@@ -70,9 +70,9 @@ export default function CricketIntroScreen() {
         {/* Meters */}
         <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
           {[
-            { label: '🏏 FORM', color: '#3DD6C8', desc: 'Cricket credibility' },
-            { label: '⭐ FAME', color: '#FFB020', desc: 'Public attention' },
-            { label: '🤝 TRUST', color: '#003087', desc: 'Dressing room belief' },
+            { label: '🏏 FORM', color: 'var(--fame)',  desc: 'Cricket credibility' },
+            { label: '⭐ FAME', color: 'var(--heat)',  desc: 'Public attention' },
+            { label: '🤝 TRUST', color: 'var(--trust)', desc: 'Dressing room belief' },
           ].map(m => (
             <div key={m.label} style={{ flex: 1, background: 'rgba(255,255,255,.05)', borderRadius: 10, padding: '8px 10px' }}>
               <div style={{ fontSize: 9, fontWeight: 800, color: m.color, letterSpacing: '.06em' }}>{m.label}</div>

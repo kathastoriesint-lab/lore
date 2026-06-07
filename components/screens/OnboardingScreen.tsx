@@ -60,15 +60,15 @@ function Card2() {
       {/* Meter bars */}
       <div style={{ width:'100%', display:'flex', flexDirection:'column', gap:14 }}>
         {[
-          { label:'🏏 FORM', color:'#FFB020', val:47, prev:45 },
-          { label:'⭐ FAME',  color:'#FF5C3A', val:54, prev:55 },
-          { label:'🤝 TRUST', color:'#3DD6C8', val:37, prev:35 },
+          { label:'🏏 FORM', color:'var(--fame)',  val:47, prev:45 },
+          { label:'⭐ FAME',  color:'var(--heat)',  val:54, prev:55 },
+          { label:'🤝 TRUST', color:'var(--trust)', val:37, prev:35 },
         ].map(m => (
           <div key={m.label}>
             <div style={{ display:'flex', justifyContent:'space-between', alignItems:'baseline', marginBottom:6 }}>
               <span style={{ fontSize:10, fontWeight:800, letterSpacing:'.06em', color:m.color }}>{m.label}</span>
               <span style={{ fontSize:13, fontWeight:800, color:m.color }}>
-                {m.prev} <span style={{ fontSize:11, color:m.val > m.prev ? '#3DD6C8' : '#FF5C3A', marginLeft:4 }}>{m.val > m.prev ? `+${m.val-m.prev}` : `${m.val-m.prev}`} → {m.val}</span>
+                {m.prev} <span style={{ fontSize:11, color:m.val > m.prev ? 'var(--trust)' : 'var(--heat)', marginLeft:4 }}>{m.val > m.prev ? `+${m.val-m.prev}` : `${m.val-m.prev}`} → {m.val}</span>
               </span>
             </div>
             <div style={{ height:8, borderRadius:4, background:'rgba(255,255,255,.07)', overflow:'hidden' }}>
