@@ -126,14 +126,14 @@ function Card3({
       {/* Name input */}
       <div style={{ marginBottom:20 }}>
         <label style={{ display:'block', fontSize:11, fontWeight:700, letterSpacing:'.1em', color:'rgba(255,255,255,.45)', marginBottom:14 }}>
-          TUMHARA NAAM
+          YOUR NAME
         </label>
         <input
           type="text"
           value={name}
           onChange={e => setName(e.target.value.slice(0,24))}
           onKeyDown={e => { if (e.key === 'Enter') handleSave() }}
-          placeholder="Apna naam likho..."
+          placeholder="Your name..."
           style={{
             width:'100%', boxSizing:'border-box',
             background:'transparent', border:'none', outline:'none',
@@ -148,10 +148,10 @@ function Card3({
       {/* Gender */}
       <div style={{ marginBottom:20 }}>
         <label style={{ display:'block', fontSize:11, fontWeight:700, letterSpacing:'.1em', color:'rgba(255,255,255,.45)', marginBottom:6 }}>
-          TUMHARA ROLE
+          YOUR ROLE
         </label>
         <div style={{ fontSize:12, color:'rgba(255,255,255,.5)', marginBottom:14 }}>
-          Story mein kaunse characters tumse pehle baat karenge.
+          Which characters reach out to you first in the story.
         </div>
         <div style={{ display:'flex', gap:10 }}>
           {(['male','female'] as const).map(g => (
