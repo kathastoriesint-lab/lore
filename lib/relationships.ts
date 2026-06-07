@@ -199,8 +199,9 @@ export function computeBond(
   let latestPost: string | undefined
 
   if (world === 'cricket') {
+    const cricketQueue = CRICKET_SITUATIONS.filter(s => s.id !== 'CR-S28')
     for (let i = 0; i < choices.length; i++) {
-      const sit = CRICKET_SITUATIONS[i]
+      const sit = cricketQueue[i]
       if (!sit) continue
       const letter = choices[i]
       const ch = sit.choices[letter === 'A' ? 0 : 1]

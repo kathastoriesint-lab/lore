@@ -68,11 +68,9 @@ export default function LiveScreen() {
   const sit = queue[situation] ? allSituations[queue[situation]] ?? null : null
   const isFinale = situation >= queue.length
 
-  // Day-lock: detect if next situation is in a future day that hasn't unlocked yet
+  // Day-lock disabled for user testing (restore check for prod)
   const prevSit = situation > 0 && queue[situation - 1] ? allSituations[queue[situation - 1]] ?? null : null
-  const isDayLocked = sit && prevSit && sit.day > prevSit.day &&
-    game.dayUnlockTime[sit.day] != null &&
-    game.dayUnlockTime[sit.day] > Date.now()
+  const isDayLocked = false
 
   // Countdown timer for locked day
   const [countdown, setCountdown] = useState('')
@@ -713,7 +711,9 @@ export default function LiveScreen() {
                     if (!postOwner) return null
                     const hasRealPost = !!postSpec.caption && !postSpec.caption.startsWith('*(')
                     const postReactions = postSpec.reactions ?? []
-                    const postBg = `linear-gradient(to bottom, ${postOwner.color}bb 0%, ${postOwner.color}66 55%, #0a0a18 100%)`
+                    const postBg = postSpec.imageUrl
+                      ? `linear-gradient(to bottom, rgba(0,0,0,.04) 0%, rgba(0,0,0,.12) 52%, rgba(0,0,0,.62) 100%), url(${postSpec.imageUrl}) center/cover`
+                      : `linear-gradient(to bottom, ${postOwner.color}bb 0%, ${postOwner.color}66 55%, #0a0a18 100%)`
                     return (
                       <div key={`${displaySit!.id}-${chosen}-${postIndex}`} style={{ marginTop: 12, background: '#0f0f18', borderRadius: 16, overflow: 'hidden', border: '1px solid rgba(255,255,255,.07)', animation: 'slideUp .4s cubic-bezier(.32,.72,0,1) both' }}>
                         {/* Post header */}

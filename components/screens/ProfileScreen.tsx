@@ -190,7 +190,7 @@ export default function ProfileScreen() {
   // Player's own posts from choices
   const posts = useMemo(() => {
     if (game.choices.length === 0) return []
-    const start = isCricket ? { fame: 45, heat: 55, image: 35 } : { fame: 20, heat: 50, image: 30 }
+    const start = isCricket ? { fame: 40, heat: 25, image: 20 } : { fame: 20, heat: 50, image: 30 }
     let meters = { ...start }
     const result: { caption: string }[] = []
     for (let i = 0; i < game.choices.length; i++) {

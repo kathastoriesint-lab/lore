@@ -8,7 +8,7 @@
  *   heat  = Fame  ⭐
  *   image = Team Trust 🤝
  *
- * Starting meters: Form 45 · Fame 55 · Team Trust 35
+ * Starting meters: Form 40 · Fame 25 · Team Trust 20
  * Delta notation in source: Fo = Form, Fa = Fame, TT = Team Trust
  */
 
@@ -80,7 +80,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         t:'Phone side pe rakho, family ke saath raho',
         s:'Yeh pehle ghar ka pal hai. Internet baad mein.',
-        deltas:{ fame:1, heat:-1, image:2 },
+        deltas:{ fame:0, heat:-1, image:2 },
         post:{
           source:'account',
           ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
@@ -99,7 +99,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         t:'Emotional MI story post karo',
         s:'Moment bada hai. Duniya ko pata chalna chahiye ki tum aa gaye ho.',
-        deltas:{ fame:0, heat:5, image:-1 },
+        deltas:{ fame:0, heat:2, image:-1 },
         post:[
           {
             source:'account',
@@ -147,7 +147,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         t:'Read the room — pehle observe karo',
         s:'Senior room hai. Pehle rhythm samjho, phir apni jagah banao.',
-        deltas:{ fame:1, heat:-1, image:3 },
+        deltas:{ fame:1, heat:-1, image:2 },
         post:[
           {
             source:'player',
@@ -182,7 +182,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         t:'Energy dikhao — sabse quickly bond karo',
         s:'Agar room mein jagah leni hai, toh invisible mat raho.',
-        deltas:{ fame:0, heat:2, image:1 },
+        deltas:{ fame:0, heat:1, image:0 },
         post:[
           {
             source:'player',
@@ -204,6 +204,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
             source:'account',
             ...CRICKET_SOCIAL_ACCOUNTS.paltanPulse,
             display:'feed-only',
+            imageUrl:'/generated/cricket-posts/cr-s2-paltanpulse.png',
             caption:'First training visuals are out. The new kid looks excited, not overwhelmed. Paltan timeline is already asking for more clips.',
           },
         ],
@@ -237,7 +238,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         t:'Defend karo, seekho, poochho kya miss hua',
         s:'Publicly beaten hona embarrassing hai. Par information yahi hai.',
-        deltas:{ fame:4, heat:-1, image:4 },
+        deltas:{ fame:3, heat:-1, image:2 },
         post:{
           source:'player',
           caption:'Bumrah bhai ko saamne se dekh ke samjha: best player sirf ball nahi daalta, poora problem solve karwata hai. Learning from the best. 🏏',
@@ -252,7 +253,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         t:'Charge karo — statement shot maaro',
         s:'Agar sab dekh rahe hain, toh sabko dikhna bhi chahiye.',
-        deltas:{ fame:-2, heat:4, image:-3 },
+        deltas:{ fame:-2, heat:2, image:-2 },
         post:{
           source:'player',
           caption:'Tried to take on Bumrah bhai and got the real lesson: best player wahi hai jo intent ko bhi test bana deta hai. Respect. 🏏',
@@ -287,7 +288,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         t:'360 shots try karo — range dikhao',
         s:'Yeh chance hai Surya ko dikhane ka ki tum boring nahi ho.',
-        deltas:{ fame:1, heat:4, image:-1 },
+        deltas:{ fame:1, heat:2, image:-1 },
         caption:'Learning angles from the best. Some shots you don\'t copy, you earn. 😄🏏',
         reactions:[
           { char:'surya', text:'Energy mast. Ab next time ball bhi choose kar lena champion.' },
@@ -299,7 +300,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         t:'Poochho kaunsi ball pe kaunsa shot',
         s:'Shot nahi, decision seekho.',
-        deltas:{ fame:4, heat:1, image:3 },
+        deltas:{ fame:3, heat:0, image:2 },
         caption:'Aaj samjha: shot se pehle field padhna padta hai. T20 is not random. 🧠🏏',
         reactions:[
           { char:'surya', text:'Good question. Isliye tu seekhega fast.' },
@@ -332,7 +333,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         t:'Seedha poochho — tempo kaise build karun?',
         s:'Senior ne door khola hai. Ego leke khade mat raho.',
-        deltas:{ fame:3, heat:-1, image:4 },
+        deltas:{ fame:3, heat:-1, image:2 },
         post:{
           source:'account',
           ...CRICKET_SOCIAL_ACCOUNTS.paltanPulse,
@@ -353,7 +354,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         t:'Confident laugh — pressure nahi hai dikhao',
         s:'Nervous nahi lagna. Senior ko over-respect bhi weakness lag sakta hai.',
-        deltas:{ fame:0, heat:2, image:-1 },
+        deltas:{ fame:0, heat:1, image:-1 },
         post:{
           source:'account',
           ...CRICKET_SOCIAL_ACCOUNTS.paltanPulse,
@@ -394,7 +395,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         t:'Accept karo — team jahan bole, wahan bat karunga',
         s:'Agar MI ko role chahiye, toh role do. Trust yahin banta hai.',
-        deltas:{ fame:2, heat:-1, image:5 },
+        deltas:{ fame:1, heat:-1, image:3 },
         caption:'Role clarity. Team first. Ready whenever needed. 💙',
         reactions:[
           { char:'hardik', text:'Good. Yeh answer vague nahi tha.' },
@@ -406,7 +407,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         t:'Bol do opening tumhara best use hai',
         s:'Agar tum apni strength nahi bologe, kaun bolega?',
-        deltas:{ fame:1, heat:3, image:-4 },
+        deltas:{ fame:1, heat:2, image:-3 },
         caption:'Clarity matters. I know my game. I know where I can impact. 🏏',
         reactions:[
           { char:'hardik', text:'Fair. Bas team sheet individual comfort se nahi banti.' },
@@ -439,7 +440,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         t:'Sponsor reel shoot karo',
         s:'Visibility bhi career ka part hai. MI social team bhi team ka part hai.',
-        deltas:{ fame:-3, heat:6, image:-3 },
+        deltas:{ fame:-2, heat:3, image:-2 },
         caption:'First matchweek with MI. Grateful for every moment. Big things loading. 💙',
         reactions:[
           { char:'surya', text:'Reel clean tha. Bas kal timing bhi clean rakhna 😄' },
@@ -451,7 +452,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         t:'Extra nets lo — Bumrah ka over',
         s:'Reel wait karegi. Slower ball nahi.',
-        deltas:{ fame:4, heat:-2, image:4 },
+        deltas:{ fame:3, heat:-1, image:2 },
         caption:'Phone kit bag mein raha. Nets mein tha. 🏏',
         reactions:[
           { char:'bumrah', text:'Better. Still early on the slower one, but better.' },
@@ -483,7 +484,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         t:'Congratulate karo aur poochho kya socha tha',
         s:'Benchmark se jalna easy hai. Usse seekhna useful hai.',
-        deltas:{ fame:3, heat:-1, image:3 },
+        deltas:{ fame:2, heat:-1, image:2 },
         post:{
           source:'player',
           caption:'Tilak bhai ka finish dekh ke samjha: good shots alag cheez hain, right situation mein right shot alag. Public praise because this was a lesson. 💙',
@@ -504,7 +505,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         t:'Personal lo aur late tak akela train karo',
         s:'Agar trust nahi mil raha, toh extra work se lo.',
-        deltas:{ fame:2, heat:1, image:-2 },
+        deltas:{ fame:2, heat:1, image:-1 },
         post:{
           source:'account',
           ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
@@ -546,7 +547,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         t:'Stay ready — drills, drinks, full involvement',
         s:'Playing XI nahi, par team se bahar bhi nahi.',
-        deltas:{ fame:2, heat:-1, image:5 },
+        deltas:{ fame:1, heat:-1, image:3 },
         post:{
           source:'player',
           caption:'Not in the XI yet, but drills, drinks, fielding, energy — full involvement. Bench phase bhi team ka part hai. 💙',
@@ -567,7 +568,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         t:'Fan posts like karo — public pressure bolne do',
         s:'Agar fans sach bol rahe hain, toh unhe ignore kyun karein?',
-        deltas:{ fame:0, heat:5, image:-4 },
+        deltas:{ fame:0, heat:3, image:-3 },
         post:{
           source:'account',
           ...CRICKET_SOCIAL_ACCOUNTS.paltanPulse,
@@ -610,7 +611,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         t:'Weakness admit karo, plan maango',
         s:'Sach bolna short-term uncomfortable hai. Long-term useful.',
-        deltas:{ fame:4, heat:-1, image:4 },
+        deltas:{ fame:3, heat:-1, image:2 },
         caption:'Weakness naam dene se chhoti ho jaati hai. Ignore karne se badi. 🏏',
         reactions:[
           { char:'mahela', text:'Good. Now we can work.' },
@@ -622,7 +623,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         t:'Bol do ready ho kisi bhi matchup ke liye',
         s:'Opportunity ke pehle doubt dikhana dangerous lagta hai.',
-        deltas:{ fame:0, heat:2, image:-3 },
+        deltas:{ fame:0, heat:1, image:-2 },
         caption:'Ready for whatever comes. That\'s the job. 🏏',
         reactions:[
           { char:'mahela', text:'Confidence noted. Plan still needed.' },
@@ -653,7 +654,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         t:'"Wherever the team needs"',
         s:'Role fluid hai. Tum bhi fluid ho.',
-        deltas:{ fame:2, heat:0, image:5 },
+        deltas:{ fame:1, heat:0, image:3 },
         caption:'If the chance comes, the role is simple: do what the team needs. 💙',
         reactions:[
           { char:'hardik', text:'Good. Clear.' },
@@ -665,7 +666,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         t:'Top-order chance maango',
         s:'Agar debut hai, toh best chance bhi hona chahiye.',
-        deltas:{ fame:1, heat:3, image:-2 },
+        deltas:{ fame:1, heat:2, image:-2 },
         caption:'Big stages need clear roles. I know where I can impact. 🏏',
         reactions:[
           { char:'hardik', text:'Noted. Team balance bhi noted.' },
@@ -697,13 +698,13 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         t:'Build the chase — gap mein do lo',
         s:'Moment bada hai. Ball utni badi nahi.',
-        deltas:{ fame:6, heat:2, image:5 },
+        deltas:{ fame:4, heat:1, image:3 },
         outcomeGate:{
           metric:'fame',
-          threshold:60,
+          threshold:52,
           pass:{
             title:'YOU PLAYED WELL',
-            note:'Your Form is above 60, so the first-ball nerves settle quickly. You watch the pace-off ball, find the gap, and the debut starts with control.',
+            note:'Your Form is above 52, so the first-ball nerves settle quickly. You watch the pace-off ball, find the gap, and the debut starts with control.',
             post:{
               source:'account',
               ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
@@ -717,7 +718,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
           },
           fail:{
             title:'OUT EARLY',
-            note:'Your Form is below 60, and it shows under lights. The shot starts before the read is complete. Early edge, short stay. Poor Form has caught up at the worst time.',
+            note:'Your Form is 52 or below, and it shows under lights. The shot starts before the read is complete. Early edge, short stay. Poor Form has caught up at the worst time.',
             post:{
               source:'account',
               ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
@@ -740,13 +741,13 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         t:'Big shot early — announce yourself',
         s:'Wankhede ko yaad rehna chahiye ki tum aaye the.',
-        deltas:{ fame:2, heat:7, image:-2 },
+        deltas:{ fame:1, heat:3, image:-2 },
         outcomeGate:{
           metric:'fame',
-          threshold:60,
+          threshold:52,
           pass:{
             title:'YOU PLAYED WELL',
-            note:'Your Form is above 60, so the aggressive option comes from timing, not panic. You clear the infield and Wankhede finally learns your name.',
+            note:'Your Form is above 52, so the aggressive option comes from timing, not panic. You clear the infield and Wankhede finally learns your name.',
             post:{
               source:'account',
               ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
@@ -760,7 +761,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
           },
           fail:{
             title:'OUT EARLY',
-            note:'Your Form is below 60, so the big shot becomes a guess. The crowd rises, the ball hangs, and the fielder settles under it. Early wicket because the base was not ready.',
+            note:'Your Form is 52 or below, so the big shot becomes a guess. The crowd rises, the ball hangs, and the fielder settles under it. Early wicket because the base was not ready.',
             post:{
               source:'account',
               ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
@@ -803,7 +804,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         t:'Team seniors ko message, recovery, then phone',
         s:'Public moment hai. Par dressing room routine pe chalta hai.',
-        deltas:{ fame:1, heat:1, image:4 },
+        deltas:{ fame:0, heat:0, image:3 },
         post:[
           {
             source:'character',
@@ -850,7 +851,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         t:'Cinematic celebration reel post karo',
         s:'Yeh moment dobara nahi aayega. Own it.',
-        deltas:{ fame:0, heat:6, image:-3 },
+        deltas:{ fame:0, heat:3, image:-2 },
         post:[
           {
             source:'character',
@@ -917,7 +918,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         t:'Honest answer do, brand ko natural rakho',
         s:'Emotion real rakho. Sponsor line ko plastic mat banao.',
-        deltas:{ fame:3, heat:1, image:4 },
+        deltas:{ fame:1, heat:1, image:2 },
         post:{
           source:'account',
           ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
@@ -937,7 +938,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         t:'Big emotional quote do, brand line push karo',
         s:'Interview bhi moment hai. Clip banana hai.',
-        deltas:{ fame:-1, heat:5, image:-2 },
+        deltas:{ fame:-1, heat:3, image:-2 },
         post:{
           source:'account',
           ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
@@ -977,7 +978,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         t:'Specific mistakes accept karo',
         s:'Score se zyada process dikhao. Seniors ko yeh language samajh aati hai.',
-        deltas:{ fame:3, heat:-1, image:4 },
+        deltas:{ fame:2, heat:-1, image:2 },
         caption:'Kal ki innings kal ki thi. Aaj ka session aaj ka hai. 🏏',
         reactions:[
           { char:'mahela', text:'Good. That is useful feedback.' },
@@ -989,7 +990,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         t:'Positive spin rakho — confidence project karo',
         s:'Young player ko doubt dikhana dangerous lag sakta hai.',
-        deltas:{ fame:0, heat:3, image:-2 },
+        deltas:{ fame:0, heat:1, image:-1 },
         caption:'First one done. Took lessons. Still backing my game. 🏏',
         reactions:[
           { char:'hardik', text:'Backing game is fine. Naming gaps is better.' },
@@ -1020,7 +1021,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         t:'Young Table ke saath raho',
         s:'Dressing room trust sirf runs se nahi, time se bhi banta hai.',
-        deltas:{ fame:-1, heat:0, image:4 },
+        deltas:{ fame:0, heat:0, image:2 },
         caption:'Squad time. 💙',
         reactions:[
           { char:'naman', text:'Finally prodigy normal nikla.' },
@@ -1068,7 +1069,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         t:'Sign quietly, practice first',
         s:'Deal ho gaya. Announcement simple rakho, schedule untouched.',
-        deltas:{ fame:1, heat:4, image:0 },
+        deltas:{ fame:0, heat:2, image:1 },
         post:{
           source:'player',
           caption:'Proud to partner with StrikePro Cricket. Same bat, bigger responsibility. Work continues. 🏏 #StrikePro',
@@ -1083,7 +1084,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         t:'Lean into the launch',
         s:'Sponsor post polished rakho. Moment ko professional banaao.',
-        deltas:{ fame:1, heat:4, image:0 },
+        deltas:{ fame:0, heat:2, image:-1 },
         post:{
           source:'player',
           caption:'Proud to partner with StrikePro Cricket. Same bat, bigger responsibility. Work continues. 🏏 #StrikePro',
@@ -1116,7 +1117,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         t:'Pitch accept karo, gaps mein build karo',
         s:'Ugly runs bhi runs hote hain. Especially away.',
-        deltas:{ fame:5, heat:-1, image:4 },
+        deltas:{ fame:3, heat:-1, image:2 },
         post:{
           source:'account',
           ...CRICKET_SOCIAL_ACCOUNTS.paltanPulse,
@@ -1137,7 +1138,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         t:'Spinner ko pressure mein daalo',
         s:'Dot balls se pressure ban raha hai. Ek over palatna padega.',
-        deltas:{ fame:1, heat:5, image:-2 },
+        deltas:{ fame:1, heat:2, image:-2 },
         post:{
           source:'account',
           ...CRICKET_SOCIAL_ACCOUNTS.futurexi,
@@ -1176,7 +1177,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         t:'"Runs aaye, par loss zyada feel ho raha hai"',
         s:'Apna score side mein rakho. Team result pe baat karo.',
-        deltas:{ fame:3, heat:-2, image:3 },
+        deltas:{ fame:2, heat:-1, image:2 },
         post:{
           source:'character',
           char:'rohit',
@@ -1196,7 +1197,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         t:'"Mujhe lag raha hai meri innings waste ho gayi"',
         s:'Emotion real hai. Rohit ko batao.',
-        deltas:{ fame:0, heat:4, image:-2 },
+        deltas:{ fame:0, heat:2, image:-2 },
         post:{
           source:'character',
           char:'rohit',
@@ -1234,7 +1235,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         t:'Analysis clips dekho',
         s:'Boring hours. Useful hours.',
-        deltas:{ fame:3, heat:-1, image:3 },
+        deltas:{ fame:2, heat:-1, image:1 },
         post:{
           source:'account',
           ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
@@ -1251,7 +1252,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         t:'Young Table ke saath bond karo',
         s:'Season long hai. Room mein apne log bhi chahiye.',
-        deltas:{ fame:-1, heat:1, image:3 },
+        deltas:{ fame:-1, heat:0, image:2 },
         post:{
           source:'account',
           ...CRICKET_SOCIAL_ACCOUNTS.paltanPulse,
@@ -1286,7 +1287,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         t:'Sach bolo — darr lagta hai, par practice help karti hai',
         s:'Honest answer brand-safe bhi ho sakta hai, bas plastic nahi.',
-        deltas:{ fame:2, heat:1, image:3 },
+        deltas:{ fame:1, heat:1, image:2 },
         caption:'Best question today came from the smallest helmet in the room. Fear is real. Practice helps. 💙',
         reactions:[
           { char:'coach', text:'Achha jawab. Bachche ko jhooth nahi bola.' },
@@ -1297,7 +1298,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         t:'Star answer do — no fear, only confidence',
         s:'Kids ko hero chahiye. Hero bano.',
-        deltas:{ fame:-1, heat:4, image:-2 },
+        deltas:{ fame:-1, heat:2, image:-2 },
         caption:'No fear when you love the game. 💙',
         reactions:[
           { char:'rohit', text:'Fear nahi bolna easy hai. Handle karna hard.' },
@@ -1327,7 +1328,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         t:'Game deep le jao, matchups target karo',
         s:'Ek over aur. Right bowler, right ball.',
-        deltas:{ fame:5, heat:2, image:5 },
+        deltas:{ fame:3, heat:1, image:3 },
         post:[
           {
             source:'account',
@@ -1365,7 +1366,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         t:'Abhi over palto — early boundary dhoondo',
         s:'Pressure bowler pe daalo. Wait karoge toh equation tumhe kha jaayegi.',
-        deltas:{ fame:1, heat:6, image:-2 },
+        deltas:{ fame:1, heat:3, image:-2 },
         post:[
           {
             source:'account',
@@ -1413,7 +1414,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         t:'Keep it team-first',
         s:'Brand post mein win aur MI ko center rakho.',
-        deltas:{ fame:1, heat:4, image:1 },
+        deltas:{ fame:0, heat:2, image:1 },
         post:{
           source:'player',
           caption:'Built for the finish. Proud to announce my match-week partnership with StrikePro Cricket after a special win for MI. Work continues. 🏏 #StrikePro',
@@ -1428,7 +1429,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         t:'Own the match-winner tag',
         s:'Campaign line bold rakho: built for the finish.',
-        deltas:{ fame:1, heat:4, image:1 },
+        deltas:{ fame:0, heat:2, image:-1 },
         post:{
           source:'player',
           caption:'Built for the finish. Proud to announce my match-week partnership with StrikePro Cricket after a special win for MI. Work continues. 🏏 #StrikePro',
@@ -1461,7 +1462,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         t:'MI role pe focus rakho',
         s:'Future ke chakkar mein present mat kho.',
-        deltas:{ fame:2, heat:-2, image:4 },
+        deltas:{ fame:1, heat:-1, image:3 },
         post:{
           source:'account',
           ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
@@ -1482,7 +1483,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         t:'Dream accept karo — India is the goal',
         s:'Sapna chhupana kyun? Har player ka goal wahi hai.',
-        deltas:{ fame:0, heat:5, image:-2 },
+        deltas:{ fame:0, heat:3, image:-2 },
         post:{
           source:'account',
           ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
@@ -1521,10 +1522,10 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         t:'Do plans banao — attack aur hold dono',
         s:'Flexibility boring prep hai, exciting payoff.',
-        deltas:{ fame:4, heat:-1, image:4 },
+        deltas:{ fame:3, heat:-1, image:3 },
         outcomeGate:{
           metric:'fame',
-          threshold:70,
+          threshold:64,
           pass:{
             title:'MATCH WON',
             note:'Your Form is strong, and the two-plan preparation pays off. You read the chase correctly, switch gears, and win it for MI.',
@@ -1563,10 +1564,10 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         t:'Attack role demand karo',
         s:'NRR game mein conservative player yaad nahi rehta.',
-        deltas:{ fame:1, heat:4, image:-2 },
+        deltas:{ fame:1, heat:2, image:-2 },
         outcomeGate:{
           metric:'fame',
-          threshold:70,
+          threshold:64,
           pass:{
             title:'MATCH WON',
             note:'Your Form is high enough to back the attacking call. You find the early boundary, break the equation, and MI win because of your intent.',
@@ -1623,10 +1624,10 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         t:'Anchor karo, match ko 18th over tak le jao',
         s:'Bada shot baad mein. Pehle game zinda.',
-        deltas:{ fame:6, heat:1, image:6 },
+        deltas:{ fame:4, heat:0, image:3 },
         outcomeGate:{
           metric:'fame',
-          threshold:75,
+          threshold:66,
           pass:{
             title:'FINAL MEIN MI',
             note:'Your Form is high enough for knockout control. You hold the chase together, and MI reach the final because of your innings.',
@@ -1664,10 +1665,10 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         t:'Counterattack karo — pressure wapas bhejo',
         s:'Semi-final mein momentum wait nahi karta.',
-        deltas:{ fame:2, heat:7, image:-3 },
+        deltas:{ fame:2, heat:3, image:-2 },
         outcomeGate:{
           metric:'fame',
-          threshold:75,
+          threshold:66,
           pass:{
             title:'FINAL MEIN MI',
             note:'Your Form is high, so the counterattack lands. You flip the semi-final pressure and become the reason MI reach the final.',
@@ -1725,7 +1726,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         t:'Reset karo — final ko new game treat karo',
         s:'Hero bhi zero se start karta hai. Failure bhi.',
-        deltas:{ fame:3, heat:-2, image:4 },
+        deltas:{ fame:2, heat:-1, image:2 },
         caption:'One more game. Reset. 💙',
         reactions:[
           { char:'hardik', text:'Good. Reset matters.' },
@@ -1736,7 +1737,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         t:'Emotion ride karo — final hype build karo',
         s:'Momentum ko bottle nahi karte. Use amplify karte hain.',
-        deltas:{ fame:0, heat:5, image:-2 },
+        deltas:{ fame:0, heat:2, image:-2 },
         caption:'Final. One more night. One more chance. 💙🔥',
         reactions:[
           { char:'friend', text:'Bro your caption made my entire building ask me for tickets.' },
@@ -1804,7 +1805,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         t:'Trophy pehle — strike rotate, win close karo',
         s:'Hundred wait karega. Trophy nahi.',
-        deltas:{ fame:7, heat:3, image:10 },
+        deltas:{ fame:4, heat:1, image:5 },
         post:{
           source:'account',
           ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
@@ -1829,7 +1830,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         t:'Hundred ke liye jao — personal milestone lo',
         s:'Final hundred history hota hai. Shot hai. Naam amar ho sakta hai.',
-        deltas:{ fame:2, heat:9, image:-5 },
+        deltas:{ fame:1, heat:4, image:-4 },
         post:{
           source:'account',
           ...CRICKET_SOCIAL_ACCOUNTS.paltanPulse,
@@ -1868,7 +1869,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         t:'Team-first note, private calls, quiet close',
         s:'Trophy ya heartbreak, dono team ke saath close karo.',
-        deltas:{ fame:2, heat:-2, image:6 },
+        deltas:{ fame:1, heat:-1, image:3 },
         post:{
           source:'account',
           ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
@@ -1889,7 +1890,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         t:'Cinematic season reel — own the story',
         s:'Yeh tumhara season bhi tha. Public ko ending do.',
-        deltas:{ fame:0, heat:8, image:-4 },
+        deltas:{ fame:0, heat:3, image:-3 },
         post:{
           source:'account',
           ...CRICKET_SOCIAL_ACCOUNTS.paltanPulse,
@@ -1917,17 +1918,17 @@ export const CRICKET_SITUATIONS: Situation[] = [
 
 // Ending resolver for cricket world
 // Slot mapping: fame=Form 🏏, heat=Fame ⭐, image=Team Trust 🤝
-// Thresholds lowered so endings are reachable from starting meters (Form 45, Fame 55, Trust 35).
-// ~30 situations × avg net +3 per meter = realistic range of 70-80 by finale.
+// Tuned for tradeoffs from Form 40 · Fame 25 · Team Trust 20.
+// Resolver priority keeps one final ending even when a path has mixed signals.
 export function resolveCricketEnding(m: import('./types').Meters): 'realDeal' | 'captainsProject' | 'paltanWonderkid' | 'tooMuchTooSoon' | 'quietClimber' {
+  // Too Much Too Soon: public Fame outruns cricket credibility and dressing-room trust.
+  if (m.heat >= 54 && m.image < 26 && m.fame < 68) return 'tooMuchTooSoon'
+  // Paltan Wonderkid: public Fame clearly outruns dressing-room Trust.
+  if (m.heat >= 53 && m.heat >= m.image + 14) return 'paltanWonderkid'
+  // Captain's Project: Trust is strong enough that the dressing room backs the project.
+  if (m.image >= 38 && m.image >= m.heat - 8 && m.image >= m.fame - 35) return 'captainsProject'
   // Real Deal: Form is the dominant meter (cricket credibility wins)
-  if (m.fame >= 70 && m.fame >= m.heat && m.fame >= m.image) return 'realDeal'
-  // Captain's Project: Trust is dominant (dressing room belief wins)
-  if (m.image >= 68 && m.image >= m.fame && m.image >= m.heat) return 'captainsProject'
-  // Paltan Wonderkid: Fame clearly dominant over Trust (fan favourite)
-  if (m.heat >= 70 && m.heat > m.image + 8) return 'paltanWonderkid'
-  // Too Much Too Soon: high Fame but Trust lagging badly
-  if (m.heat >= 62 && m.image < 50) return 'tooMuchTooSoon'
+  if (m.fame >= 70 && m.fame >= m.heat + 14 && m.fame >= m.image + 28) return 'realDeal'
   return 'quietClimber'
 }
 

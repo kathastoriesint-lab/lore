@@ -103,6 +103,8 @@ export interface ChoicePost {
   surface?: 'post' | 'story' | 'scorecard' | 'news' | 'live' | 'dm' | 'note'
   /** Where this authored post appears. Default: both live preview and feed. */
   display?: 'live-and-feed' | 'live-only' | 'feed-only'
+  /** Optional real image asset served from /public. */
+  imageUrl?: string
   caption: string
   reactions?: Reaction[]
 }

@@ -8,7 +8,7 @@ import {
   fameToFollowers, DEFAULT_FLAGS, buildCricketQueue, buildCHQueue,
 } from '@/lib/game'
 import { CHARS, SITUATIONS, DM_MOCK, getVisibleSituations } from '@/lib/data'
-import { CRICKET_SITUATIONS } from '@/lib/cricket-data'
+import { CRICKET_CHARS, CRICKET_SITUATIONS } from '@/lib/cricket-data'
 import WorldsScreen from '@/components/screens/WorldsScreen'
 import WorldIntroScreen from '@/components/screens/WorldIntroScreen'
 import FeedScreen from '@/components/screens/FeedScreen'
@@ -152,7 +152,7 @@ export default function App() {
       playerName: game.playerName, playerGender: game.playerGender,
       world: 'cricket', char: 'player',
       situation: 0, situationQueue: buildCricketQueue(), choices: [],
-      meters: { fame: 45, heat: 55, image: 35 },
+      meters: { fame: 40, heat: 25, image: 20 },
       flags: DEFAULT_FLAGS, runMemory: {},
       narrator_done: true, dayUnlockTime: {},
     }
@@ -173,8 +173,8 @@ export default function App() {
       const currentSit = sitMap[queue[prev.situation]]
       const nextSit    = sitMap[queue[nextIdx]]
       const newUnlockTime = { ...prev.dayUnlockTime }
-      // Day gate: 15 minutes between days
-      const gateMs = 15 * 60 * 1000
+      // Day gate: disabled for user testing (restore to 6 * 60 * 60 * 1000 for prod)
+      const gateMs = 0
       if (nextSit && currentSit && nextSit.day > currentSit.day && !newUnlockTime[nextSit.day]) {
         newUnlockTime[nextSit.day] = Date.now() + gateMs
       }
@@ -225,32 +225,89 @@ export default function App() {
     }
   }, [navigate])
 
+  // ── DM cap helpers (localStorage-backed, 20 msgs → 6h lock) ─────────────
+  const DM_CAP = 20
+  const DM_LOCK_MS = 6 * 60 * 60 * 1000
+
+  const getDmCapState = useCallback((cid: string) => {
+    try {
+      const raw = localStorage.getItem('lore_dm_cap')
+      const all = raw ? JSON.parse(raw) : {}
+      return (all[cid] ?? { count: 0, lockedUntil: 0 }) as { count: number; lockedUntil: number }
+    } catch { return { count: 0, lockedUntil: 0 } }
+  }, [])
+
+  const setDmCapState = useCallback((cid: string, next: { count: number; lockedUntil: number }) => {
+    try {
+      const raw = localStorage.getItem('lore_dm_cap')
+      const all = raw ? JSON.parse(raw) : {}
+      localStorage.setItem('lore_dm_cap', JSON.stringify({ ...all, [cid]: next }))
+    } catch {}
+  }, [])
+
+  // Build a brief narrative summary of the player's journey so far
+  const buildStorySummary = useCallback(() => {
+    if (game.world !== 'cricket' || game.choices.length === 0) return null
+    const sitMap = Object.fromEntries(CRICKET_SITUATIONS.map(s => [s.id, s]))
+    const lines: string[] = []
+    const queue = game.situationQueue
+    game.choices.forEach((letter, idx) => {
+      const sitId = queue[idx]
+      const sit = sitId ? sitMap[sitId] : null
+      if (!sit) return
+      const choiceIdx = letter === 'A' ? 0 : 1
+      const choice = sit.choices[choiceIdx]
+      if (!choice) return
+      lines.push(`- ${sit.title}: chose "${choice.t.slice(0, 60)}"`)
+    })
+    return lines.length > 0 ? lines.join('\n') : null
+  }, [game.world, game.choices, game.situationQueue])
+
   const sendDM = useCallback(async (charId: CharId, text: string) => {
+    // Cap check — block if locked
+    const capState = getDmCapState(charId)
+    if (capState.lockedUntil > Date.now()) return
+
     const userMsg: DMMessage = { role: 'me', text }
     const contextHistory = [...(dmHistory[charId] ?? []), userMsg]
     setDmHistory(prev => ({ ...prev, [charId]: [...(prev[charId] ?? []), userMsg] }))
     setDmLastUpdated(prev => ({ ...prev, [charId]: Date.now() }))
     saveDM(charId, userMsg).catch(() => {})
+
+    // Increment cap count; lock if limit hit
+    const newCount = capState.count + 1
+    if (newCount >= DM_CAP) {
+      setDmCapState(charId, { count: newCount, lockedUntil: Date.now() + DM_LOCK_MS })
+    } else {
+      setDmCapState(charId, { count: newCount, lockedUntil: 0 })
+    }
+
     const playerName = game.playerName || 'Yaar'
     const raw = await getAIReply(charId, contextHistory, playerName, {
-      char: game.char, meters: game.meters, choices: game.choices, situation: game.situation, world: game.world,
+      char: game.char,
+      meters: game.meters,
+      choices: game.choices,
+      situation: game.situation,
+      world: game.world,
+      flags: game.flags,
+      story: buildStorySummary() ?? undefined,
+      trustWithChar: dmTrust[charId] ?? 50,
     })
     const CRICKET_MOCK_FALLBACK: Partial<Record<string, string[]>> = {
-      hardik: ['Role pe focus rakh.', 'Execution dikhao.', 'Theek hai. Kal dekhte hain.'],
-      rohit:  ['Tempo samajh raha hai?', 'Hmm.', 'Process pe raho.'],
-      surya:  ['Champion! Field dekh pehle 😄', 'Energy mast hai. Ball bhi dekh.', 'Aaja kal nets mein.'],
-      bumrah: ['Wrist pehle pick karo.', 'Better. Still early.', 'Kal over milega.'],
-      tilak:  ['Good. Repeat karo.', 'Process pe raho.', 'Hota hai. Seekhte hain.'],
-      coach:  ['Video bhej.', 'Kal subah 6 baje. Throwdowns.', '10 minute rona allowed. Phir bat uthao.'],
-      friend: ['BHAI REPLY KAR 😭', 'Tu theek hai? Genuinely pooch raha hoon.', 'Main hoon yaar. Baat kar.'],
+      hardik: ['Role pe focus rakh. Kya soch raha hai abhi?', 'Execution dikhao. Simple hai na?', 'Theek hai. Kal kya plan hai?'],
+      rohit:  ['Tempo samajh raha hai? Sach mein?', 'Hmm. Kya feel hua?', 'Process pe raho. Kya miss kar raha hai?'],
+      surya:  ['Champion! Field dekh pehle 😄 Woh specific ball pe kya socha?', 'Energy mast hai. Ab reason bata.', 'Aaja kal nets mein. Ready hai?'],
+      bumrah: ['Wrist pehle pick karo. Kar sakta hai?', 'Better. Kya different tha?', 'Kal over milega. Kya practice karoge?'],
+      tilak:  ['Good. Repeat kar sakta hai? Consistently?', 'Process pe raho. Kya block hai?', 'Hota hai. Agle situation mein kya karoge?'],
+      coach:  ['Kal subah 6 baje. Aa sakta hai?', '10 minute rona allowed. Phir kya?', 'Footwork pe kaam karo. Samajh aaya?'],
+      friend: ['BHAI REPLY KAR 😭 Tu theek hai?', 'Tu theek hai? Genuinely pooch raha hoon.', 'Main hoon yaar. Baat kar. Kya ho raha hai?'],
     }
-    const mockArr = DM_MOCK[charId] ?? CRICKET_MOCK_FALLBACK[charId] ?? ['Haan yaar.', 'Kya chal raha hai?', 'Interesting.']
+    const mockArr = DM_MOCK[charId] ?? CRICKET_MOCK_FALLBACK[charId] ?? ['Haan yaar. Kya chal raha hai?', 'Interesting. Aur?', 'Hmm. Kya feel hua?']
     const reply = raw?.trim() || mockArr[Math.floor(Math.random() * mockArr.length)]
     const charMsg: DMMessage = { role: 'char', text: reply }
     setDmHistory(prev => ({ ...prev, [charId]: [...(prev[charId] ?? []), charMsg] }))
     setDmLastUpdated(prev => ({ ...prev, [charId]: Date.now() }))
     saveDM(charId, charMsg).catch(() => {})
-    // Score trust impact in background — LLM evaluates the exchange
     scoreTrustDelta(charId, text, reply).then(delta => {
       if (delta === 0) return
       setDmTrust(prev => {
@@ -259,7 +316,7 @@ export default function App() {
         return { ...prev, [charId]: next }
       })
     }).catch(() => {})
-  }, [dmHistory, game.char, game.playerName])
+  }, [dmHistory, game, dmTrust, getDmCapState, setDmCapState, buildStorySummary])
 
   // Like a post — updates player fame + target character's fame (idempotent: no double-like)
   const likePost = useCallback((postId: string, charId: CharId, fameDelta: number) => {
@@ -272,7 +329,9 @@ export default function App() {
     const newFame = Math.min(100, currentFameMeter + Math.ceil(fameDelta / 3))
     setCharFame(prev => ({ ...prev, [charId]: Math.min(100, (prev[charId] ?? 50) + fameDelta) }))
     saveAndSet({ ...game, meters: { ...game.meters, [fameSlot]: newFame } })
-    const charName = CHARS[charId]?.name
+    const allChars = game.world === 'cricket' ? { ...CHARS, ...CRICKET_CHARS } : CHARS
+    const charName = allChars[charId]?.name
+    const tasksTotal = game.situationQueue.length || (game.world === 'cricket' ? buildCricketQueue().length : SITUATIONS.length)
     showImpact({
       action: `Liked ${charName}'s post`,
       followerDelta: Math.round(fameDelta * 180),
@@ -280,8 +339,8 @@ export default function App() {
       charId, charName,
       trustDelta: 3,
       trustVal: (dmTrust[charId] ?? 50) + 3,
-      tasksLeft: Math.max(0, SITUATIONS.length - game.situation - 1),
-      tasksTotal: SITUATIONS.length,
+      tasksLeft: Math.max(0, tasksTotal - game.situation - 1),
+      tasksTotal,
     })
   }, [game, likedPosts, saveAndSet, dmTrust, showImpact])
 
@@ -295,21 +354,27 @@ export default function App() {
   }, [])
 
   const applyFeedDeltas = useCallback((deltas: { fame: number; heat: number; image: number }, charId?: string, charName?: string) => {
-    const newFame = Math.max(0, Math.min(100, game.meters.fame + deltas.fame))
-    saveAndSet({ ...game, meters: {
-      fame:  newFame,
-      heat:  Math.max(0, Math.min(100, game.meters.heat  + deltas.heat)),
+    const isCricket = game.world === 'cricket'
+    const nextMeters = {
+      fame:  Math.max(0, Math.min(100, game.meters.fame + deltas.fame)),
+      heat:  Math.max(0, Math.min(100, game.meters.heat + deltas.heat)),
       image: Math.max(0, Math.min(100, game.meters.image + deltas.image)),
-    }})
+    }
+    const publicFame = isCricket ? nextMeters.heat : nextMeters.fame
+    const publicFameDelta = isCricket ? deltas.heat : deltas.fame
+    const teamTrustDelta = isCricket ? deltas.image : deltas.heat
+    const teamTrustVal = isCricket ? nextMeters.image : nextMeters.heat
+    const tasksTotal = game.situationQueue.length || (isCricket ? buildCricketQueue().length : SITUATIONS.length)
+    saveAndSet({ ...game, meters: nextMeters })
     showImpact({
       action: charName ? `Commented on ${charName}'s post` : 'Commented',
-      followerDelta: Math.round(deltas.fame * 180),
-      followerTotal: fameToFollowers(newFame),
+      followerDelta: Math.round(publicFameDelta * 180),
+      followerTotal: fameToFollowers(publicFame),
       charId, charName,
-      trustDelta: deltas.heat,
-      trustVal: game.meters.heat + deltas.heat,
-      tasksLeft: Math.max(0, SITUATIONS.length - game.situation - 1),
-      tasksTotal: SITUATIONS.length,
+      trustDelta: teamTrustDelta,
+      trustVal: teamTrustVal,
+      tasksLeft: Math.max(0, tasksTotal - game.situation - 1),
+      tasksTotal,
     })
   }, [game, saveAndSet, showImpact])
 

@@ -4,7 +4,7 @@ import type { CharId } from '@/lib/types'
 import { CHARS, DM_ORDER } from '@/lib/data'
 import { CRICKET_CHARS } from '@/lib/cricket-data'
 
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 const StatusBar = () => (
   <div className="statusbar">
@@ -19,39 +19,75 @@ const StatusBar = () => (
 
 const CRICKET_DM_ORDER: CharId[] = ['hardik', 'rohit', 'surya', 'bumrah', 'tilak', 'coach', 'friend']
 
+// Character subtexts shown under name in DM list
+const CHAR_SUBTEXT: Partial<Record<string, string>> = {
+  hardik:  'Captain · Mumbai Indians',
+  rohit:   'Senior batsman · MI legend',
+  surya:   'T20 specialist · Dressing room warmth',
+  bumrah:  'Pace spearhead · The standard',
+  tilak:   'Young batsman · Your mirror',
+  coach:   'Childhood coach · Cricket conscience',
+  friend:  'School friend · Real life',
+  naman:   'Young Table · Competition',
+  robin:   'Young Table · Keeper-batter',
+  mahela:  'Head Coach · Selection calls',
+}
+
+// Read/write opened state from localStorage (persists across navigation)
+function getOpened(userId: string): Record<string, number> {
+  try {
+    const raw = localStorage.getItem(`lore_dm_opened_${userId || 'anon'}`)
+    return raw ? JSON.parse(raw) : {}
+  } catch { return {} }
+}
+function setOpened(userId: string, charId: string) {
+  try {
+    const key = `lore_dm_opened_${userId || 'anon'}`
+    const raw = localStorage.getItem(key)
+    const all = raw ? JSON.parse(raw) : {}
+    localStorage.setItem(key, JSON.stringify({ ...all, [charId]: Date.now() }))
+  } catch {}
+}
+
 export default function DMInboxScreen() {
   const { goBack, navigate, showToast, openDMThread, dmHistory, dmLastUpdated, game } = useApp()
   const isCricket = game.world === 'cricket'
   const allChars = { ...CHARS, ...CRICKET_CHARS }
+  const [userId, setUserId] = useState('anon')
+  const [openedMap, setOpenedMap] = useState<Record<string, number>>({})
 
-  // Cricket world: player plays as themselves, show all characters including Hardik
-  // Creator House: filter out the character being played as
+  // Load userId + opened state on mount
+  useEffect(() => {
+    import('@/lib/game').then(({ ensureSession }) => {
+      ensureSession().then(session => {
+        const uid = session?.user?.id ?? 'anon'
+        setUserId(uid)
+        setOpenedMap(getOpened(uid))
+      }).catch(() => setOpenedMap(getOpened('anon')))
+    })
+  }, [])
+
   const visibleChars = useMemo(() => {
     const baseOrder = isCricket
       ? CRICKET_DM_ORDER
       : DM_ORDER.filter(id => id !== game.char)
-    return baseOrder
-      .sort((a, b) => {
-        const aHasMessages = (dmHistory[a]?.length ?? 0) > 0
-        const bHasMessages = (dmHistory[b]?.length ?? 0) > 0
-        if (aHasMessages !== bHasMessages) return aHasMessages ? -1 : 1
-        const timeDelta = (dmLastUpdated[b] ?? 0) - (dmLastUpdated[a] ?? 0)
-        if (timeDelta !== 0) return timeDelta
-        return baseOrder.indexOf(a) - baseOrder.indexOf(b)
-      })
+    return [...baseOrder].sort((a, b) => {
+      const aHasMessages = (dmHistory[a]?.length ?? 0) > 0
+      const bHasMessages = (dmHistory[b]?.length ?? 0) > 0
+      if (aHasMessages !== bHasMessages) return aHasMessages ? -1 : 1
+      return (dmLastUpdated[b] ?? 0) - (dmLastUpdated[a] ?? 0)
+    })
   }, [dmHistory, dmLastUpdated, game.char, isCricket])
-
-  // Track which chars have been opened (remove unread dot)
-  const [opened, setOpened] = useState<Set<CharId>>(new Set())
 
   const handleOpen = useCallback((charId: CharId) => {
     if ((dmHistory[charId]?.length ?? 0) === 0) {
       showToast('No messages yet')
       return
     }
-    setOpened(prev => new Set([...prev, charId]))
+    setOpened(userId, charId)
+    setOpenedMap(prev => ({ ...prev, [charId]: Date.now() }))
     openDMThread(charId)
-  }, [dmHistory, openDMThread, showToast])
+  }, [dmHistory, openDMThread, showToast, userId])
 
   const handleTab = useCallback((tab: string) => {
     if (tab === 'home') navigate('feed')
@@ -63,7 +99,7 @@ export default function DMInboxScreen() {
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <StatusBar />
 
-      {/* App bar */}
+      {/* App bar — no search, no compose button */}
       <div className="appbar dm-head">
         <div className="row1">
           <button className="icon-btn" onClick={goBack}>
@@ -84,9 +120,13 @@ export default function DMInboxScreen() {
           if (!char) return null
           const history = dmHistory[charId] ?? []
           const hasMessages = history.length > 0
-          const isUnread = hasMessages && !opened.has(charId)
-          const lastMsg = hasMessages ? history[history.length - 1].text : 'No messages yet'
-          const preview = lastMsg.length > 42 ? lastMsg.slice(0, 42) + '…' : lastMsg
+          const lastUpdated = dmLastUpdated[charId] ?? 0
+          const lastOpened = openedMap[charId] ?? 0
+          const isUnread = hasMessages && lastUpdated > lastOpened
+          const lastMsg = hasMessages ? history[history.length - 1].text : null
+          const preview = lastMsg
+            ? (lastMsg.length > 42 ? lastMsg.slice(0, 42) + '…' : lastMsg)
+            : CHAR_SUBTEXT[charId] ?? char.role.split(' · ')[0]
 
           return (
             <button key={charId} className="dm-row" onClick={() => handleOpen(charId)}>
@@ -95,7 +135,12 @@ export default function DMInboxScreen() {
               </div>
               <div className="info">
                 <div className="nm">{char.name}</div>
-                <div className="prev">{preview}</div>
+                <div className="prev" style={{ color: isUnread ? 'var(--ink)' : undefined, fontWeight: isUnread ? 600 : undefined }}>
+                  {preview}
+                </div>
+                {CHAR_SUBTEXT[charId] && !hasMessages && (
+                  <div style={{ fontSize: 10, color: 'var(--ink3)', marginTop: 1 }}>{CHAR_SUBTEXT[charId]}</div>
+                )}
               </div>
               <div className="meta">
                 <div className="ts">{hasMessages ? 'now' : ''}</div>

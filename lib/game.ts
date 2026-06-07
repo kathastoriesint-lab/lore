@@ -9,7 +9,7 @@ let _supabase: ReturnType<typeof createClient> | null = null
 const supabase = () => { if (!_supabase) _supabase = createClient(); return _supabase }
 
 const DEFAULT_METERS: Meters = { fame: 20, heat: 50, image: 30 }
-const CRICKET_START_METERS: Meters = { fame: 45, heat: 55, image: 35 } // Form 45 · Fame 55 · Team Trust 35
+const CRICKET_START_METERS: Meters = { fame: 40, heat: 25, image: 20 } // Form 40 · Fame 25 · Team Trust 20
 
 export const DEFAULT_FLAGS: GameFlags = {
   mentorTrust: 0, hypeRisk: 0, roleAcceptance: 0, homeGrounding: 0,
@@ -231,7 +231,7 @@ export async function getAIReply(
   charId: CharId,
   history: DMMessage[],
   playerName: string,
-  gameState?: { char: string | null; meters: Meters; choices: string[]; situation: number; world?: string }
+  gameState?: { char: string | null; meters: Meters; choices: string[]; situation: number; world?: string; flags?: GameFlags; story?: string; trustWithChar?: number }
 ): Promise<string> {
   const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!
   const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -259,6 +259,9 @@ export async function getAIReply(
         player_char: gameState?.char ?? null,
         player_meters: gameState?.meters ?? null,
         player_choices: gameState?.choices ?? null,
+        player_flags: gameState?.flags ?? null,
+        player_story: gameState?.story ?? null,
+        trust_with_char: gameState?.trustWithChar ?? null,
         current_day: gameState ? (gameState.world === 'cricket' ? gameState.situation + 1 : Math.ceil((gameState.situation + 1) / 3)) : 1,
       }),
     })
@@ -343,7 +346,7 @@ export function allyLoyalty(choices: ('A' | 'B')[], situations: import('./types'
 
 // ── Ending resolution ─────────────────────────────────────────────────────────
 // Thresholds lowered to 65-70 (from 78) so endings are reachable.
-// Starting meters: CH=20/50/30, Cricket=45/55/35.
+// Starting meters: CH=20/50/30, Cricket=40/25/20.
 // ~30 situations × avg net +3 per meter = realistic reach of 65-75 per meter.
 export function resolveEnding(m: Meters): 'heart' | 'main' | 'brand' | 'dark' {
   if (m.heat  >= 67 && m.heat  > m.fame  && m.heat  > m.image) return 'heart'

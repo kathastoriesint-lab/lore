@@ -459,8 +459,7 @@ export default function FeedScreen() {
   const worldLabel = isCricket ? 'Indian Dressing Room' : 'Creator House'
 
   // Replay game state step-by-step to find the correct situation for each choice.
-  // Simple index-mapping breaks when conditional situations (D4-HEAT, D5-FAME, D6-IMAGE)
-  // are inserted mid-list — replaying with the actual meters at each step is correct.
+  // Cricket must follow situationQueue because S28 is skipped in the playable path.
   type FeedPost =
     | { type: 'npc';    postId: string; sit: ReturnType<typeof getVisibleSituations>[0]; stepIndex: number; postOffset: number; choice: 'A'|'B'; reaction: { char: string; caption: string }; char: (typeof CHARS)[keyof typeof CHARS] }
     | {
@@ -471,6 +470,7 @@ export default function FeedScreen() {
         postOffset: number
         choice: 'A'|'B'
         caption: string
+        imageUrl?: string
         owner: { id: string; cls: string; init: string; handle: string; avatarUrl?: string; color: string; isPlayer: boolean; likeTarget?: CharId }
         label?: string
         reactions: Reaction[]
@@ -479,7 +479,7 @@ export default function FeedScreen() {
   const completedPosts = useMemo((): FeedPost[] => {
     if (game.choices.length === 0) return []
     const STARTING_METERS = isCricket
-      ? { fame: 45, heat: 55, image: 35 }
+      ? { fame: 40, heat: 25, image: 20 }
       : { fame: 20, heat: 50, image: 30 }
     let meters = { ...STARTING_METERS }
     const posts: FeedPost[] = []
@@ -494,13 +494,16 @@ export default function FeedScreen() {
           role: '',
         }
       : game.char ? (allChars[game.char] ?? null) : null
+    const cricketSitMap = isCricket
+      ? Object.fromEntries(CRICKET_SITUATIONS.map(s => [s.id, s]))
+      : {}
 
     for (let i = 0; i < game.choices.length; i++) {
       const letter = game.choices[i]
       const sitsAtStep = isCricket
-        ? CRICKET_SITUATIONS
+        ? [cricketSitMap[game.situationQueue[i]]]
         : getVisibleSituations(meters, game.choices.slice(0, i) as ('A'|'B')[])
-      const sit = sitsAtStep[i]
+      const sit = isCricket ? sitsAtStep[0] : sitsAtStep[i]
       if (!sit) continue
       const ch = sit.choices[letter === 'A' ? 0 : 1]
 
@@ -565,6 +568,7 @@ export default function FeedScreen() {
               postOffset: postIndex * 2,
               choice: letter,
               caption: authoredPost.caption,
+              imageUrl: authoredPost.imageUrl,
               owner,
               label: authoredPost.label,
               reactions: authoredPost.reactions ?? [],
@@ -657,7 +661,17 @@ export default function FeedScreen() {
                   </div>
                   <button className="icon-btn"><svg viewBox="0 0 24 24" width="20" height="20" fill="#fff"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
                 </div>
-                <div className={`post-img grain ${pc.cls}`} style={{ background: pc.id === '__account' ? `linear-gradient(to bottom, ${pc.color}bb 0%, ${pc.color}66 55%, #0a0a18 100%)` : charBg(pc.id), alignItems:'flex-end' }}>
+                <div
+                  className={`post-img grain ${pc.cls}`}
+                  style={{
+                    background: post.imageUrl
+                      ? `linear-gradient(to bottom, rgba(0,0,0,.05) 0%, rgba(0,0,0,.12) 52%, rgba(0,0,0,.62) 100%), url(${post.imageUrl}) center/cover`
+                      : pc.id === '__account'
+                        ? `linear-gradient(to bottom, ${pc.color}bb 0%, ${pc.color}66 55%, #0a0a18 100%)`
+                        : charBg(pc.id),
+                    alignItems:'flex-end',
+                  }}
+                >
                   <p className="overlay-txt" style={{ fontSize:14, textShadow:'0 1px 8px rgba(0,0,0,.7)' }}>{resolveTokens(post.caption, game.playerName, game.playerGender)}</p>
                 </div>
                 <div className="post-actions">

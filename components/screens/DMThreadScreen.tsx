@@ -5,6 +5,16 @@ import type { CharId, DMMessage } from '@/lib/types'
 import { CHARS, DM_TRUST, DM_QUICK } from '@/lib/data'
 import { CRICKET_CHARS } from '@/lib/cricket-data'
 
+const DM_CAP = 20
+
+function getDmCap(charId: string) {
+  try {
+    const raw = localStorage.getItem('lore_dm_cap')
+    const all = raw ? JSON.parse(raw) : {}
+    return (all[charId] ?? { count: 0, lockedUntil: 0 }) as { count: number; lockedUntil: number }
+  } catch { return { count: 0, lockedUntil: 0 } }
+}
+
 const StatusBar = () => (
   <div className="statusbar">
     <span>9:41</span>
@@ -27,6 +37,7 @@ export default function DMThreadScreen() {
   const [input, setInput] = useState('')
   const [sending, setSending] = useState(false)
   const [typing, setTyping] = useState(false)
+  const [, tick] = useState(0)
   const hasStarted = messages.length > 0
 
   // Trust: LLM-scored live value from context, falls back to static default
@@ -34,8 +45,28 @@ export default function DMThreadScreen() {
     ? (dmTrust[charId] ?? DM_TRUST[charId] ?? 50)
     : 50
 
+  // Cap / lock state — re-reads localStorage on every render (tick keeps it live)
+  const capState = charId ? getDmCap(charId) : { count: 0, lockedUntil: 0 }
+  const isLocked = capState.lockedUntil > Date.now()
+  const msRemaining = isLocked ? capState.lockedUntil - Date.now() : 0
+  const msgsLeft = Math.max(0, DM_CAP - capState.count)
+
+  const lockCountdown = (() => {
+    const h = Math.floor(msRemaining / 3_600_000)
+    const m = Math.floor((msRemaining % 3_600_000) / 60_000)
+    const s = Math.floor((msRemaining % 60_000) / 1_000)
+    return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`
+  })()
+
   const chatRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+
+  // Tick every second when locked (for countdown)
+  useEffect(() => {
+    if (!isLocked) return
+    const t = setInterval(() => tick(n => n + 1), 1000)
+    return () => clearInterval(t)
+  }, [isLocked])
 
   // Scroll to bottom on new messages
   useEffect(() => {
@@ -168,7 +199,7 @@ export default function DMThreadScreen() {
       </div>
 
       {/* Quick reply chips */}
-      {hasStarted && (
+      {hasStarted && !isLocked && (
         <div className="quick-chips">
           {quickChips.map((chip, i) => (
             <button key={i} className="chip" onClick={() => handleQuickChip(chip)}>{chip}</button>
@@ -176,8 +207,32 @@ export default function DMThreadScreen() {
         </div>
       )}
 
-      {/* Input bar */}
-      {hasStarted && (
+      {/* Locked state */}
+      {hasStarted && isLocked && (
+        <div style={{
+          padding: '16px 20px 20px',
+          background: 'rgba(8,8,15,.98)',
+          borderTop: '1px solid rgba(255,255,255,.06)',
+          textAlign: 'center',
+        }}>
+          <div style={{ fontSize: 22, marginBottom: 6 }}>📵</div>
+          <div style={{ fontWeight: 700, color: 'var(--ink)', fontSize: 14, marginBottom: 4 }}>
+            {char.name} ne apna phone band kar liya.
+          </div>
+          <div style={{ fontSize: 12, color: 'var(--ink3)', marginBottom: 8 }}>
+            Kal baat karna. Opens in {lockCountdown}
+          </div>
+        </div>
+      )}
+
+      {/* Message counter + input bar */}
+      {hasStarted && !isLocked && (
+        <>
+          {msgsLeft <= 5 && msgsLeft > 0 && (
+            <div style={{ textAlign: 'center', fontSize: 11, color: 'var(--ink3)', padding: '4px 0 2px' }}>
+              {msgsLeft} message{msgsLeft !== 1 ? 's' : ''} left before {char.name} goes offline for 6h
+            </div>
+          )}
         <div className="input-bar">
           <div className="field">
             <input
@@ -196,6 +251,7 @@ export default function DMThreadScreen() {
             </svg>
           </button>
         </div>
+        </>
       )}
     </div>
   )
