@@ -99,24 +99,24 @@ function Card3({
   return (
     <div style={{ display:'flex', flexDirection:'column', padding:'0 28px', flex:1, overflowY:'auto' }}>
       <div style={{ paddingTop:24 }}>
-        <div style={{ fontSize:11, fontWeight:800, letterSpacing:'.12em', color:'var(--accent)', marginBottom:12, textAlign:'center' }}>AB TUMHARA BAARI</div>
+        <div style={{ fontSize:11, fontWeight:800, letterSpacing:'.12em', color:'var(--accent)', marginBottom:12, textAlign:'center' }}>YOUR TURN</div>
         <div style={{ fontFamily:'var(--serif)', fontWeight:600, fontSize:28, lineHeight:1.15, textAlign:'center', marginBottom:20 }}>
-          Characters tumse DM pe baat karte hain.
+          Characters message you directly.
         </div>
         {/* DM preview */}
         <div style={{ display:'flex', flexDirection:'column', gap:8, marginBottom:28 }}>
           <div style={{ display:'flex', alignItems:'flex-start', gap:8 }}>
-            <div style={{ width:32, height:32, borderRadius:'50%', background:'#1a3a6e', display:'grid', placeItems:'center', fontWeight:800, fontSize:12, flexShrink:0 }}>R</div>
-            <div style={{ background:'#1c1c1f', borderRadius:18, borderBottomLeftRadius:4, padding:'10px 14px', fontSize:13, lineHeight:1.4, maxWidth:'78%' }}>
+            <div style={{ width:32, height:32, borderRadius:'50%', background:'var(--c-rohit, #1a3a6e)', display:'grid', placeItems:'center', fontWeight:800, fontSize:12, flexShrink:0 }}>R</div>
+            <div style={{ background:'var(--surf)', borderRadius:18, borderBottomLeftRadius:4, padding:'10px 14px', fontSize:13, lineHeight:1.4, maxWidth:'78%' }}>
               Dekh raha hoon tujhe. Kuch poochh agar kuch samajh nahi aa raha.
             </div>
           </div>
-          <div style={{ alignSelf:'flex-end', background:'linear-gradient(120deg,#FF2D78,#ff6a3d)', borderRadius:18, borderBottomRightRadius:4, padding:'10px 14px', fontSize:13, color:'#fff', maxWidth:'72%' }}>
+          <div style={{ alignSelf:'flex-end', background:'var(--accent)', borderRadius:18, borderBottomRightRadius:4, padding:'10px 14px', fontSize:13, color:'#fff', maxWidth:'72%' }}>
             Rohit bhai, tempo kaise build karein?
           </div>
           <div style={{ display:'flex', alignItems:'flex-start', gap:8 }}>
-            <div style={{ width:32, height:32, borderRadius:'50%', background:'#1a3a6e', display:'grid', placeItems:'center', fontWeight:800, fontSize:12, flexShrink:0 }}>R</div>
-            <div style={{ background:'#1c1c1f', borderRadius:18, borderBottomLeftRadius:4, padding:'10px 14px', fontSize:13, lineHeight:1.4, maxWidth:'78%' }}>
+            <div style={{ width:32, height:32, borderRadius:'50%', background:'var(--c-rohit, #1a3a6e)', display:'grid', placeItems:'center', fontWeight:800, fontSize:12, flexShrink:0 }}>R</div>
+            <div style={{ background:'var(--surf)', borderRadius:18, borderBottomLeftRadius:4, padding:'10px 14px', fontSize:13, lineHeight:1.4, maxWidth:'78%' }}>
               Pehle 12 ball survive karo. Baaki sab baad mein.
             </div>
           </div>
