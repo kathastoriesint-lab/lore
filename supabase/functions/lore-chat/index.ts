@@ -414,12 +414,13 @@ Character: ${character_name}. Current trust: ${current_trust ?? "unknown"}/100. 
     const resolvedTrustBand = trust_band ?? (charTrust < 30 ? 'low' : charTrust < 60 ? 'normal' : 'high')
     const resolvedTrustGuidance = trust_guidance ?? (
       resolvedTrustBand === 'low'
-        ? "Trust band: LOW (<30). Reply colder, shorter, and more guarded. Do not reveal private advice, warmth, or vulnerability."
+        ? "Trust band: LOW (<30). This overrides the character's usual warmth, nicknames, emoji habits, and teaching style. Output shape: under 22 words, one blunt line plus one terse question/challenge. No lists, tactical field/bowler details, multi-step advice, detailed coaching, private history, personal warmth, emojis, or \"I noticed\" language. If asked for advice, give only a surface-level instruction and imply they must earn deeper mentorship."
         : resolvedTrustBand === 'high'
-          ? "Trust band: HIGH (60+). Reply with earned warmth and specificity. You can reference relevant past choices and give more honest advice."
-          : "Trust band: NORMAL (30-60). Reply professionally and helpfully, but with limited emotional access."
+          ? "Trust band: HIGH (60+). Output shape: 3-5 sentences. Make it feel earned and personal. If story context exists, reference one specific past choice or pattern. Give the real advice you would hold back at low trust. You may show warmth, concern, teasing, or investment in your own character voice. End with a sharper follow-up question. Do not offer future preference unlocks yet."
+          : "Trust band: NORMAL (30-60). Output shape: 2-3 sentences. Be professional and useful, but not intimate. Give one practical piece of advice. Avoid private history unless it is directly relevant. Avoid deep emotional warmth or vulnerability. End with one practical follow-up question."
     )
     const dressingRoomTrust = team_trust ?? trustVal
+    const maxCompletionTokens = resolvedTrustBand === 'low' ? 70 : resolvedTrustBand === 'high' ? 150 : 85
 
     const gameStateContext = player_meters ? (isCricketChar ? `
 
@@ -459,7 +460,13 @@ Write ONLY in Roman script. Never use Devanagari (Hindi/Marathi script like अ 
 CONVERSATION RULE — always follow, no exceptions:
 End every single response with a question, a challenge, or a provocation that pulls the player back into the conversation. Never give a closing statement. The exchange should feel like it has momentum and the character has their own agenda. Make the player feel like they need to respond.`;
 
-    const fullSystemPrompt = filledPrompt + gameStateContext + conversationRule;
+    const finalTrustOverride = isCricketChar ? `
+
+FINAL TRUST BAND OVERRIDE — highest priority:
+${resolvedTrustGuidance}
+This final trust-band instruction overrides the character prompt, nicknames, emoji habits, warmth level, teaching depth, and response length whenever they conflict.` : '';
+
+    const fullSystemPrompt = filledPrompt + gameStateContext + conversationRule + finalTrustOverride;
 
     const openaiResp = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
@@ -474,7 +481,7 @@ End every single response with a question, a challenge, or a provocation that pu
           ...messages,
         ],
         stream: true,
-        max_completion_tokens: 100,
+        max_completion_tokens: maxCompletionTokens,
         temperature: 0.9,
       }),
     });

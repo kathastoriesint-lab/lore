@@ -37,12 +37,12 @@ const trustGuidanceFor = (trust: number, teamTrust?: number) => {
     ? ` Team Trust is ${teamTrust}/100; use it as the dressing-room climate, but keep this character's personal trust primary.`
     : ''
   if (band === 'low') {
-    return `Trust band: LOW (<30). Reply colder, shorter, more guarded. Do not reveal private advice, warmth, or vulnerability. If the user is rude, set a boundary or end the chat naturally.${teamLine}`
+    return `Trust band: LOW (<30). This overrides the character's usual warmth, nicknames, emoji habits, and teaching style. Output shape: under 22 words, one blunt line plus one terse question/challenge. No lists, tactical field/bowler details, multi-step advice, detailed coaching, private history, personal warmth, emojis, or "I noticed" language. If asked for advice, give only a surface-level instruction and imply they must earn deeper mentorship.${teamLine}`
   }
   if (band === 'high') {
-    return `Trust band: HIGH (60+). Reply with earned warmth and specificity. You can reference relevant past choices, give more honest advice, and ask sharper follow-up questions. Do not offer future preference unlocks yet.${teamLine}`
+    return `Trust band: HIGH (60+). Output shape: 3-5 sentences. Make it feel earned and personal. If story context exists, reference one specific past choice or pattern. Give the real advice you would hold back at low trust. You may show warmth, concern, teasing, or investment in your own character voice. End with a sharper follow-up question. Do not offer future preference unlocks yet.${teamLine}`
   }
-  return `Trust band: NORMAL (30-60). Reply professionally and helpfully, but with limited emotional access. Give useful advice without treating the player as inner circle.${teamLine}`
+  return `Trust band: NORMAL (30-60). Output shape: 2-3 sentences. Be professional and useful, but not intimate. Give one practical piece of advice. Avoid private history unless it is directly relevant. Avoid deep emotional warmth or vulnerability. End with one practical follow-up question.${teamLine}`
 }
 
 const defaultDmTrustFor = (world: GameState['world'], charId: CharId) => (
