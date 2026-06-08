@@ -118,9 +118,14 @@ export default function App() {
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const navigate = useCallback((to: Screen, opts?: { replace?: boolean }) => {
+    const isDmRoute = to === 'dm-inbox' || to === 'dm-thread'
+    if (isDmRoute && game.world !== 'cricket') {
+      showToast('DMs are disabled for Creator House right now')
+      return
+    }
     setScreen(to)
     setNavHistory(prev => opts?.replace ? [...prev.slice(0, -1), to] : [...prev, to])
-  }, [])
+  }, [game.world, showToast])
 
   const goBack = useCallback(() => {
     setNavHistory(prev => {
@@ -306,6 +311,7 @@ export default function App() {
   }, [applyChoiceRelationshipEffects, game])
 
   const openDMThread = useCallback(async (charId: CharId) => {
+    if (game.world !== 'cricket') return
     setDmChar(charId)
     navigate('dm-thread')
     setDmBadgeCount(0) // clear badge on open
@@ -323,7 +329,7 @@ export default function App() {
         return { ...prev, [charId]: merged }
       })
     }
-  }, [navigate])
+  }, [game.world, navigate])
 
   // ── DM cap helpers (localStorage-backed, 20 msgs → 6h lock) ─────────────
   const DM_CAP = 20
@@ -364,6 +370,7 @@ export default function App() {
   }, [game.world, game.choices, game.situationQueue])
 
   const sendDM = useCallback(async (charId: CharId, text: string) => {
+    if (game.world !== 'cricket') return
     // Cap check — block if locked
     const capState = getDmCapState(charId)
     if (capState.lockedUntil > Date.now()) return
@@ -447,12 +454,13 @@ export default function App() {
 
   // Inject a DM message from a character without AI round-trip (used after Live choices)
   const injectCharDM = useCallback((charId: CharId, text: string) => {
+    if (game.world !== 'cricket') return
     const charMsg: DMMessage = { role: 'char', text }
     setDmHistory(prev => ({ ...prev, [charId]: [...(prev[charId] ?? []), charMsg] }))
     setDmLastUpdated(prev => ({ ...prev, [charId]: Date.now() }))
     saveDM(charId, charMsg).catch(() => {})
     setDmBadgeCount(prev => prev + 1) // T4: badge notification
-  }, [])
+  }, [game.world])
 
   const applyFeedDeltas = useCallback((deltas: { fame: number; heat: number; image: number }, charId?: string, charName?: string) => {
     const isCricket = game.world === 'cricket'

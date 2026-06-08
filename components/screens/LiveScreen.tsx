@@ -39,11 +39,39 @@ const resolveChoiceOutcome = (choice: Choice, meters: Meters) => {
 }
 
 export default function LiveScreen() {
-  const { navigate, game, makeChoice, advanceSituation, injectCharDM, dmBadgeCount } = useApp()
+  const { navigate, game, screen, makeChoice, advanceSituation, injectCharDM, dmBadgeCount } = useApp()
   // Tracks when we're mid-choice-flow so the situation-change effect doesn't clear showPost
   const inFlowRef = useRef(false)
 
   const isCricket = game.world === 'cricket'
+
+  // Coach marks — shown once on first Live visit
+  const [coachStep, setCoachStep] = useState(-1)
+  const coachShownRef = useRef(false)
+  useEffect(() => {
+    if (screen !== 'live') return
+    if (coachShownRef.current) return
+    if (typeof window !== 'undefined' && localStorage.getItem('seen_live_tips')) return
+    coachShownRef.current = true
+    const t = setTimeout(() => setCoachStep(0), 700)
+    return () => clearTimeout(t)
+  }, [screen])
+  const dismissCoach = useCallback(() => {
+    localStorage.setItem('seen_live_tips', '1')
+    setCoachStep(-1)
+  }, [])
+
+  const coachSteps = isCricket
+    ? [
+        { label: 'Yahan choices hoti hain',      tabIdx: 2, tabCount: 4 },
+        { label: 'Characters message karte hain', tabIdx: 1, tabCount: 4 },
+        { label: 'World ki reactions',             tabIdx: 0, tabCount: 4 },
+      ]
+    : [
+        { label: 'Yahan choices hoti hain', tabIdx: 1, tabCount: 3 },
+        { label: 'World ki reactions',       tabIdx: 0, tabCount: 3 },
+      ]
+  const activeCoach = coachStep >= 0 ? coachSteps[coachStep] : null
   const allChars = isCricket ? { ...CHARS, ...CRICKET_CHARS } : CHARS
   // 'player' is the cricket sentinel — the user plays as themselves, not an NPC.
   // char is null in cricket; use a synthetic player object only where post-card needs it.
@@ -212,11 +240,8 @@ export default function LiveScreen() {
 
     addTimer(() => { scrollRef.current?.scrollTo({ top: 400, behavior: 'smooth' }) }, 200)
 
-    const firstReactor = ch.reactions?.find(rx => rx.char !== '__fan')
     const dmSource = outcome?.dm !== undefined ? outcome.dm : ch.dm
-    const dmsToInject = dmSource === undefined
-      ? (firstReactor ? [{ char: firstReactor.char as CharId, text: firstReactor.text }] : [])
-      : asArray(dmSource)
+    const dmsToInject = isCricket ? asArray(dmSource) : []
     dmsToInject.forEach((dmToInject, dmIndex) => {
       addTimer(() => {
         injectCharDM(dmToInject.char, r(dmToInject.text))
@@ -271,7 +296,7 @@ export default function LiveScreen() {
       <StatusBar />
 
       {/* DM notification banner — slides in from top after a character DMs */}
-      {dmNotif && (
+      {isCricket && dmNotif && (
         <div style={{
           position: 'absolute', top: 44, left: 12, right: 12, zIndex: 50,
           background: 'rgba(18,18,20,.97)', backdropFilter: 'blur(16px)',
@@ -454,16 +479,18 @@ export default function LiveScreen() {
             >
               Go to Feed →
             </button>
-            <button
-              onClick={() => navigate('dm-inbox')}
-              style={{
-                width: '100%', height: 50, background: 'rgba(255,255,255,.07)', color: 'var(--ink2)',
-                fontWeight: 600, fontSize: 14, borderRadius: 14,
-                border: '1px solid rgba(255,255,255,.1)', cursor: 'pointer', fontFamily: 'var(--sans)',
-              }}
-            >
-              Go to Messages →
-            </button>
+            {isCricket && (
+              <button
+                onClick={() => navigate('dm-inbox')}
+                style={{
+                  width: '100%', height: 50, background: 'rgba(255,255,255,.07)', color: 'var(--ink2)',
+                  fontWeight: 600, fontSize: 14, borderRadius: 14,
+                  border: '1px solid rgba(255,255,255,.1)', cursor: 'pointer', fontFamily: 'var(--sans)',
+                }}
+              >
+                Go to Messages →
+              </button>
+            )}
           </div>
 
           {/* Small note */}
@@ -849,6 +876,31 @@ export default function LiveScreen() {
           )}
         </div>
       )}
+
+      {/* Coach marks — first Live visit */}
+      {activeCoach && (() => {
+        const tabW = 100 / activeCoach.tabCount
+        const tooltipLeft = activeCoach.tabIdx * tabW + tabW / 2
+        const glowLeft = activeCoach.tabIdx * tabW
+        return (
+          <div className="coach-overlay show">
+            <div className="coach-tooltip" style={{ left: `clamp(88px, ${tooltipLeft}%, calc(100% - 88px))`, transform: 'translateX(-50%)' }}>
+              <div className="coach-pill">{activeCoach.label}</div>
+              <div className="coach-arrow" />
+            </div>
+            <div className="coach-tab-glow" style={{ left: `${glowLeft}%`, width: `${tabW}%` }} />
+            <div className="coach-foot">
+              <button className="coach-skip-btn" onClick={dismissCoach}>Skip</button>
+              <button className="coach-next-btn" onClick={() => {
+                if (coachStep < coachSteps.length - 1) setCoachStep(s => s + 1)
+                else dismissCoach()
+              }}>
+                {coachStep === coachSteps.length - 1 ? 'Got it ✓' : 'Next →'}
+              </button>
+            </div>
+          </div>
+        )
+      })()}
 
       {/* Tab bar */}
       <div className="tabbar">

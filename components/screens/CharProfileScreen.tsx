@@ -163,7 +163,7 @@ export default function CharProfileScreen() {
       </div>
 
       {/* Sticky message button */}
-      {!isPlayingAsThis && (
+      {isCricket && !isPlayingAsThis && (
         <div style={{ position:'absolute', left:0, right:0, bottom:0, padding:'12px 16px 18px',
           background:'linear-gradient(to top, var(--bg) 60%, transparent)' }}>
           <button
