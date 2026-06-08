@@ -178,7 +178,7 @@ const CRICKET_COMMENTS: Record<string, PostCommentOption[]> = {
 function CricketSeedFeed({ likedPosts, commentedPosts, onLike, onComment, commentOpen, onHandleComment, playingCharName, onViewChar }: CricketSeedProps) {
   const cricketChars = { ...CHARS, ...CRICKET_CHARS }
 
-  const seedPost = (id: string, charKey: string, bg: string, caption: string, fullCaption: string, likes: string, time: string) => {
+  const seedPost = (id: string, charKey: string, bg: string, caption: string, fullCaption: string, likes: string, time: string, imageUrl?: string) => {
     const char = cricketChars[charKey]
     if (!char) return null
     const liked = likedPosts.has(id)
@@ -198,8 +198,13 @@ function CricketSeedFeed({ likedPosts, commentedPosts, onLike, onComment, commen
           </div>
           <button className="icon-btn"><svg viewBox="0 0 24 24" width="20" height="20" fill="#fff"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
         </div>
-        <div className="post-img grain" style={{ background: bg }}>
-          <p className="overlay-txt" style={{ fontSize:14 }}>{caption}</p>
+        <div className="post-img grain" style={{
+          background: imageUrl ? 'none' : bg,
+          backgroundImage: imageUrl ? `url(${imageUrl})` : undefined,
+          backgroundSize: imageUrl ? 'cover' : undefined,
+          backgroundPosition: imageUrl ? 'center' : undefined,
+        }}>
+          {!imageUrl && <p className="overlay-txt" style={{ fontSize:14 }}>{caption}</p>}
         </div>
         <div className="post-actions">
           <button onClick={() => !liked && onLike(id, char.id as CharId, 3)}
@@ -259,13 +264,7 @@ function CricketSeedFeed({ likedPosts, commentedPosts, onLike, onComment, commen
               </div>
               <button className="icon-btn"><svg viewBox="0 0 24 24" width="20" height="20" fill="#fff"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
             </div>
-            <div className="post-img grain" style={{ background: '#0a1220' }}>
-              <p className="overlay-txt" style={{ fontSize:13, color:'rgba(255,255,255,.8)', lineHeight:1.6 }}>
-                MI ne ek 16-year-old batting prodigy draft kiya hai.<br /><br />
-                Wankhede mein pehle din ki clip dekhi? Uski aankhen dekho — nervous nahi. Curious hai.<br /><br />
-                <span style={{ color:'#FFB020', fontFamily:'var(--sans)', fontSize:11 }}>PALTAN IS WATCHING #MumbaiIndians</span>
-              </p>
-            </div>
+            <div className="post-img grain" style={{ backgroundImage:'url(/generated/cricket-posts/seed-paltanpulse.png)', backgroundSize:'cover', backgroundPosition:'center' }} />
             <div className="post-actions">
               <button onClick={() => !hwLiked && onLike('paltan-seed', 'hardik' as CharId, 1)}
                 style={{ background:'none', border:'none', cursor: hwLiked ? 'default':'pointer', display:'flex', alignItems:'center', opacity: hwLiked ? 0.6:1 }}>
@@ -304,13 +303,13 @@ function CricketSeedFeed({ likedPosts, commentedPosts, onLike, onComment, commen
       {seedPost('surya-seed', 'surya', 'linear-gradient(135deg,#004080,#001a40)',
         'Freedom ka matlab random nahi hota. Field dekh, phir pagal ban. T20 mein yahi farak hai. 😄🏏',
         'Range-hitting session done. #SKY #MumbaiIndians',
-        '891,204', '2 HOURS AGO')}
+        '891,204', '2 HOURS AGO', '/generated/cricket-posts/seed-surya.png')}
 
       {/* Bumrah */}
-      {seedPost('bumrah-seed', 'bumrah', 'linear-gradient(to bottom, rgba(0,0,0,.05) 0%, rgba(0,0,0,.6) 100%), url(/avatars/cricket-nets.png) center/cover',
+      {seedPost('bumrah-seed', 'bumrah', '',
         'Nets mein ego nahi chalta. Bas information. Good players adjust after one mistake.',
         'Work. Always. #Bumrah #MumbaiIndians',
-        '1,204,441', '4 HOURS AGO')}
+        '1,204,441', '4 HOURS AGO', '/generated/cricket-posts/seed-bumrah.png')}
 
       {/* @cricketroom_india */}
       {(() => {
@@ -324,15 +323,7 @@ function CricketSeedFeed({ likedPosts, commentedPosts, onLike, onComment, commen
                 <div className="s">890K followers · 45m ago</div>
               </div>
             </div>
-            <div className="post-img grain" style={{ background: '#0d1520' }}>
-              <p className="overlay-txt" style={{ fontSize:12, color:'rgba(255,255,255,.7)', lineHeight:1.65 }}>
-                MI draft analysis — {new Date().getFullYear()} edition.<br /><br />
-                The 16-year-old batting pick is the most interesting call. High ceiling, unknown floor.<br /><br />
-                Watch: how does the dressing room use them? That tells you everything about the trust.
-                <br /><br />
-                <span style={{ color:'#3DD6C8', fontSize:10 }}>THREAD: #MumbaiIndians #IPLDraft</span>
-              </p>
-            </div>
+            <div className="post-img grain" style={{ backgroundImage:'url(/generated/cricket-posts/seed-cricketroom.png)', backgroundSize:'cover', backgroundPosition:'center' }} />
             <div className="post-actions">
               <button onClick={() => !crLiked && onLike('cricketroom-seed', 'rohit' as CharId, 1)}
                 style={{ background:'none', border:'none', cursor: crLiked?'default':'pointer', display:'flex', alignItems:'center', opacity: crLiked?0.6:1 }}>
@@ -352,7 +343,7 @@ function CricketSeedFeed({ likedPosts, commentedPosts, onLike, onComment, commen
       {seedPost('tilak-seed', 'tilak', 'linear-gradient(135deg,#2a5a8f,#0a1a40)',
         'Hype sabko milta hai kabhi na kabhi. Trust repeat performances se milta hai. Season 1 is just the beginning. 💙',
         'Process pe raho. #TilakVarma #MumbaiIndians',
-        '342,108', '6 HOURS AGO')}
+        '342,108', '6 HOURS AGO', '/generated/cricket-posts/seed-tilak.png')}
 
       {/* @futurexi */}
       {(() => {
@@ -366,14 +357,7 @@ function CricketSeedFeed({ likedPosts, commentedPosts, onLike, onComment, commen
                 <div className="s">1.4M followers · 2h ago</div>
               </div>
             </div>
-            <div className="post-img grain" style={{ background: '#180a2a' }}>
-              <p className="overlay-txt" style={{ fontSize:12, color:'rgba(255,255,255,.8)', lineHeight:1.6 }}>
-                16 years old.<br />Mumbai Indians dressing room.<br />Rohit + SKY + Bumrah around them.<br /><br />
-                This is how future India stories start. Remember when you first heard about them.
-                <br /><br />
-                <span style={{ color:'#FFB020', fontSize:10 }}>#FutureIndia #MumbaiIndians #NextGen</span>
-              </p>
-            </div>
+            <div className="post-img grain" style={{ backgroundImage:'url(/generated/cricket-posts/seed-futurexi.png)', backgroundSize:'cover', backgroundPosition:'center' }} />
             <div className="post-actions">
               <button onClick={() => !fxLiked && onLike('futurexi-seed', 'tilak' as CharId, 2)}
                 style={{ background:'none', border:'none', cursor: fxLiked?'default':'pointer', display:'flex', alignItems:'center', opacity: fxLiked?0.6:1 }}>
