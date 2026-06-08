@@ -152,6 +152,7 @@ export type Screen =
   | 'profile'
   | 'char-profile'
   | 'onboarding'
+  | 'phone-auth'
 
 export interface GameState {
   playerName: string

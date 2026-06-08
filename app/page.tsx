@@ -20,13 +20,13 @@ import ProfileScreen from '@/components/screens/ProfileScreen'
 import CharProfileScreen from '@/components/screens/CharProfileScreen'
 import OnboardingScreen from '@/components/screens/OnboardingScreen'
 import CricketIntroScreen from '@/components/screens/CricketIntroScreen'
+import PhoneAuthScreen from '@/components/screens/PhoneAuthScreen'
 import FeedbackButton from '@/components/FeedbackButton'
 import ErrorBoundary from '@/components/ErrorBoundary'
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>('worlds')
   const [navHistory, setNavHistory] = useState<Screen[]>(['worlds'])
-  const [phone, setPhone] = useState('')
   const [dmChar, setDmChar] = useState<CharId | null>(null)
   const [dmTrust, setDmTrust] = useState<Record<string, number>>({})
   const [impactNotif, setImpactNotif] = useState<ImpactNotif | null>(null)
@@ -70,24 +70,39 @@ export default function App() {
       })
       return
     }
-    // Anonymous session — no login required
-    ensureSession()
-      .then(() => loadGameState())
-      .then(s => {
+    ;(async () => {
+      try {
+        const session = await ensureSession()
+        if (!session) {
+          navigate('phone-auth', { replace: true })
+          setReady(true)
+          return
+        }
+        const s = await loadGameState()
         setGame(s)
         navigate(s.playerName ? 'worlds' : 'onboarding', { replace: true })
-        setReady(true)
-      })
-      .catch(() => {
+      } catch {
         navigate('worlds', { replace: true })
+      } finally {
         setReady(true)
-      })
+      }
+    })()
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const navigate = useCallback((to: Screen, opts?: { replace?: boolean }) => {
     setScreen(to)
     setNavHistory(prev => opts?.replace ? [...prev.slice(0, -1), to] : [...prev, to])
   }, [])
+
+  const handleAuthSuccess = useCallback(async () => {
+    try {
+      const s = await loadGameState()
+      setGame(s)
+      navigate(s.playerName ? 'worlds' : 'onboarding', { replace: true })
+    } catch {
+      navigate('worlds', { replace: true })
+    }
+  }, [navigate])
 
   const goBack = useCallback(() => {
     setNavHistory(prev => {
@@ -340,7 +355,7 @@ export default function App() {
     <AppContext.Provider value={{
       screen, prevScreen: prev, dmChar, game, dmHistory, dmLastUpdated, dmTrust, charFame, likedPosts, viewingCharId, toast, impactNotif, showImpact,
       dmBadgeCount, clearDmBadge,
-      phone, setPhone, saveProfile,
+      saveProfile,
       advanceSituation, navigate, goBack, showToast, setChar, startGame, startCricketGame,
       makeChoice, sendDM, openDMThread, resetGame, likePost, applyFeedDeltas, injectCharDM, setViewingChar,
     }}>
@@ -348,6 +363,7 @@ export default function App() {
         <div className="phone">
           <ErrorBoundary>
           <div className="viewport">
+            <Slot id="phone-auth"    cur={screen} prev={prev}><PhoneAuthScreen onSuccess={handleAuthSuccess} /></Slot>
             <Slot id="onboarding"    cur={screen} prev={prev}><OnboardingScreen /></Slot>
             <Slot id="worlds"        cur={screen} prev={prev}><WorldsScreen /></Slot>
             <Slot id="world-intro"   cur={screen} prev={prev}><WorldIntroScreen /></Slot>
