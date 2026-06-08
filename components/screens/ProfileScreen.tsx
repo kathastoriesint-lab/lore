@@ -192,7 +192,7 @@ export default function ProfileScreen() {
     if (game.choices.length === 0) return []
     const start = isCricket ? { fame: 40, heat: 25, image: 20 } : { fame: 20, heat: 50, image: 30 }
     let meters = { ...start }
-    const result: { caption: string }[] = []
+    const result: { caption: string; imageUrl?: string }[] = []
     for (let i = 0; i < game.choices.length; i++) {
       const letter = game.choices[i]
       // Use situationQueue for world-aware, index-shift-safe lookup
@@ -208,7 +208,10 @@ export default function ProfileScreen() {
       const authoredPosts = asArray(ch?.post !== undefined ? ch.post : (isCricket ? null : legacyPlayerPost))
       authoredPosts.forEach(authoredPost => {
         if (authoredPost.source === 'player') {
-          result.push({ caption: resolveTokens(authoredPost.caption, game.playerName, game.playerGender) })
+          result.push({
+            caption: resolveTokens(authoredPost.caption, game.playerName, game.playerGender),
+            imageUrl: authoredPost.imageUrl,
+          })
         }
       })
       if (ch) meters = applyDeltas(meters, ch.deltas)
@@ -257,33 +260,6 @@ export default function ProfileScreen() {
         {/* Shared HUD */}
         <div style={{ marginTop:12 }}><MeterHUD /></div>
 
-        {/* T5: Your Ending trajectory */}
-        {game.choices.length >= 3 && (() => {
-          const FINALE_DATA = {
-            heart: { arc: 'Heat King/Queen', color: '#FF5C3A', emoji: '🔥' },
-            main:  { arc: 'Main Character',  color: '#FFB020', emoji: '⭐' },
-            brand: { arc: 'Brand Icon',       color: '#3DD6C8', emoji: '🤝' },
-            dark:  { arc: 'Dark Horse',       color: '#8a4ab0', emoji: '🌑' },
-            realDeal:        { arc: 'The Real Deal',        color: '#3DD6C8', emoji: '🏏' },
-            captainsProject: { arc: "Captain's Project",    color: '#FFB020', emoji: '💙' },
-            paltanWonderkid: { arc: 'Paltan Wonderkid',     color: '#FF2D78', emoji: '🔥' },
-            tooMuchTooSoon:  { arc: 'Too Much Too Soon',    color: '#FF5C3A', emoji: '⚠️' },
-            quietClimber:    { arc: 'Quiet Climber',        color: '#8a4ab0', emoji: '📈' },
-          } as Record<string, { arc: string; color: string; emoji: string }>
-          const key = isCricket ? resolveCricketEnding(game.meters) : resolveEnding(game.meters)
-          const ending = FINALE_DATA[key]
-          if (!ending) return null
-          return (
-            <div style={{ margin:'8px 16px 0', background:'var(--surf)', border:`1px solid color-mix(in srgb, ${ending.color} 30%, transparent)`, borderRadius:14, padding:'12px 14px', display:'flex', alignItems:'center', gap:12 }}>
-              <div style={{ fontSize:22, flexShrink:0 }}>{ending.emoji}</div>
-              <div style={{ flex:1 }}>
-                <div style={{ fontSize:9, fontWeight:800, letterSpacing:'.08em', color:'var(--ink3)' }}>AT THIS RATE</div>
-                <div style={{ fontFamily:'var(--serif)', fontWeight:600, fontSize:17, color:ending.color, marginTop:2 }}>{ending.arc}</div>
-              </div>
-              <div style={{ fontSize:11, color:'var(--ink3)' }}>ending →</div>
-            </div>
-          )
-        })()}
 
         {/* Tab switcher */}
         <div style={{ display:'flex', borderBottom:'1px solid var(--line)', marginTop:6 }}>
@@ -355,11 +331,15 @@ export default function ProfileScreen() {
             <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:2, marginTop:2 }}>
               {posts.map((p, i) => (
                 <div key={i} className={`av ${char.cls}`} style={{ aspectRatio:'1/1', borderRadius:0,
-                  background:`linear-gradient(160deg, var(--cc) 0%, #131323 100%)`, position:'relative',
-                  display:'grid', placeItems:'center', cursor:'pointer', width:'100%', height:'auto' }}>
-                  <div style={{ position:'absolute', inset:0, background:'rgba(0,0,0,.2)' }} />
-                  <div style={{ position:'relative', fontSize:9, color:'rgba(255,255,255,.9)', textAlign:'left',
-                    padding:'0 8px', fontStyle:'italic', fontFamily:'var(--serif)', lineHeight:1.3 }}>{p.caption}</div>
+                  background: p.imageUrl ? 'none' : `linear-gradient(160deg, var(--cc) 0%, #131323 100%)`,
+                  backgroundImage: p.imageUrl ? `url(${p.imageUrl})` : undefined,
+                  backgroundSize: 'cover', backgroundPosition: 'center',
+                  position:'relative', display:'grid', placeItems:'center', cursor:'pointer', width:'100%', height:'auto' }}>
+                  <div style={{ position:'absolute', inset:0, background: p.imageUrl ? 'rgba(0,0,0,.15)' : 'rgba(0,0,0,.2)' }} />
+                  {!p.imageUrl && (
+                    <div style={{ position:'relative', fontSize:9, color:'rgba(255,255,255,.9)', textAlign:'left',
+                      padding:'0 8px', fontStyle:'italic', fontFamily:'var(--serif)', lineHeight:1.3 }}>{p.caption}</div>
+                  )}
                 </div>
               ))}
             </div>
