@@ -3,3 +3,6 @@ node_modules/
 *.tsbuildinfo
 .vercel
 .gstack/
+.env.local
+.env*.local
+voice-samples/
