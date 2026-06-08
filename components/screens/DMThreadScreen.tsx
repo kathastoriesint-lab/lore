@@ -135,7 +135,12 @@ export default function DMThreadScreen() {
         </div>
         <div className="tinfo">
           <div className="tn">{char.name}</div>
-          <div className="tsub">{['hardik','rohit','surya','bumrah','tilak','coach','friend'].includes(charId ?? '') ? 'Mumbai Indians · Online' : 'Creator House · Online'}</div>
+          <div className="tsub">{
+            charId === 'friend' ? 'School friend · Online' :
+            charId === 'coach'  ? 'Childhood coach · Online' :
+            ['hardik','rohit','surya','bumrah','tilak','naman','robin','mahela'].includes(charId ?? '') ? 'Mumbai Indians · Online' :
+            'Creator House · Online'
+          }</div>
         </div>
         <button className="icon-btn" onClick={() => showToast('Video call coming soon 📹')}>
           <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round">

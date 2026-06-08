@@ -64,7 +64,7 @@ export default function LiveScreen() {
   const coachSteps = isCricket
     ? [
         { label: 'Yahan choices hoti hain',      tabIdx: 2, tabCount: 4 },
-        { label: 'Characters message karte hain', tabIdx: 1, tabCount: 4 },
+        { label: 'Characters se baat karo', tabIdx: 1, tabCount: 4 },
         { label: 'World ki reactions',             tabIdx: 0, tabCount: 4 },
       ]
     : [
@@ -767,17 +767,23 @@ export default function LiveScreen() {
                         </div>
 
                         {hasRealPost ? (
-                          /* Post image — caption pinned to bottom */
-                          <div style={{ margin: '0 12px', borderRadius: 10, background: postBg, aspectRatio: '4/3', position: 'relative', overflow: 'hidden' }}>
-                            <p style={{
-                              position: 'absolute', bottom: 0, left: 0, right: 0, margin: 0,
-                              padding: '32px 14px 14px',
-                              fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 14,
-                              color: 'rgba(255,255,255,.95)', lineHeight: 1.45,
-                              background: 'linear-gradient(to top, rgba(0,0,0,.55) 0%, transparent 100%)',
-                              textShadow: '0 1px 6px rgba(0,0,0,.5)',
-                            }}>{r(postSpec.caption)}</p>
-                          </div>
+                          <>
+                            <div style={{ margin: '0 12px', borderRadius: 10, background: postBg, aspectRatio: '4/3', position: 'relative', overflow: 'hidden' }}>
+                              {!postSpec.imageUrl && (
+                                <p style={{
+                                  position: 'absolute', bottom: 0, left: 0, right: 0, margin: 0,
+                                  padding: '32px 14px 14px',
+                                  fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 14,
+                                  color: 'rgba(255,255,255,.95)', lineHeight: 1.45,
+                                  background: 'linear-gradient(to top, rgba(0,0,0,.55) 0%, transparent 100%)',
+                                  textShadow: '0 1px 6px rgba(0,0,0,.5)',
+                                }}>{r(postSpec.caption)}</p>
+                              )}
+                            </div>
+                            <div style={{ padding: '10px 14px 0', fontSize: 13, lineHeight: 1.45, color: 'rgba(255,255,255,.9)' }}>
+                              <b>@{postOwner.handle}</b> {r(postSpec.caption)}
+                            </div>
+                          </>
                         ) : (
                           /* No post made — quiet offline note */
                           <div style={{ margin: '0 12px 12px', padding: '14px 16px', borderRadius: 10, background: 'rgba(255,255,255,.03)', border: '1px solid rgba(255,255,255,.06)' }}>

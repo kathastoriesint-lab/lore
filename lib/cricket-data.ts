@@ -511,6 +511,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
         deltas:{ fame:2, heat:-1, image:2 },
         post:{
           source:'player',
+          imageUrl:'/generated/cricket-posts/cr-s8-player.png',
           caption:'Tilak bhai ka finish dekh ke samjha: good shots alag cheez hain, right situation mein right shot alag. Public praise because this was a lesson. 💙',
           reactions:[
             { char:'tilak', text:'Respect. Ab next chase mein tu bata bowler ka plan kya tha.' },
@@ -533,6 +534,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
         post:{
           source:'account',
           ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
+          imageUrl:'/generated/cricket-posts/cr-s8-mipaltan.png',
           caption:'Lights stayed on late at the MI nets tonight. The young group is pushing hard, and {name} was among the last to leave. Work quietly. Grow loudly. 💙',
           reactions:[
             { char:'tilak', text:'Work good hai. Bas isolation ko process mat samajh.' },
@@ -732,6 +734,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
             post:{
               source:'account',
               ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
+              imageUrl:'/generated/cricket-posts/cr-s12-mipaltan.png',
               caption:'Calm first touch from {name} on debut. Noise around, eyes still. Found the gap, ran hard, and gave the chase exactly what it needed. 💙',
               reactions:[
                 { char:'hardik', text:'Good first decision. Scorecard se pehle decision dikhta hai.' },
@@ -746,6 +749,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
             post:{
               source:'account',
               ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
+              imageUrl:'/generated/cricket-posts/cr-s12-mipaltan.png',
               caption:'Tough first outing for {name}. Debut pressure is real, and today the stay was short. The work continues. Paltan stays behind the kid. 💙',
               reactions:[
                 { char:'rohit', text:'Happens. But learn quickly.' },
@@ -775,6 +779,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
             post:{
               source:'account',
               ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
+              imageUrl:'/generated/cricket-posts/cr-s12-mipaltan.png',
               caption:'First ball, first roar. {name} backed the shot and Wankhede felt the spark. Fearless, yes. But the timing made it work. 💙🔥',
               reactions:[
                 { char:'surya', text:'Intent mast. Field bhi padha, isliye shot nikla.' },
@@ -789,6 +794,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
             post:{
               source:'account',
               ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
+              imageUrl:'/generated/cricket-posts/cr-s12-mipaltan.png',
               caption:'A bold first-ball intent from {name}, but debut nights are unforgiving. Out early today. Back to work tomorrow. 💙',
               reactions:[
                 { char:'surya', text:'Intent tha. Base missing tha.' },

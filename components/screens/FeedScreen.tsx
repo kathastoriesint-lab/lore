@@ -709,7 +709,9 @@ export default function FeedScreen() {
                     alignItems:'flex-end',
                   }}
                 >
-                  <p className="overlay-txt" style={{ fontSize:14, textShadow:'0 1px 8px rgba(0,0,0,.7)' }}>{resolveTokens(post.caption, game.playerName, game.playerGender)}</p>
+                  {!post.imageUrl && (
+                    <p className="overlay-txt" style={{ fontSize:14, textShadow:'0 1px 8px rgba(0,0,0,.7)' }}>{resolveTokens(post.caption, game.playerName, game.playerGender)}</p>
+                  )}
                 </div>
                 <div className="post-actions">
                   <button

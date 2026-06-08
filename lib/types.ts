@@ -148,6 +148,7 @@ export type Screen =
   | 'worlds'
   | 'world-intro'
   | 'cricket-intro'
+  | 'cricket-carousel'
   | 'feed'
   | 'narrator'
   | 'live'

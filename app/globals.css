@@ -663,3 +663,211 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .wintro-btn-skip{width:100%;height:42px;background:rgba(255,255,255,.06);
   color:var(--ink2);font-family:var(--sans);font-weight:500;font-size:13px;
   border:1px solid var(--line);border-radius:14px;cursor:pointer}
+
+/* ============================================================
+   ONBOARDING — App Intro · Cricket Carousel · Coach Marks
+   ============================================================ */
+
+/* ── App Intro Overlay (bottom sheet over WorldsScreen) ── */
+.app-intro-overlay{
+  position:absolute;inset:0;z-index:20;
+  display:flex;flex-direction:column;justify-content:flex-end;
+  background:rgba(0,0,0,0);pointer-events:none;
+  transition:background .35s;
+}
+.app-intro-overlay.show{background:rgba(0,0,0,.72);pointer-events:all;}
+.app-intro-sheet{
+  background:#0d0d1a;border-radius:28px 28px 0 0;
+  border:1px solid rgba(255,255,255,.1);border-bottom:none;
+  transform:translateY(100%);
+  transition:transform .45s cubic-bezier(.32,.72,0,1);
+  overflow:hidden;flex-shrink:0;padding-bottom:36px;
+}
+.app-intro-overlay.show .app-intro-sheet{transform:translateY(0);}
+.app-intro-handle{
+  width:36px;height:4px;background:rgba(255,255,255,.18);
+  border-radius:2px;margin:14px auto 0;
+}
+.app-intro-window{overflow:hidden;width:100%;}
+.app-intro-track{
+  display:flex;
+  transition:transform .4s cubic-bezier(.32,.72,0,1);
+}
+.app-intro-slide{min-width:100%;padding:28px 26px 18px;}
+.app-intro-logo{display:flex;align-items:center;gap:8px;margin-bottom:20px;}
+.app-intro-logo svg{filter:drop-shadow(0 0 8px rgba(255,45,120,.5));}
+.app-intro-logo span{font-family:var(--serif);font-size:22px;font-weight:600;}
+.app-intro-h{
+  font-family:var(--serif);font-size:28px;font-weight:600;
+  line-height:1.12;margin-bottom:14px;
+}
+.app-intro-p{font-size:15px;color:var(--ink2);line-height:1.65;}
+.app-intro-rows{display:flex;flex-direction:column;gap:18px;margin-top:6px;}
+.app-intro-row{display:flex;align-items:flex-start;gap:14px;}
+.app-intro-icon{font-size:22px;flex-shrink:0;line-height:1;margin-top:1px;}
+.app-intro-row-label{font-weight:700;font-size:15px;margin-bottom:3px;}
+.app-intro-row-sub{font-size:13px;color:var(--ink3);line-height:1.5;}
+.app-intro-dots{display:flex;justify-content:center;gap:6px;padding:16px 0 14px;}
+.app-intro-dot{
+  height:5px;border-radius:3px;background:rgba(255,255,255,.2);
+  width:5px;transition:all .3s;
+}
+.app-intro-dot.active{width:18px;background:var(--accent);}
+.app-intro-foot{padding:0 22px;display:flex;flex-direction:column;gap:10px;}
+.app-intro-cta-btn{
+  width:100%;height:52px;background:var(--accent);
+  color:#fff;font-weight:700;font-size:15px;font-family:var(--sans);
+  border-radius:14px;border:none;cursor:pointer;
+  box-shadow:0 8px 24px rgba(255,45,120,.35);
+}
+.app-intro-skip-btn{
+  width:100%;height:36px;background:none;border:none;
+  color:var(--ink3);font-size:13px;font-family:var(--sans);cursor:pointer;
+}
+
+/* ── Cricket Carousel Screen ── */
+.cc-root{
+  position:absolute;inset:0;
+  background:linear-gradient(180deg,#001540 0%,#080f24 52%,#08080f 100%);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.cc-skip-btn{
+  position:absolute;top:52px;right:18px;z-index:5;
+  font-size:13px;font-weight:600;color:rgba(255,255,255,.35);
+  background:none;border:none;padding:10px 14px;cursor:pointer;
+  font-family:var(--sans);
+}
+.cc-dots{
+  position:relative;z-index:2;
+  display:flex;justify-content:center;gap:6px;
+  padding-top:52px;flex-shrink:0;
+}
+.cc-dot{
+  width:5px;height:5px;border-radius:3px;
+  background:rgba(255,255,255,.2);transition:all .35s;
+}
+.cc-dot.active{width:20px;background:rgba(255,255,255,.75);}
+.cc-slides-window{flex:1;overflow:hidden;position:relative;z-index:2;min-height:0;}
+.cc-slides-track{
+  display:flex;height:100%;
+  transition:transform .5s cubic-bezier(.32,.72,0,1);
+}
+.cc-slide{
+  min-width:100%;height:100%;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:0 42px;text-align:center;
+}
+.cc-live-badge{
+  display:inline-flex;align-items:center;gap:7px;
+  font-size:10px;font-weight:800;letter-spacing:.14em;
+  color:#FFB020;opacity:.6;margin-bottom:32px;flex-shrink:0;
+}
+.cc-live-dot{width:6px;height:6px;border-radius:50%;background:#ff3b3b;flex-shrink:0;}
+.cc-big{
+  font-family:var(--serif);font-size:44px;font-weight:600;
+  line-height:1.07;color:#fff;
+}
+.cc-body{font-size:15px;color:rgba(255,255,255,.5);line-height:1.72;margin-top:18px;}
+.cc-avatars{display:flex;gap:20px;justify-content:center;margin-top:30px;}
+.cc-av-wrap{display:flex;flex-direction:column;align-items:center;gap:8px;}
+.cc-av{
+  width:52px;height:52px;border-radius:50%;
+  background:rgba(255,255,255,.05);
+  border:1.5px solid rgba(255,255,255,.1);
+  display:grid;place-items:center;
+  font-size:17px;font-weight:800;color:rgba(255,255,255,.25);
+}
+.cc-av-name{font-size:11px;font-weight:600;color:rgba(255,255,255,.3);letter-spacing:.02em;}
+.cc-meters{display:flex;flex-direction:column;gap:16px;width:100%;margin-top:24px;}
+.cc-meter-head{
+  display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px;
+}
+.cc-meter-label{font-size:11px;font-weight:800;letter-spacing:.06em;}
+.cc-meter-val{font-size:11px;color:rgba(255,255,255,.35);}
+.cc-meter-track{height:4px;border-radius:2px;background:rgba(255,255,255,.07);overflow:hidden;}
+.cc-meter-fill{height:100%;border-radius:2px;}
+.cc-nav{
+  position:relative;z-index:2;
+  padding:12px 22px 30px;display:flex;gap:10px;flex-shrink:0;
+}
+.cc-back-btn{
+  flex:1;height:48px;background:rgba(255,255,255,.07);
+  border:1px solid rgba(255,255,255,.1);color:var(--ink2);
+  font-size:14px;font-weight:600;border-radius:14px;
+  cursor:pointer;font-family:var(--sans);
+}
+.cc-next-btn{
+  flex:2;height:48px;background:rgba(255,255,255,.1);
+  border:1px solid rgba(255,255,255,.15);color:#fff;
+  font-size:14px;font-weight:700;border-radius:14px;
+  cursor:pointer;font-family:var(--sans);
+}
+.cc-cta-wrap{position:relative;z-index:2;padding:16px 24px 44px;flex-shrink:0;}
+.cc-enter-btn{
+  width:100%;padding:18px 0;
+  background:linear-gradient(135deg,#003087,#001a5a);
+  color:#fff;font-size:16px;font-weight:700;
+  border-radius:16px;border:none;cursor:pointer;font-family:var(--sans);
+  box-shadow:0 10px 32px rgba(0,48,135,.55);
+  transition:transform .15s,box-shadow .15s;
+}
+.cc-enter-btn:active{transform:scale(.98);box-shadow:0 4px 16px rgba(0,48,135,.4);}
+.cc-coming-soon{
+  font-size:11px;color:rgba(255,255,255,.2);
+  margin-top:10px;text-align:center;letter-spacing:.04em;
+}
+
+/* ── Coach Marks overlay (LiveScreen) ── */
+.coach-overlay{
+  position:absolute;inset:0;z-index:15;
+  background:rgba(0,0,0,.82);
+  pointer-events:none;opacity:0;
+  transition:opacity .3s;
+}
+.coach-overlay.show{opacity:1;pointer-events:all;}
+.coach-tooltip{
+  position:absolute;
+  bottom:calc(var(--tabbar) + 10px);
+  display:flex;flex-direction:column;align-items:center;
+  transition:left .35s cubic-bezier(.32,.72,0,1),transform .35s cubic-bezier(.32,.72,0,1);
+}
+.coach-pill{
+  background:#fff;color:#0A0A0F;
+  font-size:13px;font-weight:600;
+  padding:9px 16px;border-radius:20px;
+  white-space:nowrap;
+  box-shadow:0 4px 20px rgba(0,0,0,.5);
+}
+.coach-arrow{
+  width:0;height:0;
+  border-left:7px solid transparent;
+  border-right:7px solid transparent;
+  border-top:8px solid #fff;
+}
+.coach-tab-glow{
+  position:absolute;bottom:0;
+  height:var(--tabbar);
+  background:rgba(255,255,255,.07);
+  border-top:1.5px solid rgba(255,255,255,.35);
+  transition:left .35s cubic-bezier(.32,.72,0,1),width .35s;
+  pointer-events:none;
+}
+.coach-foot{
+  position:absolute;
+  bottom:calc(var(--tabbar) + 82px);
+  left:0;right:0;
+  display:flex;justify-content:center;align-items:center;gap:24px;
+}
+.coach-next-btn{
+  background:var(--accent);color:#fff;
+  font-size:14px;font-weight:700;
+  padding:11px 26px;border-radius:24px;
+  border:none;cursor:pointer;font-family:var(--sans);
+  box-shadow:0 6px 20px rgba(255,45,120,.4);
+}
+.coach-skip-btn{
+  background:none;border:none;
+  color:rgba(255,255,255,.4);font-size:13px;
+  cursor:pointer;font-family:var(--sans);
+}
