@@ -96,7 +96,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       'Ghar ke drawing room mein TV ka volume itna loud hai ki auctioneer ka har naam seedha seene mein lag raha hai. Tumhare saamne teen cheezein rakhi hain: ek half-empty water bottle, Coach Sir ka old notebook, aur tumhara phone — jo abhi tak disturbingly silent hai.',
       'Phir screen par tumhara naam aata hai. Base price. Do second ki khamoshi. Phir Mumbai Indians ka paddle uthta hai. Ek aur team join karti hai. MI phir paddle uthata hai.',
       '*Sold. Mumbai Indians.*',
-      'Room mein awaaz phat jaati hai. Phone vibrate hona shuru. First notification: @futurexi: "MI just bought a 16-year-old batting prodigy. Remember the name: {name}." Dusra: {friend} calling. Teesra: unknown number — MI admin.',
+      'Room mein awaaz phat jaati hai. Phone vibrate hona shuru. First notification: @futurexi: "MI just bought a 16-year-old batting prodigy. Watch this space." Dusra: {friend} calling. Teesra: unknown number — MI admin.',
     ],
     react:{ char:'coach', text:'Beta, khushi mana. Par yaad rakh — Mumbai Indians ne tujhe khareeda hai. Cricket ne abhi accept nahi kiya.' },
     q:'Auction ke turant baad kya karte ho?',
@@ -160,7 +160,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
     id:'CR-S2', day:1, slot:'Morning', tag:'⚡ FIRST DAY · WANKHEDE',
     title:'Training Kit',
     body:[
-      'Wankhede ke players\' entrance par tum ek second ruk jaate ho. Blue training kit abhi bhi nayi smell kar rahi hai. Backpack par tumhara naam printed hai — {name} — aur uske neeche MI logo.',
+      'Wankhede ke players\' entrance par tum ek second ruk jaate ho. Blue training kit abhi bhi nayi smell kar rahi hai. Backpack par tumhara naam printed hai, aur uske neeche MI logo.',
       'Andar field par alag duniya chal rahi hai. Hardik boundary ke paas Mahela ke saath baat kar raha hai. Rohit side-net ke paas khada hai, kisi young bowler ko quietly kuch samjha raha hai. Bumrah apna run-up mark kar raha hai. Tilak throwdowns le raha hai.',
       'Surya tumhe dekh leta hai. Door se grin. Haath utha ke bolta hai: "Aa gaya finally?"',
       'Sab friendly hai. Par sab dekh bhi rahe hain. Tum kaise enter karte ho, yeh pehla data point hai.',
@@ -251,7 +251,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
     id:'CR-S3', day:2, slot:'Afternoon', tag:'⚡ NETS · AFTERNOON',
     title:'Bumrah Ka Over',
     body:[
-      'Nets ka pehla serious rotation. Tum pads pehne khade ho jab Mahela bolta hai: "{name}, next net. Jasprit, one over."',
+      'Nets ka pehla serious rotation. Tum pads pehne khade ho jab Mahela bolta hai: "Kid, next net is yours. Jasprit, one over."',
       'Bas. Itna hi. Bumrah ball haath mein ghumata hai. Koi sledging nahi. Koi smile nahi. Pehli ball — length dikhti kuch aur hai, guzarti kuch aur. Beat. Dusri — late movement, edge, side-net. Teesri — slower one, tum almost shot complete kar chuke ho jab ball aati hai.',
       'Side se Surya bolta hai: "Welcome package."',
       'Tum dekh sakte ho: Hardik arms folded. Rohit still. Tilak gloves pehne wait kar raha hai. Yeh sirf net over nahi hai. Yeh room ka pehla real test hai.',
@@ -564,7 +564,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
     body:[
       'Teesra match. Teesri baar tum XI sheet mein nahi ho.',
       'Pehle match mein tumne bola: "Good for team." Dusre mein: "Long season." Aaj jab team sheet aayi, tumne bas smile kiya. Woh professional smile jo aankhon tak nahi jaata.',
-      'Wankhede mein crowd MI chant kar raha hai. Tum orange bib mein boundary ke paas warm-up kar rahe ho. Fan page notification: @paltanpulse: "Why buy {name} if you\'re not going to play him?"',
+      'Wankhede mein crowd MI chant kar raha hai. Tum orange bib mein boundary ke paas warm-up kar rahe ho. Fan page notification: @paltanpulse: "Why buy this kid if you\'re not going to play him?"',
       'Drinks break ke time Hardik tumhe bottle deta hai. "Stay ready." Yeh simple line hai. Ya test. Ya warning.',
     ],
     react:{ char:'hardik', text:'Bench pe kaise behave karta hai player, XI se pehle wahi dikhta hai.' },
@@ -958,7 +958,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
             { char:'__fan', name:'cricketroom_india', text:'Handled the brand integration without sounding scripted. Rare for a teenager.' },
           ],
         },
-        caption:'First interview done. Nerves bhi the, gratitude bhi. Back to work. 💙',
+        caption:'First interview done. Nerves bhi the, gratitude bhi. Back to work, {name}. 💙',
         reactions:[
           { char:'hardik', text:'Good. No headline. Clear answer.' },
           { char:'__fan', name:'cricketroom_india', text:'The answer felt honest, not media-trained.' },
@@ -1747,7 +1747,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       'MI final mai pahoch gayi hai. Ab pressure ka shape badal gaya hai. Selection, batting position, fan edits — sab final ke lens se dekha ja raha hai.',
       'Tumhaare pe pressure bahot hai ab. Semi-final ke contribution par debate chal raha hai: hero, passenger, or unfinished story?',
       'Semi-final ke baad dressing room ka mood result ke hisaab se nahi, contribution ke hisaab se tumhare andar settle ho raha hai.',
-      'Team bus ke bahar fan chillata hai: "{name}, final mein century!"',
+      'Team bus ke bahar fan chillata hai: "Final mein century maaro!"',
       'Coach Sir ka message: "Final mein zero se start."',
     ],
     react:{ char:'hardik', text:'Semi-final khatam. Final alag game hai.' },
