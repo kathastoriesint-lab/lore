@@ -50,18 +50,23 @@ export default function LiveScreen() {
 
   // Coach marks — shown once on first Live visit
   const [coachStep, setCoachStep] = useState(-1)
+  // True while first-visit coach marks are pending/showing — holds narration
+  // until the tutorial is dismissed (so audio starts after, not during).
+  const [coachPending, setCoachPending] = useState(false)
   const coachShownRef = useRef(false)
   useEffect(() => {
     if (screen !== 'live') return
     if (coachShownRef.current) return
     if (typeof window !== 'undefined' && localStorage.getItem('seen_live_tips')) return
     coachShownRef.current = true
+    setCoachPending(true)
     const t = setTimeout(() => setCoachStep(0), 700)
     return () => clearTimeout(t)
   }, [screen])
   const dismissCoach = useCallback(() => {
     localStorage.setItem('seen_live_tips', '1')
     setCoachStep(-1)
+    setCoachPending(false)
   }, [])
 
   const coachSteps = isCricket
@@ -558,7 +563,7 @@ export default function LiveScreen() {
               <NarrationButton
                 text={[displaySit.title, ...displaySit.body].map(p => stripHtml(r(p))).join('. ')}
                 pauseSignal={pauseSignal}
-                active={screen === 'live'}
+                active={screen === 'live' && !coachPending}
               />
             )}
             <div className="sit-tag" style={{ display:'flex', alignItems:'center', gap:6 }}>
