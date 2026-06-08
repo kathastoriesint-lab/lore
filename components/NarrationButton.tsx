@@ -1,5 +1,6 @@
 'use client'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { audioHashBrowser } from '@/lib/voice'
 
 type PlayState = 'loading' | 'playing' | 'paused' | 'idle' | 'blocked' | 'error'
 
@@ -34,11 +35,18 @@ export default function NarrationButton({ text, active, pauseSignal }: Props) {
 
     ;(async () => {
       try {
-        const res = await fetch('/api/narrate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text }),
-        })
+        // Static-first: pre-generated clips are committed to public/audio and
+        // served straight from the CDN — no serverless call, no API key needed.
+        // Only fall back to the TTS route for text that isn't already cached.
+        const hash = await audioHashBrowser(text)
+        let res = await fetch(`/audio/${hash}.mp3`)
+        if (!res.ok) {
+          res = await fetch('/api/narrate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text }),
+          })
+        }
         if (!res.ok) throw new Error(`HTTP ${res.status}`)
         if (cancelled) return
         const blob = await res.blob()
