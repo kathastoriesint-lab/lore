@@ -239,16 +239,16 @@ function CricketSeedFeed({ likedPosts, commentedPosts, onLike, onComment, commen
   return (
     <>
       {/* Hardik */}
-      {seedPost('hardik-seed', 'hardik', 'linear-gradient(to bottom, rgba(0,0,0,.1) 0%, rgba(0,0,0,.55) 100%), url(/avatars/cricket-dressing-room.png) center/cover',
+      {seedPost('hardik-seed', 'hardik', '',
         '"Ready rehna. Role-ready hota hai, reel-ready nahi." — Wankhede ki pehli practice. Season 1 starts now. 💙',
         'Team set hai. Kaam shuru. #MumbaiIndians #IPL',
-        '284,102', '3 HOURS AGO')}
+        '284,102', '3 HOURS AGO', '/generated/cricket-posts/seed-hardik.png')}
 
       {/* Rohit */}
-      {seedPost('rohit-seed', 'rohit', 'linear-gradient(135deg,#1a3a6e,#080818)',
+      {seedPost('rohit-seed', 'rohit', '',
         'Pehle 12 ball survive karo. Phir game tumhara. Simple nahi. Lekin sach. 🏏',
         'Tempo. Bas. #Cricket #MumbaiIndians',
-        '512,884', '5 HOURS AGO')}
+        '512,884', '5 HOURS AGO', '/generated/cricket-posts/seed-rohit.png')}
 
       {/* @paltanpulse gossip account */}
       {(() => {
