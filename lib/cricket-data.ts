@@ -160,7 +160,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
     id:'CR-S2', day:1, slot:'Morning', tag:'⚡ FIRST DAY · WANKHEDE',
     title:'Training Kit',
     body:[
-      'Wankhede ke players\' entrance par tum ek second ruk jaate ho. Blue training kit abhi bhi nayi smell kar rahi hai. Backpack par tumhara naam printed hai, aur uske neeche MI logo.',
+      'Wankhede ke players\' entrance par tum ek second ruk jaate ho. Blue training kit abhi bhi nayi smell kar rahi hai. Backpack bilkul nayi hai — uske neeche MI logo.',
       'Andar field par alag duniya chal rahi hai. Hardik boundary ke paas Mahela ke saath baat kar raha hai. Rohit side-net ke paas khada hai, kisi young bowler ko quietly kuch samjha raha hai. Bumrah apna run-up mark kar raha hai. Tilak throwdowns le raha hai.',
       'Surya tumhe dekh leta hai. Door se grin. Haath utha ke bolta hai: "Aa gaya finally?"',
       'Sab friendly hai. Par sab dekh bhi rahe hain. Tum kaise enter karte ho, yeh pehla data point hai.',
