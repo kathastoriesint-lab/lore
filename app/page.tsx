@@ -23,6 +23,7 @@ import CricketIntroScreen from '@/components/screens/CricketIntroScreen'
 import CricketCarouselScreen from '@/components/screens/CricketCarouselScreen'
 import FeedbackButton from '@/components/FeedbackButton'
 import ErrorBoundary from '@/components/ErrorBoundary'
+import { analytics, getDeviceId } from '@/lib/analytics'
 
 const clampTrust = (n: number) => Math.max(0, Math.min(100, Math.round(n)))
 
@@ -105,13 +106,21 @@ export default function App() {
     }
     // Anonymous session — no login required
     ensureSession()
-      .then(() => loadGameState())
+      .then(async (session) => {
+        const uid = session?.user?.id ?? null
+        analytics.init(uid)
+        analytics.track('session_started', null, { referrer: document.referrer || null })
+        return loadGameState()
+      })
       .then(s => {
         setGame(s)
-        navigate(s.playerName ? 'worlds' : 'onboarding', { replace: true })
+        const target = s.playerName ? 'worlds' : 'onboarding'
+        navigate(target, { replace: true })
+        if (!s.playerName) analytics.track('onboarding_started', null)
         setReady(true)
       })
       .catch(() => {
+        analytics.init(null)
         navigate('worlds', { replace: true })
         setReady(true)
       })
@@ -129,7 +138,10 @@ export default function App() {
       showToast('DMs are disabled for Creator House right now')
       return
     }
-    setScreen(to)
+    setScreen(prev => {
+      analytics.trackScreen(to, game.world ?? null, prev)
+      return to
+    })
     setNavHistory(prev => opts?.replace ? [...prev.slice(0, -1), to] : [...prev, to])
   }, [game.world, showToast])
 
@@ -154,7 +166,8 @@ export default function App() {
   const saveProfile = useCallback(async (name: string, gender: 'male' | 'female', avatarUrl?: string) => {
     const updated: GameState = { ...game, playerName: name, playerGender: gender, avatarUrl }
     setGame(updated)
-    await saveGameState(updated)
+    await saveGameState(updated, getDeviceId())
+    analytics.track('onboarding_completed', null, { gender, has_avatar: !!avatarUrl })
     // Expose a setter on window so the async avatar generator can update without re-rendering onboarding
     if (typeof window !== 'undefined') {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -187,6 +200,7 @@ export default function App() {
     setDmTrust({ ...CRICKET_DM_TRUST_START })
     setRelationshipAlerts([])
     saveAndSet(newState)
+    analytics.track('world_entered', 'cricket', { world_id: 'cricket' })
     if (typeof window !== 'undefined') localStorage.setItem('lore_feed_seen', '1')
     navigate('live')
   }, [game.playerName, game.playerGender, saveAndSet, navigate])
@@ -293,6 +307,15 @@ export default function App() {
       : game.runMemory
     setGame(prev => ({ ...prev, meters: newMeters, flags: newFlags, choices: newChoices, runMemory: newRunMemory }))
     applyChoiceRelationshipEffects(sit, ch, game.meters, newMeters)
+    analytics.track('choice_made', game.world, {
+      situation_id: currentId,
+      choice: letter,
+      situation_index: game.situation,
+      day: sit.day,
+      fame_after: newMeters.fame,
+      heat_after: newMeters.heat,
+      image_after: newMeters.image,
+    })
     await recordChoice(game.situation, letter)
   }, [applyChoiceRelationshipEffects, game])
 
@@ -301,6 +324,7 @@ export default function App() {
     setDmChar(charId)
     navigate('dm-thread')
     setDmBadgeCount(0) // clear badge on open
+    analytics.track('dm_opened', game.world, { char_id: charId })
     if (!dmDbLoadedRef.current.has(charId)) {
       dmDbLoadedRef.current.add(charId)
       const msgs = await loadDMs(charId)
@@ -406,6 +430,12 @@ export default function App() {
     setDmHistory(prev => ({ ...prev, [charId]: [...(prev[charId] ?? []), charMsg] }))
     setDmLastUpdated(prev => ({ ...prev, [charId]: Date.now() }))
     saveDM(charId, charMsg).catch(() => {})
+    analytics.track('dm_sent', game.world, {
+      char_id: charId,
+      message_length: text.length,
+      trust_before: currentTrust,
+      trust_band: trustBand,
+    })
     scoreTrustDelta(charId, text, reply, currentTrust).then(delta => {
       if (delta === 0) return
       adjustIndividualTrust(charId, delta)

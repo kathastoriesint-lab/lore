@@ -110,7 +110,7 @@ export async function loadGameState(): Promise<GameState> {
   }
 }
 
-export async function saveGameState(state: GameState) {
+export async function saveGameState(state: GameState, deviceId?: string) {
   const { data: { user } } = await supabase().auth.getUser()
   if (!user) return
   await supabase().from('game_state').upsert({
@@ -125,6 +125,7 @@ export async function saveGameState(state: GameState) {
     narrator_done: state.narrator_done,
     day_unlock_time: state.dayUnlockTime,
     avatar_url: state.avatarUrl ?? null,
+    ...(deviceId ? { device_id: deviceId } : {}),
     game_data: {
       situationQueue: state.situationQueue,
       flags: state.flags,
