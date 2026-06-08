@@ -104,6 +104,11 @@ export default function App() {
       })
       return
     }
+    // Nudge SW to pick up new deploy — silent, no user action needed
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.update()))
+    }
+
     // Anonymous session — no login required
     ensureSession()
       .then(async (session) => {
