@@ -2,22 +2,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createHash } from 'crypto'
 import { access, mkdir, readFile, writeFile } from 'fs/promises'
 import { join } from 'path'
+import { VOICE_ID, MODEL_ID, VOICE_SETTINGS, cacheKeyInput } from '@/lib/voice'
 
-const VOICE_ID = 'H6QPv2pQZDcGqLwDTIJQ'
-const MODEL_ID = 'eleven_multilingual_v2'
-const VOICE_SETTINGS = {
-  stability: 0.2,
-  similarity_boost: 0.75,
-  style: 0.7,
-  use_speaker_boost: true,
-}
 const AUDIO_DIR = join(process.cwd(), 'public', 'audio')
 
 const hashText = (text: string) =>
-  createHash('sha256')
-    .update(`${VOICE_ID}|${JSON.stringify(VOICE_SETTINGS)}|${text}`)
-    .digest('hex')
-    .slice(0, 16)
+  createHash('sha256').update(cacheKeyInput(text)).digest('hex').slice(0, 16)
 
 const fileExists = async (path: string) => {
   try { await access(path); return true } catch { return false }
