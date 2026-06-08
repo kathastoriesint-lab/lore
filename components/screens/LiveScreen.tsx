@@ -7,6 +7,9 @@ import { CRICKET_CHARS, CRICKET_SITUATIONS, CRICKET_ENDING_DATA, resolveCricketE
 import { getStats, clamp, resolveEnding, resolveTokens } from '@/lib/game'
 import { sentimentDelta } from '@/lib/relationships'
 import MeterHUD from '@/components/MeterHUD'
+import NarrationButton from '@/components/NarrationButton'
+
+const stripHtml = (s: string) => s.replace(/<[^>]+>/g, '')
 
 
 const StatusBar = () => (
@@ -125,6 +128,7 @@ export default function LiveScreen() {
   // Choice state
   const [chosen, setChosen] = useState<0 | 1 | null>(null)
   const [showImpact, setShowImpact] = useState(false)
+  const [pauseSignal, setPauseSignal] = useState(0)
   const [showPost, setShowPost] = useState(false)
   const [stats, setStats] = useState<{ total: number; pctA: number } | null>(null)
   // Chapter beat — brief full-screen card between situations
@@ -203,6 +207,7 @@ export default function LiveScreen() {
 
   const handleChoice = useCallback(async (idx: 0 | 1) => {
     if (processingRef.current || !sit) return
+    setPauseSignal(s => s + 1)
     const preChoiceMeters = { ...game.meters }
     processingRef.current = true
     setChosen(idx)
@@ -549,6 +554,13 @@ export default function LiveScreen() {
              to the situation the player chose in, even after advanceSituation() fires */}
         {displaySit && (
           <div className="situation">
+            {situation < 5 && (
+              <NarrationButton
+                text={[displaySit.title, ...displaySit.body].map(p => stripHtml(r(p))).join('. ')}
+                pauseSignal={pauseSignal}
+                active={screen === 'live'}
+              />
+            )}
             <div className="sit-tag" style={{ display:'flex', alignItems:'center', gap:6 }}>
               {displaySit.tag}
               <span style={{ display:'inline-flex', alignItems:'center', gap:4, fontSize:9, fontWeight:800, color:'#ff3b3b', letterSpacing:'.04em' }}>
