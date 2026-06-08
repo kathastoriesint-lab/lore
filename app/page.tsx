@@ -117,6 +117,12 @@ export default function App() {
       })
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
+  const showToast = useCallback((msg: string) => {
+    setToast(msg)
+    if (toastTimer.current) clearTimeout(toastTimer.current)
+    toastTimer.current = setTimeout(() => setToast(null), 2000)
+  }, [])
+
   const navigate = useCallback((to: Screen, opts?: { replace?: boolean }) => {
     const isDmRoute = to === 'dm-inbox' || to === 'dm-thread'
     if (isDmRoute && game.world !== 'cricket') {
@@ -134,12 +140,6 @@ export default function App() {
       setScreen(next[next.length - 1])
       return next
     })
-  }, [])
-
-  const showToast = useCallback((msg: string) => {
-    setToast(msg)
-    if (toastTimer.current) clearTimeout(toastTimer.current)
-    toastTimer.current = setTimeout(() => setToast(null), 2000)
   }, [])
 
   const saveAndSet = useCallback((next: GameState) => {
