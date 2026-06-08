@@ -108,6 +108,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
         post:{
           source:'account',
           ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
+          imageUrl:'/generated/cricket-posts/cr-s1-mipaltan.png',
           caption:'Mumbai Indians dressing room mein ek naya sensation aa gaya hai. Young, fearless, and already carrying a city-sized dream. Welcome to the Paltan, {name}. 💙',
           reactions:[
             { char:'coach', text:'Sahi. Pehle ghar. Kal se kaam.' },
@@ -128,6 +129,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
           {
             source:'account',
             ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
+            imageUrl:'/generated/cricket-posts/cr-s1-mipaltan.png',
             caption:'Mumbai Indians dressing room mein ek naya sensation aa gaya hai. Paltan, remember this face. The journey starts now. 💙',
             reactions:[
               { char:'__fan', name:'paltanpulse', text:'OUR KID IS HERE. This is exactly the kind of story Paltan loves.' },
@@ -135,6 +137,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
           },
           {
             source:'player',
+            imageUrl:'/generated/cricket-posts/cr-s1-player.png',
             caption:'First time MI jersey haath mein aayi toh samajh nahi aaya smile karun ya ro doon. From academy nets to this blue. Dream begins tonight. 💙',
             reactions:[
               { char:'friend', text:'CAPTION READY THA KYA?? 😭 bro sold hua aur influencer mode on.' },
@@ -176,6 +179,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
           {
             source:'player',
             display:'live-only',
+            imageUrl:'/generated/cricket-posts/cr-s2-player.png',
             caption:'First day in blue. Less talking, more learning. 🏏',
             reactions:[
               { char:'tilak', text:'Good. Pehle din observe karna underrated hai.' },
@@ -187,12 +191,14 @@ export const CRICKET_SITUATIONS: Situation[] = [
             source:'account',
             ...CRICKET_SOCIAL_ACCOUNTS.mumbaiIndians,
             display:'feed-only',
+            imageUrl:'/generated/cricket-posts/cr-s2-mumbaiindians.png',
             caption:'Training day at Wankhede. New faces, old standards, and the same blue intensity. 💙',
           },
           {
             source:'account',
             ...CRICKET_SOCIAL_ACCOUNTS.cricketroom,
             display:'feed-only',
+            imageUrl:'/generated/cricket-posts/cr-s2-cricketroom.png',
             caption:'MI training visuals show Rohit speaking quietly with the young group while Hardik and Mahela keep the focus on roles. Early days, useful signals.',
           },
         ],
@@ -211,6 +217,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
           {
             source:'player',
             display:'live-only',
+            imageUrl:'/generated/cricket-posts/cr-s2-player.png',
             caption:'First training. First blue kit. Energy different hai. 💙',
             reactions:[
               { char:'surya', text:'Good good, energy hai. Ab dekhte hain ball aane pe energy kahan jaati hai 😄' },
@@ -222,6 +229,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
             source:'account',
             ...CRICKET_SOCIAL_ACCOUNTS.mumbaiIndians,
             display:'feed-only',
+            imageUrl:'/generated/cricket-posts/cr-s2-mumbaiindians.png',
             caption:'Wankhede training had the full range today: Hardik in tactical chats, SKY bringing the smiles, and the young guns settling into blue. 💙',
           },
           {
@@ -265,6 +273,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
         deltas:{ fame:3, heat:-1, image:2 },
         post:{
           source:'player',
+          imageUrl:'/generated/cricket-posts/cr-s3-player.png',
           caption:'Bumrah bhai ko saamne se dekh ke samjha: best player sirf ball nahi daalta, poora problem solve karwata hai. Learning from the best. 🏏',
           reactions:[
             { char:'bumrah', text:'Better. Is baar tumne dekha.' },
@@ -280,6 +289,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
         deltas:{ fame:-2, heat:2, image:-2 },
         post:{
           source:'player',
+          imageUrl:'/generated/cricket-posts/cr-s3-player.png',
           caption:'Tried to take on Bumrah bhai and got the real lesson: best player wahi hai jo intent ko bhi test bana deta hai. Respect. 🏏',
           reactions:[
             { char:'surya', text:'Shot intent mast tha. Ball thoda jaldi aa gaya tere plan se 😄' },
@@ -313,6 +323,16 @@ export const CRICKET_SITUATIONS: Situation[] = [
         t:'360 shots try karo — range dikhao',
         s:'Yeh chance hai Surya ko dikhane ka ki tum boring nahi ho.',
         deltas:{ fame:1, heat:2, image:-1 },
+        post:{
+          source:'player',
+          imageUrl:'/generated/cricket-posts/cr-s4-player.png',
+          caption:'Learning angles from the best. Some shots you don\'t copy, you earn. 😄🏏',
+          reactions:[
+            { char:'surya', text:'Energy mast. Ab next time ball bhi choose kar lena champion.' },
+            { char:'tilak', text:'Range hai. Control build karna padega.' },
+            { char:'__fan', name:'paltanpulse', text:'Surya teaching the kid range-hitting. This is the content we signed up for.' },
+          ],
+        },
         caption:'Learning angles from the best. Some shots you don\'t copy, you earn. 😄🏏',
         reactions:[
           { char:'surya', text:'Energy mast. Ab next time ball bhi choose kar lena champion.' },
@@ -325,6 +345,16 @@ export const CRICKET_SITUATIONS: Situation[] = [
         t:'Poochho kaunsi ball pe kaunsa shot',
         s:'Shot nahi, decision seekho.',
         deltas:{ fame:3, heat:0, image:2 },
+        post:{
+          source:'player',
+          imageUrl:'/generated/cricket-posts/cr-s4-player.png',
+          caption:'Aaj samjha: shot se pehle field padhna padta hai. T20 is not random. 🧠🏏',
+          reactions:[
+            { char:'surya', text:'Good question. Isliye tu seekhega fast.' },
+            { char:'rohit', text:'Shot sab dekhte hain. Sawal kam log poochte hain.' },
+            { char:'__fan', name:'cricketroom_india', text:'The viral part is SKY teaching the shot. The important part is the youngster asking about field logic.' },
+          ],
+        },
         caption:'Aaj samjha: shot se pehle field padhna padta hai. T20 is not random. 🧠🏏',
         reactions:[
           { char:'surya', text:'Good question. Isliye tu seekhega fast.' },
@@ -361,6 +391,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
         post:{
           source:'account',
           ...CRICKET_SOCIAL_ACCOUNTS.paltanPulse,
+          imageUrl:'/generated/cricket-posts/cr-s5-paltanpulse.png',
           caption:'Quiet Rohit masterclass at MI nets today. No speeches, no drama. Just one line to a newcomer and suddenly the whole session had meaning. This is how seniors guide the next batch.',
           reactions:[
             { char:'rohit', text:'Bas game samajhna hai. Baaki aa jaata hai.' },
@@ -382,6 +413,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
         post:{
           source:'account',
           ...CRICKET_SOCIAL_ACCOUNTS.paltanPulse,
+          imageUrl:'/generated/cricket-posts/cr-s5-paltanpulse.png',
           caption:'Rohit quietly guiding newcomers again. One line after nets, one confused smile from the kid, and a lot for MI fans to decode.',
           reactions:[
             { char:'surya', text:'Rohit bhai one-liners ko lightly mat lena 😄' },
@@ -420,6 +452,16 @@ export const CRICKET_SITUATIONS: Situation[] = [
         t:'Accept karo — team jahan bole, wahan bat karunga',
         s:'Agar MI ko role chahiye, toh role do. Trust yahin banta hai.',
         deltas:{ fame:1, heat:-1, image:3 },
+        post:{
+          source:'player',
+          imageUrl:'/generated/cricket-posts/cr-s6-player.png',
+          caption:'Role clarity. Team first. Ready whenever needed. 💙',
+          reactions:[
+            { char:'hardik', text:'Good. Yeh answer vague nahi tha.' },
+            { char:'tilak', text:'Yahi se chances open hote hain. Seriously.' },
+            { char:'__fan', name:'cricketroom_india', text:'Role acceptance may decide how soon MI use their teenage batter.' },
+          ],
+        },
         caption:'Role clarity. Team first. Ready whenever needed. 💙',
         reactions:[
           { char:'hardik', text:'Good. Yeh answer vague nahi tha.' },
@@ -432,6 +474,16 @@ export const CRICKET_SITUATIONS: Situation[] = [
         t:'Bol do opening tumhara best use hai',
         s:'Agar tum apni strength nahi bologe, kaun bolega?',
         deltas:{ fame:1, heat:2, image:-3 },
+        post:{
+          source:'player',
+          imageUrl:'/generated/cricket-posts/cr-s6-player.png',
+          caption:'Clarity matters. I know my game. I know where I can impact. 🏏',
+          reactions:[
+            { char:'hardik', text:'Fair. Bas team sheet individual comfort se nahi banti.' },
+            { char:'rohit', text:'Opener banna hai toh wait kar. Player banna hai toh adapt kar.' },
+            { char:'__fan', name:'paltanpulse', text:'Let the kid open! Why buy a prodigy and then hide him at 6?' },
+          ],
+        },
         caption:'Clarity matters. I know my game. I know where I can impact. 🏏',
         reactions:[
           { char:'hardik', text:'Fair. Bas team sheet individual comfort se nahi banti.' },
@@ -465,6 +517,16 @@ export const CRICKET_SITUATIONS: Situation[] = [
         t:'Sponsor reel shoot karo',
         s:'Visibility bhi career ka part hai. MI social team bhi team ka part hai.',
         deltas:{ fame:-2, heat:3, image:-2 },
+        post:{
+          source:'player',
+          imageUrl:'/generated/cricket-posts/cr-s7-player.png',
+          caption:'First matchweek with MI. Grateful for every moment. Big things loading. 💙',
+          reactions:[
+            { char:'surya', text:'Reel clean tha. Bas kal timing bhi clean rakhna 😄' },
+            { char:'bumrah', text:'Over kal nahi milega.' },
+            { char:'__fan', name:'paltanpulse', text:'Sponsor reel already? Starboy behaviour. Need debut now.' },
+          ],
+        },
         caption:'First matchweek with MI. Grateful for every moment. Big things loading. 💙',
         reactions:[
           { char:'surya', text:'Reel clean tha. Bas kal timing bhi clean rakhna 😄' },
@@ -477,6 +539,16 @@ export const CRICKET_SITUATIONS: Situation[] = [
         t:'Extra nets lo — Bumrah ka over',
         s:'Reel wait karegi. Slower ball nahi.',
         deltas:{ fame:3, heat:-1, image:2 },
+        post:{
+          source:'player',
+          imageUrl:'/generated/cricket-posts/cr-s7-player.png',
+          caption:'Phone kit bag mein raha. Nets mein tha. 🏏',
+          reactions:[
+            { char:'bumrah', text:'Better. Still early on the slower one, but better.' },
+            { char:'hardik', text:'Noted.' },
+            { char:'__fan', name:'cricketroom_india', text:'MI\'s young batter skipped a sponsor capture for extra nets. Small thing. Serious signal.' },
+          ],
+        },
         caption:'Phone kit bag mein raha. Nets mein tha. 🏏',
         reactions:[
           { char:'bumrah', text:'Better. Still early on the slower one, but better.' },
@@ -576,6 +648,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
         deltas:{ fame:1, heat:-1, image:3 },
         post:{
           source:'player',
+          imageUrl:'/generated/cricket-posts/cr-s9-shared.png',
           caption:'Not in the XI yet, but drills, drinks, fielding, energy — full involvement. Bench phase bhi team ka part hai. 💙',
           reactions:[
             { char:'hardik', text:'Good. Yeh attitude useful hai.' },
@@ -598,6 +671,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
         post:{
           source:'account',
           ...CRICKET_SOCIAL_ACCOUNTS.paltanPulse,
+          imageUrl:'/generated/cricket-posts/cr-s9-shared.png',
           caption:'Question needs asking: why draft a 16-year-old prodigy if the plan is only orange bibs and drinks duty? Paltan wants clarity. The kid looks ready. Does MI trust him yet?',
           reactions:[
             { char:'surya', text:'Likes bhi screenshots ban jaate hain champion.' },
@@ -638,6 +712,16 @@ export const CRICKET_SITUATIONS: Situation[] = [
         t:'Weakness admit karo, plan maango',
         s:'Sach bolna short-term uncomfortable hai. Long-term useful.',
         deltas:{ fame:3, heat:-1, image:2 },
+        post:{
+          source:'player',
+          imageUrl:'/generated/cricket-posts/cr-s10-player.png',
+          caption:'Weakness naam dene se chhoti ho jaati hai. Ignore karne se badi. 🏏',
+          reactions:[
+            { char:'mahela', text:'Good. Now we can work.' },
+            { char:'tilak', text:'Admit karna hard hota hai. But plan tabhi banta hai.' },
+            { char:'__fan', name:'cricketroom_india', text:'If MI use the youngster, watch his spin matchup. That may decide batting position.' },
+          ],
+        },
         caption:'Weakness naam dene se chhoti ho jaati hai. Ignore karne se badi. 🏏',
         reactions:[
           { char:'mahela', text:'Good. Now we can work.' },
@@ -650,6 +734,16 @@ export const CRICKET_SITUATIONS: Situation[] = [
         t:'Bol do ready ho kisi bhi matchup ke liye',
         s:'Opportunity ke pehle doubt dikhana dangerous lagta hai.',
         deltas:{ fame:0, heat:1, image:-2 },
+        post:{
+          source:'player',
+          imageUrl:'/generated/cricket-posts/cr-s10-player.png',
+          caption:'Ready for whatever comes. That\'s the job. 🏏',
+          reactions:[
+            { char:'mahela', text:'Confidence noted. Plan still needed.' },
+            { char:'bumrah', text:'Opponent plan ke saath aayega. Statement ke saath nahi.' },
+            { char:'__fan', name:'futurexi', text:'Love the confidence. Big players believe before others do.' },
+          ],
+        },
         caption:'Ready for whatever comes. That\'s the job. 🏏',
         reactions:[
           { char:'mahela', text:'Confidence noted. Plan still needed.' },
@@ -681,6 +775,16 @@ export const CRICKET_SITUATIONS: Situation[] = [
         t:'"Wherever the team needs"',
         s:'Role fluid hai. Tum bhi fluid ho.',
         deltas:{ fame:1, heat:0, image:3 },
+        post:{
+          source:'player',
+          imageUrl:'/generated/cricket-posts/cr-s11-player.png',
+          caption:'If the chance comes, the role is simple: do what the team needs. 💙',
+          reactions:[
+            { char:'hardik', text:'Good. Clear.' },
+            { char:'tilak', text:'Ab chance aayega toh ready rehna. Yeh line easy nahi hoti.' },
+            { char:'__fan', name:'cricketroom_india', text:'Role flexibility may be the reason MI finally use their young batter.' },
+          ],
+        },
         caption:'If the chance comes, the role is simple: do what the team needs. 💙',
         reactions:[
           { char:'hardik', text:'Good. Clear.' },
@@ -693,6 +797,16 @@ export const CRICKET_SITUATIONS: Situation[] = [
         t:'Top-order chance maango',
         s:'Agar debut hai, toh best chance bhi hona chahiye.',
         deltas:{ fame:1, heat:2, image:-2 },
+        post:{
+          source:'player',
+          imageUrl:'/generated/cricket-posts/cr-s11-player.png',
+          caption:'Big stages need clear roles. I know where I can impact. 🏏',
+          reactions:[
+            { char:'hardik', text:'Noted. Team balance bhi noted.' },
+            { char:'rohit', text:'Opening ka pressure glamorous lagta hai jab tak pehli ball swing nahi karti.' },
+            { char:'__fan', name:'paltanpulse', text:'Give him top order. Don\'t waste him. Wankhede wants the kid.' },
+          ],
+        },
         caption:'Big stages need clear roles. I know where I can impact. 🏏',
         reactions:[
           { char:'hardik', text:'Noted. Team balance bhi noted.' },
@@ -840,6 +954,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
             source:'character',
             char:'hardik',
             display:'feed-only',
+            imageUrl:'/generated/cricket-posts/cr-s13-hardik.png',
             caption:'Debut nights are special. What matters more is how a young player comes back the next morning. Good start, {name}. Long season. 💙',
             reactions:[{ char:'__fan', name:'mipaltan', text:'Captain backing the kid after debut. Big moment.' }],
           },
@@ -847,6 +962,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
             source:'character',
             char:'surya',
             display:'feed-only',
+            imageUrl:'/generated/cricket-posts/cr-s13-surya.png',
             caption:'First match pressure hits different. Kid handled the room well. Ab kal nets mein real fun 😄💙',
             reactions:[{ char:'__fan', name:'paltanpulse', text:'SKY approval after debut. We are seated.' }],
           },
@@ -854,6 +970,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
             source:'account',
             ...CRICKET_SOCIAL_ACCOUNTS.paltanPulse,
             display:'feed-only',
+            imageUrl:'/generated/cricket-posts/cr-s13-paltanpulse.png',
             caption:'DEBUT WATCH: {name} has officially played for Mumbai Indians. Whatever the scorecard says, this is the start of a very serious Indian cricket story.',
             reactions:[{ char:'__fan', name:'futurexi', text:'The timeline will remember this first appearance.' }],
           },
@@ -861,6 +978,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
             source:'character',
             char:'friend',
             display:'feed-only',
+            imageUrl:'/generated/cricket-posts/cr-s13-friend.png',
             caption:'My bro really debuted for MI and still owes me a call. Proud? Yes. Angry? Also yes. BROOOOOOOOOOOOO.',
             reactions:[{ char:'__fan', name:'memeovers', text:'Maddy is all of us after that debut.' }],
           },
@@ -887,6 +1005,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
             source:'character',
             char:'hardik',
             display:'feed-only',
+            imageUrl:'/generated/cricket-posts/cr-s13-hardik.png',
             caption:'Debut is one step. The league tests repeatability. Back to work, {name}.',
             reactions:[{ char:'__fan', name:'cricketroom_india', text:'Captain keeping the hype grounded.' }],
           },
@@ -894,6 +1013,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
             source:'character',
             char:'surya',
             display:'feed-only',
+            imageUrl:'/generated/cricket-posts/cr-s13-surya.png',
             caption:'Debut reel fire tha. Bas kal bowling machine bhi reel banayegi if late hua 😄💙',
             reactions:[{ char:'__fan', name:'paltanpulse', text:'SKY teasing him after debut is wholesome content.' }],
           },
@@ -901,6 +1021,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
             source:'account',
             ...CRICKET_SOCIAL_ACCOUNTS.paltanPulse,
             display:'feed-only',
+            imageUrl:'/generated/cricket-posts/cr-s13-paltanpulse.png',
             caption:'The debut reel is everywhere. {name} has arrived on the IPL timeline, and Paltan has already started making edits.',
             reactions:[{ char:'__fan', name:'futurexi', text:'This is how star arcs begin.' }],
           },
@@ -908,6 +1029,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
             source:'character',
             char:'friend',
             display:'feed-only',
+            imageUrl:'/generated/cricket-posts/cr-s13-friend.png',
             caption:'Debut reel viral. Group chat finished. I am accepting interviews as childhood friend from today.',
             reactions:[{ char:'__fan', name:'memeovers', text:'Maddy monetizing friendship faster than brands.' }],
           },
@@ -952,6 +1074,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
         post:{
           source:'account',
           ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
+          imageUrl:'/generated/cricket-posts/cr-s14-mipaltan.png',
           caption:'First interview after debut. {name} kept it honest: nerves, gratitude, and back to work. Presented by our hydration partner. 💙',
           reactions:[
             { char:'hardik', text:'Good. No headline. Clear answer.' },
@@ -972,6 +1095,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
         post:{
           source:'account',
           ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
+          imageUrl:'/generated/cricket-posts/cr-s14-mipaltan.png',
           caption:'Debut interview: big emotions, bigger dreams. {name} says the first match was "only the trailer" while thanking Paltan and our hydration partner. 💙',
           reactions:[
             { char:'surya', text:'Trailer line mast tha. Bas series bhi achhi banana 😄' },
@@ -1009,6 +1133,16 @@ export const CRICKET_SITUATIONS: Situation[] = [
         t:'Specific mistakes accept karo',
         s:'Score se zyada process dikhao. Seniors ko yeh language samajh aati hai.',
         deltas:{ fame:2, heat:-1, image:2 },
+        post:{
+          source:'player',
+          imageUrl:'/generated/cricket-posts/cr-s15-player.png',
+          caption:'Kal ki innings kal ki thi. Aaj ka session aaj ka hai. Review room mein score se zyada process dekha. 🏏',
+          reactions:[
+            { char:'mahela', text:'Good. That is useful feedback.' },
+            { char:'bumrah', text:'You saw the mistake. Now reduce repeat.' },
+            { char:'__fan', name:'cricketroom_india', text:'Post-debut review will decide whether MI use him as a one-off spark or a serious role option.' },
+          ],
+        },
         caption:'Kal ki innings kal ki thi. Aaj ka session aaj ka hai. 🏏',
         reactions:[
           { char:'mahela', text:'Good. That is useful feedback.' },
@@ -1021,6 +1155,16 @@ export const CRICKET_SITUATIONS: Situation[] = [
         t:'Positive spin rakho — confidence project karo',
         s:'Young player ko doubt dikhana dangerous lag sakta hai.',
         deltas:{ fame:0, heat:1, image:-1 },
+        post:{
+          source:'player',
+          imageUrl:'/generated/cricket-posts/cr-s15-player.png',
+          caption:'First one done. Took lessons. Still backing my game. Review done, next session loading. 🏏',
+          reactions:[
+            { char:'hardik', text:'Backing game is fine. Naming gaps is better.' },
+            { char:'surya', text:'Confidence rakho. Bas feedback ko enemy mat samjho.' },
+            { char:'__fan', name:'futurexi', text:'Loved the confidence after debut. This kid carries himself like he belongs.' },
+          ],
+        },
         caption:'First one done. Took lessons. Still backing my game. 🏏',
         reactions:[
           { char:'hardik', text:'Backing game is fine. Naming gaps is better.' },
@@ -1052,6 +1196,17 @@ export const CRICKET_SITUATIONS: Situation[] = [
         t:'Young Table ke saath raho',
         s:'Dressing room trust sirf runs se nahi, time se bhi banta hai.',
         deltas:{ fame:0, heat:0, image:2 },
+        post:{
+          source:'account',
+          ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
+          imageUrl:'/generated/cricket-posts/cr-s16-mipaltan.png',
+          caption:'Recovery evening with the group. No nets, no noise, just the kind of dressing-room time young players remember. 💙',
+          reactions:[
+            { char:'naman', text:'Finally prodigy normal nikla.' },
+            { char:'surya', text:'Cards mein bhi shot selection weak hai iska.' },
+            { char:'__fan', name:'paltanpulse', text:'Young MI group bonding clips are too wholesome.' },
+          ],
+        },
         caption:'Squad time. 💙',
         reactions:[
           { char:'naman', text:'Finally prodigy normal nikla.' },
@@ -1067,6 +1222,17 @@ export const CRICKET_SITUATIONS: Situation[] = [
         t:'Home Circle ko call karo',
         s:'Famous room se bahar bhi tumhari ek duniya hai. Use zinda rakho.',
         deltas:{ fame:1, heat:-1, image:1 },
+        post:{
+          source:'account',
+          ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
+          imageUrl:'/generated/cricket-posts/cr-s16-mipaltan.png',
+          caption:'Recovery evening in the MI room. The season moves fast, but the group stays close. 💙',
+          reactions:[
+            { char:'coach', text:'Good. Ab stance dikha.' },
+            { char:'friend', text:'Finally. I had 14 jokes loaded.' },
+            { char:'__fan', name:'cricketroom_india', text:'Young players who keep old anchors often handle hype better.' },
+          ],
+        },
         caption:'Ghar se baat ki. Ground pe raha. 💙',
         reactions:[
           { char:'coach', text:'Good. Ab stance dikha.' },
@@ -1102,6 +1268,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
         deltas:{ fame:0, heat:2, image:1 },
         post:{
           source:'player',
+          imageUrl:'/generated/cricket-posts/cr-s17-player.png',
           caption:'Proud to partner with StrikePro Cricket. Same bat, bigger responsibility. Work continues. 🏏 #StrikePro',
           reactions:[
             { char:'friend', text:'Bro got bat sticker money before I got internship.' },
@@ -1117,6 +1284,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
         deltas:{ fame:0, heat:2, image:-1 },
         post:{
           source:'player',
+          imageUrl:'/generated/cricket-posts/cr-s17-player.png',
           caption:'Proud to partner with StrikePro Cricket. Same bat, bigger responsibility. Work continues. 🏏 #StrikePro',
           reactions:[
             { char:'friend', text:'Bro got bat sticker money before I got internship.' },
@@ -1151,6 +1319,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
         post:{
           source:'account',
           ...CRICKET_SOCIAL_ACCOUNTS.paltanPulse,
+          imageUrl:'/generated/cricket-posts/cr-s18-shared.png',
           caption:'Superstar in the making? {name} just found ugly, useful away runs in Chennai. Not every future star arrives through sixes. Some arrive through hard singles.',
           reactions:[
             { char:'tilak', text:'Good. Pitch ko ego se nahi, plan se khela.' },
@@ -1172,6 +1341,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
         post:{
           source:'account',
           ...CRICKET_SOCIAL_ACCOUNTS.futurexi,
+          imageUrl:'/generated/cricket-posts/cr-s18-shared.png',
           caption:'There is a superstar shape here. {name} tried to change Chennai\'s mood instead of surviving it. Risky? Yes. Box office? Also yes.',
           reactions:[
             { char:'surya', text:'Agar nikal gaya toh genius. Agar nahi nikla toh clip. Dono mein farak hai.' },
@@ -1211,6 +1381,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
         post:{
           source:'character',
           char:'rohit',
+          imageUrl:'/generated/cricket-posts/cr-s19-rohit.png',
           caption:'Young blood ko runs se zyada result feel hona chahiye. Aaj ek kid ne woh line samjhi. Good sign.',
           reactions:[
             { char:'hardik', text:'This is the right pain.' },
@@ -1231,6 +1402,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
         post:{
           source:'character',
           char:'rohit',
+          imageUrl:'/generated/cricket-posts/cr-s19-rohit.png',
           caption:'Young blood ko yeh samajhna padta hai: good innings bhi loss mein incomplete lagti hai. That discomfort is useful.',
           reactions:[
             { char:'coach', text:'Sahi discomfort.' },
@@ -1269,6 +1441,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
         post:{
           source:'account',
           ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
+          imageUrl:'/generated/cricket-posts/cr-s20-mipaltan.png',
           caption:'Travel day. Recovery, analysis, and a young squad learning how long seasons are built between games. 💙',
           reactions:[{ char:'__fan', name:'cricketroom_india', text:'Generic travel post, but the process is visible.' }],
         },
@@ -1286,6 +1459,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
         post:{
           source:'account',
           ...CRICKET_SOCIAL_ACCOUNTS.paltanPulse,
+          imageUrl:'/generated/cricket-posts/cr-s20-paltanpulse.png',
           caption:'MI travel day scenes: young table memes, seniors locked into analysis, and the season rolling into its serious phase.',
           reactions:[{ char:'__fan', name:'memeovers', text:'Young table content is undefeated.' }],
         },
@@ -1318,6 +1492,16 @@ export const CRICKET_SITUATIONS: Situation[] = [
         t:'Sach bolo — darr lagta hai, par practice help karti hai',
         s:'Honest answer brand-safe bhi ho sakta hai, bas plastic nahi.',
         deltas:{ fame:1, heat:1, image:2 },
+        post:{
+          source:'player',
+          imageUrl:'/generated/cricket-posts/cr-s21-player.png',
+          caption:'Best question today came from the smallest helmet in the room. Fear is real. Practice helps. 💙',
+          reactions:[
+            { char:'coach', text:'Achha jawab. Bachche ko jhooth nahi bola.' },
+            { char:'surya', text:'Good. Real tha.' },
+            { char:'__fan', name:'paltanpulse', text:'This clip is adorable and actually deep. Protect him.' },
+          ],
+        },
         caption:'Best question today came from the smallest helmet in the room. Fear is real. Practice helps. 💙',
         reactions:[
           { char:'coach', text:'Achha jawab. Bachche ko jhooth nahi bola.' },
@@ -1329,6 +1513,16 @@ export const CRICKET_SITUATIONS: Situation[] = [
         t:'Star answer do — no fear, only confidence',
         s:'Kids ko hero chahiye. Hero bano.',
         deltas:{ fame:-1, heat:2, image:-2 },
+        post:{
+          source:'player',
+          imageUrl:'/generated/cricket-posts/cr-s21-player.png',
+          caption:'No fear when you love the game. 💙',
+          reactions:[
+            { char:'rohit', text:'Fear nahi bolna easy hai. Handle karna hard.' },
+            { char:'friend', text:'No fear? Bro you screamed at a cockroach last year.' },
+            { char:'__fan', name:'futurexi', text:'That\'s the mentality. Big-stage players speak differently.' },
+          ],
+        },
         caption:'No fear when you love the game. 💙',
         reactions:[
           { char:'rohit', text:'Fear nahi bolna easy hai. Handle karna hard.' },
@@ -1363,6 +1557,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
           {
             source:'account',
             ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
+            imageUrl:'/generated/cricket-posts/cr-s22-mipaltan.png',
             caption:'17 off 8. Finished in blue. {name} stayed calm, picked the right matchup, and took MI home in a must-win game. Paltan, remember this night. 💙',
             reactions:[{ char:'hardik', text:'That is finishing.' }],
           },
@@ -1370,6 +1565,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
             source:'character',
             char:'hardik',
             display:'feed-only',
+            imageUrl:'/generated/cricket-posts/cr-s22-hardik.png',
             caption:'Finish ka matlab game khatam karna. Tonight {name} did that.',
             reactions:[{ char:'__fan', name:'paltanpulse', text:'Captain stamp after a win. Huge.' }],
           },
@@ -1377,6 +1573,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
             source:'character',
             char:'rohit',
             display:'feed-only',
+            imageUrl:'/generated/cricket-posts/cr-s22-rohit.png',
             caption:'Good. Situation jeeta.',
             reactions:[{ char:'__fan', name:'cricketroom_india', text:'Rohit does not waste words. This means something.' }],
           },
@@ -1401,6 +1598,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
           {
             source:'account',
             ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
+            imageUrl:'/generated/cricket-posts/cr-s22-mipaltan.png',
             caption:'Must-win night, massive pressure, and {name} went for the early boundary. The finish got tense, but the spark changed the over. 💙',
             reactions:[{ char:'surya', text:'Intent clear tha. Finish cleaner ho sakta tha.' }],
           },
@@ -1447,6 +1645,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
         deltas:{ fame:0, heat:2, image:1 },
         post:{
           source:'player',
+          imageUrl:'/generated/cricket-posts/cr-s17-player.png',
           caption:'Built for the finish. Proud to announce my match-week partnership with StrikePro Cricket after a special win for MI. Work continues. 🏏 #StrikePro',
           reactions:[
             { char:'hardik', text:'Good. Keep the work first.' },
@@ -1462,6 +1661,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
         deltas:{ fame:0, heat:2, image:-1 },
         post:{
           source:'player',
+          imageUrl:'/generated/cricket-posts/cr-s17-player.png',
           caption:'Built for the finish. Proud to announce my match-week partnership with StrikePro Cricket after a special win for MI. Work continues. 🏏 #StrikePro',
           reactions:[
             { char:'hardik', text:'Good. Keep the work first.' },
@@ -1496,6 +1696,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
         post:{
           source:'account',
           ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
+          imageUrl:'/generated/cricket-posts/cr-s24-mipaltan.png',
           caption:'India question came early. {name} kept the focus on Mumbai Indians: one role, one game at a time. 💙',
           reactions:[
             { char:'hardik', text:'Good.' },
@@ -1517,6 +1718,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
         post:{
           source:'account',
           ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
+          imageUrl:'/generated/cricket-posts/cr-s24-mipaltan.png',
           caption:'Big dreams, bigger work. {name} admits every kid dreams of India, but says the current job is still Mumbai Indians. 🇮🇳💙',
           reactions:[
             { char:'hardik', text:'Work first wala part yaad rakh.' },
@@ -1562,6 +1764,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
             post:{
               source:'account',
               ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
+              imageUrl:'/generated/cricket-posts/cr-s25-pass.png',
               caption:'NRR pressure, two roles, one calm finish. {name} switched gears and won the match for MI. Playoff race is alive. 💙',
               reactions:[
                 { char:'rohit', text:'Good. Match situation samjha.' },
@@ -1577,6 +1780,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
             post:{
               source:'account',
               ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
+              imageUrl:'/generated/cricket-posts/cr-s25-fail.png',
               caption:'Qualification race stays alive. Team effort, sharp fielding, and calm late overs get MI over the line. 💙',
               reactions:[
                 { char:'__fan', name:'paltanpulse', text:'Win is a win. Bigger tests coming.' },
@@ -1604,6 +1808,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
             post:{
               source:'account',
               ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
+              imageUrl:'/generated/cricket-posts/cr-s25-pass.png',
               caption:'Intent under NRR pressure. {name} attacked early, broke the chase open, and MI got the margin they needed. 💙🔥',
               reactions:[
                 { char:'hardik', text:'Intent worked because execution was there.' },
@@ -1618,6 +1823,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
             post:{
               source:'account',
               ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
+              imageUrl:'/generated/cricket-posts/cr-s25-fail.png',
               caption:'Qualification equation goes down to the wire. MI stay alive through a full-team effort. 💙',
               reactions:[
                 { char:'__fan', name:'cricketroom_india', text:'The youngster wanted the attacking role, but this was more team grind than individual story.' },
@@ -1664,6 +1870,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
             post:{
               source:'account',
               ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
+              imageUrl:'/generated/cricket-posts/cr-s26-pass-mipaltan.png',
               caption:'MI ARE IN THE FINAL. On a slow pitch, {name} stayed longer than the noise and carried the chase into safe waters. 💙',
               reactions:[
                 { char:'rohit', text:'Good. Game samjha.' },
@@ -1678,6 +1885,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
             post:{
               source:'account',
               ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
+              imageUrl:'/generated/cricket-posts/cr-s26-fail-mipaltan.png',
               caption:'MI ARE IN THE FINAL. A full-team semi-final grind takes the Paltan to the big night. 💙',
               reactions:[
                 { char:'__fan', name:'paltanpulse', text:'Final time. Everyone breathe.' },
@@ -1705,6 +1913,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
             post:{
               source:'account',
               ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
+              imageUrl:'/generated/cricket-posts/cr-s26-pass-mipaltan.png',
               caption:'Counterattack in a semi-final. {name} changed the pressure, changed the chase, and MI are in the final. 💙🔥',
               reactions:[
                 { char:'surya', text:'Aaj tera ball tha. Good.' },
@@ -1719,6 +1928,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
             post:{
               source:'account',
               ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
+              imageUrl:'/generated/cricket-posts/cr-s26-fail-mipaltan.png',
               caption:'MI ARE IN THE FINAL. Not the cleanest chase, not the easiest night, but the team finds a way. 💙',
               reactions:[
                 { char:'__fan', name:'cricketroom_india', text:'Youngster tried to counterattack, but the team story was bigger tonight.' },
@@ -1757,6 +1967,16 @@ export const CRICKET_SITUATIONS: Situation[] = [
         t:'Reset karo — final ko new game treat karo',
         s:'Hero bhi zero se start karta hai. Failure bhi.',
         deltas:{ fame:2, heat:-1, image:2 },
+        post:{
+          source:'player',
+          imageUrl:'/generated/cricket-posts/cr-s27-player.png',
+          caption:'One more game. Reset. Final alag game hai. 💙',
+          reactions:[
+            { char:'hardik', text:'Good. Reset matters.' },
+            { char:'coach', text:'Ab sahi.' },
+            { char:'__fan', name:'cricketroom_india', text:'The reset after a playoff game may decide whether the youngster handles the final.' },
+          ],
+        },
         caption:'One more game. Reset. 💙',
         reactions:[
           { char:'hardik', text:'Good. Reset matters.' },
@@ -1768,6 +1988,16 @@ export const CRICKET_SITUATIONS: Situation[] = [
         t:'Emotion ride karo — final hype build karo',
         s:'Momentum ko bottle nahi karte. Use amplify karte hain.',
         deltas:{ fame:0, heat:2, image:-2 },
+        post:{
+          source:'player',
+          imageUrl:'/generated/cricket-posts/cr-s27-player.png',
+          caption:'Final. One more night. One more chance. 💙🔥',
+          reactions:[
+            { char:'friend', text:'Bro your caption made my entire building ask me for tickets.' },
+            { char:'rohit', text:'Chance word yaad rakho. Guarantee nahi.' },
+            { char:'__fan', name:'paltanpulse', text:'I have goosebumps. This kid was born for the stage.' },
+          ],
+        },
         caption:'Final. One more night. One more chance. 💙🔥',
         reactions:[
           { char:'friend', text:'Bro your caption made my entire building ask me for tickets.' },
@@ -1839,6 +2069,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
         post:{
           source:'account',
           ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
+          imageUrl:'/generated/cricket-posts/cr-s29-mipaltan.png',
           caption:'Trophy over hundred. {name} put the win first, trusted Tilak, and MI crossed the line. Young blood, team heart. 💙🏆',
           reactions:[
             { char:'hardik', text:'Great innings, bud. Team-first.' },
@@ -1864,6 +2095,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
         post:{
           source:'account',
           ...CRICKET_SOCIAL_ACCOUNTS.paltanPulse,
+          imageUrl:'/generated/cricket-posts/cr-s29-paltanpulse.png',
           caption:'MI WON THE TROPHY, but the debate has started. {name} chased the hundred, and Tilak\'s last-over brilliance finished the final. Young blood, big talent, bigger questions.',
           reactions:[
             { char:'tilak', text:'Trophy aa gayi. Baaki baad mein.' },
@@ -1903,6 +2135,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
         post:{
           source:'account',
           ...CRICKET_SOCIAL_ACCOUNTS.miPaltan,
+          imageUrl:'/generated/cricket-posts/cr-s30-shared.png',
           caption:'Champions. {name} closes the season with a team-first note and a quiet dressing-room moment. The first season in blue is only the beginning. 💙🏆',
           reactions:[
             { char:'hardik', text:'Good season. Good close.' },
@@ -1924,6 +2157,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
         post:{
           source:'account',
           ...CRICKET_SOCIAL_ACCOUNTS.paltanPulse,
+          imageUrl:'/generated/cricket-posts/cr-s30-shared.png',
           caption:'Season reel is out. Trophy, lights, pressure, debate, and a 16-year-old who became impossible to ignore. Whether you loved every choice or questioned some, {name} owned the timeline.',
           reactions:[
             { char:'surya', text:'Good reel. Ab offseason mein real work.' },
