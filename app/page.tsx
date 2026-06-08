@@ -191,22 +191,8 @@ export default function App() {
     navigate('live')
   }, [game.playerName, game.playerGender, saveAndSet, navigate])
 
-  const queueLowTrustAlert = useCallback((charId: CharId) => {
-    if (game.world !== 'cricket') return
-    const char = CRICKET_CHARS[charId]
-    const caption = CRICKET_LOW_TRUST_FEED[charId]
-    if (!char || !caption) return
-    setRelationshipAlerts(prev => {
-      const id = `low-trust-${charId}`
-      if (prev.some(alert => alert.id === id)) return prev
-      return [{
-        id,
-        charId,
-        handle: 'paltanpulse',
-        caption,
-        createdAt: Date.now(),
-      }, ...prev]
-    })
+  const queueLowTrustAlert = useCallback((_charId: CharId) => {
+    // low-trust feed posts disabled
   }, [game.world])
 
   const adjustIndividualTrust = useCallback((charId: CharId, delta: number) => {
