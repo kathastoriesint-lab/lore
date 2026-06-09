@@ -133,6 +133,10 @@ export default function App() {
     ;(async () => {
       try {
         const session = await ensureSession()
+        // Initialise analytics for everyone — including visitors who land on the
+        // login screen and bounce. Tracks unique devices + time spent per session.
+        analytics.init(session?.user?.id ?? null)
+        analytics.track('session_started', null, { authed: !!session })
         if (!session) {
           navigate('phone-auth', { replace: true })
           setReady(true)
@@ -142,6 +146,7 @@ export default function App() {
         hydrateProgress(s)
         navigate(s.playerName ? 'worlds' : 'onboarding', { replace: true })
       } catch {
+        analytics.init(null)
         navigate('worlds', { replace: true })
       } finally {
         setReady(true)
@@ -170,6 +175,9 @@ export default function App() {
 
   const handleAuthSuccess = useCallback(async () => {
     try {
+      const sess = await ensureSession()
+      if (sess?.user?.id) analytics.setUserId(sess.user.id)
+      analytics.track('login_completed', null)
       const s = await loadGameState()
       hydrateProgress(s)
       navigate(s.playerName ? 'worlds' : 'onboarding', { replace: true })

@@ -63,25 +63,27 @@ alter table public.analytics_sessions    enable row level security;
 alter table public.analytics_screen_views enable row level security;
 alter table public.analytics_events      enable row level security;
 
--- Any authenticated user (including anonymous) can insert their own rows.
--- Reads are service-role only (for your analytics dashboard).
+-- Anyone (anon + authenticated) can insert analytics rows — we track visitors
+-- who land on the login screen before they authenticate, so pre-login device
+-- visits are counted. Reads are service-role only (for the analytics dashboard).
 drop policy if exists "insert analytics sessions"     on public.analytics_sessions;
 drop policy if exists "insert analytics screen views" on public.analytics_screen_views;
 drop policy if exists "insert analytics events"       on public.analytics_events;
 drop policy if exists "update own session"            on public.analytics_sessions;
+drop policy if exists "update analytics sessions"     on public.analytics_sessions;
 
 create policy "insert analytics sessions"
   on public.analytics_sessions for insert
-  to authenticated with check (true);
+  to anon, authenticated with check (true);
 
-create policy "update own session"
+create policy "update analytics sessions"
   on public.analytics_sessions for update
-  to authenticated using (auth.uid() = user_id);
+  to anon, authenticated using (true);
 
 create policy "insert analytics screen views"
   on public.analytics_screen_views for insert
-  to authenticated with check (true);
+  to anon, authenticated with check (true);
 
 create policy "insert analytics events"
   on public.analytics_events for insert
-  to authenticated with check (true);
+  to anon, authenticated with check (true);
