@@ -52,14 +52,14 @@ export default function MeterHUD({ right, hideHeader }: Props) {
 
   const meters = isCricket
     ? [
-        { label: '🏏 FORM', val: game.meters.fame,  ref: fameRef,  color: 'var(--fame)',  cls: 'fame' },
-        { label: '⭐ FAME', val: game.meters.heat,  ref: heatRef,  color: 'var(--heat)',  cls: 'heat' },
-        { label: '🤝 TRUST',val: game.meters.image, ref: imageRef, color: 'var(--trust)', cls: 'image' },
+        { label: 'FORM',  val: game.meters.fame,  ref: fameRef,  color: 'var(--fame)',  cls: 'fame' },
+        { label: 'FAME',  val: game.meters.heat,  ref: heatRef,  color: 'var(--heat)',  cls: 'heat' },
+        { label: 'TRUST', val: game.meters.image, ref: imageRef, color: 'var(--trust)', cls: 'image' },
       ]
     : [
-        { label: '⭐ FAME',  val: game.meters.fame,  ref: fameRef,  color: 'var(--fame)',  cls: 'fame' },
-        { label: '🔥 HEAT',  val: game.meters.heat,  ref: heatRef,  color: 'var(--heat)',  cls: 'heat' },
-        { label: '🤝 IMAGE', val: game.meters.image, ref: imageRef, color: 'var(--trust)', cls: 'image' },
+        { label: 'FAME',  val: game.meters.fame,  ref: fameRef,  color: 'var(--fame)',  cls: 'fame' },
+        { label: 'HEAT',  val: game.meters.heat,  ref: heatRef,  color: 'var(--heat)',  cls: 'heat' },
+        { label: 'IMAGE', val: game.meters.image, ref: imageRef, color: 'var(--trust)', cls: 'image' },
       ]
 
   return (
