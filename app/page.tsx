@@ -232,10 +232,21 @@ export default function App() {
         })
       }
     }
-    navigate('worlds')
+    const pending = typeof window !== 'undefined' ? localStorage.getItem('lore_pending_world') : null
+    if (pending === 'creator-house') {
+      localStorage.removeItem('lore_pending_world')
+      navigate('world-intro')
+    } else {
+      navigate('worlds')
+    }
   }, [game, navigate, extrasSnapshot])
 
   const startGame = useCallback(() => {
+    if (!game.playerName) {
+      if (typeof window !== 'undefined') localStorage.setItem('lore_pending_world', 'creator-house')
+      navigate('onboarding')
+      return
+    }
     const newState: GameState = {
       playerName: game.playerName, playerGender: game.playerGender,
       world: 'creator-house', char: null,

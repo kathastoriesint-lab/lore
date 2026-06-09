@@ -127,7 +127,7 @@ export default function CricketCarouselScreen() {
       {isLast && (
         <div className="cc-cta-wrap">
           <button className="cc-enter-btn" onClick={enter}>
-            Dressing Room mein Enter karo →
+            Enter the Dressing Room →
           </button>
           <div className="cc-coming-soon">Season 2 · Season 3 · coming soon</div>
         </div>

@@ -2,7 +2,7 @@
 import { useEffect, useRef } from 'react'
 import { useApp } from '@/lib/context'
 import { fameToFollowers, clamp } from '@/lib/game'
-import { SITUATIONS } from '@/lib/data'
+import { SITUATIONS, CHARS } from '@/lib/data'
 import PlayerAvatar from './PlayerAvatar'
 
 function followersStr(fame: number): string {
@@ -42,7 +42,10 @@ export default function MeterHUD({ right, hideHeader }: Props) {
     requestAnimationFrame(() => requestAnimationFrame(set))
   }, [game.meters.fame, game.meters.heat, game.meters.image])
 
-  const handle = `@${(game.playerName || 'you').toLowerCase().replace(/\s+/g, '')}`
+  const charData = !isCricket && game.char && game.char !== 'player' ? CHARS[game.char] : null
+  const handle = charData
+    ? `@${charData.handle}`
+    : `@${(game.playerName || 'you').toLowerCase().replace(/\s+/g, '')}`
   // Use actual sit.day from data rather than a formula — the formula diverges when
   // days have unequal numbers of situations (e.g. Day 2 has 5 situations, not 3)
   const currentDay = SITUATIONS[game.situation]?.day ?? Math.max(1, Math.ceil((game.situation + 1) / 3))
