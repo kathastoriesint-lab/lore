@@ -138,9 +138,6 @@ export default function DMInboxScreen() {
                 <div className="prev" style={{ color: isUnread ? 'var(--ink)' : undefined, fontWeight: isUnread ? 600 : undefined }}>
                   {preview}
                 </div>
-                {CHAR_SUBTEXT[charId] && !hasMessages && (
-                  <div style={{ fontSize: 10, color: 'var(--ink3)', marginTop: 1 }}>{CHAR_SUBTEXT[charId]}</div>
-                )}
               </div>
               <div className="meta">
                 <div className="ts">{hasMessages ? 'now' : ''}</div>
