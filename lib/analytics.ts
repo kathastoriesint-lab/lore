@@ -38,6 +38,7 @@ type ScreenViewRow = {
 class Analytics {
   private deviceId = ''
   private sessionId: string | null = null
+  private sessionStartedAt = 0
   private userId: string | null = null
   private db: ReturnType<typeof createClient> | null = null
   private eventQueue: EventRow[] = []
@@ -62,6 +63,7 @@ class Analytics {
       // Close current screen view before flushing
       if (this.currentScreen) this._closeCurrentScreen()
       this._flush()
+      this._endSession()
       this.sessionId = null
     } else {
       this._startSession()
@@ -70,13 +72,28 @@ class Analytics {
 
   private async _startSession() {
     if (!this.db) return
+    // Generate the id client-side so events can reference it immediately and the
+    // insert doesn't depend on a SELECT RLS policy (which the table doesn't have).
+    this.sessionId = crypto.randomUUID()
+    this.sessionStartedAt = Date.now()
     try {
-      const { data } = await this.db
-        .from('analytics_sessions')
-        .insert({ device_id: this.deviceId, user_id: this.userId, platform: 'web' })
-        .select('id')
-        .single()
-      this.sessionId = data?.id ?? null
+      await this.db.from('analytics_sessions').insert({
+        id: this.sessionId,
+        device_id: this.deviceId,
+        user_id: this.userId,
+        platform: 'web',
+      })
+    } catch {}
+  }
+
+  private async _endSession() {
+    if (!this.db || !this.sessionId) return
+    const id = this.sessionId
+    const dur = Math.round((Date.now() - this.sessionStartedAt) / 1000)
+    try {
+      await this.db.from('analytics_sessions')
+        .update({ ended_at: new Date().toISOString(), duration_seconds: dur })
+        .eq('id', id)
     } catch {}
   }
 
