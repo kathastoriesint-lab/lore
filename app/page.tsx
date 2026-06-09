@@ -95,6 +95,27 @@ export default function App() {
   const [ready, setReady] = useState(false)
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+  // Live refs mirroring relationship/social state so any save captures the latest
+  // values without stale closures. These get persisted into game_state.game_data.
+  const gameRef = useRef(game); gameRef.current = game
+  const dmTrustRef = useRef(dmTrust); dmTrustRef.current = dmTrust
+  const charFameRef = useRef(charFame); charFameRef.current = charFame
+  const likedPostsRef = useRef(likedPosts); likedPostsRef.current = likedPosts
+  // Snapshot of all progress-extras to merge into every game_state write
+  const extrasSnapshot = useCallback(() => ({
+    dmTrust: dmTrustRef.current,
+    charFame: charFameRef.current,
+    likedPosts: [...likedPostsRef.current],
+  }), [])
+
+  // Hydrate all persisted progress after login/reload — game + relationships + likes
+  const hydrateProgress = useCallback((s: GameState) => {
+    setGame(s)
+    if (s.dmTrust && Object.keys(s.dmTrust).length) setDmTrust(s.dmTrust)
+    if (s.charFame && Object.keys(s.charFame).length) setCharFame(prev => ({ ...prev, ...s.charFame }))
+    if (s.likedPosts && s.likedPosts.length) setLikedPosts(new Set(s.likedPosts))
+  }, [])
+
   useEffect(() => {
     if (typeof window !== 'undefined' && new URLSearchParams(location.search).has('reset')) {
       resetGameState().finally(() => {
@@ -118,7 +139,7 @@ export default function App() {
           return
         }
         const s = await loadGameState()
-        setGame(s)
+        hydrateProgress(s)
         navigate(s.playerName ? 'worlds' : 'onboarding', { replace: true })
       } catch {
         navigate('worlds', { replace: true })
@@ -150,12 +171,23 @@ export default function App() {
   const handleAuthSuccess = useCallback(async () => {
     try {
       const s = await loadGameState()
-      setGame(s)
+      hydrateProgress(s)
       navigate(s.playerName ? 'worlds' : 'onboarding', { replace: true })
     } catch {
       navigate('worlds', { replace: true })
     }
-  }, [navigate])
+  }, [navigate, hydrateProgress])
+
+  // Auto-persist relationship/social progress shortly after it changes.
+  // Game-state saves fire on choices; trust/fame/like changes happen on their own,
+  // so this debounced effect makes sure they reach Supabase too.
+  useEffect(() => {
+    if (!ready || !gameRef.current.playerName) return
+    const t = setTimeout(() => {
+      saveGameState({ ...gameRef.current, ...extrasSnapshot() }).catch(() => {})
+    }, 800)
+    return () => clearTimeout(t)
+  }, [dmTrust, charFame, likedPosts, ready, extrasSnapshot])
 
   const goBack = useCallback(() => {
     setNavHistory(prev => {
@@ -168,8 +200,9 @@ export default function App() {
 
   const saveAndSet = useCallback((next: GameState) => {
     setGame(next)
-    saveGameState(next)
-  }, [])
+    // Merge relationship/social progress so it persists with every write
+    saveGameState({ ...next, ...extrasSnapshot() })
+  }, [extrasSnapshot])
 
   const setChar = useCallback((id: CharId) => {
     saveAndSet({ ...game, char: id, situation: 0, choices: [], meters: charMeters(id), narrator_done: true, dayUnlockTime: {} })
@@ -178,7 +211,7 @@ export default function App() {
   const saveProfile = useCallback(async (name: string, gender: 'male' | 'female', avatarUrl?: string) => {
     const updated: GameState = { ...game, playerName: name, playerGender: gender, avatarUrl }
     setGame(updated)
-    await saveGameState(updated, getDeviceId())
+    await saveGameState({ ...updated, ...extrasSnapshot() }, getDeviceId())
     analytics.track('onboarding_completed', null, { gender, has_avatar: !!avatarUrl })
     // Expose a setter on window so the async avatar generator can update without re-rendering onboarding
     if (typeof window !== 'undefined') {
@@ -186,13 +219,13 @@ export default function App() {
       ;(window as any).__lore_set_avatar = (url: string) => {
         setGame(prev => {
           const next = { ...prev, avatarUrl: url }
-          saveGameState(next).catch(() => {})
+          saveGameState({ ...next, ...extrasSnapshot() }).catch(() => {})
           return next
         })
       }
     }
     navigate('worlds')
-  }, [game, navigate])
+  }, [game, navigate, extrasSnapshot])
 
   const startGame = useCallback(() => {
     showToast('Creator House is temporarily locked while we fix it 🔒')
@@ -295,10 +328,10 @@ export default function App() {
         newUnlockTime[nextSit.day] = Date.now() + gateMs
       }
       const next = { ...prev, situation: nextIdx, situationQueue: queue, dayUnlockTime: newUnlockTime }
-      saveGameState(next)
+      saveGameState({ ...next, ...extrasSnapshot() })
       return next
     })
-  }, []) // no deps — functional update reads prev directly
+  }, [extrasSnapshot]) // functional update reads prev; extrasSnapshot is stable
 
   const makeChoice = useCallback(async (idx: number) => {
     // Look up current situation by ID from the queue (world-aware, index-shift-safe)

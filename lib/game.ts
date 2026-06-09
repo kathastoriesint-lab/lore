@@ -93,6 +93,9 @@ export async function loadGameState(): Promise<GameState> {
     narrator_done: data.narrator_done,
     dayUnlockTime: data.day_unlock_time ?? {},
     avatarUrl: data.avatar_url ?? undefined,
+    dmTrust: (extra.dmTrust as Record<string, number>) ?? undefined,
+    charFame: (extra.charFame as Record<string, number>) ?? undefined,
+    likedPosts: Array.isArray(extra.likedPosts) ? (extra.likedPosts as string[]) : undefined,
   }
 }
 
@@ -116,6 +119,10 @@ export async function saveGameState(state: GameState, deviceId?: string) {
       situationQueue: state.situationQueue,
       flags: state.flags,
       runMemory: state.runMemory,
+      // Relationship + social progress — persisted so every login restores full state
+      dmTrust: state.dmTrust ?? {},
+      charFame: state.charFame ?? {},
+      likedPosts: state.likedPosts ?? [],
     },
   }, { onConflict: 'user_id' })
 }

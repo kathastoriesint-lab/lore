@@ -177,4 +177,10 @@ export interface GameState {
   narrator_done: boolean
   dayUnlockTime: Record<number, number>
   avatarUrl?: string
+  /** Per-character relationship trust (cricket world). Persisted so login restores it. */
+  dmTrust?: Record<string, number>
+  /** Per-character follower counts shown on profiles. Persisted across sessions. */
+  charFame?: Record<string, number>
+  /** Post IDs the player has liked — prevents re-liking after reload. */
+  likedPosts?: string[]
 }
