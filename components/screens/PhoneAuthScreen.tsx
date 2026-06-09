@@ -278,9 +278,20 @@ export default function PhoneAuthScreen({ onSuccess }: { onSuccess: () => void }
             </div>
           </>
         )}
+
+        {/* reCAPTCHA disclosure — required since the badge is hidden via CSS */}
+        <div style={{ marginTop:'auto', paddingBottom:64, textAlign:'center' }}>
+          <div style={{ fontSize:10, color:'rgba(255,255,255,.28)', lineHeight:1.5 }}>
+            Protected by reCAPTCHA — Google{' '}
+            <a href="https://policies.google.com/privacy" target="_blank" rel="noreferrer" style={{ color:'rgba(255,255,255,.4)', textDecoration:'underline' }}>Privacy</a>
+            {' '}&amp;{' '}
+            <a href="https://policies.google.com/terms" target="_blank" rel="noreferrer" style={{ color:'rgba(255,255,255,.4)', textDecoration:'underline' }}>Terms</a>
+            {' '}apply.
+          </div>
+        </div>
       </div>
 
-      {/* reCAPTCHA — hidden, no visual footprint */}
+      {/* reCAPTCHA — invisible, badge hidden via .grecaptcha-badge CSS */}
       <div id="recaptcha-container" style={{ position:'absolute', bottom:-100, left:0 }} />
     </div>
   )

@@ -20,6 +20,9 @@
 .c-mahela{--cc:#0a2a6a}
 
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+/* Hide Google reCAPTCHA badge (Firebase phone auth). Allowed by Google's terms
+   as long as the reCAPTCHA disclosure text is shown — see PhoneAuthScreen footer. */
+.grecaptcha-badge{visibility:hidden!important}
 html,body{height:100%}
 html{font-family:var(--sans)}
 body{font-family:var(--sans);background:radial-gradient(ellipse at center,#120820 0%,#000 70%);
