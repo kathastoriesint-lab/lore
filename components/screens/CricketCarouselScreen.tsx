@@ -5,9 +5,9 @@ import { useApp } from '@/lib/context'
 const TOTAL = 4
 
 const METERS = [
-  { label: '🏏 FORM',  color: '#FFB020', val: 'Kya tum khelna jaante ho?', pct: 18 },
-  { label: '⭐ FAME',  color: '#FFD24D', val: 'Duniya kya sochti hai?',    pct: 28 },
-  { label: '🤝 TRUST', color: '#3DD6C8', val: 'Dressing room ka yakeen?', pct: 10 },
+  { label: 'FORM',  color: '#FFB020', val: 'Kya tum khelna jaante ho?', pct: 18 },
+  { label: 'FAME',  color: '#FFD24D', val: 'Duniya kya sochti hai?',    pct: 28 },
+  { label: 'TRUST', color: '#3DD6C8', val: 'Dressing room ka yakeen?',  pct: 10 },
 ]
 
 export default function CricketCarouselScreen() {

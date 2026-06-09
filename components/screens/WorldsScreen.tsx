@@ -262,24 +262,24 @@ export default function WorldsScreen() {
                 <div className="app-intro-h">Teen tarike hain duniya jeene ke.</div>
                 <div className="app-intro-rows">
                   <div className="app-intro-row">
-                    <span className="app-intro-icon">🎮</span>
+                    <div className="app-intro-row-dot" style={{ background: 'var(--accent)' }} />
                     <div>
                       <div className="app-intro-row-label">Live</div>
-                      <div className="app-intro-row-sub">Choices karo. Story shape karo. Meters track karte hain tumhara standing.</div>
+                      <div className="app-intro-row-sub">Choices karo. Har choice ka fallout hota hai — meters pe, relationships pe.</div>
                     </div>
                   </div>
                   <div className="app-intro-row">
-                    <span className="app-intro-icon">💬</span>
+                    <div className="app-intro-row-dot" style={{ background: 'var(--trust)' }} />
                     <div>
                       <div className="app-intro-row-label">DMs</div>
-                      <div className="app-intro-row-sub">Characters message karte hain. Trust ke saath unka tone badalta hai.</div>
+                      <div className="app-intro-row-sub">Characters tumse baat karte hain. Trust ke saath unka tone badalta hai.</div>
                     </div>
                   </div>
                   <div className="app-intro-row">
-                    <span className="app-intro-icon">📲</span>
+                    <div className="app-intro-row-dot" style={{ background: 'var(--fame)' }} />
                     <div>
                       <div className="app-intro-row-label">Feed</div>
-                      <div className="app-intro-row-sub">Duniya react karti hai tumhari moves pe. Viral ya forgotten.</div>
+                      <div className="app-intro-row-sub">Duniya tumhari moves pe react karti hai. Viral ya forgotten — tumhare haath mein.</div>
                     </div>
                   </div>
                 </div>
@@ -304,7 +304,7 @@ export default function WorldsScreen() {
 
           <div className="app-intro-foot">
             <button className="app-intro-cta-btn" onClick={nextAppIntro}>
-              {appIntroSlide === 2 ? 'Explore Worlds →' : 'Next →'}
+              {appIntroSlide === 2 ? 'Duniya Chunno →' : 'Next →'}
             </button>
             {appIntroSlide < 2 && (
               <button className="app-intro-skip-btn" onClick={dismissAppIntro}>Skip</button>

@@ -724,6 +724,8 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .app-intro-rows{display:flex;flex-direction:column;gap:18px;margin-top:6px;}
 .app-intro-row{display:flex;align-items:flex-start;gap:14px;}
 .app-intro-icon{font-size:22px;flex-shrink:0;line-height:1;margin-top:1px;}
+/* Replaces emoji icons — a small colored dot keyed to the world color system */
+.app-intro-row-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:6px;}
 .app-intro-row-label{font-weight:700;font-size:15px;margin-bottom:3px;}
 .app-intro-row-sub{font-size:13px;color:var(--ink3);line-height:1.5;}
 .app-intro-dots{display:flex;justify-content:center;gap:6px;padding:16px 0 14px;}

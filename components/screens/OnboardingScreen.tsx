@@ -46,14 +46,14 @@ export default function OnboardingScreen() {
       {/* Name */}
       <div style={{ marginBottom: 32 }}>
         <label style={{ display: 'block', fontSize: 11, fontWeight: 700, letterSpacing: '.1em', color: 'rgba(255,255,255,.4)', marginBottom: 14 }}>
-          YOUR NAME
+          TUMHARA NAAM
         </label>
         <input
           type="text"
           value={name}
           onChange={e => setName(e.target.value.slice(0, 24))}
           onKeyDown={e => { if (e.key === 'Enter') handleSave() }}
-          placeholder="Enter your name"
+          placeholder="Naam daalo"
           autoFocus
           style={{
             width: '100%', boxSizing: 'border-box',
@@ -69,7 +69,7 @@ export default function OnboardingScreen() {
       {/* Gender */}
       <div style={{ marginBottom: 40 }}>
         <label style={{ display: 'block', fontSize: 11, fontWeight: 700, letterSpacing: '.1em', color: 'rgba(255,255,255,.4)', marginBottom: 14 }}>
-          YOUR ROLE
+          PRONOUNS
         </label>
         <div style={{ display: 'flex', gap: 10 }}>
           {(['male', 'female'] as const).map(g => (
@@ -104,7 +104,7 @@ export default function OnboardingScreen() {
           boxShadow: name.trim() ? '0 8px 24px rgba(255,45,120,.35)' : 'none',
         }}
       >
-        {saving ? 'Saving...' : 'Start →'}
+        {saving ? 'Saving...' : 'Shuru Karo →'}
       </button>
     </div>
   )
