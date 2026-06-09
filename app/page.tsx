@@ -21,6 +21,7 @@ import CharProfileScreen from '@/components/screens/CharProfileScreen'
 import OnboardingScreen from '@/components/screens/OnboardingScreen'
 import CricketIntroScreen from '@/components/screens/CricketIntroScreen'
 import CricketCarouselScreen from '@/components/screens/CricketCarouselScreen'
+import PhoneAuthScreen from '@/components/screens/PhoneAuthScreen'
 import FeedbackButton from '@/components/FeedbackButton'
 import ErrorBoundary from '@/components/ErrorBoundary'
 import { analytics, getDeviceId } from '@/lib/analytics'
@@ -59,7 +60,6 @@ const asArray = <T,>(value: T | T[] | null | undefined): T[] => {
 export default function App() {
   const [screen, setScreen] = useState<Screen>('worlds')
   const [navHistory, setNavHistory] = useState<Screen[]>(['worlds'])
-  const [phone, setPhone] = useState('')
   const [dmChar, setDmChar] = useState<CharId | null>(null)
   const [dmTrust, setDmTrust] = useState<Record<string, number>>({})
   const [relationshipAlerts, setRelationshipAlerts] = useState<RelationshipAlert[]>([])
@@ -109,26 +109,23 @@ export default function App() {
       navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.update()))
     }
 
-    // Anonymous session — no login required
-    ensureSession()
-      .then(async (session) => {
-        const uid = session?.user?.id ?? null
-        analytics.init(uid)
-        analytics.track('session_started', null, { referrer: document.referrer || null })
-        return loadGameState()
-      })
-      .then(s => {
+    ;(async () => {
+      try {
+        const session = await ensureSession()
+        if (!session) {
+          navigate('phone-auth', { replace: true })
+          setReady(true)
+          return
+        }
+        const s = await loadGameState()
         setGame(s)
-        const target = s.playerName ? 'worlds' : 'onboarding'
-        navigate(target, { replace: true })
-        if (!s.playerName) analytics.track('onboarding_started', null)
-        setReady(true)
-      })
-      .catch(() => {
-        analytics.init(null)
+        navigate(s.playerName ? 'worlds' : 'onboarding', { replace: true })
+      } catch {
         navigate('worlds', { replace: true })
+      } finally {
         setReady(true)
-      })
+      }
+    })()
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const showToast = useCallback((msg: string) => {
@@ -149,6 +146,16 @@ export default function App() {
     })
     setNavHistory(prev => opts?.replace ? [...prev.slice(0, -1), to] : [...prev, to])
   }, [game.world, showToast])
+
+  const handleAuthSuccess = useCallback(async () => {
+    try {
+      const s = await loadGameState()
+      setGame(s)
+      navigate(s.playerName ? 'worlds' : 'onboarding', { replace: true })
+    } catch {
+      navigate('worlds', { replace: true })
+    }
+  }, [navigate])
 
   const goBack = useCallback(() => {
     setNavHistory(prev => {
@@ -537,7 +544,7 @@ export default function App() {
     <AppContext.Provider value={{
       screen, prevScreen: prev, dmChar, game, dmHistory, dmLastUpdated, dmTrust, relationshipAlerts, charFame, likedPosts, viewingCharId, toast, impactNotif, showImpact,
       dmBadgeCount, clearDmBadge,
-      phone, setPhone, saveProfile,
+      saveProfile,
       advanceSituation, navigate, goBack, showToast, setChar, startGame, startCricketGame,
       makeChoice, sendDM, openDMThread, resetGame, likePost, applyFeedDeltas, injectCharDM, setViewingChar,
     }}>
@@ -545,6 +552,7 @@ export default function App() {
         <div className="phone">
           <ErrorBoundary>
           <div className="viewport">
+            <Slot id="phone-auth"    cur={screen} prev={prev}><PhoneAuthScreen onSuccess={handleAuthSuccess} /></Slot>
             <Slot id="onboarding"    cur={screen} prev={prev}><OnboardingScreen /></Slot>
             <Slot id="worlds"        cur={screen} prev={prev}><WorldsScreen /></Slot>
             <Slot id="world-intro"   cur={screen} prev={prev}><WorldIntroScreen /></Slot>

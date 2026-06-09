@@ -83,3 +83,9 @@ drop trigger if exists game_state_updated_at on public.game_state;
 create trigger game_state_updated_at
   before update on public.game_state
   for each row execute function public.set_updated_at();
+
+-- Phone auth: look up a Supabase user by phone number (used by /api/auth/exchange)
+create or replace function public.get_user_id_by_phone(phone_number text)
+returns uuid language sql security definer as $$
+  select id from auth.users where phone = phone_number limit 1;
+$$;
