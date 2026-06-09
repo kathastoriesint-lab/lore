@@ -236,9 +236,20 @@ export default function App() {
   }, [game, navigate, extrasSnapshot])
 
   const startGame = useCallback(() => {
-    showToast('Creator House is temporarily locked while we fix it 🔒')
-    navigate('worlds')
-  }, [navigate, showToast])
+    const newState: GameState = {
+      playerName: game.playerName, playerGender: game.playerGender,
+      world: 'creator-house', char: null,
+      situation: 0, situationQueue: buildCHQueue({ fame: 20, heat: 50, image: 30 }, []), choices: [],
+      meters: { fame: 20, heat: 50, image: 30 },
+      flags: DEFAULT_FLAGS, runMemory: {},
+      narrator_done: false, dayUnlockTime: {},
+    }
+    setRelationshipAlerts([])
+    saveAndSet(newState)
+    analytics.track('world_entered', 'creator-house', { world_id: 'creator-house' })
+    if (typeof window !== 'undefined') localStorage.removeItem('lore_feed_seen')
+    navigate('narrator')
+  }, [game.playerName, game.playerGender, saveAndSet, navigate])
 
   const startCricketGame = useCallback(() => {
     // char:'player' sentinel — the player is themselves, not Hardik Pandya

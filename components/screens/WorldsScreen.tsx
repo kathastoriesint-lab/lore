@@ -62,9 +62,9 @@ export default function WorldsScreen() {
   const handleTab = useCallback((tab: string) => {
     if (tab === 'live') {
       if (game.world === 'cricket') navigate('feed')
-      else showToast('Creator House is temporarily locked while we fix it 🔒')
+      else navigate('world-intro')
     }
-  }, [navigate, game.world, showToast])
+  }, [navigate, game.world])
 
   const triggerShake = useCallback((cardId: string, msg: string) => {
     setShakingCard(cardId)
@@ -74,8 +74,8 @@ export default function WorldsScreen() {
   }, [showToast])
 
   const handleCreatorHouse = useCallback(() => {
-    triggerShake('creator-house', 'Creator House is temporarily locked while we fix it 🔒')
-  }, [triggerShake])
+    navigate('world-intro')
+  }, [navigate])
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
@@ -152,12 +152,13 @@ export default function WorldsScreen() {
               style={{ background: 'linear-gradient(135deg,#ff2d78,#7a1140)', height: 210 }}
             >
               <div className="wc-badge">
-                <LockIcon />
-                TEMP LOCKED
+                <div className="pulse" />
+                LIVE · SEASON 1
               </div>
               <div className="wc-name">Creator House</div>
               <div className="wc-status">
-                Fix in progress · Reopening soon.
+                <div className="pulse" />
+                6 creators. Ek villa. 10 din.
               </div>
             </div>
             <div className="wc-foot">

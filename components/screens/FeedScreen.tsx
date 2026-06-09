@@ -68,6 +68,7 @@ interface SeedPostProps {
   fullCaption: string
   likes: string
   time: string
+  imageUrl?: string
   likedPosts: Set<string>
   commentedPosts: Set<string>
   onLike: (id: string, charId: CharId, delta: number) => void
@@ -78,7 +79,7 @@ interface SeedPostProps {
   playingCharName: string
 }
 
-function SeedPost({ id, charId, onViewChar, bg, caption, fullCaption, likes, time, likedPosts, commentedPosts, onLike, onComment, commentOpen, comments, onHandleComment, playingCharName }: SeedPostProps) {
+function SeedPost({ id, charId, onViewChar, bg, caption, fullCaption, likes, time, imageUrl, likedPosts, commentedPosts, onLike, onComment, commentOpen, comments, onHandleComment, playingCharName }: SeedPostProps) {
   const char = CHARS[charId as CharId]
   if (!char) return null
   const isOpen = commentOpen === id
@@ -100,8 +101,13 @@ function SeedPost({ id, charId, onViewChar, bg, caption, fullCaption, likes, tim
         </div>
         <button className="icon-btn"><svg viewBox="0 0 24 24" width="20" height="20" fill="#fff"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
       </div>
-      <div className="post-img grain" style={{ background: bg }}>
-        <p className="overlay-txt" style={{ fontSize:14 }}>{caption}</p>
+      <div className="post-img grain" style={{
+        background: imageUrl ? 'none' : bg,
+        backgroundImage: imageUrl ? `url(${imageUrl})` : undefined,
+        backgroundSize: imageUrl ? 'cover' : undefined,
+        backgroundPosition: imageUrl ? 'center top' : undefined,
+      }}>
+        {!imageUrl && <p className="overlay-txt" style={{ fontSize:14 }}>{caption}</p>}
       </div>
       <div className="post-actions">
         <button
@@ -831,6 +837,7 @@ export default function FeedScreen() {
           caption="Pehla din. Pehla room. Pehle mujhe. Kuch cheezein change nahi honti. 🤍"
           fullCaption="Kaafi log poochte hain — 'Ria, tujhe stress nahi hota?' Stress? Main stress ko content mein convert karti hoon. 🤍"
           likes="84,291" time="6 HOURS AGO"
+          imageUrl="/generated/creator-house-posts/seed-ria.png"
           likedPosts={likedPosts} commentedPosts={commentedPosts} onLike={likePost} onComment={setCommentPost}
           commentOpen={commentPost} comments={POST_COMMENTS.ria}
           onHandleComment={handleComment} playingCharName={playingChar?.name ?? 'you'}
@@ -843,6 +850,7 @@ export default function FeedScreen() {
           caption="Naye log. Naye vibes. Is ghar mein sab interesting lagte hain. Especially ek. 👀🫶"
           fullCaption="Day 1 done. Chai piya. Kuch connections bane. Kuch strategies bhi. #CreatorHouse"
           likes="29,441" time="5 HOURS AGO"
+          imageUrl="/generated/creator-house-posts/seed-zoya.png"
           likedPosts={likedPosts} commentedPosts={commentedPosts} onLike={likePost} onComment={setCommentPost}
           commentOpen={commentPost} comments={POST_COMMENTS.zoya}
           onHandleComment={handleComment} playingCharName={playingChar?.name ?? 'you'}
@@ -862,13 +870,7 @@ export default function FeedScreen() {
                 </div>
                 <button className="icon-btn"><svg viewBox="0 0 24 24" width="20" height="20" fill="#fff"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
               </div>
-              <div className="post-img grain" style={{ background: '#12121a' }}>
-                <p className="overlay-txt" style={{ fontSize:13, color:'rgba(255,255,255,.75)', lineHeight:1.6 }}>
-                  #CreatorHouseDay1 — koi quietly khel raha hai. Koi loudly.<br /><br />
-                  Jo sabse zyada chup hai woh sabse zyada plan kar raha hai. 🧵 Thread kal.<br /><br />
-                  <span style={{ color:'var(--accent)', fontFamily:'var(--sans)', fontSize:11 }}>#CreatorHouse TRENDING #1</span>
-                </p>
-              </div>
+              <div className="post-img grain" style={{ backgroundImage:'url(/generated/creator-house-posts/seed-villa.png)', backgroundSize:'cover', backgroundPosition:'center' }} />
               <div className="post-actions">
                 <button
                   onClick={() => !hwLiked && likePost('hw-seed', 'ria', 1)}
@@ -908,6 +910,7 @@ export default function FeedScreen() {
           caption="&quot;Is ghar mein sab serious ho jaate hain jab camera on hota hai. Main serious tab hota hoon jab camera off hota hai.&quot; 😭👀"
           fullCaption="Camera ka psychology. Day 1 observation thread kal. 😭"
           likes="41,882" time="3 HOURS AGO"
+          imageUrl="/generated/creator-house-posts/seed-kabir.png"
           likedPosts={likedPosts} commentedPosts={commentedPosts} onLike={likePost} onComment={setCommentPost}
           commentOpen={commentPost} comments={POST_COMMENTS.kabir}
           onHandleComment={handleComment} playingCharName={playingChar?.name ?? 'you'}
@@ -920,6 +923,7 @@ export default function FeedScreen() {
           caption="5AM. Gym done. Creator House Day 1 different hai. Numbers aayenge. Always do. 💪📈"
           fullCaption="Grind never stops. Villa ya gym — same mindset. #CreatorHouse #Fitness"
           likes="18,204" time="4 HOURS AGO"
+          imageUrl="/generated/creator-house-posts/seed-dev.png"
           likedPosts={likedPosts} commentedPosts={commentedPosts} onLike={likePost} onComment={setCommentPost}
           commentOpen={commentPost} comments={POST_COMMENTS.dev}
           onHandleComment={handleComment} playingCharName={playingChar?.name ?? 'you'}
@@ -932,6 +936,7 @@ export default function FeedScreen() {
           caption="2.1M views raat mein. Subah uthke dekha toh ro padi. Phir Ria ko bataya. Usne bola... 'nice.' 🥺✨"
           fullCaption="2.1M. Ro padi. Tumhara pyaar 🥺✨"
           likes="2,108,441" time="45 MINUTES AGO"
+          imageUrl="/generated/creator-house-posts/seed-ananya.png"
           likedPosts={likedPosts} commentedPosts={commentedPosts} onLike={likePost} onComment={setCommentPost}
           commentOpen={commentPost} comments={POST_COMMENTS.ananya}
           onHandleComment={handleComment} playingCharName={playingChar?.name ?? 'you'}
