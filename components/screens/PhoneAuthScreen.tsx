@@ -129,9 +129,9 @@ export default function PhoneAuthScreen({ onSuccess }: { onSuccess: () => void }
       {/* Content */}
       <div style={{ position:'relative', zIndex:1, display:'flex', flexDirection:'column', flex:1, padding:'0 28px' }}>
 
-        {/* Brand mark */}
-        <div style={{ display:'flex', flexDirection:'column', alignItems:'center', paddingTop:60, paddingBottom:6 }}>
-          <svg viewBox="0 0 32 32" fill="none" width="44" height="44" style={{ filter:'drop-shadow(0 0 14px rgba(255,45,120,.55))' }}>
+        {/* Brand mark — the hero */}
+        <div style={{ display:'flex', flexDirection:'column', alignItems:'center', paddingTop:56, paddingBottom:0 }}>
+          <svg className="lore-mark lore-mark--lg" viewBox="0 0 32 32" fill="none">
             <defs>
               <linearGradient id="authG" x1="0" y1="0" x2="1" y2="1">
                 <stop offset="0" stopColor="#ff2d78"/>
@@ -139,19 +139,19 @@ export default function PhoneAuthScreen({ onSuccess }: { onSuccess: () => void }
                 <stop offset="1" stopColor="#ffd24d"/>
               </linearGradient>
             </defs>
-            <circle cx="16" cy="16" r="13.5" stroke="url(#authG)" strokeWidth="3" strokeDasharray="58 12" strokeLinecap="round"/>
+            <circle className="ring" cx="16" cy="16" r="13.5" stroke="url(#authG)" strokeWidth="3" strokeDasharray="58 12" strokeLinecap="round"/>
             <circle cx="16" cy="16" r="6.4" stroke="#ff2d78" strokeWidth="2.4"/>
             <circle cx="16" cy="16" r="1.9" fill="#ffd24d"/>
           </svg>
-          <div style={{ fontFamily:'var(--serif)', fontSize:22, fontWeight:600, marginTop:10, letterSpacing:'-.01em' }}>
+          <div style={{ fontFamily:'var(--serif)', fontSize:34, fontWeight:600, marginTop:14, letterSpacing:'-.02em' }}>
             Lore
           </div>
         </div>
 
         {/* Tagline */}
-        <div style={{ textAlign:'center', marginBottom:44, marginTop:8 }}>
-          <div style={{ fontSize:12, color:'var(--ink3)', fontWeight:500, letterSpacing:'.03em', lineHeight:1.6 }}>
-            Kuch kahaniyan sirf padhi jaati hain.{'\n'}Kuch jeeni padti hain.
+        <div style={{ textAlign:'center', marginBottom:44, marginTop:10 }}>
+          <div style={{ fontSize:13, color:'var(--ink3)', fontWeight:500, letterSpacing:'.01em', lineHeight:1.6 }}>
+            Some stories you watch. Some you live.
           </div>
         </div>
 
@@ -160,10 +160,10 @@ export default function PhoneAuthScreen({ onSuccess }: { onSuccess: () => void }
           <>
             <div style={{ marginBottom:28 }}>
               <div style={{ fontFamily:'var(--serif)', fontWeight:600, fontSize:29, lineHeight:1.2, marginBottom:8 }}>
-                Apna number dalo
+                Enter your number
               </div>
               <div style={{ fontSize:13, color:'var(--ink2)', lineHeight:1.65 }}>
-                Ek SMS aayega — phir tumhari duniya shuru hogi.
+                We&apos;ll text you a code. Your world starts after.
               </div>
             </div>
 
@@ -205,7 +205,7 @@ export default function PhoneAuthScreen({ onSuccess }: { onSuccess: () => void }
                 boxShadow: phoneValid ? '0 8px 28px rgba(255,45,120,.4)' : 'none',
               }}
             >
-              {loading ? 'Bhej raha hoon...' : phoneValid ? 'OTP Bhejo →' : 'Number daalo pehle'}
+              {loading ? 'Sending...' : phoneValid ? 'Send Code →' : 'Enter your number first'}
             </button>
           </>
         )}
@@ -215,10 +215,10 @@ export default function PhoneAuthScreen({ onSuccess }: { onSuccess: () => void }
           <>
             <div style={{ marginBottom:28 }}>
               <div style={{ fontFamily:'var(--serif)', fontWeight:600, fontSize:29, lineHeight:1.2, marginBottom:8 }}>
-                Code daalo
+                Enter the code
               </div>
               <div style={{ fontSize:13, color:'var(--ink2)', lineHeight:1.65 }}>
-                6-digit code bheja {formattedPhone} pe.
+                We sent a 6-digit code to {formattedPhone}.
               </div>
             </div>
 
@@ -262,7 +262,7 @@ export default function PhoneAuthScreen({ onSuccess }: { onSuccess: () => void }
                   boxShadow: otp.length === 6 ? '0 8px 28px rgba(255,45,120,.4)' : 'none',
                 }}
               >
-                {loading ? 'Verify ho raha hai...' : otp.length === 6 ? 'Andar Jao →' : `${6 - otp.length} digit aur`}
+                {loading ? 'Verifying...' : otp.length === 6 ? 'Verify →' : `${6 - otp.length} digits left`}
               </button>
               <button
                 onClick={() => { setStep('phone'); setOtp(''); setError(null) }}
@@ -273,7 +273,7 @@ export default function PhoneAuthScreen({ onSuccess }: { onSuccess: () => void }
                   border:'1px solid rgba(255,255,255,.1)', cursor:'pointer',
                 }}
               >
-                ← Number badlo
+                ← Change number
               </button>
             </div>
           </>

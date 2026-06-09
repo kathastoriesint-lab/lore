@@ -28,7 +28,7 @@ export default function WorldIntroScreen() {
 
         <div className="wintro-cta-block" style={{ marginTop: 40 }}>
           <button className="wintro-btn-main" onClick={startGame}>
-            House mein Enter Karo →
+            Enter the House →
           </button>
           <button
             onClick={() => navigate('worlds')}

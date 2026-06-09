@@ -97,6 +97,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .worlds-head{display:flex;align-items:flex-end;gap:10px;flex:1}
 .lore-logo{display:flex;align-items:center;gap:7px}
 .lore-mark{width:25px;height:25px;flex:0 0 auto;filter:drop-shadow(0 0 7px rgba(255,45,120,.5))}
+.lore-mark.lore-mark--lg{width:72px;height:72px;filter:drop-shadow(0 0 22px rgba(255,45,120,.7))}
 .lore-mark .ring{transform-origin:16px 16px;animation:loreSpin 14s linear infinite}
 @keyframes loreSpin{to{transform:rotate(360deg)}}
 .logo{font-family:var(--serif);font-weight:600;font-size:26px;line-height:1;letter-spacing:-.01em}
