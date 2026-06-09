@@ -2,7 +2,7 @@
 import { useRef, useState } from 'react'
 import { useApp } from '@/lib/context'
 
-const TOTAL = 4
+const TOTAL = 3
 
 const METERS = [
   { label: 'FORM',  color: '#FFB020', val: 'Kya tum khelna jaante ho?', pct: 18 },
@@ -44,27 +44,30 @@ export default function CricketCarouselScreen() {
       <div className="cc-slides-window">
         <div className="cc-slides-track" style={{ transform: `translateX(-${cur * 100}%)` }}>
 
-          {/* Slide 1 — The Life */}
+          {/* Slide 1 — The Breakthrough */}
           <div className="cc-slide">
             <div className="cc-live-badge">
               <span className="cc-live-dot" />
               LIVE — IPL · MUMBAI INDIANS · SEASON 1
             </div>
             <div className="cc-big">Tum 16 saal ke ho.</div>
-            <div className="cc-big" style={{ marginTop: 6 }}>
-              Mumbai Indians ne tumhe kharida hai.
+            <div className="cc-body">
+              Saat saal se cricket khel rahe ho. Aur aaj — tumhaara
+              pehla bada breakthrough.<br /><br />
+              Mumbai Indians ne tumhe kharida hai. Yeh tumhaari
+              cricketing story ka Season 1 hai.
             </div>
-            <div className="cc-body">Season 1 abhi shuru hua hai.</div>
           </div>
 
           {/* Slide 2 — The Dressing Room */}
           <div className="cc-slide">
-            <div className="cc-big">Rohit. Bumrah. Hardik.</div>
+            <div className="cc-big">Rohit. Hardik. Bumrah.</div>
             <div className="cc-body">
-              Yeh log tumhe nahi jaante — abhi.<br /><br />
-              Wankhede ka dressing room utna warm nahi hota
-              jitna TV par dikhta hai.<br /><br />
-              Trust kamaana padta hai.
+              Ab tum inn superstars ke saath dressing room
+              share karoge.<br /><br />
+              Par yeh log tumhe nahi jaante — abhi. Wankhede ka
+              dressing room utna warm nahi hota jitna TV par dikhta hai.<br /><br />
+              Trust kamaana padega.
             </div>
             <div className="cc-avatars">
               {[
@@ -83,7 +86,7 @@ export default function CricketCarouselScreen() {
           {/* Slide 3 — Meters */}
           <div className="cc-slide">
             <div className="cc-big" style={{ fontSize: 30 }}>
-              Teen cheezein matter karti hain is duniya mein:
+              Teen cheezein matter karti hain.
             </div>
             <div className="cc-meters">
               {METERS.map(m => (
@@ -99,14 +102,6 @@ export default function CricketCarouselScreen() {
               ))}
             </div>
             <div className="cc-body" style={{ marginTop: 16 }}>Har choice inhein badlegi.</div>
-          </div>
-
-          {/* Slide 4 — Enter CTA */}
-          <div className="cc-slide">
-            <div className="cc-big">Yeh sirf Season 1 hai.</div>
-            <div className="cc-body" style={{ marginTop: 20 }}>
-              Aage kya hoga —<br />woh tum decide karoge.
-            </div>
           </div>
 
         </div>
