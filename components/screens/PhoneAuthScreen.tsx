@@ -4,8 +4,6 @@ import { getFirebaseAuth, verifyPhoneOTP } from '@/lib/firebase'
 import { createClient } from '@/lib/supabase'
 import type { ConfirmationResult } from 'firebase/auth'
 
-const BTN_ID = 'otp-send-btn'
-
 export default function PhoneAuthScreen({ onSuccess }: { onSuccess: () => void }) {
   const [phone, setPhone] = useState('')
   const [otp, setOtp] = useState('')
@@ -13,81 +11,64 @@ export default function PhoneAuthScreen({ onSuccess }: { onSuccess: () => void }
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const confirmRef = useRef<ConfirmationResult | null>(null)
-  const widgetIdRef = useRef<number | null>(null)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const verifierRef = useRef<any>(null)
   const phoneRef = useRef('')
 
   const formattedPhone = phone.startsWith('+') ? phone : `+91${phone}`
   const phoneDigits = phone.replace(/\D/g, '')
   const phoneValid = phoneDigits.length >= 10
 
-  // Keep phoneRef current so the reCAPTCHA callback always reads the latest phone
+  // Keep phoneRef in sync so handleSendOTP always reads latest value
   useEffect(() => { phoneRef.current = phone }, [phone])
 
-  // Per Firebase docs: tie RecaptchaVerifier to the submit button (not a container div).
-  // Initialize when phone is valid and we're on the phone step, clean up otherwise.
+  // Initialize a single invisible reCAPTCHA verifier on mount, tied to a container div.
+  // Using a div (not the button) avoids React double-effect clearing a button-bound widget.
   useEffect(() => {
-    if (!phoneValid || step !== 'phone') return
-
-    let mounted = true
+    let cancelled = false
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let verifier: any = null
 
-    async function init() {
+    ;(async () => {
       const auth = await getFirebaseAuth()
-      const { RecaptchaVerifier, signInWithPhoneNumber } = await import('firebase/auth')
-
-      verifier = new RecaptchaVerifier(auth, BTN_ID, {
-        size: 'invisible',
-        callback: async () => {
-          if (!mounted) return
-          const ph = phoneRef.current.startsWith('+')
-            ? phoneRef.current
-            : `+91${phoneRef.current}`
-          try {
-            confirmRef.current = await signInWithPhoneNumber(auth, ph, verifier)
-            if (mounted) { setStep('otp'); setLoading(false) }
-          } catch (e: unknown) {
-            if (!mounted) return
-            setError(e instanceof Error ? e.message : 'OTP bhejne mein error hua')
-            setLoading(false)
-            // Per Firebase docs: reset reCAPTCHA on error
-            if (widgetIdRef.current !== null) {
-              try {
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                ;(window as any).grecaptcha?.reset(widgetIdRef.current)
-              } catch {}
-            }
-          }
-        },
-        'expired-callback': () => {
-          if (mounted) {
-            setError('reCAPTCHA expire ho gaya, dobara try karo')
-            setLoading(false)
-          }
-        },
-      })
-
-      widgetIdRef.current = await verifier.render()
-    }
-
-    init().catch(e => {
-      if (mounted) setError('reCAPTCHA load nahi hua')
-      console.error('[reCAPTCHA init]', e)
-    })
+      const { RecaptchaVerifier } = await import('firebase/auth')
+      if (cancelled) return
+      verifier = new RecaptchaVerifier(auth, 'recaptcha-container', { size: 'invisible' })
+      await verifier.render()
+      if (cancelled) { try { verifier.clear() } catch {} return }
+      verifierRef.current = verifier
+    })().catch(e => console.error('[reCAPTCHA init]', e))
 
     return () => {
-      mounted = false
+      cancelled = true
       try { verifier?.clear() } catch {}
-      widgetIdRef.current = null
+      verifierRef.current = null
     }
-  }, [phoneValid, step])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  function handleSendOTP() {
-    if (!phoneValid || loading) return
+  async function handleSendOTP() {
+    if (!phoneValid || loading || !verifierRef.current) return
     setError(null)
     setLoading(true)
-    // Clicking the button fires reCAPTCHA automatically (verifier is tied to it).
-    // The callback above handles signInWithPhoneNumber after reCAPTCHA resolves.
+    try {
+      const auth = await getFirebaseAuth()
+      const { signInWithPhoneNumber } = await import('firebase/auth')
+      const ph = phoneRef.current.startsWith('+') ? phoneRef.current : `+91${phoneRef.current}`
+      confirmRef.current = await signInWithPhoneNumber(auth, ph, verifierRef.current)
+      setStep('otp')
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'OTP bhejne mein error hua')
+      // Reset verifier after failure so next attempt gets a fresh token
+      try { verifierRef.current?.clear() } catch {}
+      verifierRef.current = null
+      const auth = await getFirebaseAuth()
+      const { RecaptchaVerifier } = await import('firebase/auth')
+      const v = new RecaptchaVerifier(auth, 'recaptcha-container', { size: 'invisible' })
+      await v.render().catch(() => {})
+      verifierRef.current = v
+    } finally {
+      setLoading(false)
+    }
   }
 
   async function handleVerifyOTP() {
@@ -147,8 +128,7 @@ export default function PhoneAuthScreen({ onSuccess }: { onSuccess: () => void }
             value={phone}
             onChange={e => setPhone(e.target.value.replace(/[^\d+]/g, '').slice(0, 15))}
             onKeyDown={e => {
-              if (e.key === 'Enter' && phoneValid)
-                document.getElementById(BTN_ID)?.click()
+              if (e.key === 'Enter' && phoneValid) handleSendOTP()
             }}
             placeholder="+91 XXXXX XXXXX"
             autoFocus
@@ -197,12 +177,12 @@ export default function PhoneAuthScreen({ onSuccess }: { onSuccess: () => void }
         </div>
       )}
 
+      {/* Hidden reCAPTCHA container */}
+      <div id="recaptcha-container" />
+
       {/* Buttons */}
       {step === 'phone' ? (
-        // Must NOT use `disabled` — a disabled button blocks the reCAPTCHA click listener.
-        // Visual inactive state is CSS-only.
         <button
-          id={BTN_ID}
           onClick={handleSendOTP}
           style={{
             width:'100%', padding:'16px 0', borderRadius:16, border:'none',

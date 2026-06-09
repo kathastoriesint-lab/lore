@@ -27,7 +27,7 @@ export default function NarrationButton({ text, active, pauseSignal }: Props) {
     }
   }, [])
 
-  // Load audio when text changes. Auto-play ONLY if currently active.
+  // Load audio when text changes. Wait for user to press play.
   useEffect(() => {
     let cancelled = false
     cleanup()
@@ -58,18 +58,7 @@ export default function NarrationButton({ text, active, pauseSignal }: Props) {
         audio.addEventListener('error', () => setState('error'))
         audioRef.current = audio
 
-        // Auto-play only if the parent screen is currently active
-        if (cancelled) return
-        if (activeRef.current) {
-          try {
-            await audio.play()
-            if (!cancelled) setState('playing')
-          } catch {
-            if (!cancelled) setState('blocked')
-          }
-        } else {
-          if (!cancelled) setState('paused')
-        }
+        if (!cancelled) setState('paused')
       } catch (e) {
         if (!cancelled) {
           setState('error')
@@ -84,25 +73,15 @@ export default function NarrationButton({ text, active, pauseSignal }: Props) {
     }
   }, [text, cleanup])
 
-  // React to active toggling: pause on leaving, autoplay on first arrival
+  // React to active toggling: pause when navigating away
   useEffect(() => {
     activeRef.current = active
     const a = audioRef.current
     if (!a) return
 
-    if (active) {
-      // Only auto-play if audio is fresh (never started yet for this text)
-      if (a.paused && a.currentTime === 0) {
-        a.play()
-          .then(() => setState('playing'))
-          .catch(() => setState('blocked'))
-      }
-    } else {
-      // Navigating away from live — always pause
-      if (!a.paused) {
-        a.pause()
-        setState('paused')
-      }
+    if (!active && !a.paused) {
+      a.pause()
+      setState('paused')
     }
   }, [active])
 
