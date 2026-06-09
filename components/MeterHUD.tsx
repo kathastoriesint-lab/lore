@@ -14,9 +14,11 @@ function followersStr(fame: number): string {
 
 interface Props {
   right?: React.ReactNode
+  /** Hide the @handle / follower header row — use when the parent already shows this info (e.g. ProfileScreen) */
+  hideHeader?: boolean
 }
 
-export default function MeterHUD({ right }: Props) {
+export default function MeterHUD({ right, hideHeader }: Props) {
   const { game } = useApp()
   const isCricket = game.world === 'cricket'
 
@@ -68,21 +70,23 @@ export default function MeterHUD({ right }: Props) {
       padding: '10px 16px 10px',
       position: 'relative', zIndex: 4, flexShrink: 0,
     }}>
-      {/* Row 1: @handle + world·day | followers */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-        <PlayerAvatar size={32} fontSize={13} />
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontWeight: 700, fontSize: 14, color: '#fff', lineHeight: 1.2 }}>{handle}</div>
-          <div style={{ fontSize: 11, color: 'var(--ink3)', marginTop: 1 }}>{worldLine}</div>
-        </div>
-        <div style={{ textAlign: 'right', flexShrink: 0 }}>
-          <div key={`fw${isCricket ? game.meters.heat : game.meters.fame}`} style={{ fontWeight: 800, fontSize: 15, color: '#fff', animation: 'meterFlash .4s ease-out', lineHeight: 1.2 }}>
-            {followersStr(isCricket ? game.meters.heat : game.meters.fame)}
+      {/* Row 1: @handle + world·day | followers (hidden when parent already shows this) */}
+      {!hideHeader && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <PlayerAvatar size={32} fontSize={13} />
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontWeight: 700, fontSize: 14, color: '#fff', lineHeight: 1.2 }}>{handle}</div>
+            <div style={{ fontSize: 11, color: 'var(--ink3)', marginTop: 1 }}>{worldLine}</div>
           </div>
-          <div style={{ fontSize: 10, color: 'var(--ink3)' }}>followers</div>
+          <div style={{ textAlign: 'right', flexShrink: 0 }}>
+            <div key={`fw${isCricket ? game.meters.heat : game.meters.fame}`} style={{ fontWeight: 800, fontSize: 15, color: '#fff', animation: 'meterFlash .4s ease-out', lineHeight: 1.2 }}>
+              {followersStr(isCricket ? game.meters.heat : game.meters.fame)}
+            </div>
+            <div style={{ fontSize: 10, color: 'var(--ink3)' }}>followers</div>
+          </div>
+          {right && <div style={{ flexShrink: 0, marginLeft: 4 }}>{right}</div>}
         </div>
-        {right && <div style={{ flexShrink: 0, marginLeft: 4 }}>{right}</div>}
-      </div>
+      )}
 
       {/* Row 2: three meters side by side */}
       <div style={{ display: 'flex', gap: 12, marginTop: 10 }}>

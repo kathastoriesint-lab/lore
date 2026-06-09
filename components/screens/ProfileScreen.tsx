@@ -257,8 +257,8 @@ export default function ProfileScreen() {
           </div>
         </div>
 
-        {/* Shared HUD */}
-        <div style={{ marginTop:12 }}><MeterHUD /></div>
+        {/* Shared HUD — hideHeader because name/followers already shown above */}
+        <div style={{ marginTop:12 }}><MeterHUD hideHeader /></div>
 
 
         {/* Tab switcher */}
