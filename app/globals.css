@@ -55,7 +55,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .appbar{flex:0 0 auto;display:flex;align-items:center;gap:10px;padding:6px 16px 12px;
   background:rgba(8,8,15,.82);backdrop-filter:blur(12px);border-bottom:1px solid transparent;
   position:relative;z-index:5}
-.icon-btn{width:38px;height:38px;display:grid;place-items:center;border-radius:50%}
+.icon-btn{width:44px;height:44px;display:grid;place-items:center;border-radius:50%}
 .icon-btn:active{background:rgba(255,255,255,.06)}
 .badge-num{position:absolute;top:2px;right:2px;min-width:16px;height:16px;padding:0 4px;
   background:var(--accent);color:#fff;border-radius:9px;font-size:9px;font-weight:800;
@@ -152,9 +152,11 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .post-img::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 30%,rgba(0,0,0,.75) 100%);z-index:1}
 .post-img.grain::after{content:"";position:absolute;inset:0;background:var(--grain);background-size:170px 170px;opacity:.4;z-index:1}
 .post-img .overlay-txt{position:relative;z-index:2;font-family:var(--serif);font-size:16px;font-style:italic;color:rgba(255,255,255,.92);padding:14px 16px;text-align:left;margin:0;width:100%;box-sizing:border-box}
-.post-actions{display:flex;align-items:center;gap:16px;padding:10px 14px 6px}
+.post-actions{display:flex;align-items:center;gap:4px;padding:2px 6px 6px}
 .post-actions .spacer{flex:1}
 .post-actions svg{width:24px;height:24px}
+/* Ensure 44px touch targets on action buttons (like, comment, share) */
+.post-actions button{min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center}
 .likes{font-weight:700;font-size:14px;padding:0 14px}
 .caption{font-size:14px;line-height:1.5;padding:5px 14px 2px;color:var(--ink)}
 .caption b{font-weight:600;margin-right:5px}
