@@ -21,7 +21,6 @@ import CharProfileScreen from '@/components/screens/CharProfileScreen'
 import OnboardingScreen from '@/components/screens/OnboardingScreen'
 import CricketIntroScreen from '@/components/screens/CricketIntroScreen'
 import CricketCarouselScreen from '@/components/screens/CricketCarouselScreen'
-import PhoneAuthScreen from '@/components/screens/PhoneAuthScreen'
 import FeedbackButton from '@/components/FeedbackButton'
 import ErrorBoundary from '@/components/ErrorBoundary'
 import { analytics, getDeviceId } from '@/lib/analytics'
@@ -132,16 +131,11 @@ export default function App() {
 
     ;(async () => {
       try {
+        // ensureSession transparently creates an anonymous session on first
+        // visit, persisted in localStorage — same device = same user_id forever.
         const session = await ensureSession()
-        // Initialise analytics for everyone — including visitors who land on the
-        // login screen and bounce. Tracks unique devices + time spent per session.
         analytics.init(session?.user?.id ?? null)
         analytics.track('session_started', null, { authed: !!session })
-        if (!session) {
-          navigate('phone-auth', { replace: true })
-          setReady(true)
-          return
-        }
         const s = await loadGameState()
         hydrateProgress(s)
         navigate(s.playerName ? 'worlds' : 'onboarding', { replace: true })
@@ -172,19 +166,6 @@ export default function App() {
     })
     setNavHistory(prev => opts?.replace ? [...prev.slice(0, -1), to] : [...prev, to])
   }, [game.world, showToast])
-
-  const handleAuthSuccess = useCallback(async () => {
-    try {
-      const sess = await ensureSession()
-      if (sess?.user?.id) analytics.setUserId(sess.user.id)
-      analytics.track('login_completed', null)
-      const s = await loadGameState()
-      hydrateProgress(s)
-      navigate(s.playerName ? 'worlds' : 'onboarding', { replace: true })
-    } catch {
-      navigate('worlds', { replace: true })
-    }
-  }, [navigate, hydrateProgress])
 
   // Auto-persist relationship/social progress shortly after it changes.
   // Game-state saves fire on choices; trust/fame/like changes happen on their own,
@@ -623,7 +604,6 @@ export default function App() {
         <div className="phone">
           <ErrorBoundary>
           <div className="viewport">
-            <Slot id="phone-auth"    cur={screen} prev={prev}><PhoneAuthScreen onSuccess={handleAuthSuccess} /></Slot>
             <Slot id="onboarding"    cur={screen} prev={prev}><OnboardingScreen /></Slot>
             <Slot id="worlds"        cur={screen} prev={prev}><WorldsScreen /></Slot>
             <Slot id="world-intro"   cur={screen} prev={prev}><WorldIntroScreen /></Slot>
