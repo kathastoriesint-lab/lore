@@ -103,6 +103,7 @@ export default function DMThreadScreen() {
       trustWithChar: trustVal,
       teamTrust: game.world === 'cricket' ? game.meters.image : undefined,
       nextSituation,
+      choicesMade: game.choices.length,
     })
       .then(suggestions => { if (!cancelled) setDynamicChips(suggestions) })
       .finally(() => { if (!cancelled) setChipsLoading(false) })

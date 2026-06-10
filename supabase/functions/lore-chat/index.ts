@@ -295,6 +295,7 @@ serve(async (req) => {
       current_trust = null,     // used in trust_score mode
       current_day = 1,          // which day it is
       next_situation = null,    // suggest_replies mode: title + question of the upcoming game situation
+      choices_made = null,      // suggest_replies mode: how many choices the player has made (for starting context)
     } = await req.json();
 
     const OPENAI_KEY = Deno.env.get("OPENAI_API_KEY");
@@ -375,9 +376,23 @@ Character: ${character_name}. Current trust: ${current_trust ?? "unknown"}/100. 
       // What the player is about to face next in the game — the suggestion should set them up well for it.
       const nextSit = typeof next_situation === "string" && next_situation.trim() ? next_situation.trim() : null;
 
+      // Age/respect register. Player is a 16-year-old newcomer; everyone except his
+      // school friend is older/senior, so the player must speak with "aap".
+      const peerChars = ["friend"];
+      const registerRule = peerChars.includes(character_id)
+        ? `RESPECT/REGISTER: ${character_id} is ${player_name}'s same-age school friend. Use casual, warm peer language — "tu / tera / yaar". Informal is correct here.`
+        : `RESPECT/REGISTER (hard rule): ${player_name} is a 16-year-old newcomer and ${character_id} is older and senior. ${player_name} MUST address them respectfully with "aap" (aap, aapne, aapko, aapse) — NEVER "tu/tera/tumhe". In an Indian dressing room a junior always uses "aap" with seniors. Getting this wrong is a serious mistake.`;
+
+      // Starting context — early in the game there is NO prior history to "win back".
+      const choicesCount = typeof choices_made === "number" ? choices_made : (Array.isArray(player_choices) ? player_choices.length : 0);
+      const isStart = choicesCount <= 1;
+      const startingContext = isStart
+        ? `STARTING CONTEXT: ${player_name} has JUST arrived in the dressing room — this relationship is brand new. Do NOT imply any past history, prior bond, fallout, or "trust wapas/regaining" anything. There is nothing to win back. Low trust here just means they are new; the goal is a good, respectful first impression.`
+        : "";
+
       const goalLines: string[] = [];
       if (lowForm) goalLines.push(`- ${player_name}'s FORM is low (${sForm}/100). Lean the reply toward getting real cricketing help, owning the slump, or asking for something concrete that improves their batting. No empty confidence.`);
-      if (lowTrust) goalLines.push(`- ${player_name}'s TRUST with ${character_id} / the team is low (char ${sCharTrust ?? "?"}, team ${sTeamTrust ?? "?"}). Lean the reply toward earning trust — accountability, humility, respect, showing they're team-first. Not sucking up; genuine.`);
+      if (lowTrust) goalLines.push(`- ${player_name}'s TRUST with ${character_id} / the team is still low/new (char ${sCharTrust ?? "?"}, team ${sTeamTrust ?? "?"}). Lean the reply toward building trust from zero — respectful, accountable, eager to learn, team-first. Never imply trust was lost or must be won "back".`);
       if (nextSit) goalLines.push(`- Coming up next in ${player_name}'s journey: "${nextSit}". Where natural, the reply can quietly set them up well for this — but only if it fits what was just said.`);
 
       const sugResp = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -398,12 +413,14 @@ ${character_id}'s LAST message (this is the most important thing to respond to):
 PRIMARY RULE — be in context:
 The reply MUST directly answer or react to ${character_id}'s last message above. Engage with their actual words. If it doesn't make sense as a reply to that message, it's wrong.
 
+${registerRule}
+${startingContext ? startingContext + "\n" : ""}
 ${goalLines.length ? `STRATEGY — nudge the player's game forward (secondary to staying in context):\n${goalLines.join("\n")}\n` : ""}
 STYLE:
 - First person, ${player_name}'s POV.
-- NATURAL spoken Hinglish, like a real Indian person texting — flowing and idiomatic, NOT translated-from-English or formal Hindi. e.g. "Bench pe baith ke seekh raha hoon, par ab lagta hai mauka mila toh ready rahunga" or "Sach kahun toh dar lagta hai, par tum ho toh thoda aasaan lagta hai." Hindi carries the feeling.
+- SIMPLE, everyday Hinglish — the way a real 16-year-old texts. Short common words, plain and natural. NO literary, flowery, heavy, or textbook Hindi. NOT translated-from-English either. e.g. "Aap sahi keh rahe ho, main aur mehnat karunga. Bas ek baar mauka mil jaaye" or "Sach mein nervous hoon sir, par aapse seekhne ko mil raha hai toh accha lag raha hai."
 - Roman script only (no Devanagari).
-- One full, real message — a sentence or two (roughly 12-28 words). Emotionally alive, never a flat one-liner.
+- One short, real message — a sentence or two (roughly 10-24 words). Natural, never a flat one-liner.
 - Return ONLY a JSON array containing exactly ONE string, no explanation, no markdown.`,
             },
           ],

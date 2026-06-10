@@ -51,6 +51,21 @@ const defaultDmTrustFor = (world: GameState['world'], charId: CharId) => (
   world === 'cricket' ? (CRICKET_DM_TRUST_START[charId] ?? 50) : 50
 )
 
+// First-contact opener DMs for the dressing room. Seniors greet a 16-year-old
+// newcomer (tu/beta from elders is natural); friend is a same-age peer.
+// Schedule: coach + friend open after the 1st situation; the rest after the 2nd.
+const CRICKET_DM_OPENERS: Partial<Record<CharId, string>> = {
+  coach:  'Beta pahunch gaye? Dressing room kaisa laga? ||| Settle ho jao, baaki sab baad mein. ||| Koi bhi dikkat ho toh seedha mujhe phone karna, samjhe?',
+  friend: 'BHAII 😭 tu sach mein MI ke dressing room mein hai?! ||| Pinch me yaar. ||| Bata na sab — Hardik bhai mile? Kaisa lag raha hai wahan?',
+  hardik: 'Welcome to the squad. ||| Yahan kaam bolta hai, baaki sab noise hai. Ready reh — mauka kabhi bhi aa sakta hai.',
+  rohit:  'Aa gaye. Aaram se lo, pressure abhi se mat lo. ||| Dekhte hain tum khel ke baare mein sochte kaise ho.',
+  surya:  'Arre champion aa gaya! 😄 ||| Koi bhi cheez poochni ho — shot, field, kuch bhi — bejhijhak bol dena. Main yahin hoon.',
+  bumrah: 'Nets mein tujhe dekha tha. Potential hai. ||| Par potential se runs nahi bante. Kaam karega toh baat karenge.',
+  tilak:  'Bhai tu naya hai na squad mein? Tension mat le, sab settle ho jaata hai. ||| Kuch samajhna ho toh bata dena.',
+}
+const DM_OPENER_TIER1: CharId[] = ['coach', 'friend']
+const DM_OPENER_TIER2: CharId[] = ['hardik', 'rohit', 'surya', 'bumrah', 'tilak']
+
 const asArray = <T,>(value: T | T[] | null | undefined): T[] => {
   if (value == null) return []
   return Array.isArray(value) ? value : [value]
@@ -100,6 +115,7 @@ export default function App() {
   const dmTrustRef = useRef(dmTrust); dmTrustRef.current = dmTrust
   const charFameRef = useRef(charFame); charFameRef.current = charFame
   const likedPostsRef = useRef(likedPosts); likedPostsRef.current = likedPosts
+  const dmHistoryRef = useRef(dmHistory); dmHistoryRef.current = dmHistory
   // Snapshot of all progress-extras to merge into every game_state write
   const extrasSnapshot = useCallback(() => ({
     dmTrust: dmTrustRef.current,
@@ -257,7 +273,10 @@ export default function App() {
     setRelationshipAlerts([])
     saveAndSet(newState)
     analytics.track('world_entered', 'cricket', { world_id: 'cricket' })
-    if (typeof window !== 'undefined') localStorage.setItem('lore_feed_seen', '1')
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('lore_feed_seen', '1')
+      localStorage.removeItem('lore_dm_openers_v1') // fresh run re-seeds openers
+    }
     navigate('live')
   }, [game.playerName, game.playerGender, saveAndSet, navigate])
 
@@ -541,6 +560,32 @@ export default function App() {
     saveDM(charId, charMsg).catch(() => {})
     setDmBadgeCount(prev => prev + 1) // T4: badge notification
   }, [game.world])
+
+  // Progressive DM openers: coach + friend reach out after the 1st situation,
+  // the rest of the dressing room after the 2nd — so chats "open" in order.
+  // Guarded by a localStorage flag so each tier seeds exactly once per run.
+  useEffect(() => {
+    if (game.world !== 'cricket') return
+    const count = game.choices.length
+    let seeded: Record<string, boolean> = {}
+    try { seeded = JSON.parse(localStorage.getItem('lore_dm_openers_v1') || '{}') } catch {}
+
+    const seedTier = (ids: CharId[], tierKey: string, baseDelay: number) => {
+      if (seeded[tierKey]) return
+      seeded[tierKey] = true
+      try { localStorage.setItem('lore_dm_openers_v1', JSON.stringify(seeded)) } catch {}
+      ids.forEach((id, idx) => {
+        if ((dmHistoryRef.current[id]?.length ?? 0) > 0) return // already has messages
+        const bubbles = (CRICKET_DM_OPENERS[id] ?? '').split('|||').map(s => s.trim()).filter(Boolean)
+        bubbles.forEach((text, b) => {
+          setTimeout(() => injectCharDM(id, text), baseDelay + idx * 900 + b * 500)
+        })
+      })
+    }
+
+    if (count >= 1) seedTier(DM_OPENER_TIER1, 't1', 700)
+    if (count >= 2) seedTier(DM_OPENER_TIER2, 't2', 1000)
+  }, [game.world, game.choices.length, injectCharDM])
 
   const applyFeedDeltas = useCallback((deltas: { fame: number; heat: number; image: number }, charId?: string, charName?: string) => {
     const isCricket = game.world === 'cricket'

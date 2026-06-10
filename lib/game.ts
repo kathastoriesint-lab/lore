@@ -232,7 +232,7 @@ export async function getReplySuggestions(
   charId: CharId,
   history: DMMessage[],
   playerName: string,
-  ctx?: { meters?: Meters; trustWithChar?: number; teamTrust?: number; nextSituation?: string }
+  ctx?: { meters?: Meters; trustWithChar?: number; teamTrust?: number; nextSituation?: string; choicesMade?: number }
 ): Promise<string[]> {
   const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!
   const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -262,6 +262,7 @@ export async function getReplySuggestions(
         trust_with_char: ctx?.trustWithChar ?? null,
         team_trust: ctx?.teamTrust ?? null,
         next_situation: ctx?.nextSituation ?? null,
+        choices_made: ctx?.choicesMade ?? null,
       }),
     })
     clearTimeout(timer)
