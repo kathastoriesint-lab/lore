@@ -391,8 +391,8 @@ Character: ${character_name}. Current trust: ${current_trust ?? "unknown"}/100. 
     }
 
     // ── Reply suggestion mode ────────────────────────────────────────────────
-    // Called after a character reply lands. Returns 2-3 short, in-voice reply
-    // options for the player, grounded in what the character just said.
+    // Called after a character reply lands. Returns ONE longer, in-voice reply
+    // option for the player, grounded in what the character just said.
     if (mode === "suggest_replies") {
       const lastCharMsg = messages?.slice(-1)[0]?.content ?? "";
       const recentHistory = (messages ?? [])
@@ -408,7 +408,7 @@ Character: ${character_name}. Current trust: ${current_trust ?? "unknown"}/100. 
           messages: [
             {
               role: "system",
-              content: `You write 3 short reply suggestions for ${player_name} to send next in this DM chat with ${character_id}.
+              content: `You write ONE reply suggestion for ${player_name} to send next in this DM chat with ${character_id}.
 
 Conversation so far:
 ${recentHistory}
@@ -416,11 +416,11 @@ ${recentHistory}
 ${character_id}'s last message: "${lastCharMsg}"
 
 Rules:
-- Each suggestion is something ${player_name} could plausibly text back, written in first person from ${player_name}'s POV.
+- Written in first person from ${player_name}'s POV — something they could plausibly text back right now.
 - Roman script only (Hinglish ok, no Devanagari).
-- Under 8 words each. Casual texting style, no punctuation overload.
-- Make the 3 distinct in tone/intent (e.g. one curious/follow-up, one playful or deflecting, one direct/vulnerable) and directly responsive to what ${character_id} just said — not generic.
-- Return ONLY a JSON array of exactly 3 strings, no explanation, no markdown.`,
+- One full, natural message — a real sentence or two (roughly 10-25 words), not a one-liner. It should feel like a genuine, specific response to what ${character_id} just said, not a generic filler.
+- Casual texting style.
+- Return ONLY a JSON array containing exactly ONE string, no explanation, no markdown.`,
             },
           ],
           max_completion_tokens: 120,
@@ -434,7 +434,7 @@ Rules:
       try {
         const cleaned = raw.replace(/^```(?:json)?\s*/, "").replace(/\s*```$/, "");
         const parsed = JSON.parse(cleaned);
-        const suggestions = Array.isArray(parsed) ? parsed.filter((s) => typeof s === "string").slice(0, 3) : [];
+        const suggestions = Array.isArray(parsed) ? parsed.filter((s) => typeof s === "string").slice(0, 1) : [];
         return new Response(JSON.stringify({ suggestions }), { headers: { ...CORS, "Content-Type": "application/json" } });
       } catch {
         return new Response(JSON.stringify({ suggestions: [] }), { headers: { ...CORS, "Content-Type": "application/json" } });

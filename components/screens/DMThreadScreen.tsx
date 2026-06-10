@@ -140,8 +140,8 @@ export default function DMThreadScreen() {
     friend: ['Bhai kya chal raha hai', 'Ghar yaad aa raha hai', 'Koi sun nahi raha yahan'],
   }
   const staticChips = (charId ? (DM_QUICK[charId] ?? CRICKET_QUICK[charId] ?? []) : [])
-  // Prefer dynamic, conversation-aware suggestions; fall back to static ones while loading or on failure
-  const quickChips = dynamicChips.length > 0 ? dynamicChips : (chipsLoading ? [] : staticChips)
+  // Fall back to static chips only while no dynamic suggestion is available (and not actively loading one)
+  const quickChips = chipsLoading ? [] : staticChips
 
   return (
     <div style={{ display:'flex', flexDirection:'column', height:'100%' }}>
@@ -229,12 +229,18 @@ export default function DMThreadScreen() {
         )}
       </div>
 
-      {/* Quick reply chips */}
+      {/* Quick reply suggestion(s) */}
       {hasStarted && !isLocked && (
         <div className="quick-chips">
-          {quickChips.map((chip, i) => (
-            <button key={i} className="chip" onClick={() => handleQuickChip(chip)}>{chip}</button>
-          ))}
+          {dynamicChips.length > 0 ? (
+            dynamicChips.map((chip, i) => (
+              <button key={i} className="chip-suggestion" onClick={() => handleQuickChip(chip)}>{chip}</button>
+            ))
+          ) : (
+            quickChips.map((chip, i) => (
+              <button key={i} className="chip" onClick={() => handleQuickChip(chip)}>{chip}</button>
+            ))
+          )}
         </div>
       )}
 
