@@ -7,7 +7,7 @@ import {
   loadDMs, loadGameState, recordChoice, resetGameState, saveDM, saveGameState,
   fameToFollowers, DEFAULT_FLAGS, buildCricketQueue, buildCHQueue,
 } from '@/lib/game'
-import { CHARS, SITUATIONS, DM_MOCK, getVisibleSituations } from '@/lib/data'
+import { CHARS, SITUATIONS, DM_MOCK, DM_HOOKS, DM_ORDER, DM_TRUST, getVisibleSituations } from '@/lib/data'
 import { CRICKET_CHARS, CRICKET_DM_TRUST_START, CRICKET_LOW_TRUST_FEED, CRICKET_SITUATIONS } from '@/lib/cricket-data'
 import WorldsScreen from '@/components/screens/WorldsScreen'
 import WorldIntroScreen from '@/components/screens/WorldIntroScreen'
@@ -48,7 +48,7 @@ const trustGuidanceFor = (trust: number, teamTrust?: number) => {
 }
 
 const defaultDmTrustFor = (world: GameState['world'], charId: CharId) => (
-  world === 'cricket' ? (CRICKET_DM_TRUST_START[charId] ?? 50) : 50
+  world === 'cricket' ? (CRICKET_DM_TRUST_START[charId] ?? 50) : (DM_TRUST[charId] ?? 50)
 )
 
 // First-contact opener DMs for the dressing room. Seniors greet a 16-year-old
@@ -171,17 +171,12 @@ export default function App() {
   }, [])
 
   const navigate = useCallback((to: Screen, opts?: { replace?: boolean }) => {
-    const isDmRoute = to === 'dm-inbox' || to === 'dm-thread'
-    if (isDmRoute && game.world !== 'cricket') {
-      showToast('DMs are disabled for Creator House right now')
-      return
-    }
     setScreen(prev => {
       analytics.trackScreen(to, game.world ?? null, prev)
       return to
     })
     setNavHistory(prev => opts?.replace ? [...prev.slice(0, -1), to] : [...prev, to])
-  }, [game.world, showToast])
+  }, [game.world])
 
   // Auto-persist relationship/social progress shortly after it changes.
   // Game-state saves fire on choices; trust/fame/like changes happen on their own,
@@ -255,7 +250,10 @@ export default function App() {
     setRelationshipAlerts([])
     saveAndSet(newState)
     analytics.track('world_entered', 'creator-house', { world_id: 'creator-house' })
-    if (typeof window !== 'undefined') localStorage.removeItem('lore_feed_seen')
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('lore_feed_seen')
+      localStorage.removeItem('lore_dm_openers_v1') // fresh run re-seeds openers
+    }
     navigate('narrator')
   }, [game.playerName, game.playerGender, saveAndSet, navigate])
 
@@ -395,7 +393,6 @@ export default function App() {
   }, [applyChoiceRelationshipEffects, game])
 
   const openDMThread = useCallback(async (charId: CharId) => {
-    if (game.world !== 'cricket') return
     setDmChar(charId)
     navigate('dm-thread')
     setDmBadgeCount(0) // clear badge on open
@@ -455,7 +452,7 @@ export default function App() {
   }, [game.world, game.choices, game.situationQueue])
 
   const sendDM = useCallback(async (charId: CharId, text: string) => {
-    if (game.world !== 'cricket') return
+    // DMs are live in both cricket and Creator House.
     // Cap check — block if locked
     const capState = getDmCapState(charId)
     if (capState.lockedUntil > Date.now()) return
@@ -489,6 +486,7 @@ export default function App() {
       trustBand,
       trustGuidance: trustGuidanceFor(currentTrust, game.world === 'cricket' ? game.meters.image : undefined),
       teamTrust: game.world === 'cricket' ? game.meters.image : undefined,
+      playerGender: game.playerGender,
     })
     const CRICKET_MOCK_FALLBACK: Partial<Record<string, string[]>> = {
       hardik: ['Role pe focus rakh. Kya soch raha hai abhi?', 'Execution dikhao. Simple hai na?', 'Theek hai. Kal kya plan hai?'],
@@ -553,7 +551,6 @@ export default function App() {
 
   // Inject a DM message from a character without AI round-trip (used after Live choices)
   const injectCharDM = useCallback((charId: CharId, text: string) => {
-    if (game.world !== 'cricket') return
     const charMsg: DMMessage = { role: 'char', text }
     setDmHistory(prev => ({ ...prev, [charId]: [...(prev[charId] ?? []), charMsg] }))
     setDmLastUpdated(prev => ({ ...prev, [charId]: Date.now() }))
@@ -565,27 +562,33 @@ export default function App() {
   // the rest of the dressing room after the 2nd — so chats "open" in order.
   // Guarded by a localStorage flag so each tier seeds exactly once per run.
   useEffect(() => {
-    if (game.world !== 'cricket') return
+    if (game.world !== 'cricket' && game.world !== 'creator-house') return
     const count = game.choices.length
     let seeded: Record<string, boolean> = {}
     try { seeded = JSON.parse(localStorage.getItem('lore_dm_openers_v1') || '{}') } catch {}
 
-    const seedTier = (ids: CharId[], tierKey: string, baseDelay: number) => {
+    const seedTier = (ids: CharId[], tierKey: string, openerFor: (id: CharId) => string, baseDelay: number) => {
       if (seeded[tierKey]) return
       seeded[tierKey] = true
       try { localStorage.setItem('lore_dm_openers_v1', JSON.stringify(seeded)) } catch {}
       ids.forEach((id, idx) => {
         if ((dmHistoryRef.current[id]?.length ?? 0) > 0) return // already has messages
-        const bubbles = (CRICKET_DM_OPENERS[id] ?? '').split('|||').map(s => s.trim()).filter(Boolean)
+        const bubbles = (openerFor(id) ?? '').split('|||').map(s => s.trim()).filter(Boolean)
         bubbles.forEach((text, b) => {
           setTimeout(() => injectCharDM(id, text), baseDelay + idx * 900 + b * 500)
         })
       })
     }
 
-    if (count >= 1) seedTier(DM_OPENER_TIER1, 't1', 700)
-    if (count >= 2) seedTier(DM_OPENER_TIER2, 't2', 1000)
-  }, [game.world, game.choices.length, injectCharDM])
+    if (game.world === 'cricket') {
+      if (count >= 1) seedTier(DM_OPENER_TIER1, 't1', id => CRICKET_DM_OPENERS[id] ?? '', 700)
+      if (count >= 2) seedTier(DM_OPENER_TIER2, 't2', id => CRICKET_DM_OPENERS[id] ?? '', 1000)
+    } else {
+      // Creator House: the housemates reach out to the newcomer after the 1st situation.
+      const houseChars = DM_ORDER.filter(id => id !== game.char)
+      if (count >= 1) seedTier(houseChars, 'ch1', id => DM_HOOKS[id] ?? '', 700)
+    }
+  }, [game.world, game.char, game.choices.length, injectCharDM])
 
   const applyFeedDeltas = useCallback((deltas: { fame: number; heat: number; image: number }, charId?: string, charName?: string) => {
     const isCricket = game.world === 'cricket'

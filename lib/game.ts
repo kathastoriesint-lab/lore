@@ -232,7 +232,7 @@ export async function getReplySuggestions(
   charId: CharId,
   history: DMMessage[],
   playerName: string,
-  ctx?: { meters?: Meters; trustWithChar?: number; teamTrust?: number; nextSituation?: string; choicesMade?: number }
+  ctx?: { meters?: Meters; trustWithChar?: number; teamTrust?: number; nextSituation?: string; choicesMade?: number; playerGender?: 'male' | 'female' }
 ): Promise<string[]> {
   const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!
   const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -263,6 +263,7 @@ export async function getReplySuggestions(
         team_trust: ctx?.teamTrust ?? null,
         next_situation: ctx?.nextSituation ?? null,
         choices_made: ctx?.choicesMade ?? null,
+        player_gender: ctx?.playerGender ?? 'male',
       }),
     })
     clearTimeout(timer)
@@ -281,7 +282,7 @@ export async function getAIReply(
   charId: CharId,
   history: DMMessage[],
   playerName: string,
-  gameState?: { char: string | null; meters: Meters; choices: string[]; situation: number; world?: string; flags?: GameFlags; story?: string; trustWithChar?: number; trustBand?: 'low' | 'normal' | 'high'; trustGuidance?: string; teamTrust?: number }
+  gameState?: { char: string | null; meters: Meters; choices: string[]; situation: number; world?: string; flags?: GameFlags; story?: string; trustWithChar?: number; trustBand?: 'low' | 'normal' | 'high'; trustGuidance?: string; teamTrust?: number; playerGender?: 'male' | 'female' }
 ): Promise<string> {
   const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!
   const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -306,6 +307,7 @@ export async function getAIReply(
         character_id: charId,
         messages: msgs,
         player_name: playerName,
+        player_gender: gameState?.playerGender ?? 'male',
         player_char: gameState?.char ?? null,
         player_meters: gameState?.meters ?? null,
         player_choices: gameState?.choices ?? null,
