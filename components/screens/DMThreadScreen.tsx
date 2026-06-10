@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useApp } from '@/lib/context'
 import type { CharId, DMMessage } from '@/lib/types'
 import { CHARS, DM_TRUST, DM_QUICK } from '@/lib/data'
-import { CRICKET_CHARS } from '@/lib/cricket-data'
+import { CRICKET_CHARS, CRICKET_SITUATIONS } from '@/lib/cricket-data'
 import { CRICKET_DM_TRUST_START } from '@/lib/cricket-data'
 import { getReplySuggestions } from '@/lib/game'
 
@@ -89,10 +89,21 @@ export default function DMThreadScreen() {
     const last = messages[messages.length - 1]
     if (!last || last.role !== 'char') return
 
+    // The situation the player is about to face next in the game — lets the
+    // suggestion quietly set them up for it.
+    const nextSitId = game.situationQueue[game.situation]
+    const nextSit = nextSitId ? CRICKET_SITUATIONS.find(s => s.id === nextSitId) : null
+    const nextSituation = nextSit ? `${nextSit.title} — ${nextSit.q}` : undefined
+
     let cancelled = false
     setChipsLoading(true)
     setDynamicChips([])
-    getReplySuggestions(charId, messages, game.playerName || 'Yaar')
+    getReplySuggestions(charId, messages, game.playerName || 'Yaar', {
+      meters: game.meters,
+      trustWithChar: trustVal,
+      teamTrust: game.world === 'cricket' ? game.meters.image : undefined,
+      nextSituation,
+    })
       .then(suggestions => { if (!cancelled) setDynamicChips(suggestions) })
       .finally(() => { if (!cancelled) setChipsLoading(false) })
 
@@ -100,10 +111,12 @@ export default function DMThreadScreen() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [charId, messages.length, typing, sending])
 
-  const handleSend = useCallback(async () => {
-    if (!charId || !input.trim() || sending) return
-    const text = input.trim()
+  // Send an explicit string (used by the Smart Reply card — tap to send directly).
+  const sendText = useCallback(async (raw: string) => {
+    const text = raw.trim()
+    if (!charId || !text || sending) return
     setInput('')
+    setDynamicChips([])
     setSending(true)
     setTyping(true)
     try {
@@ -112,7 +125,16 @@ export default function DMThreadScreen() {
       setTyping(false)
       setSending(false)
     }
-  }, [charId, input, sending, sendDM])
+  }, [charId, sending, sendDM])
+
+  const handleSend = useCallback(() => { sendText(input) }, [sendText, input])
+
+  // "Edit" on the Smart Reply card — drop it into the input to tweak before sending.
+  const handleEditSuggestion = useCallback((chip: string) => {
+    setInput(chip)
+    setDynamicChips([])
+    inputRef.current?.focus()
+  }, [])
 
   const handleQuickChip = useCallback((chip: string) => {
     setInput(chip)
@@ -142,8 +164,6 @@ export default function DMThreadScreen() {
     friend: ['Bhai kya chal raha hai', 'Ghar yaad aa raha hai', 'Koi sun nahi raha yahan'],
   }
   const staticChips = (charId ? (DM_QUICK[charId] ?? CRICKET_QUICK[charId] ?? []) : [])
-  // Fall back to static chips only while no dynamic suggestion is available (and not actively loading one)
-  const quickChips = chipsLoading ? [] : staticChips
 
   return (
     <div style={{ display:'flex', flexDirection:'column', height:'100%' }}>
@@ -231,18 +251,43 @@ export default function DMThreadScreen() {
         )}
       </div>
 
-      {/* Quick reply suggestion(s) */}
-      {hasStarted && !isLocked && (
-        <div className="quick-chips">
-          {dynamicChips.length > 0 ? (
-            dynamicChips.map((chip, i) => (
-              <button key={i} className="chip-suggestion" onClick={() => handleQuickChip(chip)}>{chip}</button>
-            ))
+      {/* Smart Reply — context-aware suggestion (Kavaana-style card) */}
+      {hasStarted && !isLocked && (dynamicChips.length > 0 || chipsLoading) && (
+        <div className="smart-reply">
+          <div className="smart-reply-head">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="var(--accent)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.5.5 1 1.2 1 2h6c0-.8.5-1.5 1-2A6 6 0 0 0 12 3z"/>
+            </svg>
+            <span>Smart Reply</span>
+          </div>
+          {chipsLoading ? (
+            <div className="smart-reply-card smart-reply-loading">
+              <span className="smart-reply-text">Soch raha hoon kya bolun<span className="sr-dots"><i/><i/><i/></span></span>
+            </div>
           ) : (
-            quickChips.map((chip, i) => (
-              <button key={i} className="chip" onClick={() => handleQuickChip(chip)}>{chip}</button>
+            dynamicChips.slice(0, 1).map((chip, i) => (
+              <div key={i} className="smart-reply-card">
+                <button className="smart-reply-text-btn" onClick={() => sendText(chip)}>
+                  <span className="smart-reply-text">{chip}</span>
+                </button>
+                <button className="smart-reply-edit" onClick={() => handleEditSuggestion(chip)} aria-label="Edit suggestion">
+                  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="var(--ink2)" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>
+                  </svg>
+                  <span>Edit</span>
+                </button>
+              </div>
             ))
           )}
+        </div>
+      )}
+
+      {/* Static quick chips — fallback when no dynamic suggestion is available */}
+      {hasStarted && !isLocked && dynamicChips.length === 0 && !chipsLoading && staticChips.length > 0 && (
+        <div className="quick-chips">
+          {staticChips.map((chip, i) => (
+            <button key={i} className="chip" onClick={() => handleQuickChip(chip)}>{chip}</button>
+          ))}
         </div>
       )}
 

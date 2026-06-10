@@ -402,10 +402,27 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .chip{flex:0 0 auto;font-size:12px;color:var(--ink);background:rgba(255,255,255,.07);
   border:1px solid var(--line);padding:8px 14px;border-radius:20px;white-space:nowrap}
 .chip:active{background:rgba(255,255,255,.14)}
-.chip-suggestion{flex:1 1 auto;font-size:13px;line-height:1.4;color:var(--ink);
-  background:rgba(255,255,255,.07);border:1px solid var(--line);padding:10px 14px;
-  border-radius:14px;white-space:normal;text-align:left}
-.chip-suggestion:active{background:rgba(255,255,255,.14)}
+/* Smart Reply — context-aware suggestion panel (Kavaana-style) */
+.smart-reply{padding:10px 14px 10px;background:rgba(8,8,15,.97);border-top:1px solid var(--line);
+  position:relative}
+.smart-reply::before{content:"";position:absolute;top:0;left:0;right:0;height:1.5px;
+  background:linear-gradient(90deg,#ff2d78,#ff8a3d,#ffd24d);opacity:.55}
+.smart-reply-head{display:flex;align-items:center;gap:6px;font-size:10.5px;font-weight:800;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:8px}
+.smart-reply-card{display:flex;align-items:stretch;gap:0;width:100%;
+  background:var(--surf);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.smart-reply-text-btn{flex:1;min-width:0;text-align:left;background:none;border:none;
+  padding:12px 14px;cursor:pointer}
+.smart-reply-text-btn:active{background:rgba(255,255,255,.05)}
+.smart-reply-text{font-size:13.5px;line-height:1.45;color:var(--ink);font-style:italic}
+.smart-reply-edit{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:2px;width:58px;background:rgba(255,255,255,.04);border:none;border-left:1px solid var(--line);
+  color:var(--ink3);font-size:10px;font-weight:700;font-family:inherit;cursor:pointer}
+.smart-reply-edit:active{background:rgba(255,255,255,.1)}
+.smart-reply-loading{padding:12px 14px}
+.sr-dots{display:inline-flex;gap:3px;margin-left:6px;vertical-align:middle}
+.sr-dots i{width:4px;height:4px;border-radius:50%;background:var(--ink3);animation:typing 1.2s infinite}
+.sr-dots i:nth-child(2){animation-delay:.2s}.sr-dots i:nth-child(3){animation-delay:.4s}
 .input-bar{flex:0 0 56px;height:56px;display:flex;align-items:center;gap:8px;padding:0 12px;
   background:rgba(18,18,20,.95);backdrop-filter:blur(8px);border-top:1px solid var(--line)}
 .input-bar .field{flex:1;height:36px;background:rgba(255,255,255,.08);border-radius:18px;

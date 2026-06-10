@@ -225,12 +225,14 @@ export async function scoreTrustDelta(
 }
 
 // ── Dynamic reply suggestions via LLM ─────────────────────────────────────────
-// Called after a character reply lands — returns up to 3 short, in-voice
-// reply options grounded in the latest message. Falls back to [] on error.
+// Called after a character reply lands — returns ONE in-voice, in-context reply
+// grounded in the character's last message, the player's meters/trust, and the
+// upcoming game situation. Falls back to [] on error.
 export async function getReplySuggestions(
   charId: CharId,
   history: DMMessage[],
-  playerName: string
+  playerName: string,
+  ctx?: { meters?: Meters; trustWithChar?: number; teamTrust?: number; nextSituation?: string }
 ): Promise<string[]> {
   const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!
   const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -256,6 +258,10 @@ export async function getReplySuggestions(
         character_id: charId,
         messages: msgs,
         player_name: playerName,
+        player_meters: ctx?.meters ?? null,
+        trust_with_char: ctx?.trustWithChar ?? null,
+        team_trust: ctx?.teamTrust ?? null,
+        next_situation: ctx?.nextSituation ?? null,
       }),
     })
     clearTimeout(timer)

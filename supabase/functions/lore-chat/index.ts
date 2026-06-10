@@ -294,6 +294,7 @@ serve(async (req) => {
       team_trust = null,        // cricket dressing-room climate 0-100
       current_trust = null,     // used in trust_score mode
       current_day = 1,          // which day it is
+      next_situation = null,    // suggest_replies mode: title + question of the upcoming game situation
     } = await req.json();
 
     const OPENAI_KEY = Deno.env.get("OPENAI_API_KEY");
@@ -364,6 +365,21 @@ Character: ${character_name}. Current trust: ${current_trust ?? "unknown"}/100. 
         .map((m: { role: string; content: string }) => `${m.role === "user" ? player_name : character_id}: ${m.content}`)
         .join("\n");
 
+      // Cricket meter semantics: Form = fame slot, Public Fame = heat slot, Team Trust = image slot.
+      const sForm = player_meters?.fame ?? null;
+      const sTeamTrust = team_trust ?? player_meters?.image ?? null;
+      const sCharTrust = trust_with_char ?? null;
+      const lowForm = typeof sForm === "number" && sForm < 45;
+      const lowTrust = (typeof sCharTrust === "number" && sCharTrust < 45) || (typeof sTeamTrust === "number" && sTeamTrust < 45);
+
+      // What the player is about to face next in the game — the suggestion should set them up well for it.
+      const nextSit = typeof next_situation === "string" && next_situation.trim() ? next_situation.trim() : null;
+
+      const goalLines: string[] = [];
+      if (lowForm) goalLines.push(`- ${player_name}'s FORM is low (${sForm}/100). Lean the reply toward getting real cricketing help, owning the slump, or asking for something concrete that improves their batting. No empty confidence.`);
+      if (lowTrust) goalLines.push(`- ${player_name}'s TRUST with ${character_id} / the team is low (char ${sCharTrust ?? "?"}, team ${sTeamTrust ?? "?"}). Lean the reply toward earning trust — accountability, humility, respect, showing they're team-first. Not sucking up; genuine.`);
+      if (nextSit) goalLines.push(`- Coming up next in ${player_name}'s journey: "${nextSit}". Where natural, the reply can quietly set them up well for this — but only if it fits what was just said.`);
+
       const sugResp = await fetch("https://api.openai.com/v1/chat/completions", {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${OPENAI_KEY}` },
@@ -372,23 +388,27 @@ Character: ${character_name}. Current trust: ${current_trust ?? "unknown"}/100. 
           messages: [
             {
               role: "system",
-              content: `You are a "Smart Reply" writer. Write ONE reply that ${player_name} could send next in this DM chat with ${character_id}. It is written FROM ${player_name}, TO ${character_id}.
+              content: `You are a "Smart Reply" writer for a cricket story-game. Write ONE reply that ${player_name} could send next in this DM chat with ${character_id}. It is written FROM ${player_name}, TO ${character_id}.
 
 Conversation so far:
 ${recentHistory}
 
-${character_id}'s last message: "${lastCharMsg}"
+${character_id}'s LAST message (this is the most important thing to respond to): "${lastCharMsg}"
 
-Rules:
-- First person, ${player_name}'s POV — a genuine, specific reply to exactly what ${character_id} just said. Engage with their actual words, don't deflect into generic filler.
-- NATURAL spoken Hinglish, like a real Indian person texting — flowing and idiomatic, NOT translated-from-English or formal Hindi. e.g. "Bachpan ki garmiyon ki yaad hai, school se aate hi jo sukoon milta tha, wo abhi tak hai" or "Chhodo na ye sab, tumse baat karne ka dil kar raha hai, ladne ka nahi." Hindi carries the feeling.
+PRIMARY RULE — be in context:
+The reply MUST directly answer or react to ${character_id}'s last message above. Engage with their actual words. If it doesn't make sense as a reply to that message, it's wrong.
+
+${goalLines.length ? `STRATEGY — nudge the player's game forward (secondary to staying in context):\n${goalLines.join("\n")}\n` : ""}
+STYLE:
+- First person, ${player_name}'s POV.
+- NATURAL spoken Hinglish, like a real Indian person texting — flowing and idiomatic, NOT translated-from-English or formal Hindi. e.g. "Bench pe baith ke seekh raha hoon, par ab lagta hai mauka mila toh ready rahunga" or "Sach kahun toh dar lagta hai, par tum ho toh thoda aasaan lagta hai." Hindi carries the feeling.
 - Roman script only (no Devanagari).
-- One full, warm, real message — a sentence or two (roughly 12-28 words). Emotionally alive, a little vulnerable or playful, the kind of thing that keeps the conversation going. Never a flat one-liner.
+- One full, real message — a sentence or two (roughly 12-28 words). Emotionally alive, never a flat one-liner.
 - Return ONLY a JSON array containing exactly ONE string, no explanation, no markdown.`,
             },
           ],
           max_completion_tokens: 120,
-          temperature: 0.9,
+          temperature: 0.85,
         }),
       });
 
