@@ -223,6 +223,51 @@ export async function scoreTrustDelta(
   }
 }
 
+// ── Dynamic reply suggestions via LLM ─────────────────────────────────────────
+// Called after a character reply lands — returns up to 3 short, in-voice
+// reply options grounded in the latest message. Falls back to [] on error.
+export async function getReplySuggestions(
+  charId: CharId,
+  history: DMMessage[],
+  playerName: string
+): Promise<string[]> {
+  const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!
+  const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+
+  const msgs = history
+    .filter((_, i) => !(i === 0 && history[0].role === 'char'))
+    .slice(-6)
+    .map(m => ({ role: m.role === 'me' ? 'user' : 'assistant', content: m.text }))
+
+  const ctrl = new AbortController()
+  const timer = setTimeout(() => ctrl.abort(), 8000)
+
+  try {
+    const resp = await fetch(`${SUPABASE_URL}/functions/v1/lore-chat`, {
+      method: 'POST',
+      signal: ctrl.signal,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+      },
+      body: JSON.stringify({
+        mode: 'suggest_replies',
+        character_id: charId,
+        messages: msgs,
+        player_name: playerName,
+      }),
+    })
+    clearTimeout(timer)
+    if (!resp.ok) return []
+    const json = await resp.json()
+    return Array.isArray(json.suggestions) ? json.suggestions.filter((s: unknown) => typeof s === 'string') : []
+  } catch {
+    return []
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
 // ── AI reply via Supabase Edge Function ──────────────────────────────────────
 export async function getAIReply(
   charId: CharId,

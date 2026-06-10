@@ -390,6 +390,57 @@ Character: ${character_name}. Current trust: ${current_trust ?? "unknown"}/100. 
       }
     }
 
+    // ── Reply suggestion mode ────────────────────────────────────────────────
+    // Called after a character reply lands. Returns 2-3 short, in-voice reply
+    // options for the player, grounded in what the character just said.
+    if (mode === "suggest_replies") {
+      const lastCharMsg = messages?.slice(-1)[0]?.content ?? "";
+      const recentHistory = (messages ?? [])
+        .slice(-6)
+        .map((m: { role: string; content: string }) => `${m.role === "user" ? player_name : character_id}: ${m.content}`)
+        .join("\n");
+
+      const sugResp = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${OPENAI_KEY}` },
+        body: JSON.stringify({
+          model: "gpt-5.4-mini",
+          messages: [
+            {
+              role: "system",
+              content: `You write 3 short reply suggestions for ${player_name} to send next in this DM chat with ${character_id}.
+
+Conversation so far:
+${recentHistory}
+
+${character_id}'s last message: "${lastCharMsg}"
+
+Rules:
+- Each suggestion is something ${player_name} could plausibly text back, written in first person from ${player_name}'s POV.
+- Roman script only (Hinglish ok, no Devanagari).
+- Under 8 words each. Casual texting style, no punctuation overload.
+- Make the 3 distinct in tone/intent (e.g. one curious/follow-up, one playful or deflecting, one direct/vulnerable) and directly responsive to what ${character_id} just said — not generic.
+- Return ONLY a JSON array of exactly 3 strings, no explanation, no markdown.`,
+            },
+          ],
+          max_completion_tokens: 120,
+          temperature: 0.9,
+        }),
+      });
+
+      if (!sugResp.ok) return new Response(JSON.stringify({ suggestions: [] }), { headers: { ...CORS, "Content-Type": "application/json" } });
+      const sugJson = await sugResp.json();
+      const raw = sugJson.choices?.[0]?.message?.content?.trim() ?? "[]";
+      try {
+        const cleaned = raw.replace(/^```(?:json)?\s*/, "").replace(/\s*```$/, "");
+        const parsed = JSON.parse(cleaned);
+        const suggestions = Array.isArray(parsed) ? parsed.filter((s) => typeof s === "string").slice(0, 3) : [];
+        return new Response(JSON.stringify({ suggestions }), { headers: { ...CORS, "Content-Type": "application/json" } });
+      } catch {
+        return new Response(JSON.stringify({ suggestions: [] }), { headers: { ...CORS, "Content-Type": "application/json" } });
+      }
+    }
+
     // ── Normal chat reply mode ──────────────────────────────────────────────
     const systemPrompt = CHARACTER_PROMPTS[character_id];
     if (!systemPrompt) {

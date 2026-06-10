@@ -5,6 +5,7 @@ import type { CharId, DMMessage } from '@/lib/types'
 import { CHARS, DM_TRUST, DM_QUICK } from '@/lib/data'
 import { CRICKET_CHARS } from '@/lib/cricket-data'
 import { CRICKET_DM_TRUST_START } from '@/lib/cricket-data'
+import { getReplySuggestions } from '@/lib/game'
 
 const DM_CAP = 20
 
@@ -63,6 +64,10 @@ export default function DMThreadScreen() {
   const chatRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
+  // Dynamic reply suggestions — refreshed whenever the character sends a new message
+  const [dynamicChips, setDynamicChips] = useState<string[]>([])
+  const [chipsLoading, setChipsLoading] = useState(false)
+
   // Tick every second when locked (for countdown)
   useEffect(() => {
     if (!isLocked) return
@@ -75,6 +80,23 @@ export default function DMThreadScreen() {
     const el = chatRef.current
     if (el) requestAnimationFrame(() => { el.scrollTop = el.scrollHeight })
   }, [messages.length, typing])
+
+  // Refresh reply suggestions whenever the character sends a new message
+  useEffect(() => {
+    if (!charId || isLocked) return
+    const last = messages[messages.length - 1]
+    if (!last || last.role !== 'char') return
+
+    let cancelled = false
+    setChipsLoading(true)
+    setDynamicChips([])
+    getReplySuggestions(charId, messages, game.playerName || 'Yaar')
+      .then(suggestions => { if (!cancelled) setDynamicChips(suggestions) })
+      .finally(() => { if (!cancelled) setChipsLoading(false) })
+
+    return () => { cancelled = true }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [charId, messages.length])
 
   const handleSend = useCallback(async () => {
     if (!charId || !input.trim() || sending) return
@@ -117,7 +139,9 @@ export default function DMThreadScreen() {
     coach:  ['Video bhejun kya?', 'Footwork pe kya fix karna hai?', 'Ghabra raha hoon yaar'],
     friend: ['Bhai kya chal raha hai', 'Ghar yaad aa raha hai', 'Koi sun nahi raha yahan'],
   }
-  const quickChips = (charId ? (DM_QUICK[charId] ?? CRICKET_QUICK[charId] ?? []) : [])
+  const staticChips = (charId ? (DM_QUICK[charId] ?? CRICKET_QUICK[charId] ?? []) : [])
+  // Prefer dynamic, conversation-aware suggestions; fall back to static ones while loading or on failure
+  const quickChips = dynamicChips.length > 0 ? dynamicChips : (chipsLoading ? [] : staticChips)
 
   return (
     <div style={{ display:'flex', flexDirection:'column', height:'100%' }}>
