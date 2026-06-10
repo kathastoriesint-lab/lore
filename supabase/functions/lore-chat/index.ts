@@ -408,7 +408,7 @@ Character: ${character_name}. Current trust: ${current_trust ?? "unknown"}/100. 
           messages: [
             {
               role: "system",
-              content: `You write ONE reply suggestion for ${player_name} to send next in this DM chat with ${character_id}.
+              content: `You are a "Smart Reply" writer. Write ONE reply that ${player_name} could send next in this DM chat with ${character_id}. It is written FROM ${player_name}, TO ${character_id}.
 
 Conversation so far:
 ${recentHistory}
@@ -416,10 +416,10 @@ ${recentHistory}
 ${character_id}'s last message: "${lastCharMsg}"
 
 Rules:
-- Written in first person from ${player_name}'s POV — something they could plausibly text back right now.
-- Roman script only (Hinglish ok, no Devanagari).
-- One full, natural message — a real sentence or two (roughly 10-25 words), not a one-liner. It should feel like a genuine, specific response to what ${character_id} just said, not a generic filler.
-- Casual texting style.
+- First person, ${player_name}'s POV — a genuine, specific reply to exactly what ${character_id} just said. Engage with their actual words, don't deflect into generic filler.
+- NATURAL spoken Hinglish, like a real Indian person texting — flowing and idiomatic, NOT translated-from-English or formal Hindi. e.g. "Bachpan ki garmiyon ki yaad hai, school se aate hi jo sukoon milta tha, wo abhi tak hai" or "Chhodo na ye sab, tumse baat karne ka dil kar raha hai, ladne ka nahi." Hindi carries the feeling.
+- Roman script only (no Devanagari).
+- One full, warm, real message — a sentence or two (roughly 12-28 words). Emotionally alive, a little vulnerable or playful, the kind of thing that keeps the conversation going. Never a flat one-liner.
 - Return ONLY a JSON array containing exactly ONE string, no explanation, no markdown.`,
             },
           ],
@@ -471,7 +471,8 @@ Rules:
           : "Trust band: NORMAL (30-60). Output shape: 2-3 sentences. Be professional and useful, but not intimate. Give one practical piece of advice. Avoid private history unless it is directly relevant. Avoid deep emotional warmth or vulnerability. End with one practical follow-up question."
     )
     const dressingRoomTrust = team_trust ?? trustVal
-    const maxCompletionTokens = resolvedTrustBand === 'low' ? 70 : resolvedTrustBand === 'high' ? 150 : 85
+    // Multi-bubble replies need more room than the old single-line caps. Low trust stays tighter.
+    const maxCompletionTokens = resolvedTrustBand === 'low' ? 110 : resolvedTrustBand === 'high' ? 240 : 170
 
     const gameStateContext = player_meters ? (isCricketChar ? `
 
@@ -503,13 +504,25 @@ CURRENT GAME STATE (use naturally — do not announce):
 - High fame (>60) = visible, others are watching
 - High heat (>60) = drama risk, react accordingly`) : '';
 
+    const lowTrustFlow = isCricketChar && resolvedTrustBand === 'low';
+
     const conversationRule = `
 
 SCRIPT RULE — critical, no exceptions:
-Write ONLY in Roman script. Never use Devanagari (Hindi/Marathi script like अ आ क ख). Hindi and Urdu words must be romanized: "baat karo" not "बात करो", "sunna" not "सुनना". This is non-negotiable — every single word must be in Latin/Roman characters.
+Write ONLY in Roman script. Never use Devanagari (Hindi/Marathi script like अ आ क ख). Hindi and Urdu words must be romanized: "baat karo" not "बात करो", "sunna" not "सुनना". Every single word must be in Latin/Roman characters.
 
-CONVERSATION RULE — always follow, no exceptions:
-End every single response with a question, a challenge, or a provocation that pulls the player back into the conversation. Never give a closing statement. The exchange should feel like it has momentum and the character has their own agenda. Make the player feel like they need to respond.`;
+LANGUAGE — this is the most important rule:
+Text like a REAL Indian person texting a friend, not like a translation. Natural, spoken Hinglish that flows. Use the rhythm of how people actually talk — "kahin beh gaye the kya?", "sach batana", "dimaag bahut chalta hai mera", "waise batao". NEVER write stiff, literal, translated-from-English Hindi. NEVER over-formal or textbook Hindi. Contractions, half-sentences, real slang, the way it sounds out loud. If a line sounds like Google Translate, rewrite it. Hindi should carry the emotion; English words slip in only where a real person would use them.
+
+FLOW — send it like a real chat:
+${lowTrustFlow
+  ? `Trust is low, so keep it tight: 1 short bubble, maybe 2. Still natural Hindi, still ends on a question or challenge. Separate bubbles with " ||| ".`
+  : `Don't dump one paragraph. Break your reply into 2-3 SHORT message bubbles, like real texting — one thought per bubble. Separate each bubble with " ||| " (three pipes). Example: "rohan? ||| wo naam sunte hi mujhe purani baatein yaad aa jaati hain ||| tumne uske baare mein kya suna hai?". The bubbles should build on each other and feel spontaneous, not like a list.`}
+
+HOOK — always:
+End the last bubble with a real, specific question, challenge, or provocation that pulls ${player_name} back in — born from YOUR character's curiosity and agenda, not a generic "aur batao". Reference the actual thing they just said. Make them want to reply. Never a flat closing statement.
+
+NOTE: This FLOW + multi-bubble instruction overrides any "one message only" or strict word-count line in your character description above. Keep each individual bubble short, but you may send a few of them. Stay fully in character.`;
 
     const finalTrustOverride = isCricketChar ? `
 

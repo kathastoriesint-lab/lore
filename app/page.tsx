@@ -501,17 +501,25 @@ export default function App() {
     }
     const mockArr = DM_MOCK[charId] ?? CRICKET_MOCK_FALLBACK[charId] ?? ['Haan yaar. Kya chal raha hai?', 'Interesting. Aur?', 'Hmm. Kya feel hua?']
     const reply = raw?.trim() || mockArr[Math.floor(Math.random() * mockArr.length)]
-    const charMsg: DMMessage = { role: 'char', text: reply }
-    setDmHistory(prev => ({ ...prev, [charId]: [...(prev[charId] ?? []), charMsg] }))
-    setDmLastUpdated(prev => ({ ...prev, [charId]: Date.now() }))
-    saveDM(charId, charMsg).catch(() => {})
+
+    // Split into separate chat bubbles (model uses "|||" between thoughts) and
+    // deliver them one at a time with a small pause, like a real person texting.
+    const bubbles = reply.split('|||').map(s => s.trim()).filter(Boolean)
+    const parts = bubbles.length > 0 ? bubbles : [reply]
+    for (let i = 0; i < parts.length; i++) {
+      if (i > 0) await new Promise(res => setTimeout(res, Math.min(1100, 350 + parts[i].length * 18)))
+      const charMsg: DMMessage = { role: 'char', text: parts[i] }
+      setDmHistory(prev => ({ ...prev, [charId]: [...(prev[charId] ?? []), charMsg] }))
+      setDmLastUpdated(prev => ({ ...prev, [charId]: Date.now() }))
+      saveDM(charId, charMsg).catch(() => {})
+    }
     analytics.track('dm_sent', game.world, {
       char_id: charId,
       message_length: text.length,
       trust_before: currentTrust,
       trust_band: trustBand,
     })
-    scoreTrustDelta(charId, text, reply, currentTrust).then(delta => {
+    scoreTrustDelta(charId, text, parts.join(' '), currentTrust).then(delta => {
       if (delta === 0) return
       adjustIndividualTrust(charId, delta)
     }).catch(() => {})

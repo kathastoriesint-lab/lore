@@ -81,9 +81,11 @@ export default function DMThreadScreen() {
     if (el) requestAnimationFrame(() => { el.scrollTop = el.scrollHeight })
   }, [messages.length, typing])
 
-  // Refresh reply suggestions whenever the character sends a new message
+  // Refresh reply suggestions once a character's full burst has landed.
+  // Gated on !typing && !sending so it fires once after all bubbles arrive,
+  // not on every intermediate bubble of a multi-message reply.
   useEffect(() => {
-    if (!charId || isLocked) return
+    if (!charId || isLocked || typing || sending) return
     const last = messages[messages.length - 1]
     if (!last || last.role !== 'char') return
 
@@ -96,7 +98,7 @@ export default function DMThreadScreen() {
 
     return () => { cancelled = true }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [charId, messages.length])
+  }, [charId, messages.length, typing, sending])
 
   const handleSend = useCallback(async () => {
     if (!charId || !input.trim() || sending) return
