@@ -404,7 +404,7 @@ Character: ${character_name}. Current trust: ${current_trust ?? "unknown"}/100. 
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${OPENAI_KEY}` },
         body: JSON.stringify({
-          model: "gpt-5.4-mini",
+          model: "gpt-5.4",
           messages: [
             {
               role: "system",
@@ -539,7 +539,7 @@ This final trust-band instruction overrides the character prompt, nicknames, emo
         "Authorization": `Bearer ${OPENAI_KEY}`,
       },
       body: JSON.stringify({
-        model: "gpt-5.4-mini",
+        model: "gpt-5.4",
         messages: [
           { role: "system", content: fullSystemPrompt },
           ...messages,

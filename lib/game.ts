@@ -53,15 +53,16 @@ export function applyFlagDeltas(flags: GameFlags, deltas?: Partial<GameFlags>): 
 }
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
-export async function getPhoneSession() {
-  const { data: { session } } = await supabase().auth.getSession()
-  if (!session || !session.user.phone) return null
-  return session
-}
-
+// Returns the current session, transparently creating an anonymous Supabase
+// session if none exists yet. Supabase persists this session in localStorage,
+// so the same browser/device automatically gets the same user_id (and all
+// their saved progress) on every future visit — no login step required.
 export async function ensureSession() {
   const { data: { session } } = await supabase().auth.getSession()
-  return session ?? null
+  if (session) return session
+  const { data, error } = await supabase().auth.signInAnonymously()
+  if (error) return null
+  return data.session ?? null
 }
 
 // ── Game state ────────────────────────────────────────────────────────────────
@@ -240,7 +241,7 @@ export async function getReplySuggestions(
     .map(m => ({ role: m.role === 'me' ? 'user' : 'assistant', content: m.text }))
 
   const ctrl = new AbortController()
-  const timer = setTimeout(() => ctrl.abort(), 8000)
+  const timer = setTimeout(() => ctrl.abort(), 14000)
 
   try {
     const resp = await fetch(`${SUPABASE_URL}/functions/v1/lore-chat`, {
@@ -284,7 +285,7 @@ export async function getAIReply(
     .map(m => ({ role: m.role === 'me' ? 'user' : 'assistant', content: m.text }))
 
   const ctrl = new AbortController()
-  const timer = setTimeout(() => ctrl.abort(), 12000)
+  const timer = setTimeout(() => ctrl.abort(), 18000)
 
   try {
     const resp = await fetch(`${SUPABASE_URL}/functions/v1/lore-chat`, {
