@@ -61,6 +61,8 @@ export interface AppCtx {
   restartInterlude: () => void
   /** Apply a nets Form gain and consume one of the interlude's net sessions. */
   completeNetSession: (formGain: number) => void
+  /** Play out an authored trust moment in a DM thread (once per interlude). */
+  completeTrustMoment: (charId: CharId, opener: string, reply: string, response: string, delta: number) => void
 }
 
 export const AppContext = createContext<AppCtx>(null!)

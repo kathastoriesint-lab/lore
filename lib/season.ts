@@ -215,6 +215,50 @@ export const NET_SESSIONS: NetSession[] = [
   },
 ]
 
+// ── Trust moments (interlude DM events) ──────────────────────────────────────
+// Once per interlude, a senior opens something real in DMs. Respond well: +4-6
+// trust. Respond badly: small dip. Reused across interludes like net drills.
+export interface TrustMoment {
+  charId: string
+  opener: string
+  replies: {
+    label: string
+    delta: number
+    response: string
+  }[]
+}
+
+export const TRUST_MOMENTS: TrustMoment[] = [
+  {
+    charId: 'rohit',
+    opener: 'Aaj press ne phir wahi sawaal poocha — "Rohit ka time khatam ho raha hai kya?" 15 saal de diye is game ko. Kabhi kabhi lagta hai sab bhool jaate hain.',
+    replies: [
+      { label: 'Bhai, Wankhede aapke naam se bharta hai. Records baad mein, woh pehle.', delta: 5, response: 'Hmm. Sahi bola tu. Chal, kal nets pe aa — kuch sikhana hai tujhe jo press kabhi nahi samjhegi.' },
+      { label: 'Haha time toh sabka khatam hota hai 😅', delta: -2, response: 'Wah. Tu bhi unhi mein se hai. Theek hai, beta.' },
+    ],
+  },
+  {
+    charId: 'hardik',
+    opener: 'Bro ek baat bata. Jab main injured tha, sab bol rahe the "finished". Tu naya hai — tujhe kya lagta hai, comeback dikhta hai mujhme?',
+    replies: [
+      { label: 'Bhai maine aapki 2026 ki innings 10 baar dekhi hai. Comeback nahi — aap gone hi nahi the.', delta: 5, response: 'Bro. 🤜🤛 Yeh energy chahiye room mein. Kal gym saath karein?' },
+      { label: 'Pata nahi bhai, selectors jaane', delta: -2, response: 'Selectors jaane? Bro main TUJHSE pooch raha tha. Forget it.' },
+    ],
+  },
+  {
+    charId: 'bumrah',
+    opener: 'Spell khatam karke aaya hoon. 4 overs, 18 runs, 0 wickets. Sab "unlucky" bol rahe hain. Unlucky nahi tha — main slow tha. Koi maanta nahi jab main khud bolta hoon.',
+    replies: [
+      { label: 'Aapka release point 2cm neeche tha aaj. Wide yorker waala set chhodke seedha attack karte toh alag hota.', delta: 6, response: 'Tune... yeh notice kiya? Nets se? Interesting. Kal 7 baje aa. Hum dono kaam karenge.' },
+      { label: 'Arre nahi bhai, unlucky hi the aap', delta: -1, response: 'Hmm. Theek hai. (read 11:42 pm)' },
+    ],
+  },
+]
+
+export function trustMomentFor(charId: string): TrustMoment | null {
+  return TRUST_MOMENTS.find(m => m.charId === charId) ?? null
+}
+
 // ── Lookups ───────────────────────────────────────────────────────────────────
 const idToWeek = new Map<string, number>()
 SEASON_WEEKS.forEach(w => w.situationIds.forEach(id => idToWeek.set(id, w.week)))

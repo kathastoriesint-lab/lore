@@ -6,6 +6,7 @@ import { CHARS, DM_TRUST, DM_QUICK } from '@/lib/data'
 import { CRICKET_CHARS, CRICKET_SITUATIONS } from '@/lib/cricket-data'
 import { CRICKET_DM_TRUST_START } from '@/lib/cricket-data'
 import { getReplySuggestions } from '@/lib/game'
+import { trustMomentFor } from '@/lib/season'
 
 const DM_CAP = 20
 
@@ -29,7 +30,7 @@ const StatusBar = () => (
 )
 
 export default function DMThreadScreen() {
-  const { goBack, showToast, dmChar, dmHistory, dmTrust, sendDM, game } = useApp()
+  const { goBack, showToast, dmChar, dmHistory, dmTrust, sendDM, game, completeTrustMoment } = useApp()
 
   const allChars = { ...CHARS, ...CRICKET_CHARS }
   const charId = dmChar as CharId | null
@@ -252,6 +253,41 @@ export default function DMThreadScreen() {
           </div>
         )}
       </div>
+
+      {/* Trust moment — once per interlude, a senior opens something real.
+          Answer well: big trust gain. The DM gym's heavy lift. */}
+      {(() => {
+        if (game.world !== 'cricket' || !game.lockExpiresAt || game.interlude?.trustMomentUsed || !charId) return null
+        const moment = trustMomentFor(charId)
+        if (!moment) return null
+        return (
+          <div style={{
+            margin: '0 12px 8px', padding: '12px 14px', borderRadius: 14,
+            background: 'rgba(80,160,255,.07)', border: '1px solid rgba(80,160,255,.22)',
+          }}>
+            <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: '.1em', color: 'var(--trust)', marginBottom: 7 }}>
+              {char?.name?.toUpperCase()} — REAL TALK
+            </div>
+            <div style={{ fontSize: 13, color: 'var(--ink)', lineHeight: 1.55, marginBottom: 10 }}>
+              {moment.opener}
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+              {moment.replies.map((r, i) => (
+                <button
+                  key={i}
+                  onClick={() => completeTrustMoment(charId, moment.opener, r.label, r.response, r.delta)}
+                  style={{
+                    textAlign: 'left', padding: '10px 12px', borderRadius: 10,
+                    border: '1px solid rgba(255,255,255,.14)', background: 'rgba(255,255,255,.05)',
+                    color: 'var(--ink)', fontSize: 12.5, lineHeight: 1.4,
+                    fontFamily: 'var(--sans)', cursor: 'pointer',
+                  }}
+                >{r.label}</button>
+              ))}
+            </div>
+          </div>
+        )
+      })()}
 
       {/* Smart Reply — context-aware suggestion (Kavaana-style card) */}
       {hasStarted && !isLocked && (dynamicChips.length > 0 || chipsLoading) && (

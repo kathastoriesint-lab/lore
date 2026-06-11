@@ -454,6 +454,27 @@ export default function App() {
     })
   }, [extrasSnapshot])
 
+  // Trust moment: inject the authored exchange into the thread, apply the
+  // trust delta, and consume the interlude's one moment.
+  const completeTrustMoment = useCallback((charId: CharId, opener: string, reply: string, response: string, delta: number) => {
+    const msgs: DMMessage[] = [
+      { role: 'char', text: opener },
+      { role: 'me', text: reply },
+      { role: 'char', text: response },
+    ]
+    setDmHistory(prev => ({ ...prev, [charId]: [...(prev[charId] ?? []), ...msgs] }))
+    setDmLastUpdated(prev => ({ ...prev, [charId]: Date.now() }))
+    msgs.forEach(m => { saveDM(charId, m).catch(() => {}) })
+    adjustIndividualTrust(charId, delta)
+    setGame(prev => {
+      const il = prev.interlude ?? { ...FRESH_INTERLUDE, chatTrustEarned: {} }
+      const next: GameState = { ...prev, interlude: { ...il, trustMomentUsed: true } }
+      saveGameState({ ...next, ...extrasSnapshot() })
+      return next
+    })
+    analytics.track('trust_moment_completed', 'cricket', { char_id: charId, delta })
+  }, [adjustIndividualTrust, extrasSnapshot])
+
   // gate_crossed — fires once per interlude on the moment the gate flips to met.
   const gateCrossedRef = useRef(false)
   useEffect(() => {
@@ -772,7 +793,7 @@ export default function App() {
       saveProfile,
       advanceSituation, navigate, goBack, showToast, setChar, startGame, startCricketGame,
       makeChoice, sendDM, openDMThread, resetGame, likePost, applyFeedDeltas, injectCharDM, setViewingChar,
-      resolveInterlude, restartInterlude, completeNetSession,
+      resolveInterlude, restartInterlude, completeNetSession, completeTrustMoment,
     }}>
       <div className="stage">
         <div className="phone">

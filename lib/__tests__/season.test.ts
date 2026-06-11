@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import {
   SEASON_WEEKS, weekForSituationId, isWeekEnd, snapToWeekStart,
   evaluateGate, getWeek, parseClockOverride, NET_SESSIONS, INTERLUDE_CAPS,
+  TRUST_MOMENTS, trustMomentFor, SENIORS,
 } from '@/lib/season'
 import { CRICKET_SITUATIONS } from '@/lib/cricket-data'
 
@@ -95,6 +96,17 @@ describe('lock clock + caps', () => {
   it('nets schedule is diminishing and matches the session cap', () => {
     expect(INTERLUDE_CAPS.netGains).toHaveLength(INTERLUDE_CAPS.netSessions)
     expect(INTERLUDE_CAPS.netGains).toEqual([4, 2, 1])
+  })
+
+  it('trust moments exist for seniors, with a strong-positive and a weak/negative reply', () => {
+    expect(TRUST_MOMENTS.length).toBeGreaterThanOrEqual(3)
+    TRUST_MOMENTS.forEach(m => {
+      expect(SENIORS).toContain(m.charId)
+      expect(Math.max(...m.replies.map(r => r.delta))).toBeGreaterThanOrEqual(4)
+      expect(Math.min(...m.replies.map(r => r.delta))).toBeLessThanOrEqual(0)
+    })
+    expect(trustMomentFor('rohit')).not.toBeNull()
+    expect(trustMomentFor('tilak')).toBeNull()
   })
 
   it('has at least 3 authored net drills with both choice variants', () => {
