@@ -7,6 +7,7 @@ import { CRICKET_CHARS, CRICKET_SITUATIONS, CRICKET_ENDING_DATA, resolveCricketE
 import { getStats, clamp, resolveEnding, resolveTokens } from '@/lib/game'
 import { sentimentDelta } from '@/lib/relationships'
 import MeterHUD from '@/components/MeterHUD'
+import GoalCard from '@/components/GoalCard'
 import NarrationButton from '@/components/NarrationButton'
 
 const stripHtml = (s: string) => s.replace(/<[^>]+>/g, '')
@@ -164,6 +165,16 @@ export default function LiveScreen() {
     processingRef.current = false
     timersRef.current = []
   }, [situation])
+
+  // Season interlude: Live is locked behind the match calendar. Redirect to the
+  // lock screen — but never mid-outcome (chosen !== null keeps the player on the
+  // final beat's result until they move on themselves). Gated on screen === 'live'
+  // because Slots keep all screens mounted.
+  useEffect(() => {
+    if (screen === 'live' && isCricket && game.lockExpiresAt && chosen === null && !inFlowRef.current) {
+      navigate('lock', { replace: true })
+    }
+  }, [screen, isCricket, game.lockExpiresAt, chosen, navigate])
 
   // Clear pending timers on unmount to prevent post-unmount navigate/advanceSituation
   useEffect(() => {
@@ -409,6 +420,7 @@ export default function LiveScreen() {
           LIVE
         </div>
       } />
+      <GoalCard />
 
       {/* Day-lock overlay — sits above scroll, MeterHUD, sticky buttons, and tab bar */}
       {isDayLocked && sit && (

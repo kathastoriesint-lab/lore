@@ -3,6 +3,7 @@ import { useApp } from '@/lib/context'
 import type { CharId } from '@/lib/types'
 import { CHARS, DM_ORDER } from '@/lib/data'
 import { CRICKET_CHARS } from '@/lib/cricket-data'
+import GoalCard from '@/components/GoalCard'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
@@ -112,6 +113,9 @@ export default function DMInboxScreen() {
         </div>
         <div className="sub">{isCricket ? 'Indian Dressing Room' : 'Creator House'} · {visibleChars.length} contacts</div>
       </div>
+
+      {/* Season goal — slim pinned variant */}
+      <GoalCard slim />
 
       {/* DM list */}
       <div className="scroll" style={{ flex: 1 }}>

@@ -70,6 +70,7 @@ export async function loadGameState(): Promise<GameState> {
   await ensureSession()
   const { data } = await supabase().from('game_state').select('*').maybeSingle()
   if (!data) return DEFAULT_STATE
+  const { weekForSituationId } = await import('./season')
   // Guard against old meter format (trust/heat keys from v1)
   const rawMeters = data.meters ?? DEFAULT_METERS
   const meters: Meters = rawMeters?.image !== undefined ? rawMeters as Meters : DEFAULT_METERS
@@ -97,6 +98,18 @@ export async function loadGameState(): Promise<GameState> {
     dmTrust: (extra.dmTrust as Record<string, number>) ?? undefined,
     charFame: (extra.charFame as Record<string, number>) ?? undefined,
     likedPosts: Array.isArray(extra.likedPosts) ? (extra.likedPosts as string[]) : undefined,
+    // In-flight save migration: pre-season saves have no week — derive it from
+    // the current queue position (weeks overlay the unchanged queue, so the
+    // situation index stays valid; no snap-back or replay needed).
+    week: typeof extra.week === 'number'
+      ? extra.week
+      : (world === 'cricket' && Array.isArray(situationQueue) && situationQueue.length > 0
+          ? weekForSituationId(situationQueue[Math.min(data.situation ?? 0, situationQueue.length - 1)])
+          : undefined),
+    lockExpiresAt: typeof extra.lockExpiresAt === 'number' ? extra.lockExpiresAt : null,
+    clockOverrideMs: typeof extra.clockOverrideMs === 'number' ? extra.clockOverrideMs : null,
+    interlude: (extra.interlude as GameState['interlude']) ?? undefined,
+    failedWeeks: Array.isArray(extra.failedWeeks) ? (extra.failedWeeks as number[]) : undefined,
   }
 }
 
@@ -124,6 +137,12 @@ export async function saveGameState(state: GameState, deviceId?: string) {
       dmTrust: state.dmTrust ?? {},
       charFame: state.charFame ?? {},
       likedPosts: state.likedPosts ?? [],
+      // Season 1 progression
+      week: state.week ?? null,
+      lockExpiresAt: state.lockExpiresAt ?? null,
+      clockOverrideMs: state.clockOverrideMs ?? null,
+      interlude: state.interlude ?? null,
+      failedWeeks: state.failedWeeks ?? [],
     },
   }, { onConflict: 'user_id' })
 }

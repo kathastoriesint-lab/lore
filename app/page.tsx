@@ -21,9 +21,15 @@ import CharProfileScreen from '@/components/screens/CharProfileScreen'
 import OnboardingScreen from '@/components/screens/OnboardingScreen'
 import CricketIntroScreen from '@/components/screens/CricketIntroScreen'
 import CricketCarouselScreen from '@/components/screens/CricketCarouselScreen'
+import LockScreen from '@/components/screens/LockScreen'
+import NetsScreen from '@/components/screens/NetsScreen'
 import FeedbackButton from '@/components/FeedbackButton'
 import ErrorBoundary from '@/components/ErrorBoundary'
 import { analytics, getDeviceId } from '@/lib/analytics'
+import {
+  isWeekEnd, weekForSituationId, evaluateGate, getWeek, SEASON_WEEKS,
+  DEFAULT_LOCK_MS, FRESH_INTERLUDE, parseClockOverride,
+} from '@/lib/season'
 
 const clampTrust = (n: number) => Math.max(0, Math.min(100, Math.round(n)))
 
@@ -112,6 +118,9 @@ export default function App() {
   // Live refs mirroring relationship/social state so any save captures the latest
   // values without stale closures. These get persisted into game_state.game_data.
   const gameRef = useRef(game); gameRef.current = game
+  // Session-route analytics (see navigate / load effect)
+  const sessionOrdinalRef = useRef(0)
+  const firstNavTrackedRef = useRef(false)
   const dmTrustRef = useRef(dmTrust); dmTrustRef.current = dmTrust
   const charFameRef = useRef(charFame); charFameRef.current = charFame
   const likedPostsRef = useRef(likedPosts); likedPostsRef.current = likedPosts
@@ -153,7 +162,18 @@ export default function App() {
         analytics.init(session?.user?.id ?? null)
         analytics.track('session_started', null, { authed: !!session })
         const s = await loadGameState()
+        // Dev clock override (?clock=5m) — persisted into game state at next save
+        // so weekend test devices don't need it on every URL.
+        const clockParam = parseClockOverride(new URLSearchParams(location.search).get('clock'))
+        if (clockParam) s.clockOverrideMs = clockParam
         hydrateProgress(s)
+        // Route signal: session ordinal lets us slice "second session, which
+        // screen did they open first" — the Sims-vs-companion-vs-story decider.
+        try {
+          const ord = parseInt(localStorage.getItem('lore_session_ord') ?? '0', 10) + 1
+          localStorage.setItem('lore_session_ord', String(ord))
+          sessionOrdinalRef.current = ord
+        } catch {}
         navigate(s.playerName ? 'worlds' : 'onboarding', { replace: true })
       } catch {
         analytics.init(null)
@@ -171,6 +191,17 @@ export default function App() {
   }, [])
 
   const navigate = useCallback((to: Screen, opts?: { replace?: boolean }) => {
+    // first_screen_opened: the first user-initiated navigation of the session
+    // (replace:true navs are app routing, not user choice). With the session
+    // ordinal this answers "second session — which surface did they open first",
+    // the route-deciding metric from the design doc.
+    if (!opts?.replace && !firstNavTrackedRef.current) {
+      firstNavTrackedRef.current = true
+      analytics.track('first_screen_opened', game.world ?? null, {
+        screen: to,
+        session_ordinal: sessionOrdinalRef.current,
+      })
+    }
     setScreen(prev => {
       analytics.trackScreen(to, game.world ?? null, prev)
       return to
@@ -356,10 +387,85 @@ export default function App() {
         newUnlockTime[nextSit.day] = Date.now() + gateMs
       }
       const next = { ...prev, situation: nextIdx, situationQueue: queue, dayUnlockTime: newUnlockTime }
+
+      // Season 1: finishing the last beat of a Match Week starts the interlude.
+      // Live locks behind the match calendar; Nets/DMs/Feed open as the grind.
+      if (prev.world === 'cricket' && nextIdx < queue.length && isWeekEnd(queue, prev.situation)) {
+        const finishedWeek = weekForSituationId(queue[prev.situation])
+        next.week = finishedWeek
+        next.lockExpiresAt = Date.now() + (prev.clockOverrideMs ?? DEFAULT_LOCK_MS)
+        next.interlude = { ...FRESH_INTERLUDE, chatTrustEarned: {} }
+        analytics.track('interlude_started', 'cricket', {
+          week_finished: finishedWeek,
+          next_week: finishedWeek + 1,
+          meters: prev.meters,
+        })
+      }
+
       saveGameState({ ...next, ...extrasSnapshot() })
       return next
     })
   }, [extrasSnapshot]) // functional update reads prev; extrasSnapshot is stable
+
+  // Close the interlude: open the next week with the success or fail variant.
+  const resolveInterlude = useCallback((variant: 'success' | 'fail') => {
+    setGame(prev => {
+      const newWeek = Math.min((prev.week ?? 1) + 1, SEASON_WEEKS.length)
+      const next: GameState = {
+        ...prev,
+        week: newWeek,
+        lockExpiresAt: null,
+        interlude: { ...FRESH_INTERLUDE, chatTrustEarned: {} },
+        failedWeeks: variant === 'fail'
+          ? [...(prev.failedWeeks ?? []), newWeek]
+          : (prev.failedWeeks ?? []),
+      }
+      analytics.track('week_unlocked', 'cricket', { week: newWeek, variant, meters: prev.meters })
+      saveGameState({ ...next, ...extrasSnapshot() })
+      return next
+    })
+  }, [extrasSnapshot])
+
+  // Week 7 hard gate: expiry below the gate starts a fresh interlude —
+  // clock and all activity caps reset, so the player always has a path forward.
+  const restartInterlude = useCallback(() => {
+    setGame(prev => {
+      const next: GameState = {
+        ...prev,
+        lockExpiresAt: Date.now() + (prev.clockOverrideMs ?? DEFAULT_LOCK_MS),
+        interlude: { ...FRESH_INTERLUDE, chatTrustEarned: {} },
+      }
+      saveGameState({ ...next, ...extrasSnapshot() })
+      return next
+    })
+  }, [extrasSnapshot])
+
+  // Nets micro-session: Form gain on the cricket fame-slot + consume a session.
+  const completeNetSession = useCallback((formGain: number) => {
+    setGame(prev => {
+      const interlude = prev.interlude ?? { ...FRESH_INTERLUDE, chatTrustEarned: {} }
+      const next: GameState = {
+        ...prev,
+        meters: { ...prev.meters, fame: Math.max(0, Math.min(100, prev.meters.fame + formGain)) },
+        interlude: { ...interlude, netsUsed: interlude.netsUsed + 1 },
+      }
+      saveGameState({ ...next, ...extrasSnapshot() })
+      return next
+    })
+  }, [extrasSnapshot])
+
+  // gate_crossed — fires once per interlude on the moment the gate flips to met.
+  const gateCrossedRef = useRef(false)
+  useEffect(() => {
+    if (game.world !== 'cricket' || !game.lockExpiresAt) { gateCrossedRef.current = false; return }
+    const nextWeek = getWeek(Math.min((game.week ?? 1) + 1, SEASON_WEEKS.length))
+    if (nextWeek.gate.length === 0) return
+    const { passed } = evaluateGate(nextWeek.gate, game.meters, dmTrust)
+    if (passed && !gateCrossedRef.current) {
+      gateCrossedRef.current = true
+      analytics.track('gate_crossed', 'cricket', { week: nextWeek.week, meters: game.meters })
+    }
+  }, [game.world, game.lockExpiresAt, game.week, game.meters, dmTrust])
 
   const makeChoice = useCallback(async (idx: number) => {
     // Look up current situation by ID from the queue (world-aware, index-shift-safe)
@@ -519,9 +625,28 @@ export default function App() {
     })
     scoreTrustDelta(charId, text, parts.join(' '), currentTrust).then(delta => {
       if (delta === 0) return
-      adjustIndividualTrust(charId, delta)
+      // Interlude cap: casual chat earns at most +2 trust per character per
+      // interlude (negative deltas always apply — you can still blow it).
+      let applied = delta
+      if (gameRef.current.lockExpiresAt && delta > 0) {
+        const interlude = gameRef.current.interlude ?? { ...FRESH_INTERLUDE, chatTrustEarned: {} }
+        const earned = interlude.chatTrustEarned[charId] ?? 0
+        applied = Math.min(delta, Math.max(0, 2 - earned))
+        if (applied > 0) {
+          setGame(prev => {
+            const il = prev.interlude ?? { ...FRESH_INTERLUDE, chatTrustEarned: {} }
+            const next = {
+              ...prev,
+              interlude: { ...il, chatTrustEarned: { ...il.chatTrustEarned, [charId]: (il.chatTrustEarned[charId] ?? 0) + applied } },
+            }
+            saveGameState({ ...next, ...extrasSnapshot() })
+            return next
+          })
+        }
+      }
+      if (applied !== 0) adjustIndividualTrust(charId, applied)
     }).catch(() => {})
-  }, [adjustIndividualTrust, dmHistory, game, dmTrust, getDmCapState, setDmCapState, buildStorySummary])
+  }, [adjustIndividualTrust, dmHistory, game, dmTrust, getDmCapState, setDmCapState, buildStorySummary, extrasSnapshot])
 
   // Like a post — updates player fame + target character's fame (idempotent: no double-like)
   const likePost = useCallback((postId: string, charId: CharId, fameDelta: number) => {
@@ -647,6 +772,7 @@ export default function App() {
       saveProfile,
       advanceSituation, navigate, goBack, showToast, setChar, startGame, startCricketGame,
       makeChoice, sendDM, openDMThread, resetGame, likePost, applyFeedDeltas, injectCharDM, setViewingChar,
+      resolveInterlude, restartInterlude, completeNetSession,
     }}>
       <div className="stage">
         <div className="phone">
@@ -660,6 +786,8 @@ export default function App() {
             <Slot id="feed"        cur={screen} prev={prev}><FeedScreen /></Slot>
             <Slot id="narrator"    cur={screen} prev={prev}><NarratorScreen /></Slot>
             <Slot id="live"        cur={screen} prev={prev}><LiveScreen /></Slot>
+            <Slot id="lock"        cur={screen} prev={prev}><LockScreen /></Slot>
+            <Slot id="nets"        cur={screen} prev={prev}><NetsScreen /></Slot>
             <Slot id="dm-inbox"    cur={screen} prev={prev}><DMInboxScreen /></Slot>
             <Slot id="dm-thread"   cur={screen} prev={prev}><DMThreadScreen /></Slot>
             <Slot id="profile"     cur={screen} prev={prev}><ProfileScreen /></Slot>

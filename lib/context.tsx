@@ -55,6 +55,12 @@ export interface AppCtx {
   sendDM: (charId: CharId, text: string) => Promise<void>
   openDMThread: (charId: CharId) => void
   resetGame: () => Promise<void>
+  /** Close the current interlude and open the next week (success/fail variant). */
+  resolveInterlude: (variant: 'success' | 'fail') => void
+  /** Week 7 hard gate: expiry below gate restarts a fresh interlude (clock + caps). */
+  restartInterlude: () => void
+  /** Apply a nets Form gain and consume one of the interlude's net sessions. */
+  completeNetSession: (formGain: number) => void
 }
 
 export const AppContext = createContext<AppCtx>(null!)

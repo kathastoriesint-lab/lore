@@ -152,6 +152,8 @@ export type Screen =
   | 'feed'
   | 'narrator'
   | 'live'
+  | 'lock'
+  | 'nets'
   | 'dm-inbox'
   | 'dm-thread'
   | 'profile'
@@ -182,4 +184,22 @@ export interface GameState {
   charFame?: Record<string, number>
   /** Post IDs the player has liked — prevents re-liking after reload. */
   likedPosts?: string[]
+
+  // ── Season 1 progression (cricket world) ──────────────────────────────────
+  /** Current Match Week (1-7). Absent on pre-season saves → derived on load. */
+  week?: number
+  /** Lock clock expiry (epoch ms). Non-null = interlude active, Live is locked. */
+  lockExpiresAt?: number | null
+  /** Dev clock override in ms (persisted from ?clock= at lock start). */
+  clockOverrideMs?: number | null
+  /** Per-interlude activity usage. Reset when a new week opens. */
+  interlude?: {
+    netsUsed: number
+    trustMomentUsed: boolean
+    captionPosted: boolean
+    repliesUsed: number
+    chatTrustEarned: Record<string, number>
+  }
+  /** Weeks whose fail-variant beat already played (for "recalled to the XI" flavor). */
+  failedWeeks?: number[]
 }
