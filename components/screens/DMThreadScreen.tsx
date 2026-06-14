@@ -49,6 +49,24 @@ export default function DMThreadScreen() {
     : 50
   const trustBand = trustVal < 30 ? 'LOW' : trustVal < 60 ? 'NORMAL' : 'HIGH'
 
+  // Floating trust-delta chip: makes every trust change visible at the moment
+  // it happens (chat scoring + trust moments) — the DM gym's feedback.
+  const prevTrustRef = useRef<number | null>(null)
+  const [trustTick, setTrustTick] = useState<{ delta: number; key: number } | null>(null)
+  useEffect(() => {
+    const prev = prevTrustRef.current
+    prevTrustRef.current = trustVal
+    if (prev === null || prev === trustVal || !charId) return
+    setTrustTick({ delta: trustVal - prev, key: Date.now() })
+    const t = setTimeout(() => setTrustTick(null), 1800)
+    return () => clearTimeout(t)
+  }, [trustVal, charId])
+
+  // Active trust moment (one per interlude) — also collapses Smart Reply so the
+  // thread isn't buried under two suggestion cards at once.
+  const trustMoment = (game.world === 'cricket' && game.lockExpiresAt
+    && !game.interlude?.trustMomentUsed && charId) ? trustMomentFor(charId) : null
+
   // Cap / lock state — re-reads localStorage on every render (tick keeps it live)
   const capState = charId ? getDmCap(charId) : { count: 0, lockedUntil: 0 }
   const isLocked = capState.lockedUntil > Date.now()
@@ -200,7 +218,14 @@ export default function DMThreadScreen() {
       </div>
 
       {/* Trust meter — updates live as conversation grows */}
-      <div className="dm-trust">
+      <div className="dm-trust" style={{ position:'relative' }}>
+        {trustTick && (
+          <span key={trustTick.key} className="trust-tick" style={{
+            color: trustTick.delta > 0 ? 'var(--trust)' : 'var(--heat)',
+          }}>
+            TRUST {trustTick.delta > 0 ? '+' : ''}{trustTick.delta}
+          </span>
+        )}
         <div className="tl">
           <span>TRUST LEVEL · {trustBand}</span>
           <span key={trustVal} style={{ animation:'meterFlash .4s ease-out' }}>{trustVal}%</span>
@@ -256,41 +281,37 @@ export default function DMThreadScreen() {
 
       {/* Trust moment — once per interlude, a senior opens something real.
           Answer well: big trust gain. The DM gym's heavy lift. */}
-      {(() => {
-        if (game.world !== 'cricket' || !game.lockExpiresAt || game.interlude?.trustMomentUsed || !charId) return null
-        const moment = trustMomentFor(charId)
-        if (!moment) return null
-        return (
-          <div style={{
-            margin: '0 12px 8px', padding: '12px 14px', borderRadius: 14,
-            background: 'rgba(80,160,255,.07)', border: '1px solid rgba(80,160,255,.22)',
-          }}>
-            <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: '.1em', color: 'var(--trust)', marginBottom: 7 }}>
-              {char?.name?.toUpperCase()} — REAL TALK
-            </div>
-            <div style={{ fontSize: 13, color: 'var(--ink)', lineHeight: 1.55, marginBottom: 10 }}>
-              {moment.opener}
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
-              {moment.replies.map((r, i) => (
-                <button
-                  key={i}
-                  onClick={() => completeTrustMoment(charId, moment.opener, r.label, r.response, r.delta)}
-                  style={{
-                    textAlign: 'left', padding: '10px 12px', borderRadius: 10,
-                    border: '1px solid rgba(255,255,255,.14)', background: 'rgba(255,255,255,.05)',
-                    color: 'var(--ink)', fontSize: 12.5, lineHeight: 1.4,
-                    fontFamily: 'var(--sans)', cursor: 'pointer',
-                  }}
-                >{r.label}</button>
-              ))}
-            </div>
+      {trustMoment && charId && (
+        <div style={{
+          margin: '0 12px 8px', padding: '12px 16px', borderRadius: 14,
+          background: 'color-mix(in srgb, var(--trust) 7%, transparent)', border: '1px solid color-mix(in srgb, var(--trust) 22%, transparent)',
+        }}>
+          <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: '.1em', color: 'var(--trust)', marginBottom: 8 }}>
+            {char?.name?.toUpperCase()} — REAL TALK
           </div>
-        )
-      })()}
+          <div style={{ fontSize: 13, color: 'var(--ink)', lineHeight: 1.55, marginBottom: 12 }}>
+            {trustMoment.opener}
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {trustMoment.replies.map((r, i) => (
+              <button
+                key={i}
+                onClick={() => completeTrustMoment(charId, trustMoment.opener, r.label, r.response, r.delta)}
+                style={{
+                  textAlign: 'left', padding: '12px', borderRadius: 12, minHeight: 44,
+                  border: '1px solid rgba(255,255,255,.14)', background: 'rgba(255,255,255,.05)',
+                  color: 'var(--ink)', fontSize: 12.5, lineHeight: 1.4,
+                  fontFamily: 'var(--sans)', cursor: 'pointer',
+                }}
+              >{r.label}</button>
+            ))}
+          </div>
+        </div>
+      )}
 
-      {/* Smart Reply — context-aware suggestion (Kavaana-style card) */}
-      {hasStarted && !isLocked && (dynamicChips.length > 0 || chipsLoading) && (
+      {/* Smart Reply — context-aware suggestion (Kavaana-style card).
+          Collapsed while a trust moment is open so the thread isn't buried. */}
+      {hasStarted && !isLocked && !trustMoment && (dynamicChips.length > 0 || chipsLoading) && (
         <div className="smart-reply">
           <div className="smart-reply-head">
             <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="var(--accent)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">

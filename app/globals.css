@@ -190,6 +190,9 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 
 /* Meter value flash when it changes */
 @keyframes meterFlash{0%{color:#fff;transform:scale(1.4)}100%{transform:scale(1)}}
+/* Floating trust-delta chip (DM thread) — visible feedback for every trust change */
+@keyframes trustFloat{0%{opacity:0;transform:translateY(6px)}15%{opacity:1;transform:translateY(0)}75%{opacity:1}100%{opacity:0;transform:translateY(-10px)}}
+.trust-tick{position:absolute;right:16px;top:-18px;font-size:10px;font-weight:800;letter-spacing:.08em;animation:trustFloat 1.8s ease-out forwards;pointer-events:none;z-index:5}
 /* Loading shimmer for DM thread */
 @keyframes shimmer{0%,100%{opacity:.4}50%{opacity:.8}}
 .mval-flash{animation:meterFlash .45s ease-out forwards}

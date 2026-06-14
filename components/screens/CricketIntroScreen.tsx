@@ -6,7 +6,10 @@ export default function CricketIntroScreen() {
   const { startCricketGame, navigate, game } = useApp()
 
   const handleEnter = () => {
-    if (game.playerName) {
+    // Resume an in-progress run — startCricketGame would wipe situation/meters/trust.
+    if (game.world === 'cricket' && game.situation > 0) {
+      navigate('live')
+    } else if (game.playerName) {
       startCricketGame()
     } else {
       navigate('onboarding')

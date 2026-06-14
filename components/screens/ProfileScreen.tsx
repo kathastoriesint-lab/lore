@@ -132,8 +132,8 @@ export default function ProfileScreen() {
           {hasProgress ? (
             <>
               <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 4 }}>
-                <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#3ddc84', flexShrink: 0 }} />
-                <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.1em', color: '#3ddc84' }}>ACTIVE</div>
+                <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--trust)', flexShrink: 0 }} />
+                <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.1em', color: 'var(--trust)' }}>ACTIVE</div>
               </div>
               <div style={{ fontWeight: 700, fontSize: 18, marginBottom: 2 }}>
                 {worldLabel ?? 'In Game'}

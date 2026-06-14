@@ -83,11 +83,11 @@ export default function LockScreen() {
         <div style={{
           position: 'absolute', inset: 0, pointerEvents: 'none',
           background: passed
-            ? 'radial-gradient(ellipse 120% 50% at 50% -10%, rgba(255,210,77,.16) 0%, transparent 70%)'
+            ? 'radial-gradient(ellipse 120% 50% at 50% -10%, color-mix(in srgb, var(--fame) 16%, transparent) 0%, transparent 70%)'
             : 'radial-gradient(ellipse 120% 50% at 50% -10%, rgba(255,255,255,.06) 0%, transparent 70%)',
         }} />
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', position: 'relative' }}>
-          <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.16em', color: passed ? '#ffd24d' : 'var(--ink3)', marginBottom: 14 }}>
+          <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.16em', color: passed ? 'var(--fame)' : 'var(--ink3)', marginBottom: 14 }}>
             {hardFail ? 'SELECTORS’ VERDICT' : 'SQUAD ANNOUNCEMENT'}
           </div>
           <div style={{ fontFamily: 'var(--serif)', fontSize: 24, fontWeight: 600, lineHeight: 1.45, color: 'var(--ink)' }}>
@@ -111,9 +111,9 @@ export default function LockScreen() {
               onClick={() => { resolveInterlude(variant); navigate('live', { replace: true }) }}
               style={{
                 width: '100%', padding: '16px 0', borderRadius: 16, border: 'none',
-                background: passed ? '#ffd24d' : 'var(--accent)', color: passed ? '#1a1208' : '#fff',
+                background: passed ? 'var(--fame)' : 'var(--accent)', color: passed ? 'var(--bg)' : '#fff',
                 fontWeight: 800, fontSize: 15, fontFamily: 'var(--sans)', cursor: 'pointer',
-                boxShadow: passed ? '0 8px 32px rgba(255,210,77,.35)' : 'none',
+                boxShadow: passed ? '0 8px 32px color-mix(in srgb, var(--fame) 35%, transparent)' : 'none',
               }}
             >
               Week {nextWeekNo}: {nextWeek.name} →
@@ -124,12 +124,30 @@ export default function LockScreen() {
     )
   }
 
+  // Interlude activities — the three gyms. Shared by both lock states.
+  const netsLeft = 3 - (game.interlude?.netsUsed ?? 0)
+  const activities = [
+    {
+      id: 'nets', title: 'Hit the nets', sub: `Form work — ${netsLeft} session${netsLeft === 1 ? '' : 's'} left`,
+      meter: 'FORM', color: 'var(--fame)', screen: 'nets' as const,
+      disabled: netsLeft <= 0,
+    },
+    {
+      id: 'dms', title: 'The group chat is alive', sub: 'Talk to the room — trust is earned in DMs',
+      meter: 'TRUST', color: 'var(--trust)', screen: 'dm-inbox' as const, disabled: false,
+    },
+    {
+      id: 'feed', title: 'India is talking', sub: 'Work your feed — post, reply, be seen',
+      meter: 'FAME', color: 'var(--heat)', screen: 'feed' as const, disabled: false,
+    },
+  ]
+
   // ── Interlude hub ──
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: 'var(--bg)' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: 'var(--bg)', overflowY: 'auto' }}>
 
       {/* Header */}
-      <div style={{ padding: '52px 20px 4px' }}>
+      <div style={{ padding: '52px 20px 0' }}>
         <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.14em', color: 'var(--ink3)' }}>
           BETWEEN MATCHES
         </div>
@@ -138,91 +156,101 @@ export default function LockScreen() {
         </div>
       </div>
 
-      {/* Clock */}
-      <div style={{ padding: '14px 20px 4px', display: 'flex', alignItems: 'baseline', gap: 10 }}>
-        <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.1em', color: 'var(--ink3)' }}>
-          {announcementReady ? 'DECISION IN' : 'SQUAD DECISION IN'}
-        </span>
-        <span style={{
-          fontFamily: 'var(--serif)', fontSize: 26, fontWeight: 600,
-          color: announcementReady ? '#ffd24d' : 'var(--ink)', fontVariantNumeric: 'tabular-nums',
-        }}>
-          {announcementReady ? 'NOW' : fmtCountdown(remaining)}
-        </span>
-      </div>
-
-      {/* Goal card */}
-      <GoalCard />
-
-      {/* Announcement CTA when ready */}
-      {announcementReady && (
-        <div style={{ padding: '14px 12px 0' }}>
+      {announcementReady ? (
+        /* ── WON / DECISION READY: the announcement is the hero ── */
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0 12px', gap: 16 }}>
+          <GoalCard />
           <button
             onClick={() => setShowAnnouncement(true)}
             style={{
-              width: '100%', padding: '15px 0', borderRadius: 14, border: 'none',
-              background: passed ? '#ffd24d' : 'var(--accent)', color: passed ? '#1a1208' : '#fff',
-              fontWeight: 800, fontSize: 15, fontFamily: 'var(--sans)', cursor: 'pointer',
-              boxShadow: passed ? '0 8px 32px rgba(255,210,77,.35)' : '0 8px 28px rgba(255,45,120,.3)',
+              width: 'calc(100% - 24px)', margin: '0 12px', padding: '17px 0', borderRadius: 16, border: 'none',
+              background: passed ? 'var(--fame)' : 'var(--accent)', color: passed ? 'var(--bg)' : '#fff',
+              fontWeight: 800, fontSize: 16, fontFamily: 'var(--sans)', cursor: 'pointer',
+              boxShadow: passed ? '0 8px 32px color-mix(in srgb, var(--fame) 35%, transparent)' : '0 8px 28px rgba(255,45,120,.3)',
             }}
           >
-            {passed ? 'See the squad announcement →' : 'The announcement is out →'}
+            {passed ? 'See the squad announcement →' : 'See the announcement →'}
           </button>
-        </div>
-      )}
 
-      {/* Activities */}
-      <div style={{ padding: '18px 12px 0', display: 'flex', flexDirection: 'column', gap: 10, flex: 1 }}>
-        <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.12em', color: 'var(--ink3)', padding: '0 4px' }}>
-          UNTIL THEN
-        </div>
-
-        {[
-          {
-            id: 'nets', title: 'Hit the nets', sub: `Form work — ${3 - (game.interlude?.netsUsed ?? 0)} sessions left today`,
-            meter: 'FORM +', color: 'var(--fame)', screen: 'nets' as const,
-            disabled: (game.interlude?.netsUsed ?? 0) >= 3,
-          },
-          {
-            id: 'dms', title: 'The group chat is alive', sub: 'Talk to the room — trust is earned in DMs',
-            meter: 'TRUST +', color: 'var(--trust)', screen: 'dm-inbox' as const, disabled: false,
-          },
-          {
-            id: 'feed', title: 'India is talking', sub: 'Work your feed — post, reply, be seen',
-            meter: 'FAME +', color: 'var(--heat)', screen: 'feed' as const, disabled: false,
-          },
-        ].map(a => (
-          <button
-            key={a.id}
-            onClick={() => { if (!a.disabled) navigate(a.screen) }}
-            style={{
-              display: 'flex', alignItems: 'center', gap: 13, textAlign: 'left',
-              background: 'var(--surf)', border: '1px solid var(--line)', borderRadius: 16,
-              padding: '14px 16px', cursor: a.disabled ? 'default' : 'pointer',
-              opacity: a.disabled ? 0.45 : 1, width: '100%',
-            }}
-          >
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontWeight: 700, fontSize: 15, color: 'var(--ink)' }}>{a.title}</div>
-              <div style={{ fontSize: 11.5, color: 'var(--ink3)', marginTop: 3 }}>
-                {a.disabled ? 'Body needs rest — more tomorrow' : a.sub}
-              </div>
+          {/* Optional compact head-start strip — 3 small chips, not full cards */}
+          <div style={{ padding: '12px 12px 0' }}>
+            <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.12em', color: 'var(--ink3)', marginBottom: 10, textAlign: 'center' }}>
+              OR BUILD A HEAD START FOR NEXT WEEK
             </div>
-            <span style={{
-              fontSize: 9, fontWeight: 800, letterSpacing: '.06em', color: a.color,
-              border: `1px solid color-mix(in srgb, ${a.color} 40%, transparent)`,
-              background: `color-mix(in srgb, ${a.color} 12%, transparent)`,
-              padding: '3px 8px', borderRadius: 6, flexShrink: 0,
-            }}>{a.meter}</span>
-          </button>
-        ))}
-
-        <div style={{ fontSize: 11, color: 'var(--ink3)', padding: '6px 4px 0', lineHeight: 1.5 }}>
-          Or just hang out — the room remembers who shows up.
+            <div style={{ display: 'flex', gap: 8 }}>
+              {activities.map(a => (
+                <button
+                  key={a.id}
+                  onClick={() => { if (!a.disabled) navigate(a.screen) }}
+                  style={{
+                    flex: 1, minHeight: 64, padding: '12px 6px', borderRadius: 14,
+                    background: 'var(--surf)', border: `1px solid color-mix(in srgb, ${a.color} 22%, transparent)`,
+                    cursor: a.disabled ? 'default' : 'pointer', opacity: a.disabled ? 0.4 : 1,
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 5,
+                  }}
+                >
+                  <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.06em', color: a.color }}>{a.meter} +</span>
+                  <span style={{ fontSize: 10, color: 'var(--ink3)', fontWeight: 600 }}>
+                    {a.id === 'nets' ? 'Nets' : a.id === 'dms' ? 'DMs' : 'Feed'}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
-      </div>
+      ) : (
+        /* ── GRIND: countdown + goal + full activity cards ── */
+        <>
+          {/* Clock */}
+          <div style={{ padding: '16px 20px 4px', display: 'flex', alignItems: 'baseline', gap: 10 }}>
+            <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.1em', color: 'var(--ink3)' }}>
+              SQUAD DECISION IN
+            </span>
+            <span style={{
+              fontFamily: 'var(--serif)', fontSize: 26, fontWeight: 600,
+              color: 'var(--ink)', fontVariantNumeric: 'tabular-nums',
+            }}>
+              {fmtCountdown(remaining)}
+            </span>
+          </div>
 
-      <div style={{ height: 28 }} />
+          <GoalCard />
+
+          <div style={{ padding: '18px 12px 0', display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.12em', color: 'var(--ink3)', padding: '0 4px' }}>
+              UNTIL THEN
+            </div>
+            {activities.map(a => (
+              <button
+                key={a.id}
+                onClick={() => { if (!a.disabled) navigate(a.screen) }}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 12, textAlign: 'left',
+                  background: 'var(--surf)', border: '1px solid var(--line)', borderRadius: 16,
+                  padding: '16px', cursor: a.disabled ? 'default' : 'pointer',
+                  opacity: a.disabled ? 0.45 : 1, width: '100%',
+                }}
+              >
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontWeight: 700, fontSize: 15, color: 'var(--ink)' }}>{a.title}</div>
+                  <div style={{ fontSize: 12, color: 'var(--ink3)', marginTop: 4 }}>
+                    {a.disabled ? 'Body needs rest — more next week' : a.sub}
+                  </div>
+                </div>
+                <span style={{
+                  fontSize: 9, fontWeight: 800, letterSpacing: '.06em', color: a.color,
+                  border: `1px solid color-mix(in srgb, ${a.color} 40%, transparent)`,
+                  background: `color-mix(in srgb, ${a.color} 12%, transparent)`,
+                  padding: '3px 8px', borderRadius: 6, flexShrink: 0,
+                }}>{a.meter} +</span>
+              </button>
+            ))}
+            <div style={{ fontSize: 11, color: 'var(--ink3)', padding: '6px 4px 32px', lineHeight: 1.5 }}>
+              Or just hang out — the room remembers who shows up.
+            </div>
+          </div>
+        </>
+      )}
     </div>
   )
 }

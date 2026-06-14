@@ -18,7 +18,9 @@ export default function CricketCarouselScreen() {
   const goTo = (i: number) => setCur(Math.max(0, Math.min(TOTAL - 1, i)))
 
   const enter = () => {
-    if (game.playerName) startCricketGame()
+    // Resume an in-progress run — startCricketGame would wipe it.
+    if (game.world === 'cricket' && game.situation > 0) navigate('live')
+    else if (game.playerName) startCricketGame()
     else navigate('onboarding')
   }
 

@@ -19,7 +19,8 @@ export default function GoalCard({ slim = false }: { slim?: boolean }) {
   const firstUnmet = gaps.find(g => !g.passed)
   const locked = !!game.lockExpiresAt
 
-  const accent = passed ? '#ffd24d' : '#ffb13d'
+  // Goal/progress = --fame amber; met state = --trust teal (DESIGN.md mapping)
+  const accent = 'var(--fame)'
 
   if (slim) {
     return (
@@ -27,12 +28,12 @@ export default function GoalCard({ slim = false }: { slim?: boolean }) {
         onClick={() => { if (locked) navigate('lock') }}
         style={{
           display: 'block', width: '100%', textAlign: 'left', border: 'none',
-          background: 'rgba(255,177,61,.08)', borderBottom: '1px solid rgba(255,177,61,.18)',
-          padding: '8px 16px', cursor: locked ? 'pointer' : 'default',
+          background: 'color-mix(in srgb, var(--fame) 8%, transparent)', borderBottom: '1px solid color-mix(in srgb, var(--fame) 18%, transparent)',
+          padding: '12px 16px', minHeight: 44, cursor: locked ? 'pointer' : 'default',
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: '.1em', color: accent }}>
+          <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: '.1em', color: passed ? 'var(--trust)' : accent }}>
             {passed ? 'GOAL MET' : 'NEXT'}
           </span>
           <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -53,13 +54,13 @@ export default function GoalCard({ slim = false }: { slim?: boolean }) {
       onClick={() => { if (locked) navigate('lock') }}
       style={{
         display: 'block', width: 'calc(100% - 24px)', margin: '8px 12px 0', textAlign: 'left',
-        background: passed ? 'rgba(255,210,77,.1)' : 'rgba(255,177,61,.07)',
-        border: `1px solid ${passed ? 'rgba(255,210,77,.35)' : 'rgba(255,177,61,.2)'}`,
+        background: passed ? 'color-mix(in srgb, var(--fame) 10%, transparent)' : 'color-mix(in srgb, var(--fame) 7%, transparent)',
+        border: `1px solid ${passed ? 'color-mix(in srgb, var(--fame) 35%, transparent)' : 'color-mix(in srgb, var(--fame) 20%, transparent)'}`,
         borderRadius: 12, padding: '10px 14px', cursor: locked ? 'pointer' : 'default',
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-        <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: '.12em', color: accent }}>
+        <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: '.12em', color: passed ? 'var(--trust)' : accent }}>
           {passed ? '✓ GOAL MET' : 'NEXT GOAL'}
         </span>
         <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--ink)' }}>
@@ -69,18 +70,18 @@ export default function GoalCard({ slim = false }: { slim?: boolean }) {
 
       {gaps.map(g => (
         <div key={g.label} style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
-          <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.06em', color: g.passed ? '#3ddc84' : 'var(--ink3)', width: 92, flexShrink: 0 }}>
+          <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.06em', color: g.passed ? 'var(--trust)' : 'var(--ink3)', width: 92, flexShrink: 0 }}>
             {g.passed ? '✓ ' : ''}{g.label}
           </span>
           <span style={{ flex: 1, height: 4, borderRadius: 2, background: 'rgba(255,255,255,.08)', overflow: 'hidden' }}>
             <span style={{
               display: 'block', height: '100%', borderRadius: 2,
               width: `${Math.min(100, (g.current / g.threshold) * 100)}%`,
-              background: g.passed ? '#3ddc84' : accent,
+              background: g.passed ? 'var(--trust)' : accent,
               transition: 'width .5s ease',
             }} />
           </span>
-          <span style={{ fontSize: 10, fontWeight: 700, color: g.passed ? '#3ddc84' : 'var(--ink2)', width: 44, textAlign: 'right', flexShrink: 0, fontVariantNumeric: 'tabular-nums' }}>
+          <span style={{ fontSize: 10, fontWeight: 700, color: g.passed ? 'var(--trust)' : 'var(--ink2)', width: 44, textAlign: 'right', flexShrink: 0, fontVariantNumeric: 'tabular-nums' }}>
             {g.current}/{g.threshold}
           </span>
         </div>

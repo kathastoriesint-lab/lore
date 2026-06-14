@@ -107,7 +107,12 @@ export default function WorldsScreen() {
           {/* Indian Dressing Room — lead world for India */}
           <button
             className="world-card"
-            onClick={() => navigate('cricket-carousel')}
+            onClick={() => navigate(
+              // In-progress run resumes where it left off (LiveScreen redirects
+              // to the lock screen if an interlude is active). Carousel only
+              // plays for fresh runs — re-entering must never wipe progress.
+              game.world === 'cricket' && game.situation > 0 ? 'live' : 'cricket-carousel'
+            )}
             style={{ boxShadow: '0 0 0 1.5px rgba(0,48,135,.5), 0 12px 40px rgba(0,48,135,.25)' }}
           >
             <div

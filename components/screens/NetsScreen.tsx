@@ -10,7 +10,9 @@ import { analytics } from '@/lib/analytics'
 export default function NetsScreen() {
   const { game, navigate, completeNetSession } = useApp()
   const [phase, setPhase] = useState<'scene' | 'outcome'>('scene')
-  const [outcome, setOutcome] = useState<{ note: string; gain: number; passed: boolean | null } | null>(null)
+  // title snapshotted at choice time — `session` advances to the next drill the
+  // moment netsUsed increments, so the outcome must not read it live.
+  const [outcome, setOutcome] = useState<{ note: string; gain: number; passed: boolean | null; title: string } | null>(null)
 
   const used = game.interlude?.netsUsed ?? 0
   const capped = used >= INTERLUDE_CAPS.netSessions
@@ -32,7 +34,7 @@ export default function NetsScreen() {
     } else {
       note = session.safe.note
     }
-    setOutcome({ note, gain, passed })
+    setOutcome({ note, gain, passed, title: session.title })
     setPhase('outcome')
     completeNetSession(gain)
     analytics.track('net_session_completed', 'cricket', {
@@ -75,22 +77,22 @@ export default function NetsScreen() {
         <div style={{
           position: 'absolute', inset: 0, pointerEvents: 'none',
           background: outcome.passed !== false
-            ? 'radial-gradient(ellipse 120% 50% at 50% -10%, rgba(61,220,132,.12) 0%, transparent 70%)'
-            : 'radial-gradient(ellipse 120% 50% at 50% -10%, rgba(255,177,61,.1) 0%, transparent 70%)',
+            ? 'radial-gradient(ellipse 120% 50% at 50% -10%, color-mix(in srgb, var(--trust) 12%, transparent) 0%, transparent 70%)'
+            : 'radial-gradient(ellipse 120% 50% at 50% -10%, color-mix(in srgb, var(--fame) 10%, transparent) 0%, transparent 70%)',
         }} />
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', position: 'relative' }}>
           <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.14em', color: 'var(--ink3)', marginBottom: 12 }}>
-            {session.title.toUpperCase()}
+            {outcome.title.toUpperCase()}
           </div>
           <div style={{ fontFamily: 'var(--serif)', fontSize: 20, fontWeight: 600, lineHeight: 1.55 }}>
             {outcome.note}
           </div>
           <div style={{
             display: 'inline-flex', alignItems: 'center', gap: 8, marginTop: 22,
-            background: 'rgba(61,220,132,.1)', border: '1px solid rgba(61,220,132,.3)',
+            background: 'color-mix(in srgb, var(--trust) 10%, transparent)', border: '1px solid color-mix(in srgb, var(--trust) 30%, transparent)',
             borderRadius: 10, padding: '8px 14px', alignSelf: 'flex-start',
           }}>
-            <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.08em', color: '#3ddc84' }}>
+            <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.08em', color: 'var(--trust)' }}>
               FORM +{outcome.gain}
             </span>
             <span style={{ fontSize: 11, color: 'var(--ink3)' }}>
@@ -150,7 +152,7 @@ export default function NetsScreen() {
           }}>{session.risky.label}</button>
           <button onClick={() => navigate('lock')} style={{
             background: 'none', border: 'none', color: 'var(--ink3)', fontSize: 12,
-            fontWeight: 600, padding: '8px 0', cursor: 'pointer', fontFamily: 'var(--sans)',
+            fontWeight: 600, padding: '12px 0', minHeight: 44, cursor: 'pointer', fontFamily: 'var(--sans)',
           }}>← Not now</button>
         </div>
       </div>

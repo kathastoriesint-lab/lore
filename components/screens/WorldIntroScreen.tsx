@@ -2,7 +2,13 @@
 import { useApp } from '@/lib/context'
 
 export default function WorldIntroScreen() {
-  const { startGame, navigate } = useApp()
+  const { startGame, navigate, game } = useApp()
+
+  // Resume an in-progress Creator House run — startGame would wipe it.
+  const enter = () => {
+    if (game.world === 'creator-house' && game.situation > 0 && game.char) navigate('feed')
+    else startGame()
+  }
 
   return (
     <div className="wintro-screen">
@@ -27,7 +33,7 @@ export default function WorldIntroScreen() {
         </div>
 
         <div className="wintro-cta-block" style={{ marginTop: 40 }}>
-          <button className="wintro-btn-main" onClick={startGame}>
+          <button className="wintro-btn-main" onClick={enter}>
             Enter the House →
           </button>
           <button
