@@ -63,6 +63,8 @@ export interface AppCtx {
   completeNetSession: (formGain: number) => void
   /** Play out an authored trust moment in a DM thread (once per interlude). */
   completeTrustMoment: (charId: CharId, opener: string, reply: string, response: string, delta: number) => void
+  /** Close the current eviction ceremony — mark evicted, clear pending. */
+  resolveEviction: () => void
 }
 
 export const AppContext = createContext<AppCtx>(null!)

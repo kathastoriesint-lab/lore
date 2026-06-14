@@ -110,6 +110,9 @@ export async function loadGameState(): Promise<GameState> {
     clockOverrideMs: typeof extra.clockOverrideMs === 'number' ? extra.clockOverrideMs : null,
     interlude: (extra.interlude as GameState['interlude']) ?? undefined,
     failedWeeks: Array.isArray(extra.failedWeeks) ? (extra.failedWeeks as number[]) : undefined,
+    pendingEviction: typeof extra.pendingEviction === 'string' ? extra.pendingEviction : null,
+    evictionsSeen: Array.isArray(extra.evictionsSeen) ? (extra.evictionsSeen as string[]) : undefined,
+    evicted: Array.isArray(extra.evicted) ? (extra.evicted as string[]) : undefined,
   }
 }
 
@@ -143,6 +146,10 @@ export async function saveGameState(state: GameState, deviceId?: string) {
       clockOverrideMs: state.clockOverrideMs ?? null,
       interlude: state.interlude ?? null,
       failedWeeks: state.failedWeeks ?? [],
+      // Creator House evictions
+      pendingEviction: state.pendingEviction ?? null,
+      evictionsSeen: state.evictionsSeen ?? [],
+      evicted: state.evicted ?? [],
     },
   }, { onConflict: 'user_id' })
 }

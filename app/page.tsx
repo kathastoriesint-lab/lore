@@ -23,6 +23,7 @@ import CricketIntroScreen from '@/components/screens/CricketIntroScreen'
 import CricketCarouselScreen from '@/components/screens/CricketCarouselScreen'
 import LockScreen from '@/components/screens/LockScreen'
 import NetsScreen from '@/components/screens/NetsScreen'
+import EvictionScreen from '@/components/screens/EvictionScreen'
 import FeedbackButton from '@/components/FeedbackButton'
 import ErrorBoundary from '@/components/ErrorBoundary'
 import { analytics, getDeviceId } from '@/lib/analytics'
@@ -30,6 +31,7 @@ import {
   isWeekEnd, weekForSituationId, evaluateGate, getWeek, SEASON_WEEKS,
   DEFAULT_LOCK_MS, FRESH_INTERLUDE, parseClockOverride,
 } from '@/lib/season'
+import { EVICTION_TRIGGERS, buildEviction } from '@/lib/creator-house'
 
 const clampTrust = (n: number) => Math.max(0, Math.min(100, Math.round(n)))
 
@@ -414,10 +416,37 @@ export default function App() {
         })
       }
 
+      // Creator House: finishing an eviction-trigger situation fires Eviction Night
+      // before the next beat (built on top of the existing storyline).
+      if (prev.world === 'creator-house') {
+        const finishedId = queue[prev.situation]
+        const evId = EVICTION_TRIGGERS[finishedId]
+        const seen = prev.evictionsSeen ?? []
+        if (evId && !seen.includes(evId)) {
+          next.pendingEviction = evId
+          next.evictionsSeen = [...seen, evId]
+          analytics.track('eviction_night', 'creator-house', { eviction: evId, after: finishedId })
+        }
+      }
+
       saveGameState({ ...next, ...extrasSnapshot() })
       return next
     })
   }, [extrasSnapshot]) // functional update reads prev; extrasSnapshot is stable
+
+  // Close an eviction ceremony: record who left, clear pending, continue the story.
+  const resolveEviction = useCallback(() => {
+    setGame(prev => {
+      const ev = prev.pendingEviction ? buildEviction(prev.pendingEviction, prev) : null
+      const next: GameState = {
+        ...prev,
+        pendingEviction: null,
+        evicted: ev ? [...(prev.evicted ?? []), ev.evicted] : (prev.evicted ?? []),
+      }
+      saveGameState({ ...next, ...extrasSnapshot() })
+      return next
+    })
+  }, [extrasSnapshot])
 
   // Close the interlude: open the next week with the success or fail variant.
   const resolveInterlude = useCallback((variant: 'success' | 'fail') => {
@@ -805,7 +834,7 @@ export default function App() {
       saveProfile,
       advanceSituation, navigate, goBack, showToast, setChar, startGame, startCricketGame,
       makeChoice, sendDM, openDMThread, resetGame, likePost, applyFeedDeltas, injectCharDM, setViewingChar,
-      resolveInterlude, restartInterlude, completeNetSession, completeTrustMoment,
+      resolveInterlude, restartInterlude, completeNetSession, completeTrustMoment, resolveEviction,
     }}>
       <div className="stage">
         <div className="phone">
@@ -821,6 +850,7 @@ export default function App() {
             <Slot id="live"        cur={screen} prev={prev}><LiveScreen /></Slot>
             <Slot id="lock"        cur={screen} prev={prev}><LockScreen /></Slot>
             <Slot id="nets"        cur={screen} prev={prev}><NetsScreen /></Slot>
+            <Slot id="eviction"    cur={screen} prev={prev}><EvictionScreen /></Slot>
             <Slot id="dm-inbox"    cur={screen} prev={prev}><DMInboxScreen /></Slot>
             <Slot id="dm-thread"   cur={screen} prev={prev}><DMThreadScreen /></Slot>
             <Slot id="profile"     cur={screen} prev={prev}><ProfileScreen /></Slot>

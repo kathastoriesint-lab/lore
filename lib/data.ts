@@ -1181,12 +1181,16 @@ export const SITUATIONS: Situation[] = [
   },
 ]
 
+// First-contact DM openers — each one crisply establishes who this person is TO YOU
+// (you're the new creator, nobody knows you yet). Dossier = the bible; these are the
+// persona-level hello, the real stuff surfaces in conversation. Multi-bubble (split on |||).
+// Gender-neutral (tum-form) so they read right for any player.
 export const DM_HOOKS: Partial<Record<string, string>> = {
-  ria:    'Tumse kuch baat karni thi. Private mein. Woh public scene alag tha — yeh alag hai. 🤍',
-  kabir:  'Arre yaar! Finally tere saath directly baat kar sakta hoon. Is ghar mein sab filter hai, tere saath nahi. 😭',
-  ananya: 'Hi... main usually DM nahi karti but aaj karna tha. Tum bahut different lagte ho baaki sabse. 🥺',
-  dev:    'Numbers. That\'s all this is. But you\'re different — I see it. Don\'t tell anyone I said that. 💪',
-  zoya:   'Hey! Bas check kar rahi thi tum theek ho. Is ghar mein sab compete karte hain, main genuinely care karti hoon. 🫶',
+  ria:    'Tum woh naye creator ho na, jo abhi aaye ho. ||| Tumhaari entry maine notice ki — waise yahan sab ne ki. ||| Dekhte hain tum tikte ho ya bas ek aur naam ban ke reh jaate ho. 👀',
+  kabir:  'Arre naya khoon aa gaya! 😭 ||| Sun, is ghar mein sab apna game khel rahe hain — main tumhe asli scene bata sakta hoon. ||| Mere saath raho, akele yahan survive karna mushkil hai. 🔥',
+  ananya: 'Hii, main Ananya 🥺 ||| Yahan sab thoda intense ho jaata hai — ghabrana mat, main hoon na. ||| Tum baaki sabse alag lagte ho. Is ghar mein woh rare hai.',
+  dev:    'Tumhaara reach dekha maine. Solid hai. ||| Yahan har koi content ke liye hai, main bhi — seedhi baat. ||| Collab karein? Dono ka faayda. Soch lena. 💪',
+  zoya:   'Heyy! 🫶 ||| Main Zoya. Bas dekhna tha tum settle ho rahe ho ki nahi. ||| Yahan sab ek doosre se compete karte hain... main genuinely chahti hoon tum comfortable raho. Kuch bhi chahiye, batao. 💅',
 }
 
 export const DM_MOCK: Partial<Record<string, string[]>> = {

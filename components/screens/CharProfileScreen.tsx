@@ -4,7 +4,12 @@ import { useApp } from '@/lib/context'
 import { CHARS } from '@/lib/data'
 import { CRICKET_CHARS } from '@/lib/cricket-data'
 import { relationshipFor, computeBond, bondColor, bondWord } from '@/lib/relationships'
+import { DOSSIERS, TRUTH_BOND, SECRET_BOND } from '@/lib/dossier'
 import type { CharId } from '@/lib/types'
+
+const TIE_COLOR: Record<string, string> = {
+  heat: 'var(--heat)', trust: 'var(--trust)', fame: 'var(--fame)', ink3: 'var(--ink3)',
+}
 
 const StatusBar = () => (
   <div className="statusbar">
@@ -17,7 +22,7 @@ const StatusBar = () => (
 )
 
 export default function CharProfileScreen() {
-  const { goBack, viewingCharId, dmTrust, game, openDMThread, screen } = useApp()
+  const { goBack, viewingCharId, dmTrust, game, openDMThread, screen, setViewingChar } = useApp()
   const allChars = { ...CHARS, ...CRICKET_CHARS }
   const charId = viewingCharId
   const char = charId ? (allChars[charId] ?? null) : null
@@ -102,6 +107,100 @@ export default function CharProfileScreen() {
           <div style={{ fontSize:11, fontWeight:800, letterSpacing:'.08em', color:'var(--ink3)', marginBottom:8 }}>ABOUT</div>
           <div style={{ fontSize:15, color:'var(--ink2)', lineHeight:1.55 }}>{rel.about}</div>
         </div>
+
+        {/* Dossier — the bible's history layer. Persona/wants always shown;
+            the mask and the receipts unlock as your bond grows. */}
+        {(() => {
+          const d = DOSSIERS[charId]
+          if (!d) return null
+          const truthOpen = bond >= TRUTH_BOND
+          const secretOpen = bond >= SECRET_BOND
+          const Locked = ({ at, label }: { at: number; label: string }) => (
+            <div style={{ display:'flex', alignItems:'center', gap:8, padding:'12px 14px', borderRadius:12,
+              background:'var(--surf)', border:'1px dashed var(--line)' }}>
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="var(--ink3)" strokeWidth="2">
+                <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <div style={{ fontSize:12, color:'var(--ink3)', lineHeight:1.4 }}>
+                {label} — <span style={{ color:'var(--ink2)' }}>bond {at} pe khulega</span>
+              </div>
+            </div>
+          )
+          return (
+            <div style={{ padding:'22px 18px 0' }}>
+              <div style={{ fontSize:11, fontWeight:800, letterSpacing:'.08em', color:'var(--ink3)', marginBottom:4 }}>POORI KUNDLI</div>
+              <div style={{ fontSize:13, color:'var(--ink2)', fontStyle:'italic', lineHeight:1.5, marginBottom:14 }}>{d.tagline}</div>
+
+              {/* Persona — always */}
+              <div style={{ marginBottom:14 }}>
+                <div style={{ fontSize:10, fontWeight:800, letterSpacing:'.06em', color:'var(--ink3)', marginBottom:5 }}>GHAR JO DEKHTA HAI</div>
+                <div style={{ fontSize:13.5, color:'var(--ink2)', lineHeight:1.5 }}>{d.persona}</div>
+              </div>
+
+              {/* Wants — always */}
+              <div style={{ marginBottom:14 }}>
+                <div style={{ fontSize:10, fontWeight:800, letterSpacing:'.06em', color:'var(--fame)', marginBottom:5 }}>CHAHTE KYA HAIN</div>
+                <div style={{ fontSize:13.5, color:'var(--ink2)', lineHeight:1.5 }}>{d.wants}</div>
+              </div>
+
+              {/* Behind the mask — truth + fears, unlocks at TRUTH_BOND */}
+              <div style={{ marginBottom:14 }}>
+                <div style={{ fontSize:10, fontWeight:800, letterSpacing:'.06em', color:'var(--trust)', marginBottom:5 }}>MASK KE PEECHE</div>
+                {truthOpen ? (
+                  <>
+                    <div style={{ fontSize:13.5, color:'var(--ink2)', lineHeight:1.5 }}>{d.truth}</div>
+                    <div style={{ fontSize:12.5, color:'var(--ink3)', lineHeight:1.5, marginTop:6 }}>
+                      <span style={{ fontWeight:700, color:'var(--ink2)' }}>Darr:</span> {d.fears}
+                    </div>
+                  </>
+                ) : <Locked at={TRUTH_BOND} label="Abhi mask ke peeche nahi dekha" />}
+              </div>
+
+              {/* The receipts — the secret, unlocks at SECRET_BOND */}
+              <div style={{ marginBottom:16 }}>
+                <div style={{ fontSize:10, fontWeight:800, letterSpacing:'.06em', color:'var(--heat)', marginBottom:5 }}>ASLI POL</div>
+                {secretOpen ? (
+                  <div style={{ fontSize:13.5, color:'var(--ink)', lineHeight:1.5, padding:'12px 14px', borderRadius:12,
+                    background:'color-mix(in srgb, var(--heat) 8%, transparent)', border:'1px solid color-mix(in srgb, var(--heat) 22%, transparent)' }}>
+                    {d.secret}
+                  </div>
+                ) : <Locked at={SECRET_BOND} label="Kuch bada chhupa rahe hain" />}
+              </div>
+
+              {/* The feud map — always; tap a name to open them */}
+              {d.ties.length > 0 && (
+                <div>
+                  <div style={{ fontSize:10, fontWeight:800, letterSpacing:'.06em', color:'var(--ink3)', marginBottom:8 }}>GHAR MEIN RISHTE</div>
+                  <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+                    {d.ties.map(t => {
+                      const tc = allChars[t.charId]
+                      if (!tc) return null
+                      const col = TIE_COLOR[t.color]
+                      return (
+                        <button key={t.charId} onClick={() => setViewingChar(t.charId)}
+                          style={{ display:'flex', alignItems:'center', gap:11, textAlign:'left', width:'100%',
+                            background:'var(--surf)', border:'1px solid var(--line)', borderRadius:14, padding:'11px 13px', cursor:'pointer' }}>
+                          <div className={`av ${tc.cls}`} style={{ width:36, height:36, fontSize:14, flexShrink:0,
+                            backgroundImage:`url(/avatars/${t.charId}.png)`, backgroundSize:'cover', backgroundPosition:'center' }}>
+                            <span style={{ opacity:0 }}>{tc.init}</span>
+                          </div>
+                          <div style={{ flex:1, minWidth:0 }}>
+                            <div style={{ display:'flex', alignItems:'center', gap:7 }}>
+                              <span style={{ fontWeight:700, fontSize:14 }}>{tc.name}</span>
+                              <span style={{ fontSize:8.5, fontWeight:800, letterSpacing:'.05em', color:col,
+                                background:`color-mix(in srgb, ${col} 16%, transparent)`,
+                                border:`1px solid color-mix(in srgb, ${col} 35%, transparent)`, padding:'2px 6px', borderRadius:6 }}>{t.label}</span>
+                            </div>
+                            <div style={{ fontSize:11.5, color:'var(--ink3)', marginTop:3, lineHeight:1.4 }}>{t.note}</div>
+                          </div>
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          )
+        })()}
 
         {/* Your story — moments with this character */}
         <div style={{ padding:'22px 18px 0' }}>

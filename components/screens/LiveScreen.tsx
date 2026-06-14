@@ -176,6 +176,14 @@ export default function LiveScreen() {
     }
   }, [screen, isCricket, game.lockExpiresAt, chosen, navigate])
 
+  // Creator House: a pending eviction routes to the ceremony before the next beat.
+  // Same guard as the cricket lock — never interrupt a mid-choice outcome.
+  useEffect(() => {
+    if (screen === 'live' && !isCricket && game.pendingEviction && chosen === null && !inFlowRef.current) {
+      navigate('eviction', { replace: true })
+    }
+  }, [screen, isCricket, game.pendingEviction, chosen, navigate])
+
   // Clear pending timers on unmount to prevent post-unmount navigate/advanceSituation
   useEffect(() => {
     return () => { timersRef.current.forEach(clearTimeout) }

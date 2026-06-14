@@ -1,68 +1,32 @@
 'use client'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useApp } from '@/lib/context'
-import type { CharId } from '@/lib/types'
-import { CHARS, NARR_LINES, NARR_CHARS, PLAYABLE, LOCKED } from '@/lib/data'
+import { CHARS, NARR_LINES, NARR_CHARS } from '@/lib/data'
 
-
-const LockIcon = () => (
-  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#fff" strokeWidth="1.8">
-    <rect x="5" y="11" width="14" height="9" rx="2"/>
-    <path d="M8 11V7a4 4 0 0 1 8 0v4"/>
-  </svg>
-)
-
+// Creator House intro: you ARE yourself — the new creator who just moved in.
+// This is a "meet the house" beat (the cast you're walking into), then you enter
+// as yourself. The situations are all written newcomer-POV ({ally}=Kabir/Ananya,
+// {crush}, {p|...}), so the player is the 'player' self-sentinel, never a housemate.
 export default function NarratorScreen() {
-  const { navigate, setChar, showToast } = useApp()
+  const { navigate, setChar } = useApp()
 
-  // Phase 1: animate lines in
-  const totalLines = NARR_LINES.length + NARR_CHARS.length + 1 // +1 for final question
+  const totalLines = NARR_LINES.length + NARR_CHARS.length + 1 // +1 for final line
   const [visibleLines, setVisibleLines] = useState<boolean[]>(Array(totalLines).fill(false))
-  const [showPicker, setShowPicker] = useState(false)
-  const [selected, setSelected] = useState<CharId | null>(null)
+  const [showCTA, setShowCTA] = useState(false)
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([])
 
   useEffect(() => {
     const timers: ReturnType<typeof setTimeout>[] = []
-
-    // NARR_LINES: 0,1,2 at 300ms intervals
     NARR_LINES.forEach((_, i) => {
-      const t = setTimeout(() => {
-        setVisibleLines(prev => { const n = [...prev]; n[i] = true; return n })
-      }, 300 + i * 300)
-      timers.push(t)
+      timers.push(setTimeout(() => setVisibleLines(prev => { const n = [...prev]; n[i] = true; return n }), 300 + i * 300))
     })
-
-    // Gap after NARR_LINES, then NARR_CHARS at 520ms intervals
-    const narr_base = 300 + NARR_LINES.length * 300 + 400
+    const narrBase = 300 + NARR_LINES.length * 300 + 400
     NARR_CHARS.forEach((_, i) => {
-      const t = setTimeout(() => {
-        setVisibleLines(prev => {
-          const n = [...prev]
-          n[NARR_LINES.length + i] = true
-          return n
-        })
-      }, narr_base + i * 520)
-      timers.push(t)
+      timers.push(setTimeout(() => setVisibleLines(prev => { const n = [...prev]; n[NARR_LINES.length + i] = true; return n }), narrBase + i * 520))
     })
-
-    // Final line: "Tum kaun banna chahte ho?"
-    const finalDelay = narr_base + NARR_CHARS.length * 520 + 200
-    const tf = setTimeout(() => {
-      setVisibleLines(prev => {
-        const n = [...prev]
-        n[NARR_LINES.length + NARR_CHARS.length] = true
-        return n
-      })
-    }, finalDelay)
-    timers.push(tf)
-
-    // Show picker 700ms after final line
-    const tp = setTimeout(() => {
-      setShowPicker(true)
-    }, finalDelay + 700)
-    timers.push(tp)
-
+    const finalDelay = narrBase + NARR_CHARS.length * 520 + 200
+    timers.push(setTimeout(() => setVisibleLines(prev => { const n = [...prev]; n[NARR_LINES.length + NARR_CHARS.length] = true; return n }), finalDelay))
+    timers.push(setTimeout(() => setShowCTA(true), finalDelay + 600))
     timersRef.current = timers
     return () => timers.forEach(clearTimeout)
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
@@ -70,33 +34,28 @@ export default function NarratorScreen() {
   const handleSkip = useCallback(() => {
     timersRef.current.forEach(clearTimeout)
     setVisibleLines(Array(totalLines).fill(true))
-    setShowPicker(true)
+    setShowCTA(true)
   }, [totalLines])
 
-  const handleCTA = useCallback(() => {
-    if (!selected) return
-    setChar(selected)
+  // Enter as yourself — 'player' is the self-sentinel (same as cricket).
+  const handleEnter = useCallback(() => {
+    setChar('player')
     navigate('feed', { replace: true })
-  }, [selected, setChar, navigate])
-
-  const selectedChar = selected ? CHARS[selected] : null
+  }, [setChar, navigate])
 
   return (
     <div className="narrator">
-      {/* Lines scroll */}
       <div className="narr-scroll">
         <div className="narr-col">
-          {/* NARR_LINES */}
           {NARR_LINES.map((line, i) => (
             <div key={i} className={`narr-line${visibleLines[i] ? ' in' : ''}`}>
               <div className={line.cls}>{line.text}</div>
             </div>
           ))}
 
-          {/* Gap */}
           <div className="narr-gap" />
 
-          {/* NARR_CHARS */}
+          {/* Meet the house — the cast you're walking into */}
           {NARR_CHARS.map(([charId, desc], i) => {
             const char = CHARS[charId]
             const lineIdx = NARR_LINES.length + i
@@ -113,82 +72,22 @@ export default function NarratorScreen() {
             )
           })}
 
-          {/* Final question */}
+          {/* Final line — newcomer framing */}
           <div className={`narr-line${visibleLines[NARR_LINES.length + NARR_CHARS.length] ? ' in' : ''}`}>
-            <div className="narr-final">Tum kaun banna chahte ho?</div>
+            <div className="narr-final">Sab apni jagah bana chuke hain. Ab teri baari.</div>
           </div>
         </div>
       </div>
 
-      {/* Skip button */}
       <button className="skip-btn" onClick={handleSkip}>Skip →</button>
 
-      {/* Character picker sheet */}
-      <div className={`picker${showPicker ? ' up' : ''}`}>
-        <div className="picker-h">Choose your character</div>
-        <div className="picker-sub">30 days. One shot.</div>
-
-        {/* Playable characters */}
-        {PLAYABLE.map(({ id, tag }) => {
-          const char = CHARS[id]
-          const isSel = selected === id
-          return (
-            <button
-              key={id}
-              className={`pchar ${char.cls}${isSel ? ' sel' : ''}`}
-              onClick={() => setSelected(isSel ? null : id)}
-            >
-              <div className={`av ${char.cls}`} style={{ width: 40, height: 40, fontSize: 16 }}>
-                {char.init}
-              </div>
-              <div className="info">
-                <div className="nm">{char.name}</div>
-                <div className="role">{char.role}</div>
-                <div className="stats">
-                  <span>Fame {char.fame}</span>
-                  <span>Fame {char.fame}</span>
-                </div>
-                <div className="tag">{tag}</div>
-              </div>
-              <div className="arrow">{isSel ? '✓' : '›'}</div>
-            </button>
-          )
-        })}
-
-        {/* Locked characters */}
-        <div className="locked-grid">
-          {LOCKED.map((id) => {
-            const char = CHARS[id]
-            return (
-              <button
-                key={id}
-                className={`pchar locked ${char.cls}`}
-                onClick={() => showToast('Jald unlock hoga 🔥')}
-              >
-                <div className={`av ${char.cls}`} style={{ width: 32, height: 32, fontSize: 13 }}>
-                  {char.init}
-                </div>
-                <div className="nm" style={{ fontSize: 13 }}>{char.name}</div>
-                <div className="role" style={{ fontSize: 10 }}>{char.fame}F</div>
-                <div className="locked-pill">
-                  <LockIcon /> SOON
-                </div>
-              </button>
-            )
-          })}
-        </div>
-
-        {/* Bottom spacing for CTA */}
-        <div style={{ height: 80 }} />
-      </div>
-
-      {/* CTA button */}
+      {/* Single CTA — enter as yourself */}
       <button
-        className={`picker-cta${selected ? ' up' : ''}`}
-        onClick={handleCTA}
-        disabled={!selected}
+        className={`picker-cta${showCTA ? ' up' : ''}`}
+        onClick={handleEnter}
+        disabled={!showCTA}
       >
-        {selectedChar ? `Play as ${selectedChar.name} →` : 'Choose a character'}
+        Ghar mein kadam rakho →
       </button>
     </div>
   )

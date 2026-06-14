@@ -153,6 +153,7 @@ export type Screen =
   | 'narrator'
   | 'live'
   | 'lock'
+  | 'eviction'
   | 'nets'
   | 'dm-inbox'
   | 'dm-thread'
@@ -202,4 +203,12 @@ export interface GameState {
   }
   /** Weeks whose fail-variant beat already played (for "recalled to the XI" flavor). */
   failedWeeks?: number[]
+
+  // ── Creator House evictions ───────────────────────────────────────────────
+  /** Eviction id to play before the next situation (set when its trigger completes). */
+  pendingEviction?: string | null
+  /** Eviction ceremonies already shown (so they fire once). */
+  evictionsSeen?: string[]
+  /** Housemates evicted so far — gone from the house. */
+  evicted?: string[]
 }
