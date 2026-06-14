@@ -149,9 +149,21 @@ export default function App() {
       })
       return
     }
-    // Nudge SW to pick up new deploy — silent, no user action needed
+    // The app has no service worker. Older builds may have registered one that
+    // now serves stale cache forever. Forcefully unregister any ghost SW and
+    // purge its caches so returning users stop seeing old versions. Reload once
+    // after a ghost SW is killed so the fresh, un-intercepted bundle loads.
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.update()))
+      navigator.serviceWorker.getRegistrations().then(regs => {
+        if (regs.length === 0) return
+        Promise.all(regs.map(r => r.unregister())).then(() => {
+          if ('caches' in window) caches.keys().then(keys => keys.forEach(k => caches.delete(k)))
+          if (!sessionStorage.getItem('lore_sw_killed')) {
+            sessionStorage.setItem('lore_sw_killed', '1')
+            location.reload()
+          }
+        })
+      }).catch(() => {})
     }
 
     ;(async () => {
