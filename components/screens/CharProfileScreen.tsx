@@ -138,13 +138,13 @@ export default function CharProfileScreen() {
 
               {/* Wants — always */}
               <div style={{ marginBottom:14 }}>
-                <div style={{ fontSize:10, fontWeight:800, letterSpacing:'.06em', color:'var(--fame)', marginBottom:5 }}>CHAHTE KYA HAIN</div>
+                <div style={{ fontSize:10, fontWeight:800, letterSpacing:'.06em', color:'var(--ink3)', marginBottom:5 }}>CHAHTE KYA HAIN</div>
                 <div style={{ fontSize:13.5, color:'var(--ink2)', lineHeight:1.5 }}>{d.wants}</div>
               </div>
 
               {/* Behind the mask — truth + fears, unlocks at TRUTH_BOND */}
               <div style={{ marginBottom:14 }}>
-                <div style={{ fontSize:10, fontWeight:800, letterSpacing:'.06em', color:'var(--trust)', marginBottom:5 }}>MASK KE PEECHE</div>
+                <div style={{ fontSize:10, fontWeight:800, letterSpacing:'.06em', color:'var(--ink3)', marginBottom:5 }}>MASK KE PEECHE</div>
                 {truthOpen ? (
                   <>
                     <div style={{ fontSize:13.5, color:'var(--ink2)', lineHeight:1.5 }}>{d.truth}</div>
@@ -157,7 +157,7 @@ export default function CharProfileScreen() {
 
               {/* The receipts — the secret, unlocks at SECRET_BOND */}
               <div style={{ marginBottom:16 }}>
-                <div style={{ fontSize:10, fontWeight:800, letterSpacing:'.06em', color:'var(--heat)', marginBottom:5 }}>ASLI POL</div>
+                <div style={{ fontSize:10, fontWeight:800, letterSpacing:'.06em', color:'var(--ink3)', marginBottom:5 }}>ASLI POL</div>
                 {secretOpen ? (
                   <div style={{ fontSize:13.5, color:'var(--ink)', lineHeight:1.5, padding:'12px 14px', borderRadius:12,
                     background:'color-mix(in srgb, var(--heat) 8%, transparent)', border:'1px solid color-mix(in srgb, var(--heat) 22%, transparent)' }}>
