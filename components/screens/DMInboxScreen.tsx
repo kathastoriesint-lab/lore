@@ -115,7 +115,7 @@ export default function DMInboxScreen() {
       </div>
 
       {/* Season goal — slim pinned variant */}
-      <GoalCard slim />
+      <GoalCard variant="slim" />
 
       {/* DM list */}
       <div className="scroll" style={{ flex: 1 }}>

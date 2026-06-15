@@ -74,3 +74,29 @@ Common values: 4, 8, 12, 14, 16, 20, 24, 28, 32.
 When adding a new character: assign a `--cc` value from that world's tint range.
 When adding a new world: choose one accent family hex, derive 6-8 tints, document here.
 When reviewing a PR: any hex value not in this document is an automatic reject.
+
+## Colour Discipline (how to not look like a rainbow)
+
+The 11 tokens are the *palette*; this is the *rule for using them*. The default
+state of every surface is **neutral**. Colour is the exception, earned by meaning —
+never decoration. Follow this and the app reads premium and cohesive.
+
+1. **Neutral by default.** ~90% of every screen is `--bg`, `--surf`, `--line`,
+   `--ink`, `--ink2`, `--ink3`. If an element doesn't *need* colour, it's grey.
+2. **One interactive accent: `--accent` (pink).** Only tappable / primary things
+   are pink — CTAs, the active tab, links, the LIVE signal. Nothing decorative is
+   pink. If it's pink, you can tap it (or it's live).
+3. **Meter colours live inside meters.** `--fame` `--heat` `--trust` appear ONLY as
+   a meter's value or fill bar. Never as chips, hint text, badges, card tints, or
+   borders elsewhere. The number you're chasing can be `--fame` because it *is* the
+   meter; the card around it is neutral.
+4. **Moment colours are rare.** `--fame` gold = a win beat (gate crossed, payoff).
+   `--heat` red = danger (eviction, at-risk). Peak moments only, never ambient.
+5. **Max two saturated hues visible per screen.** Pink (action) + one meter colour
+   is the budget. See a third bright colour competing? Cut it.
+6. **Cards are neutral.** A card earns its identity from layout, type, and spacing —
+   `--surf` background, `--line` border. Not a coloured tint. Tinted cards are the
+   #1 source of rainbow.
+
+Quick test before shipping a screen: squint. If you see more than two colours
+fighting for attention, you broke rule 5.

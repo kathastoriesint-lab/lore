@@ -1,5 +1,5 @@
 'use client'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useApp } from '@/lib/context'
 import type { CharId, DMMessage } from '@/lib/types'
 import { CHARS, DM_TRUST, DM_QUICK } from '@/lib/data'
@@ -7,6 +7,8 @@ import { CRICKET_CHARS, CRICKET_SITUATIONS } from '@/lib/cricket-data'
 import { CRICKET_DM_TRUST_START } from '@/lib/cricket-data'
 import { getReplySuggestions } from '@/lib/game'
 import { trustMomentFor } from '@/lib/season'
+import { relationshipFor, computeBond, bondColor } from '@/lib/relationships'
+import { DOSSIERS } from '@/lib/dossier'
 
 const DM_CAP = 20
 
@@ -42,6 +44,18 @@ export default function DMThreadScreen() {
   const [typing, setTyping] = useState(false)
   const [, tick] = useState(0)
   const hasStarted = messages.length > 0
+
+  // Creator House: establish who this person is to YOU at the top of the thread —
+  // crisp + helpful (the dossier is the deep bible; this is the living relationship).
+  const chContext = useMemo(() => {
+    if (game.world === 'cricket' || !charId) return null
+    const d = DOSSIERS[charId]
+    const rel = relationshipFor(charId, game.playerGender)
+    if (!d || !rel) return null
+    const { bond, moments } = computeBond(charId, game.world, game.choices, game.playerName, game.playerGender, dmTrust)
+    const latest = moments.length ? moments[moments.length - 1] : null
+    return { d, rel, bond, latest }
+  }, [game.world, charId, game.playerGender, game.choices, game.playerName, dmTrust])
 
   // Trust: LLM-scored live value from context, falls back to static default
   const trustVal = charId
@@ -237,13 +251,47 @@ export default function DMThreadScreen() {
 
       {/* Messages rendered directly from context — no local copy */}
       <div className="chat" ref={chatRef}>
-        {!hasStarted && (
+
+        {/* Creator House — relationship context (who they are to you, where you stand) */}
+        {chContext && (
+          <div style={{
+            margin: '4px 4px 14px', padding: '12px 14px', borderRadius: 14,
+            background: 'var(--surf)', borderLeft: `3px solid ${chContext.rel.labelColor}`,
+            border: '1px solid var(--line)',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+              <span style={{
+                fontSize: 9, fontWeight: 800, letterSpacing: '.06em', color: chContext.rel.labelColor,
+                background: `color-mix(in srgb, ${chContext.rel.labelColor} 16%, transparent)`,
+                border: `1px solid color-mix(in srgb, ${chContext.rel.labelColor} 35%, transparent)`,
+                padding: '2px 7px', borderRadius: 6,
+              }}>{chContext.rel.label.toUpperCase()}</span>
+              <span style={{ fontSize: 10, color: 'var(--ink3)', fontWeight: 700 }}>
+                BOND <span style={{ color: bondColor(chContext.bond) }}>{chContext.bond}</span>
+              </span>
+            </div>
+            <div style={{ fontSize: 13, color: 'var(--ink2)', lineHeight: 1.5 }}>{chContext.d.tagline}</div>
+            <div style={{ fontSize: 11.5, color: 'var(--ink3)', lineHeight: 1.5, marginTop: 7 }}>
+              {chContext.latest
+                ? <>Abhi tak: <span style={{ color: 'var(--ink2)', fontStyle: 'italic' }}>&ldquo;{chContext.latest.text}&rdquo;</span></>
+                : 'Pehli baat. Kahani yahin se shuru hoti hai.'}
+            </div>
+          </div>
+        )}
+
+        {!hasStarted && !chContext && (
           <div style={{ height:'100%', display:'grid', placeItems:'center', textAlign:'center', color:'var(--ink3)', padding:'0 28px' }}>
             <div>
               <div style={{ fontSize:22, marginBottom:8 }}>💬</div>
               <div style={{ fontWeight:700, color:'var(--ink)', marginBottom:5 }}>No messages yet</div>
               <div style={{ fontSize:13, lineHeight:1.45 }}>{char.name} will appear here after they message you in the story.</div>
             </div>
+          </div>
+        )}
+        {/* CH thread with no messages: the context card is the opener; nudge a first move */}
+        {!hasStarted && chContext && (
+          <div style={{ fontSize:12, color:'var(--ink3)', textAlign:'center', padding:'8px 24px', lineHeight:1.5 }}>
+            Message bhejo — {char.name.split(' ')[0]} se baat yahin banti ya bigadti hai.
           </div>
         )}
         {messages.map((msg, i) => {

@@ -8,6 +8,7 @@ import { getStats, clamp, resolveEnding, resolveTokens } from '@/lib/game'
 import { sentimentDelta } from '@/lib/relationships'
 import MeterHUD from '@/components/MeterHUD'
 import GoalCard from '@/components/GoalCard'
+import CHStatusCard from '@/components/CHStatusCard'
 import NarrationButton from '@/components/NarrationButton'
 
 const stripHtml = (s: string) => s.replace(/<[^>]+>/g, '')
@@ -421,14 +422,23 @@ export default function LiveScreen() {
         </div>
       )}
 
-      {/* Shared HUD */}
-      <MeterHUD right={
-        <div className="live-badge">
-          <div className="pulse" />
-          LIVE
-        </div>
-      } />
-      <GoalCard />
+      {/* HUD. On cricket Live you optimize for ONE number — show just the focused
+          goal (big), not the 3-meter row + a separate goal card (too heavy, and the
+          40→45 gets lost). The full FORM/FAME/TRUST overview lives on Feed.
+          Creator House keeps its 3-meter HUD + day/eviction status. */}
+      {isCricket ? (
+        <GoalCard variant="focus" />
+      ) : (
+        <>
+          <MeterHUD right={
+            <div className="live-badge">
+              <div className="pulse" />
+              LIVE
+            </div>
+          } />
+          <CHStatusCard />
+        </>
+      )}
 
       {/* Day-lock overlay — sits above scroll, MeterHUD, sticky buttons, and tab bar */}
       {isDayLocked && sit && (

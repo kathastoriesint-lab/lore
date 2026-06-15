@@ -7,6 +7,7 @@ import { CRICKET_CHARS, CRICKET_SITUATIONS } from '@/lib/cricket-data'
 import { applyDeltas, resolveTokens } from '@/lib/game'
 import MeterHUD from '@/components/MeterHUD'
 import GoalCard from '@/components/GoalCard'
+import CHStatusCard from '@/components/CHStatusCard'
 
 // Inline character background — color-mix(var(--cc)) fails without a parent with the CSS class
 const CHAR_COLORS_HEX: Record<string, string> = {
@@ -626,7 +627,8 @@ export default function FeedScreen() {
 
       {/* Shared HUD */}
       <MeterHUD />
-      <GoalCard />
+      <GoalCard variant="slim" />
+      <CHStatusCard />
 
       {/* Scrollable feed */}
       <div className="scroll" style={{ flex: 1 }}>
