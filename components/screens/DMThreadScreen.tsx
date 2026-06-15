@@ -256,8 +256,7 @@ export default function DMThreadScreen() {
         {chContext && (
           <div style={{
             margin: '4px 4px 14px', padding: '12px 14px', borderRadius: 14,
-            background: 'var(--surf)', borderLeft: `3px solid ${chContext.rel.labelColor}`,
-            border: '1px solid var(--line)',
+            background: 'var(--surf)', border: '1px solid var(--line)',
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
               <span style={{
