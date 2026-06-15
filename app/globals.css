@@ -313,7 +313,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .live-scroll{flex:1;overflow-y:auto;position:relative;scrollbar-width:none}
 .live-scroll::-webkit-scrollbar{display:none}
 .situation{padding:18px 16px 8px;position:relative}
-.sit-tag{font-size:10px;font-weight:800;letter-spacing:.08em;color:var(--accent);opacity:.8;padding-right:50px}
+.sit-tag{font-size:10px;font-weight:800;letter-spacing:.08em;color:var(--ink3);padding-right:50px}
 .sit-title{font-family:var(--serif);font-weight:600;font-size:22px;line-height:1.2;margin-top:8px;padding-right:52px}
 
 /* ── Narration button (top-right of situation) ── */

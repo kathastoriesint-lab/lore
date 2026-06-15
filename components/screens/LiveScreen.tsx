@@ -567,13 +567,7 @@ export default function LiveScreen() {
                 active={screen === 'live'}
               />
             )}
-            <div className="sit-tag" style={{ display:'flex', alignItems:'center', gap:6 }}>
-              {displaySit.tag}
-              <span style={{ display:'inline-flex', alignItems:'center', gap:4, fontSize:9, fontWeight:800, color:'#ff3b3b', letterSpacing:'.04em' }}>
-                <span style={{ width:6, height:6, borderRadius:'50%', background:'#ff3b3b', display:'inline-block' }} />
-                LIVE
-              </span>
-            </div>
+            <div className="sit-tag">{displaySit.tag}</div>
             <div className="sit-title">{r(displaySit.title)}</div>
             <div className="sit-body">
               {displaySit.body.map((p, i) => (
