@@ -32,6 +32,42 @@ export const EVICTION_TRIGGERS: Record<string, string> = {
   'D7-2': 'EV-D7',
 }
 
+// ── Survival: TRUST drives eviction (Option B) ──────────────────────────────────
+// TRUST (the `image` meter — "logon ka bharosa") is who has your back at a vote.
+//   trust >= threshold → SAFE: a housemate goes, you're untouched.
+//   floor <= trust < threshold → AT RISK: your name comes up, you survive by a thread.
+//   trust < floor → you're the one voted out. Real loss.
+export const EVICTION_SAFETY: Record<string, { day: number; threshold: number; floor: number }> = {
+  'EV-D3': { day: 3, threshold: 28, floor: 16 },  // lenient — TRUST starts at 30
+  'EV-D7': { day: 7, threshold: 40, floor: 26 },  // by now you should have built it
+}
+
+export type RiskStatus = 'safe' | 'risk' | 'critical'
+
+/** The next eviction the player is heading toward, given the current day. */
+export function nextEvictionFor(currentDay: number): { id: string; day: number; threshold: number; floor: number } | null {
+  if (currentDay <= 3) return { id: 'EV-D3', ...EVICTION_SAFETY['EV-D3'] }
+  if (currentDay <= 7) return { id: 'EV-D7', ...EVICTION_SAFETY['EV-D7'] }
+  return null
+}
+
+/** Eviction-risk readout for the Live focus card. */
+export function evictionRisk(trust: number, currentDay: number):
+  | { day: number; threshold: number; floor: number; trust: number; status: RiskStatus }
+  | null {
+  const ev = nextEvictionFor(currentDay)
+  if (!ev) return null
+  const status: RiskStatus = trust >= ev.threshold ? 'safe' : trust >= ev.floor ? 'risk' : 'critical'
+  return { day: ev.day, threshold: ev.threshold, floor: ev.floor, trust, status }
+}
+
+/** True if the player themselves is on the chopping block at this eviction. */
+export function playerStatusAt(evId: string, trust: number): RiskStatus {
+  const s = EVICTION_SAFETY[evId]
+  if (!s) return 'safe'
+  return trust >= s.threshold ? 'safe' : trust >= s.floor ? 'risk' : 'critical'
+}
+
 function loyaltyOf(game: GameState): number {
   const sits = game.situationQueue
     .map(id => SITUATIONS.find(s => s.id === id))

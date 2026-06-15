@@ -62,7 +62,7 @@ export default function MeterHUD({ right, hideHeader }: Props) {
     : [
         { label: 'FAME',  val: game.meters.fame,  ref: fameRef,  color: 'var(--fame)',  cls: 'fame' },
         { label: 'HEAT',  val: game.meters.heat,  ref: heatRef,  color: 'var(--heat)',  cls: 'heat' },
-        { label: 'IMAGE', val: game.meters.image, ref: imageRef, color: 'var(--trust)', cls: 'image' },
+        { label: 'TRUST', val: game.meters.image, ref: imageRef, color: 'var(--trust)', cls: 'image' },
       ]
 
   return (

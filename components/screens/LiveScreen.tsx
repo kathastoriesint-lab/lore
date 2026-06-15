@@ -400,15 +400,9 @@ export default function LiveScreen() {
       {isCricket ? (
         <GoalCard variant="focus" />
       ) : (
-        <>
-          <MeterHUD right={
-            <div className="live-badge">
-              <div className="pulse" />
-              LIVE
-            </div>
-          } />
-          <CHStatusCard />
-        </>
+        /* CH Live: optimise for ONE number — your eviction risk. The full
+           FAME/HEAT/TRUST overview lives on Feed. */
+        <CHStatusCard variant="focus" />
       )}
 
       {/* Day-lock overlay — sits above scroll, MeterHUD, sticky buttons, and tab bar */}

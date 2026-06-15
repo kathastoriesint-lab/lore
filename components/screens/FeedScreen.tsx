@@ -625,10 +625,10 @@ export default function FeedScreen() {
         </div>
       </div>
 
-      {/* Shared HUD */}
+      {/* Shared HUD — Feed is the overview: 3 meters + a slim status line */}
       <MeterHUD />
       <GoalCard variant="slim" />
-      <CHStatusCard />
+      <CHStatusCard variant="slim" />
 
       {/* Scrollable feed */}
       <div className="scroll" style={{ flex: 1 }}>
