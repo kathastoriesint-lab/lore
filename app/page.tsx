@@ -438,6 +438,17 @@ export default function App() {
   const resolveEviction = useCallback(() => {
     setGame(prev => {
       const ev = prev.pendingEviction ? buildEviction(prev.pendingEviction, prev) : null
+      // Player voted out → the run is over. Reset the house so re-entry is a fresh
+      // start (the resume guards key off situation>0 && char), keeping name/gender.
+      if (ev?.playerEvicted) {
+        const next: GameState = {
+          ...prev,
+          char: null, situation: 0, choices: [], pendingEviction: null,
+          evictionsSeen: [], evicted: [], interlude: undefined,
+        }
+        saveGameState({ ...next, ...extrasSnapshot() })
+        return next
+      }
       const next: GameState = {
         ...prev,
         pendingEviction: null,

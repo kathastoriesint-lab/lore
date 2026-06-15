@@ -24,6 +24,8 @@ export interface EvictionNight {
   audience: Partial<Record<CharId, number>>
   goodbye: string          // evicted housemate's parting line
   aftermath: string        // one line that lands after the chair empties
+  /** True when the EVICTED is the player — the run ends (real loss). */
+  playerEvicted?: boolean
 }
 
 // situationId that, once completed, triggers an eviction night before the next beat.
@@ -78,6 +80,44 @@ function loyaltyOf(game: GameState): number {
 // Build the full ceremony payload from game state at trigger time. Choices don't change
 // during the ceremony, so this can be recomputed safely inside the screen.
 export function buildEviction(id: string, game: GameState): EvictionNight | null {
+  const base = buildBaseEviction(id, game)
+  if (!base) return null
+
+  // Option B: the player's TRUST decides their own fate at the vote.
+  const status = playerStatusAt(id, game.meters.image)
+  if (status === 'safe') return base
+
+  const ally: CharId = game.playerGender === 'male' ? 'kabir' : 'ananya'
+  const topNominee = base.nominees.find(n => n !== ally) ?? base.nominees[0]
+
+  if (status === 'critical') {
+    // Your name comes up — and this time you go. Real loss.
+    return {
+      ...base,
+      nominees: ['player', topNominee],
+      evicted: 'player',
+      playerEvicted: true,
+      houseVotes: [
+        { voter: 'ria',  target: 'player',    line: 'Naye banda ka bharosa hi nahi bana ghar mein. Sorry.' },
+        { voter: 'zoya', target: 'player',    line: 'Tumne kisi ko apna nahi banaya. Yahi anjaam hota hai. 💅' },
+        { voter: ally,   target: topNominee,  line: 'Main tumhaare saath tha... par akela kya karta.' },
+      ],
+      audience: { player: 57, [topNominee]: 43 },
+      goodbye: 'Ghar mein the, par ghar ke nahi ban paaye. Trust nahi banaya — aur yahaan wahi bachata hai.',
+      aftermath: 'Tumhaari khaali kursi. Ghar chalta rahega — tumhaare bina.',
+    }
+  }
+
+  // status === 'risk' — your name comes up, but you survive by a thread.
+  return {
+    ...base,
+    nominees: ['player', ...base.nominees],
+    audience: { [topNominee]: 46, player: 33, ...Object.fromEntries(base.nominees.filter(n => n !== topNominee).map(n => [n, 21])) },
+    aftermath: base.aftermath + ' Aur tumhaara naam bhi aaya — TRUST giraa toh agli baar bach nahi paoge.',
+  }
+}
+
+function buildBaseEviction(id: string, game: GameState): EvictionNight | null {
   const male = game.playerGender === 'male'
   const ally: CharId = male ? 'kabir' : 'ananya'
 

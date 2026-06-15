@@ -4,6 +4,7 @@ import { useApp } from '@/lib/context'
 import { CHARS } from '@/lib/data'
 import { buildEviction } from '@/lib/creator-house'
 import { resolveTokens } from '@/lib/game'
+import PlayerAvatar from '@/components/PlayerAvatar'
 import type { CharId } from '@/lib/types'
 
 // Eviction Night — the ceremony. Phases: intro → nominations → house votes (one at a
@@ -12,6 +13,14 @@ import type { CharId } from '@/lib/types'
 type Phase = 'intro' | 'nominees' | 'votes' | 'tally' | 'reveal' | 'aftermath'
 
 function Avatar({ id, size = 64, dim = false }: { id: CharId; size?: number; dim?: boolean }) {
+  // The player can be a nominee / the evicted — render their own avatar.
+  if (id === 'player') {
+    return (
+      <div style={{ opacity: dim ? 0.35 : 1, filter: dim ? 'grayscale(1)' : 'none', transition: 'opacity .6s, filter .6s' }}>
+        <PlayerAvatar size={size} fontSize={size * 0.34} />
+      </div>
+    )
+  }
   const c = CHARS[id]
   return (
     <div className={`av ${c?.cls ?? ''}`} style={{
@@ -27,6 +36,9 @@ function Avatar({ id, size = 64, dim = false }: { id: CharId; size?: number; dim
 export default function EvictionScreen() {
   const { game, navigate, resolveEviction, screen } = useApp()
   const name = (s: string) => resolveTokens(s, game.playerName, game.playerGender)
+  // Name/handle that work for the player sentinel too.
+  const dispName = (id: CharId) => id === 'player' ? (game.playerName || 'Tum') : (CHARS[id]?.name ?? '')
+  const dispHandle = (id: CharId) => id === 'player' ? 'you' : (CHARS[id]?.handle ?? '')
 
   const ev = useMemo(
     () => (game.pendingEviction ? buildEviction(game.pendingEviction, game) : null),
@@ -49,7 +61,6 @@ export default function EvictionScreen() {
 
   if (!ev) return null
 
-  const evChar = CHARS[ev.evicted]
   const advance = () => {
     if (phase === 'intro') setPhase('nominees')
     else if (phase === 'nominees') setPhase('votes')
@@ -60,7 +71,12 @@ export default function EvictionScreen() {
     }
     else if (phase === 'tally') setPhase('reveal')
     else if (phase === 'reveal') setPhase('aftermath')
-    else { resolveEviction(); navigate('live', { replace: true }) }
+    else {
+      // If the PLAYER was voted out, the run is over → resolveEviction ends it and
+      // sends them back to Worlds. Otherwise back into the house.
+      resolveEviction()
+      navigate(ev.playerEvicted ? 'worlds' : 'live', { replace: true })
+    }
   }
 
   const wrap: React.CSSProperties = {
@@ -114,8 +130,8 @@ export default function EvictionScreen() {
                 <div style={{ borderRadius: '50%', padding: 3, background: 'color-mix(in srgb, var(--heat) 50%, transparent)', display: 'inline-block' }}>
                   <Avatar id={id} size={84} />
                 </div>
-                <div style={{ fontWeight: 700, fontSize: 16, marginTop: 12 }}>{CHARS[id]?.name}</div>
-                <div style={{ fontSize: 11, color: 'var(--ink3)', marginTop: 2 }}>@{CHARS[id]?.handle}</div>
+                <div style={{ fontWeight: 700, fontSize: 16, marginTop: 12 }}>{dispName(id)}</div>
+                <div style={{ fontSize: 11, color: 'var(--ink3)', marginTop: 2 }}>@{dispHandle(id)}</div>
               </div>
             ))}
           </div>
@@ -134,7 +150,7 @@ export default function EvictionScreen() {
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: 12.5, color: 'var(--ink2)', lineHeight: 1.45, fontStyle: 'italic' }}>&ldquo;{name(v.line)}&rdquo;</div>
                 <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.05em', color: 'var(--heat)', marginTop: 5 }}>
-                  → {CHARS[v.target]?.name?.toUpperCase()} KO VOTE
+                  → {dispName(v.target).toUpperCase()} KO VOTE
                 </div>
               </div>
             </div>
@@ -156,7 +172,7 @@ export default function EvictionScreen() {
                 <div key={id}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 7 }}>
                     <Avatar id={id} size={34} />
-                    <span style={{ fontWeight: 700, fontSize: 14, flex: 1 }}>{CHARS[id]?.name}</span>
+                    <span style={{ fontWeight: 700, fontSize: 14, flex: 1 }}>{dispName(id)}</span>
                     <span style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 18, color: isOut ? 'var(--heat)' : 'var(--ink2)' }}>
                       {tallyShown ? pct : 0}%
                     </span>
@@ -178,7 +194,7 @@ export default function EvictionScreen() {
       {phase === 'reveal' && (
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', position: 'relative' }}>
           <Avatar id={ev.evicted} size={104} />
-          <div style={{ fontFamily: 'var(--serif)', fontSize: 26, fontWeight: 600, marginTop: 18 }}>{evChar?.name}</div>
+          <div style={{ fontFamily: 'var(--serif)', fontSize: 26, fontWeight: 600, marginTop: 18 }}>{dispName(ev.evicted)}</div>
           <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: '.14em', color: 'var(--heat)', marginTop: 8 }}>
             GHAR CHHODNA HOGA
           </div>
@@ -210,7 +226,7 @@ export default function EvictionScreen() {
             {phase === 'votes' && (voteIdx < ev.houseVotes.length ? 'Agla vote →' : 'Public vote dekho →')}
             {phase === 'tally' && 'Result reveal karo →'}
             {phase === 'reveal' && 'Aage badho →'}
-            {phase === 'aftermath' && 'House mein wapas →'}
+            {phase === 'aftermath' && (ev.playerEvicted ? 'Ghar se bahar →' : 'House mein wapas →')}
           </button>
         </div>
       )}
