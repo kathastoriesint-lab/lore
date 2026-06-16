@@ -7,6 +7,8 @@
 // the week opens with the fail-variant beat. Week 7 is the one hard gate.
 //
 // Cricket meter slots (storage → display): fame=FORM, heat=FAME, image=TEAM TRUST.
+// "Team Trust" is the pooled dressing-room standing. Per-senior trust (Rohit,
+// Hardik) is separate — built in DMs and used for the charTrust story gates below.
 
 import type { Meters } from './types'
 
@@ -83,24 +85,28 @@ export const SEASON_WEEKS: SeasonWeek[] = [
     failBeat: 'You board the flight as squad filler. Seniors ki row mein jagah nahi — abhi tak unka bharosa nahi jeeta.',
   },
   {
-    week: 6, name: 'Become the Story',
+    week: 6, name: 'Let the Bat Talk',
     situationIds: ['CR-S22', 'CR-S23', 'CR-S24', 'CR-S25'],
-    gate: [{ kind: 'meter', slot: 'heat', threshold: 60, label: 'FAME', surface: 'feed' }],
-    hudTrustSource: 'team',
-    lockCopy: 'Must-win stretch. The playoff race is on — and the press is choosing its heroes.',
-    successBeat: 'Morning headlines: YOUR FACE. "MI ka naya sitara." The feed isn’t talking about the team — it’s talking about YOU.',
-    failBeat: 'The papers cover the match. You’re a name on the scorecard, not the story. Not yet.',
+    // The standout-performance week. Selectors don't want noise — they want runs
+    // on the board. Gated on FORM, not public hype.
+    gate: [{ kind: 'meter', slot: 'fame', threshold: 62, label: 'FORM', surface: 'nets' }],
+    hudTrustSource: { charId: 'hardik' },
+    lockCopy: 'Must-win stretch, playoff race on. The selectors are watching the scorecard — not the headlines.',
+    successBeat: 'A match-defining knock. The dressing room is quiet, then loud. Hardik just nods — that nod means more than any headline.',
+    failBeat: 'Another mixed outing. The team gets through, but your scorecard still isn’t the one selectors circle. Not yet.',
   },
   {
     week: 7, name: 'The Call-Up',
     situationIds: ['CR-S26', 'CR-S27', 'CR-S29', 'CR-S30'],
+    // India selection is merit + cricket reputation: runs on the board (Form) and
+    // the captain vouching for you (Hardik's Trust). Public Fame is not a selection
+    // criterion — it has its own home as Week 6's gate ("Become the Story").
     gate: [
       { kind: 'meter', slot: 'fame', threshold: 64, label: 'FORM', surface: 'nets' },
-      { kind: 'highestSeniorTrust', threshold: 55, label: 'SENIOR TRUST', surface: 'dms' },
-      { kind: 'meter', slot: 'heat', threshold: 60, label: 'FAME', surface: 'feed' },
+      { kind: 'charTrust', charId: 'hardik', threshold: 55, label: "HARDIK'S TRUST", surface: 'dms' },
     ],
     hardGate: true,
-    hudTrustSource: 'highest-senior',
+    hudTrustSource: { charId: 'hardik' },
     lockCopy: 'Semi-final week. And the selectors are watching — India squad announcement is coming.',
     successBeat: 'Unknown number. "Beta, selectors ki meeting khatam hui. Pack your bags — India camp." THE CALL.',
     failBeat: 'Squad announced. Your name isn’t on it. Selectors ka message saaf hai: numbers complete karo, agli meeting tak.',
@@ -128,6 +134,16 @@ export const INTERLUDE_CAPS = {
   captionPosts: 1,          // spicy +3 Fame / safe +1 Fame
   commentReplies: 3,        // +1 Fame each
 } as const
+
+/** The trust threshold a senior's charTrust gate requires across the season, or
+ *  null if that senior never gates a week. Used to show the goal target in their DM. */
+export function trustGateThreshold(charId: string): number | null {
+  for (const w of SEASON_WEEKS) {
+    const req = w.gate.find(r => r.kind === 'charTrust' && r.charId === charId)
+    if (req && req.kind === 'charTrust') return req.threshold
+  }
+  return null
+}
 
 export interface InterludeState {
   netsUsed: number

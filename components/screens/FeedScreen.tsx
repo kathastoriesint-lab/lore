@@ -6,7 +6,6 @@ import { CHARS, POST_COMMENTS, PostCommentOption, getVisibleSituations } from '@
 import { CRICKET_CHARS, CRICKET_SITUATIONS } from '@/lib/cricket-data'
 import { applyDeltas, resolveTokens } from '@/lib/game'
 import MeterHUD from '@/components/MeterHUD'
-import GoalCard from '@/components/GoalCard'
 import CHStatusCard from '@/components/CHStatusCard'
 
 // Inline character background — color-mix(var(--cc)) fails without a parent with the CSS class
@@ -625,9 +624,9 @@ export default function FeedScreen() {
         </div>
       </div>
 
-      {/* Shared HUD — Feed is the overview: 3 meters + a slim status line */}
+      {/* Shared HUD — Feed is the overview: the 3-meter row. The cricket goal banner
+          lives on Live (the focus GoalCard); repeating it here just added clutter. */}
       <MeterHUD />
-      <GoalCard variant="slim" />
       <CHStatusCard variant="slim" />
 
       {/* Scrollable feed */}

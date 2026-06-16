@@ -48,8 +48,10 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .scroll::-webkit-scrollbar{display:none}
 
 /* ── Status bar ── */
-.statusbar{height:44px;flex:0 0 44px;display:flex;align-items:center;justify-content:space-between;
-  padding:0 22px 0 26px;font-size:13px;font-weight:600;color:var(--ink);position:relative;z-index:5}
+/* Fake 9:41 chrome is hidden everywhere — real phones already show the system bar,
+   and on the desktop mock it just stole 44px of content height. Kept in markup so
+   the layout flex structure is unchanged; display:none reclaims the space. */
+.statusbar{display:none}
 .statusbar .sb-right{display:flex;align-items:center;gap:6px}
 
 /* ── App header ── */

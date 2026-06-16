@@ -6,7 +6,10 @@
  * Meter mapping (stored in fame/heat/image slots):
  *   fame  = Form  🏏
  *   heat  = Fame  ⭐
- *   image = Team Trust 🤝
+ *   image = Team Trust 🤝  (pooled dressing-room standing; shown as "TEAM TRUST")
+ *
+ * Per-senior trust (Rohit, Hardik) is separate — built in DMs, surfaced on the Live
+ * goal card, and used to gate the story (Win the Room, the Call-Up).
  *
  * Starting meters: Form 40 · Fame 25 · Team Trust 20
  * Delta notation in source: Fo = Form, Fa = Fame, TT = Team Trust
@@ -38,6 +41,29 @@ export const CRICKET_DM_TRUST_START: Partial<Record<CharId, number>> = {
   naman: 40,
   robin: 40,
   mahela: 25,
+}
+
+// Gate-senior trust goals. When the player is in Rohit's or Hardik's DM, the chat
+// shows WHY this conversation matters (what their trust unlocks) and HOW to win it
+// (concrete tips). The numeric target comes from the season gate (season.ts); this
+// only authors the narrative around it.
+export const CRICKET_TRUST_GOALS: Partial<Record<CharId, { unlocks: string; tips: string[] }>> = {
+  rohit: {
+    unlocks: 'Away leg mein seniors ka backing ("Win the Room")',
+    tips: [
+      'Result se zyada apne process pe baat karo — Rohit soch dekhta hai, score nahi.',
+      'Pressure mein tu kaise sochta hai, woh seedha aur honestly batao.',
+      'Shortcut ya excuse mat do — usse uska bharosa girta hai.',
+    ],
+  },
+  hardik: {
+    unlocks: 'India squad ke liye captain ki sifaarish ("The Call-Up")',
+    tips: [
+      'Captain ko role clarity chahiye — apna role samjho aur usko apnao.',
+      'Seedhe jawab do; headline ya drama mat banao.',
+      'Team pehle, ego baad mein — yeh sochna dikhao.',
+    ],
+  },
 }
 
 export const CRICKET_LOW_TRUST_FEED: Partial<Record<CharId, string>> = {

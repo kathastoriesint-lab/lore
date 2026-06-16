@@ -69,7 +69,11 @@ export default function ProfileScreen() {
 
   const isCricket   = game.world === 'cricket'
   const isCreator   = game.world === 'creator-house'
-  const hasProgress = game.situation > 0
+  // "In a world" = a run is active. Key off char (set the moment you enter — 'player'
+  // is the cricket sentinel), NOT situation>0. Cricket runs start at situation 0, so
+  // the old check made the profile read "No Active World" until the first choice.
+  const inWorld     = game.char !== null
+  const hasProgress = inWorld
 
   const worldLabel = isCricket ? 'Indian Dressing Room'
     : isCreator ? 'Creator House'
@@ -81,12 +85,13 @@ export default function ProfileScreen() {
       ? `Day ${Math.ceil((game.situation + 1) / 3)} of 10`
       : 'No world entered yet'
 
-  // Cricket: public FAME lives in heat slot; Creator House: fame slot
-  const fameMeter  = isCricket ? game.meters.heat : game.meters.fame
+  // Each world names its meters differently. Cricket: fame=FORM, heat=FAME, image=TEAM TRUST.
+  // (Per-senior trust — Rohit/Hardik — lives on the Live goal card and in DMs.)
+  // Creator House: fame=FAME, heat=HEAT, image=IMAGE.
   const statsLabel = hasProgress
     ? (isCricket
-        ? `FAME ${fameMeter}  ·  HEAT ${game.meters.heat}  ·  IMAGE ${game.meters.image}`
-        : `FAME ${fameMeter}  ·  HEAT ${game.meters.heat}  ·  IMAGE ${game.meters.image}`)
+        ? `FORM ${game.meters.fame}  ·  FAME ${game.meters.heat}  ·  TEAM TRUST ${game.meters.image}`
+        : `FAME ${game.meters.fame}  ·  HEAT ${game.meters.heat}  ·  IMAGE ${game.meters.image}`)
     : undefined
 
   return (
@@ -119,7 +124,7 @@ export default function ProfileScreen() {
               {game.playerName || 'You'}
             </div>
             <div style={{ fontSize: 13, color: 'var(--ink3)', marginTop: 3 }}>
-              {worldLabel ?? 'Lore Player'}
+              {inWorld ? worldLabel : 'Lore Player'}
             </div>
           </div>
         </div>

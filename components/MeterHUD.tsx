@@ -53,11 +53,14 @@ export default function MeterHUD({ right, hideHeader }: Props) {
     ? `Mumbai Indians · Season 1`
     : `Creator House · Day ${currentDay} of 10`
 
+  // Cricket: FORM + FAME + TEAM TRUST. "Team Trust" is the pooled dressing-room
+  // standing — distinct from the per-senior trust (Rohit/Hardik) the Live goal card
+  // surfaces for the story gates.
   const meters = isCricket
     ? [
         { label: 'FORM',  val: game.meters.fame,  ref: fameRef,  color: 'var(--fame)',  cls: 'fame' },
         { label: 'FAME',  val: game.meters.heat,  ref: heatRef,  color: 'var(--heat)',  cls: 'heat' },
-        { label: 'TRUST', val: game.meters.image, ref: imageRef, color: 'var(--trust)', cls: 'image' },
+        { label: 'TEAM TRUST', val: game.meters.image, ref: imageRef, color: 'var(--trust)', cls: 'image' },
       ]
     : [
         { label: 'FAME',  val: game.meters.fame,  ref: fameRef,  color: 'var(--fame)',  cls: 'fame' },

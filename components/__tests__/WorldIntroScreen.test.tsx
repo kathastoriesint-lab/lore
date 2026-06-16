@@ -14,6 +14,7 @@ function makeCtx(overrides: Partial<AppCtx> = {}): AppCtx {
     dmHistory: {},
     dmLastUpdated: {},
     dmTrust: {},
+    relationshipAlerts: [],
     charFame: {},
     likedPosts: new Set(),
     toast: null,
@@ -37,6 +38,11 @@ function makeCtx(overrides: Partial<AppCtx> = {}): AppCtx {
     sendDM: vi.fn(),
     openDMThread: vi.fn(),
     resetGame: vi.fn(),
+    resolveInterlude: vi.fn(),
+    restartInterlude: vi.fn(),
+    completeNetSession: vi.fn(),
+    completeTrustMoment: vi.fn(),
+    resolveEviction: vi.fn(),
     ...overrides,
   }
 }
@@ -46,25 +52,32 @@ function renderWithCtx(ctx: Partial<AppCtx> = {}) {
   return { ...render(<AppContext.Provider value={value}><WorldIntroScreen /></AppContext.Provider>), value }
 }
 
+// The intro is a 4-slide carousel: slides 0-2 show "Next →", the last slide shows
+// the "Enter the House →" CTA and a bottom "Skip" (back to worlds).
+const SLIDES = 4
+const advanceToLastSlide = () => {
+  for (let i = 0; i < SLIDES - 1; i++) fireEvent.click(screen.getByText('Next →'))
+}
+
 describe('WorldIntroScreen', () => {
   it('renders the Skip button', () => {
     renderWithCtx()
     expect(screen.getByText('Skip →')).toBeInTheDocument()
   })
 
-  it('calls startGame when Enter button is clicked', () => {
+  it('calls startGame when the Enter CTA is clicked', () => {
     const startGame = vi.fn()
     renderWithCtx({ startGame })
-    fireEvent.click(screen.getByText('Skip →'))
-    fireEvent.click(screen.getByRole('button', { name: /Ghar mein aao/i }))
+    advanceToLastSlide()
+    fireEvent.click(screen.getByRole('button', { name: /Enter the House/i }))
     expect(startGame).toHaveBeenCalled()
   })
 
-  it('calls navigate worlds when Baad mein is clicked', () => {
+  it('navigates to worlds when the bottom Skip is clicked', () => {
     const navigate = vi.fn()
     renderWithCtx({ navigate })
-    fireEvent.click(screen.getByText('Skip →'))
-    fireEvent.click(screen.getByRole('button', { name: /Baad mein/i }))
+    advanceToLastSlide()
+    fireEvent.click(screen.getByRole('button', { name: 'Skip' }))
     expect(navigate).toHaveBeenCalledWith('worlds')
   })
 })

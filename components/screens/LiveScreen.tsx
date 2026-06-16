@@ -3,7 +3,8 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useApp } from '@/lib/context'
 import type { CharId, Choice, ChoicePost, Meters } from '@/lib/types'
 import { CHARS, SITUATIONS, getVisibleSituations } from '@/lib/data'
-import { CRICKET_CHARS, CRICKET_SITUATIONS, CRICKET_ENDING_DATA, resolveCricketEnding } from '@/lib/cricket-data'
+import { CRICKET_CHARS, CRICKET_SITUATIONS, CRICKET_ENDING_DATA, resolveCricketEnding, CRICKET_DM_TRUST_START } from '@/lib/cricket-data'
+import { getWeek, weekForSituationId, SEASON_WEEKS } from '@/lib/season'
 import { getStats, clamp, resolveEnding, resolveTokens } from '@/lib/game'
 import { sentimentDelta } from '@/lib/relationships'
 import MeterHUD from '@/components/MeterHUD'
@@ -37,6 +38,34 @@ const asArray = <T,>(value: T | T[] | null | undefined): T[] => {
   return Array.isArray(value) ? value : [value]
 }
 
+// Story-pause nudges: a senior's trust is the relationship spine of the season. We
+// pause at the STORY BEAT where that senior is judging the player, then send them
+// into the DM with a seed that references the scene — so "build trust" becomes a
+// concrete conversation, not a meter grind. Anchored to specific situations (the
+// stage BEFORE the gate, where that senior's trust is the visible goal):
+//   CR-S15 (Review Room, Stage 4) → Rohit, gating "Win the Room"
+//   CR-S24 (Press Room, Stage 6)  → Hardik, gating "The Call-Up"
+const TRUST_NUDGE_ANCHORS: Record<string, CharId> = {
+  'CR-S15': 'rohit',
+  'CR-S24': 'hardik',
+}
+const TRUST_NUDGES: Partial<Record<CharId, {
+  title: string
+  body: (cur: number, need: number) => string
+  seed: string
+}>> = {
+  hardik: {
+    title: 'Captain ka bharosa jeeto',
+    body: (cur, need) => `Press mein India ka sawaal aaya, aur Hardik ne tujhe gaur se dekha. India squad mein jagah captain ke haath hai — uska bharosa abhi ${cur}/${need} hai, ${need} chahiye. Usse DM pe baat karo; chat mein woh batayega ki kya dekhna chahta hai.`,
+    seed: 'Aaj press mein dekha tujhe. India ka sawaal sun ke thoda freeze ho gaya tha. ||| Main captain hoon — mujhe yakeen chahiye tu uss pressure ke liye ready hai. ||| Bata: jab pura stadium tujhse runs maange, tu apna game simple kaise rakhega?',
+  },
+  rohit: {
+    title: 'Rohit ka bharosa jeeto',
+    body: (cur, need) => `Review room mein Rohit ne teri batting gaur se dekhi. Away leg se pehle uska bharosa chahiye — abhi ${cur}/${need} hai, ${need} tak le jaana hai. Usse DM pe baat karo; woh jaanna chahta hai tu pressure mein kaise sochta hai.`,
+    seed: 'Review room mein teri batting dekhi. Runs hain — par main learning dekhna chahta hoon. ||| Away leg aa raha hai, wahan crowd against hoti hai. ||| Bata: jab kuch na chal raha ho, tu innings kaise banata hai?',
+  },
+}
+
 const resolveChoiceOutcome = (choice: Choice, meters: Meters) => {
   const gate = choice.outcomeGate
   if (!gate) return null
@@ -44,7 +73,7 @@ const resolveChoiceOutcome = (choice: Choice, meters: Meters) => {
 }
 
 export default function LiveScreen() {
-  const { navigate, game, screen, makeChoice, advanceSituation, injectCharDM, dmBadgeCount } = useApp()
+  const { navigate, game, screen, makeChoice, advanceSituation, injectCharDM, openDMThread, dmTrust, dmBadgeCount } = useApp()
   // Tracks when we're mid-choice-flow so the situation-change effect doesn't clear showPost
   const inFlowRef = useRef(false)
 
@@ -114,6 +143,8 @@ export default function LiveScreen() {
   const [outcomeFlash, setOutcomeFlash] = useState<{ title: string; note: string; passed: boolean } | null>(null)
   // DM notification banner — shows after injectCharDM fires
   const [dmNotif, setDmNotif] = useState<{ name: string; cls: string; id: string } | null>(null)
+  // Story-pause trust nudge — shows once per stage when a senior's trust gates progress
+  const [trustNudge, setTrustNudge] = useState<{ charId: CharId; cur: number; need: number } | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
   // Ref-based processing guard — synchronously prevents double-tap between React renders
   const processingRef = useRef(false)
@@ -160,6 +191,22 @@ export default function LiveScreen() {
   useEffect(() => {
     return () => { timersRef.current.forEach(clearTimeout) }
   }, [])
+
+  // Tap "Message {senior}" — seed the chat with what to talk about (once), then open it.
+  const openTrustNudgeDM = useCallback((charId: CharId) => {
+    const cfg = TRUST_NUDGES[charId]
+    const seedKey = `lore_trust_seed_${charId}`
+    let alreadySeeded = false
+    try { alreadySeeded = !!localStorage.getItem(seedKey) } catch {}
+    if (cfg && !alreadySeeded) {
+      try { localStorage.setItem(seedKey, '1') } catch {}
+      cfg.seed.split('|||').map(s => s.trim()).filter(Boolean).forEach((text, i) => {
+        setTimeout(() => injectCharDM(charId, text), 200 + i * 500)
+      })
+    }
+    setTrustNudge(null)
+    openDMThread(charId)
+  }, [injectCharDM, openDMThread])
 
   // Load stats for current situation
   useEffect(() => {
@@ -256,7 +303,28 @@ export default function LiveScreen() {
 
     // Show post preview after impact card appears
     addTimer(() => { setShowPost(true) }, 600)
-  }, [sit, game.meters, makeChoice, advanceSituation, navigate, injectCharDM, isCricket])
+
+    // Story-pause trust beat: if this situation is a relationship anchor and the
+    // senior's trust gate isn't met yet, pause once and route into their DM. Fires
+    // after the result settles so it reads as the scene's consequence.
+    const anchorChar = TRUST_NUDGE_ANCHORS[sit.id]
+    if (isCricket && anchorChar && TRUST_NUDGES[anchorChar]) {
+      const goalWeekNum = weekForSituationId(sit.id) + 1
+      const req = goalWeekNum <= SEASON_WEEKS.length
+        ? getWeek(goalWeekNum).gate.find(g => g.kind === 'charTrust' && g.charId === anchorChar) as { threshold: number } | undefined
+        : undefined
+      const need = req?.threshold ?? 55
+      const cur = Math.round(dmTrust[anchorChar] ?? CRICKET_DM_TRUST_START[anchorChar] ?? 50)
+      const seenKey = `lore_trust_nudge_${sit.id}`
+      let seen = false; try { seen = !!localStorage.getItem(seenKey) } catch {}
+      if (cur < need && !seen) {
+        addTimer(() => {
+          try { localStorage.setItem(seenKey, '1') } catch {}
+          setTrustNudge({ charId: anchorChar, cur, need })
+        }, 1600)
+      }
+    }
+  }, [sit, game.meters, makeChoice, advanceSituation, navigate, injectCharDM, isCricket, dmTrust])
 
 
   // Navigate to tabs
@@ -315,6 +383,55 @@ export default function LiveScreen() {
           <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--accent)', flexShrink: 0 }} />
         </div>
       )}
+
+      {/* Story-pause trust nudge — sends the player into a senior's DM */}
+      {trustNudge && TRUST_NUDGES[trustNudge.charId] && (() => {
+        const cfg = TRUST_NUDGES[trustNudge.charId]!
+        const ch = allChars[trustNudge.charId]
+        const first = ch?.name?.split(' ')[0] ?? trustNudge.charId
+        return (
+          <div style={{
+            position: 'absolute', inset: 0, zIndex: 65, background: 'linear-gradient(180deg,#0a0f1e 0%,#020308 100%)',
+            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+            padding: '32px 28px', textAlign: 'center', animation: 'fadeIn .2s ease both',
+          }}>
+            <div style={{ fontSize: 11, fontWeight: 900, letterSpacing: '.16em', color: 'var(--trust)', marginBottom: 18 }}>RUKO</div>
+            {ch && (
+              <div className={`av ${ch.cls}`} style={{
+                width: 72, height: 72, fontSize: 26, marginBottom: 16,
+                backgroundImage: `url(/avatars/${trustNudge.charId}.png)`, backgroundSize: 'cover', backgroundPosition: 'center',
+              }}><span style={{ opacity: 0 }}>{ch.init}</span></div>
+            )}
+            <div style={{ fontFamily: 'var(--serif)', fontWeight: 700, fontSize: 30, lineHeight: 1.05, color: '#fff', maxWidth: 320 }}>
+              {cfg.title}
+            </div>
+            <div style={{ marginTop: 16, maxWidth: 330, fontSize: 14.5, lineHeight: 1.5, color: 'rgba(255,255,255,.74)' }}>
+              {cfg.body(trustNudge.cur, trustNudge.need)}
+            </div>
+            <button
+              onClick={() => openTrustNudgeDM(trustNudge.charId)}
+              style={{
+                marginTop: 28, width: 'min(310px,100%)', minHeight: 56, borderRadius: 16,
+                background: 'var(--trust)', color: '#031615', border: 'none',
+                fontSize: 16, fontWeight: 900, fontFamily: 'var(--sans)', cursor: 'pointer',
+                boxShadow: '0 14px 38px rgba(61,214,200,.22)',
+              }}
+            >
+              {first} ko message karo →
+            </button>
+            <button
+              onClick={() => setTrustNudge(null)}
+              style={{
+                marginTop: 12, width: 'min(310px,100%)', minHeight: 48, borderRadius: 16,
+                background: 'transparent', color: 'var(--ink3)', border: '1px solid var(--line)',
+                fontSize: 14, fontWeight: 600, fontFamily: 'var(--sans)', cursor: 'pointer',
+              }}
+            >
+              Abhi nahi
+            </button>
+          </div>
+        )
+      })()}
 
       {/* Chapter beat overlay — brief full-screen card between situations */}
       {showBeat && nextSitForBeat && (
@@ -393,10 +510,11 @@ export default function LiveScreen() {
         </div>
       )}
 
-      {/* HUD. On cricket Live you optimize for ONE number — show just the focused
-          goal (big), not the 3-meter row + a separate goal card (too heavy, and the
-          40→45 gets lost). The full FORM/FAME/TRUST overview lives on Feed.
-          Creator House keeps its 3-meter HUD + day/eviction status. */}
+      {/* HUD. On cricket Live you optimize for the focused goal — show the goal card
+          (big), not the 3-meter row (too heavy, and the gap gets lost). It surfaces
+          the per-senior trust (Rohit/Hardik) for the story gates; the full
+          FORM/FAME/TEAM TRUST overview lives on Feed. Creator House keeps its
+          3-meter HUD + day/eviction status. */}
       {isCricket ? (
         <GoalCard variant="focus" />
       ) : (
@@ -530,7 +648,7 @@ export default function LiveScreen() {
                 {isCricket ? '⭐ Fame' : '🔥 Heat'} {game.meters.heat}
               </div>
               <div style={{ padding: '10px 16px', background: 'color-mix(in srgb, #3DD6C8 20%, transparent)', border: '1px solid color-mix(in srgb, #3DD6C8 40%, transparent)', borderRadius: 12, fontSize: 12, fontWeight: 700, color: '#3DD6C8' }}>
-                🤝 {isCricket ? 'Trust' : 'Image'} {game.meters.image}
+                🤝 {isCricket ? 'Team Trust' : 'Image'} {game.meters.image}
               </div>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 16 }}>
@@ -687,7 +805,7 @@ export default function LiveScreen() {
 
               // Compact delta summary for collapsed state
               const deltaSummary = [
-                d.fame  !== 0 ? `${d.fame > 0 ? '+' : ''}${d.fame}⭐` : null,
+                d.fame  !== 0 ? `${d.fame > 0 ? '+' : ''}${d.fame}${isCricket ? '🏏' : '⭐'}` : null,
                 d.heat  !== 0 ? `${d.heat > 0 ? '+' : ''}${d.heat}🔥` : null,
                 d.image !== 0 ? `${d.image > 0 ? '+' : ''}${d.image}🤝` : null,
               ].filter(Boolean).join('  ')
@@ -727,7 +845,7 @@ export default function LiveScreen() {
                               <div className="impact-row-glow" />
                               <div className="impact-delta">{d.image > 0 ? '+' : ''}{d.image}</div>
                               <div className="impact-meta">
-                                <div className="impact-mlabel">{isCricket ? '🤝 TRUST' : '🤝 IMAGE'}</div>
+                                <div className="impact-mlabel">{isCricket ? '🤝 TEAM TRUST' : '🤝 IMAGE'}</div>
                                 <div className="impact-bar-track"><div className="impact-bar-fill" style={{ width: `${Math.max(0, Math.min(100, game.meters.image))}%` }} /></div>
                                 <div className="impact-consequence">{before.image} → {game.meters.image}</div>
                               </div>
@@ -735,6 +853,19 @@ export default function LiveScreen() {
                           )}
                         </>
                       )}
+                    {/* Pointer to the full meter overview — Live shows the deltas,
+                        Feed has the complete FORM/FAME/TEAM TRUST picture. */}
+                    <button
+                      onClick={() => navigate('feed')}
+                      style={{
+                        width: '100%', marginTop: 2, padding: '8px 0 2px',
+                        background: 'none', border: 'none', cursor: 'pointer',
+                        fontFamily: 'var(--sans)', fontSize: 11.5, fontWeight: 600,
+                        color: 'var(--ink3)', textAlign: 'center',
+                      }}
+                    >
+                      Poore meters Feed pe dekho →
+                    </button>
                   </div>
 
                   {/* Player post + reactions — shown after post is ready */}

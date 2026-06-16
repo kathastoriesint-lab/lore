@@ -2,11 +2,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useApp } from '@/lib/context'
 import type { CharId, DMMessage } from '@/lib/types'
-import { CHARS, DM_TRUST, DM_QUICK } from '@/lib/data'
-import { CRICKET_CHARS, CRICKET_SITUATIONS } from '@/lib/cricket-data'
+import { CHARS, DM_TRUST } from '@/lib/data'
+import { CRICKET_CHARS, CRICKET_SITUATIONS, CRICKET_TRUST_GOALS } from '@/lib/cricket-data'
 import { CRICKET_DM_TRUST_START } from '@/lib/cricket-data'
 import { getReplySuggestions } from '@/lib/game'
-import { trustMomentFor } from '@/lib/season'
+import { trustMomentFor, trustGateThreshold } from '@/lib/season'
 import { relationshipFor, computeBond, bondColor } from '@/lib/relationships'
 import { DOSSIERS } from '@/lib/dossier'
 
@@ -62,6 +62,17 @@ export default function DMThreadScreen() {
     ? (dmTrust[charId] ?? (game.world === 'cricket' ? CRICKET_DM_TRUST_START[charId] : DM_TRUST[charId]) ?? 50)
     : 50
   const trustBand = trustVal < 30 ? 'LOW' : trustVal < 60 ? 'NORMAL' : 'HIGH'
+
+  // Cricket gate-senior goal: if this senior's trust unlocks a week, the chat opens
+  // with WHY this conversation matters and HOW to win them over. Makes a redirect
+  // from the Live nudge land on a clear objective, not a blank thread.
+  const trustGoal = (() => {
+    if (game.world !== 'cricket' || !charId) return null
+    const goal = CRICKET_TRUST_GOALS[charId]
+    const need = trustGateThreshold(charId)
+    if (!goal || need == null) return null
+    return { ...goal, need, met: trustVal >= need }
+  })()
 
   // Floating trust-delta chip: makes every trust change visible at the moment
   // it happens (chat scoring + trust moments) — the DM gym's feedback.
@@ -171,11 +182,6 @@ export default function DMThreadScreen() {
     inputRef.current?.focus()
   }, [])
 
-  const handleQuickChip = useCallback((chip: string) => {
-    setInput(chip)
-    inputRef.current?.focus()
-  }, [])
-
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend() }
   }, [handleSend])
@@ -188,17 +194,6 @@ export default function DMThreadScreen() {
       </div>
     )
   }
-
-  const CRICKET_QUICK: Partial<Record<string, string[]>> = {
-    hardik: ['Role ke baare mein baat karni thi', 'Bench pe hoon — kya karu?', 'Kal match mein nervous hoon'],
-    rohit:  ['Tempo kya hota hai exactly?', 'Pehli ball ke baare mein advice do', 'Kuch dekha mujhme?'],
-    surya:  ['Woh angle wala shot kaise?', 'Field reading sikhao', 'Kal nets pe aaun?'],
-    bumrah: ['Aaj over better tha?', 'Wrist position batao', 'Slower ball kab maaru?'],
-    tilak:  ['Dressing room mein kaise fit hoon?', 'Role clarity kaise aati hai?', 'Hardik ne kya bola?'],
-    coach:  ['Video bhejun kya?', 'Footwork pe kya fix karna hai?', 'Ghabra raha hoon yaar'],
-    friend: ['Bhai kya chal raha hai', 'Ghar yaad aa raha hai', 'Koi sun nahi raha yahan'],
-  }
-  const staticChips = (charId ? (DM_QUICK[charId] ?? CRICKET_QUICK[charId] ?? []) : [])
 
   return (
     <div style={{ display:'flex', flexDirection:'column', height:'100%' }}>
@@ -251,6 +246,40 @@ export default function DMThreadScreen() {
 
       {/* Messages rendered directly from context — no local copy */}
       <div className="chat" ref={chatRef}>
+
+        {/* Cricket gate-senior goal — what this trust unlocks + how to win it */}
+        {trustGoal && (
+          <div style={{
+            margin: '4px 4px 14px', padding: '13px 15px', borderRadius: 14,
+            background: trustGoal.met ? 'color-mix(in srgb, var(--trust) 12%, var(--surf))' : 'var(--surf)',
+            border: `1px solid ${trustGoal.met ? 'color-mix(in srgb, var(--trust) 45%, transparent)' : 'var(--line)'}`,
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 7 }}>
+              <span style={{ fontSize: 9, fontWeight: 900, letterSpacing: '.12em', color: 'var(--trust)' }}>
+                {trustGoal.met ? '✓ GOAL POORA' : 'TUMHARA GOAL'}
+              </span>
+              <span style={{ fontSize: 11, fontWeight: 800, color: trustGoal.met ? 'var(--trust)' : 'var(--ink2)', fontVariantNumeric: 'tabular-nums' }}>
+                Bharosa {trustVal} / {trustGoal.need}
+              </span>
+            </div>
+            <div style={{ fontSize: 13, color: 'var(--ink)', fontWeight: 600, lineHeight: 1.45 }}>
+              {trustGoal.met
+                ? `Unlock ho gaya: ${trustGoal.unlocks}.`
+                : `Iska bharosa ${trustGoal.need} tak le jao — unlock: ${trustGoal.unlocks}.`}
+            </div>
+            {!trustGoal.met && (
+              <div style={{ marginTop: 9, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <div style={{ fontSize: 9.5, fontWeight: 800, letterSpacing: '.08em', color: 'var(--ink3)' }}>KAISE JEETO</div>
+                {trustGoal.tips.map((tip, i) => (
+                  <div key={i} style={{ display: 'flex', gap: 7, fontSize: 12, color: 'var(--ink2)', lineHeight: 1.45 }}>
+                    <span style={{ color: 'var(--trust)', flexShrink: 0 }}>→</span>
+                    <span>{tip}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Creator House — relationship context (who they are to you, where you stand) */}
         {chContext && (
@@ -385,15 +414,6 @@ export default function DMThreadScreen() {
               </div>
             ))
           )}
-        </div>
-      )}
-
-      {/* Static quick chips — fallback when no dynamic suggestion is available */}
-      {hasStarted && !isLocked && dynamicChips.length === 0 && !chipsLoading && staticChips.length > 0 && (
-        <div className="quick-chips">
-          {staticChips.map((chip, i) => (
-            <button key={i} className="chip" onClick={() => handleQuickChip(chip)}>{chip}</button>
-          ))}
         </div>
       )}
 

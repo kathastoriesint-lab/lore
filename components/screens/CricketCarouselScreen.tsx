@@ -2,7 +2,7 @@
 import { useRef, useState } from 'react'
 import { useApp } from '@/lib/context'
 
-const TOTAL = 3
+const TOTAL = 4
 
 const METERS = [
   { label: 'FORM',  color: '#FFB020', val: 'Kya tum khelna jaante ho?', pct: 18 },
@@ -104,6 +104,39 @@ export default function CricketCarouselScreen() {
               ))}
             </div>
             <div className="cc-body" style={{ marginTop: 16 }}>Har choice inhein badlegi.</div>
+          </div>
+
+          {/* Slide 4 — The Goal: why any of this matters */}
+          <div className="cc-slide">
+            <div className="cc-live-badge" style={{ color: '#FFB020' }}>
+              <span className="cc-live-dot" style={{ background: '#FFB020' }} />
+              SEASON 1 · THE GOAL
+            </div>
+            <div className="cc-big">India tak pahuncho.</div>
+            <div className="cc-body">
+              Yeh <b>Mumbai Indians</b> ka ghar hai. Yahan har match, har net session,
+              har dressing-room moment ek hi raaste pe le jaata hai.<br /><br />
+              Season 1 mein achha perform karo — squad ka bharosa jeeto, runs banao,
+              feed pe chha jao. Yahan kamaal kiya, toh{' '}
+              <b style={{ color: '#FFB020' }}>India ka call-up</b> tumhara.<br /><br />
+              Khel nahi paaye? Season yahin ruk jaata hai.
+            </div>
+
+            {/* The ladder — MI is the proving ground; India is the prize */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 22, flexWrap: 'wrap' }}>
+              {['MI Debut', 'Main Nets', 'India Call-Up'].map((step, i) => (
+                <div key={step} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{
+                    fontSize: 11, fontWeight: 800, letterSpacing: '.03em',
+                    padding: '6px 10px', borderRadius: 8,
+                    background: i === 2 ? 'rgba(255,176,32,.14)' : 'rgba(255,255,255,.05)',
+                    color: i === 2 ? '#FFB020' : 'var(--ink2)',
+                    border: i === 2 ? '1px solid rgba(255,176,32,.4)' : '1px solid rgba(255,255,255,.08)',
+                  }}>{step}</span>
+                  {i < 2 && <span style={{ color: 'var(--ink3)', fontSize: 13 }}>→</span>}
+                </div>
+              ))}
+            </div>
           </div>
 
         </div>

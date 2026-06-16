@@ -68,15 +68,18 @@ describe('gate evaluation', () => {
     expect(evaluateGate(w5, meters, { hardik: 90 }).passed).toBe(false)
   })
 
-  it('week 7 requires all three numbers; highest senior counts', () => {
+  it("week 7 (India call-up) needs Form + Hardik's trust; Fame is not required", () => {
     const w7 = getWeek(7).gate
-    const good = { fame: 64, heat: 60, image: 10 }
-    expect(evaluateGate(w7, good, { bumrah: 55 }).passed).toBe(true)
-    expect(evaluateGate(w7, good, { bumrah: 54 }).passed).toBe(false)
-    // tilak is not a senior — his trust doesn't count
-    expect(evaluateGate(w7, good, { tilak: 99 }).passed).toBe(false)
-    // one meter short fails the whole gate
-    expect(evaluateGate(w7, { ...good, fame: 63 }, { rohit: 60 }).passed).toBe(false)
+    expect(w7).toHaveLength(2) // Fame dropped — selection is merit + captain's belief
+    const good = { fame: 64, heat: 60, image: 10 } // FORM 64
+    expect(evaluateGate(w7, good, { hardik: 55 }).passed).toBe(true)
+    expect(evaluateGate(w7, good, { hardik: 54 }).passed).toBe(false)
+    // it's pinned to Hardik now — another senior's trust doesn't satisfy it
+    expect(evaluateGate(w7, good, { rohit: 99 }).passed).toBe(false)
+    // Fame (heat slot) is no longer gated — zero Fame still passes if Form + Hardik met
+    expect(evaluateGate(w7, { fame: 64, heat: 0, image: 0 }, { hardik: 55 }).passed).toBe(true)
+    // Form short fails the whole gate
+    expect(evaluateGate(w7, { ...good, fame: 63 }, { hardik: 60 }).passed).toBe(false)
   })
 
   it('week 7 is the only hard gate', () => {
