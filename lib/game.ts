@@ -213,6 +213,21 @@ export async function saveDM(charId: CharId, msg: DMMessage) {
   })
 }
 
+// ── Edge function auth ────────────────────────────────────────────────────────
+// Authorization header for lore-chat calls. Sends the player's anonymous session
+// JWT so the edge function can verify a real Supabase user (blocking keyless
+// abuse of the paid OpenAI endpoint). Falls back to the public anon key only if a
+// session can't be established — in which case the function will reject the call.
+async function loreChatAuth(): Promise<string> {
+  const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  try {
+    const session = await ensureSession()
+    return `Bearer ${session?.access_token ?? anon}`
+  } catch {
+    return `Bearer ${anon}`
+  }
+}
+
 // ── Trust delta scoring via LLM ───────────────────────────────────────────────
 // Calls the same Edge Function in trust_score mode to get a -20..+20 delta.
 // Runs in parallel with nothing — called after the reply is known.
@@ -223,13 +238,12 @@ export async function scoreTrustDelta(
   currentTrust?: number
 ): Promise<number> {
   const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!
-  const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   try {
     const resp = await fetch(`${SUPABASE_URL}/functions/v1/lore-chat`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'Authorization': await loreChatAuth(),
       },
       body: JSON.stringify({
         mode: 'trust_score',
@@ -261,7 +275,6 @@ export async function getReplySuggestions(
   ctx?: { meters?: Meters; trustWithChar?: number; teamTrust?: number; nextSituation?: string; choicesMade?: number; playerGender?: 'male' | 'female' }
 ): Promise<string[]> {
   const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!
-  const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
   const msgs = history
     .filter((_, i) => !(i === 0 && history[0].role === 'char'))
@@ -277,7 +290,7 @@ export async function getReplySuggestions(
       signal: ctrl.signal,
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'Authorization': await loreChatAuth(),
       },
       body: JSON.stringify({
         mode: 'suggest_replies',
@@ -311,7 +324,6 @@ export async function getAIReply(
   gameState?: { char: string | null; meters: Meters; choices: string[]; situation: number; world?: string; flags?: GameFlags; story?: string; trustWithChar?: number; trustBand?: 'low' | 'normal' | 'high'; trustGuidance?: string; teamTrust?: number; playerGender?: 'male' | 'female' }
 ): Promise<string> {
   const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!
-  const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
   const msgs = history
     .filter((_, i) => !(i === 0 && history[0].role === 'char'))
@@ -327,7 +339,7 @@ export async function getAIReply(
       signal: ctrl.signal,
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'Authorization': await loreChatAuth(),
       },
       body: JSON.stringify({
         character_id: charId,

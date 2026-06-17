@@ -2,9 +2,41 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createHash } from 'crypto'
 import { access, mkdir, readFile, writeFile } from 'fs/promises'
 import { join } from 'path'
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
 import { VOICE_ID, MODEL_ID, VOICE_SETTINGS, cacheKeyInput } from '@/lib/voice'
 
 const AUDIO_DIR = join(process.cwd(), 'public', 'audio')
+
+// Require a valid Supabase session (read from the cookie the app sets) so this
+// paid ElevenLabs endpoint can't be called anonymously. Returns the user or null.
+async function getSessionUser() {
+  try {
+    const cookieStore = await cookies()
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      { cookies: { getAll: () => cookieStore.getAll(), setAll: () => {} } },
+    )
+    const { data: { user } } = await supabase.auth.getUser()
+    return user
+  } catch {
+    return null
+  }
+}
+
+// Best-effort per-user rate limit (in-memory; resets per instance / on cold start).
+// Caps rapid abuse of the paid TTS API. Durable limiting would need Vercel KV/Upstash.
+const RATE_MAX = 30
+const RATE_WINDOW_MS = 60_000
+const rateHits = new Map<string, number[]>()
+function rateLimited(key: string): boolean {
+  const now = Date.now()
+  const recent = (rateHits.get(key) ?? []).filter(t => now - t < RATE_WINDOW_MS)
+  recent.push(now)
+  rateHits.set(key, recent)
+  return recent.length > RATE_MAX
+}
 
 const hashText = (text: string) =>
   createHash('sha256').update(cacheKeyInput(text)).digest('hex').slice(0, 16)
@@ -26,6 +58,15 @@ async function fetchFromElevenLabs(text: string, apiKey: string): Promise<Buffer
 }
 
 export async function POST(req: NextRequest) {
+  // Auth: only logged-in (incl. anonymous) app sessions may call this paid route.
+  const user = await getSessionUser()
+  if (!user) {
+    return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+  }
+  if (rateLimited(user.id)) {
+    return NextResponse.json({ error: 'rate limited' }, { status: 429 })
+  }
+
   let text: string
   try {
     const body = await req.json()

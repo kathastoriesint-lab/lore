@@ -4,12 +4,23 @@
 // Secret: supabase secrets set OPENAI_API_KEY=sk-proj-...
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const CORS = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-};
+// CORS — restrict to the app's own origins. Browsers enforce this, so it stops
+// other websites from calling this paid endpoint from a visitor's browser.
+// (Direct scripts ignore CORS — the JWT check in the handler is what stops those.)
+const ALLOWED_ORIGINS = [
+  "https://lore-next-ashy.vercel.app",
+];
+function corsFor(origin: string): Record<string, string> {
+  const ok = ALLOWED_ORIGINS.includes(origin) || /^http:\/\/localhost(:\d+)?$/.test(origin);
+  return {
+    "Access-Control-Allow-Origin": ok ? origin : ALLOWED_ORIGINS[0],
+    "Access-Control-Allow-Headers": "authorization, x-client-info, content-type",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Vary": "Origin",
+  };
+}
 
 // Character system prompts — Creator House + Indian Dressing Room
 // Keep in sync with world bibles in docs/
@@ -304,8 +315,27 @@ Keep responses under 45 words. Earnest. In-character always.`,
 };
 
 serve(async (req) => {
+  const cors = corsFor(req.headers.get("Origin") ?? "");
+
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: CORS });
+    return new Response(null, { headers: cors });
+  }
+
+  // ── Auth: require a valid Supabase user (anonymous sessions count) ──────────
+  // Blocks keyless/anonymous abuse of this paid OpenAI endpoint. The app sends
+  // the player's session access_token (lib/game.ts → loreChatAuth). Deployed with
+  // --no-verify-jwt so the gateway forwards every request; we verify here.
+  {
+    const jwt = (req.headers.get("Authorization") ?? "").replace(/^Bearer\s+/i, "");
+    const SB_URL = Deno.env.get("SUPABASE_URL");
+    const SB_ANON = Deno.env.get("SUPABASE_ANON_KEY");
+    if (!jwt || !SB_URL || !SB_ANON) {
+      return new Response(JSON.stringify({ error: "unauthorized" }), { status: 401, headers: { ...cors, "Content-Type": "application/json" } });
+    }
+    const { data: { user }, error: authErr } = await createClient(SB_URL, SB_ANON).auth.getUser(jwt);
+    if (authErr || !user) {
+      return new Response(JSON.stringify({ error: "unauthorized" }), { status: 401, headers: { ...cors, "Content-Type": "application/json" } });
+    }
   }
 
   try {
@@ -332,7 +362,7 @@ serve(async (req) => {
     if (!OPENAI_KEY) {
       return new Response(
         JSON.stringify({ error: "OPENAI_API_KEY not configured" }),
-        { status: 500, headers: { ...CORS, "Content-Type": "application/json" } }
+        { status: 500, headers: { ...cors, "Content-Type": "application/json" } }
       );
     }
 
@@ -374,15 +404,15 @@ Character: ${character_name}. Current trust: ${current_trust ?? "unknown"}/100. 
         }),
       });
 
-      if (!trustResp.ok) return new Response(JSON.stringify({ delta: 0 }), { headers: { ...CORS, "Content-Type": "application/json" } });
+      if (!trustResp.ok) return new Response(JSON.stringify({ delta: 0 }), { headers: { ...cors, "Content-Type": "application/json" } });
       const trustJson = await trustResp.json();
       const raw = trustJson.choices?.[0]?.message?.content?.trim() ?? '{"delta":0}';
       try {
         const parsed = JSON.parse(raw);
         const delta = Math.max(-12, Math.min(12, Number(parsed.delta) || 0));
-        return new Response(JSON.stringify({ delta }), { headers: { ...CORS, "Content-Type": "application/json" } });
+        return new Response(JSON.stringify({ delta }), { headers: { ...cors, "Content-Type": "application/json" } });
       } catch {
-        return new Response(JSON.stringify({ delta: 0 }), { headers: { ...CORS, "Content-Type": "application/json" } });
+        return new Response(JSON.stringify({ delta: 0 }), { headers: { ...cors, "Content-Type": "application/json" } });
       }
     }
 
@@ -478,16 +508,16 @@ STYLE:
         }),
       });
 
-      if (!sugResp.ok) return new Response(JSON.stringify({ suggestions: [] }), { headers: { ...CORS, "Content-Type": "application/json" } });
+      if (!sugResp.ok) return new Response(JSON.stringify({ suggestions: [] }), { headers: { ...cors, "Content-Type": "application/json" } });
       const sugJson = await sugResp.json();
       const raw = sugJson.choices?.[0]?.message?.content?.trim() ?? "[]";
       try {
         const cleaned = raw.replace(/^```(?:json)?\s*/, "").replace(/\s*```$/, "");
         const parsed = JSON.parse(cleaned);
         const suggestions = Array.isArray(parsed) ? parsed.filter((s) => typeof s === "string").slice(0, 1) : [];
-        return new Response(JSON.stringify({ suggestions }), { headers: { ...CORS, "Content-Type": "application/json" } });
+        return new Response(JSON.stringify({ suggestions }), { headers: { ...cors, "Content-Type": "application/json" } });
       } catch {
-        return new Response(JSON.stringify({ suggestions: [] }), { headers: { ...CORS, "Content-Type": "application/json" } });
+        return new Response(JSON.stringify({ suggestions: [] }), { headers: { ...cors, "Content-Type": "application/json" } });
       }
     }
 
@@ -496,7 +526,7 @@ STYLE:
     if (!systemPrompt) {
       return new Response(
         JSON.stringify({ error: `Unknown character: ${character_id}` }),
-        { status: 400, headers: { ...CORS, "Content-Type": "application/json" } }
+        { status: 400, headers: { ...cors, "Content-Type": "application/json" } }
       );
     }
 
@@ -650,13 +680,13 @@ Never dump your whole self at once. Let it come out naturally, a little at a tim
       const err = await openaiResp.text();
       return new Response(
         JSON.stringify({ error: `OpenAI error: ${err}` }),
-        { status: 502, headers: { ...CORS, "Content-Type": "application/json" } }
+        { status: 502, headers: { ...cors, "Content-Type": "application/json" } }
       );
     }
 
     return new Response(openaiResp.body, {
       headers: {
-        ...CORS,
+        ...cors,
         "Content-Type": "text/event-stream",
         "Cache-Control": "no-cache",
         "X-Accel-Buffering": "no",
@@ -665,7 +695,7 @@ Never dump your whole self at once. Let it come out naturally, a little at a tim
   } catch (e) {
     return new Response(
       JSON.stringify({ error: String(e) }),
-      { status: 500, headers: { ...CORS, "Content-Type": "application/json" } }
+      { status: 500, headers: { ...cors, "Content-Type": "application/json" } }
     );
   }
 });
