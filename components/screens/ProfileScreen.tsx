@@ -1,9 +1,7 @@
 'use client'
-import { useState, useEffect } from 'react'
 import { useApp } from '@/lib/context'
 import PlayerAvatar from '@/components/PlayerAvatar'
 import { fameToFollowers } from '@/lib/game'
-import { getAuthInfo, signOutToGuest, type AuthInfo } from '@/lib/auth'
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 function fmtFollowers(fame: number): string {
@@ -68,8 +66,6 @@ function Row({
 // ── Screen ────────────────────────────────────────────────────────────────────
 export default function ProfileScreen() {
   const { game, navigate, goBack, resetGame } = useApp()
-  const [auth, setAuth] = useState<AuthInfo | null>(null)
-  useEffect(() => { getAuthInfo().then(setAuth) }, [])
 
   const isCricket   = game.world === 'cricket'
   const isCreator   = game.world === 'creator-house'
@@ -253,21 +249,6 @@ export default function ProfileScreen() {
           }
           label="Terms of Service"
           onClick={() => {}}
-        />
-
-        {/* account · phone login (preserves guest progress) */}
-        <Row
-          icon={
-            <svg viewBox="0 0 24 24" width="17" height="17" fill="none"
-              stroke="rgba(255,255,255,.55)" strokeWidth="1.8" strokeLinecap="round">
-              <path d="M5 4h4l2 5-3 2a12 12 0 0 0 5 5l2-3 5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z" />
-            </svg>
-          }
-          label={auth?.phone ? auth.phone : 'Save progress'}
-          sublabel={auth?.phone ? 'Signed in — tap to sign out' : 'Sign in with your phone number'}
-          onClick={auth?.phone
-            ? () => { signOutToGuest().then(() => { if (typeof window !== 'undefined') window.location.reload() }) }
-            : () => navigate('login')}
         />
 
         {/* danger */}
