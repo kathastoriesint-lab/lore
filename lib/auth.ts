@@ -1,16 +1,12 @@
 'use client'
-// Phone-number login on Supabase Auth.
+// Phone-number login via the MSG91 OTP Widget, bridged to a Supabase session.
 //
-// Flow (preserves guest progress):
-//  - New player: they're already in an anonymous session, so we ATTACH the phone
-//    to that user (updateUser → 'phone_change' OTP). Same user_id ⇒ their cricket
-//    progress carries over.
-//  - Returning player: the phone already belongs to an account, so we sign INTO
-//    it (signInWithOtp → 'sms' OTP). The throwaway anon session is abandoned.
-// The send step reports which path it took so verify uses the matching OTP type.
-import { getClient } from './game'
-
-export type OtpMode = 'link' | 'signin'
+// The MSG91 widget (see LoginScreen) sends + verifies the OTP on the client and
+// hands back a JWT. We pass that JWT to the msg91-auth edge function, which
+// verifies it with MSG91, links the phone to the current guest (preserving
+// progress) or signs into the existing account, and returns a real Supabase
+// session that we adopt here. Downstream there's ONE identity: the Supabase user.
+import { getClient, ensureSession } from './game'
 
 export interface AuthInfo {
   isAuthed: boolean
@@ -31,35 +27,32 @@ export async function getAuthInfo(): Promise<AuthInfo> {
   }
 }
 
-// phone must be E.164, e.g. "+919876543210".
-export async function sendPhoneOtp(phone: string): Promise<{ mode: OtpMode } | { error: string }> {
-  const sb = getClient()
+// Exchange the MSG91 widget's verified-OTP JWT for a real Supabase session.
+export async function completeMsg91Login(msg91Token: string): Promise<{ ok: true } | { error: string }> {
   try {
-    const { data: { user } } = await sb.auth.getUser()
-    if (user?.is_anonymous) {
-      // Try to link the phone to this guest (keeps their progress).
-      const { error } = await sb.auth.updateUser({ phone })
-      if (!error) return { mode: 'link' }
-      // Phone already in use / not linkable → fall through to sign-in.
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL!
+    const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    // Send the current guest session so the bridge can link its progress to the phone.
+    const session = await ensureSession()
+    const res = await fetch(`${url}/functions/v1/msg91-auth`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session?.access_token ?? anon}`,
+      },
+      body: JSON.stringify({ msg91Token }),
+    })
+    if (!res.ok) {
+      const e = await res.json().catch(() => ({}))
+      return { error: friendly(e?.error ?? 'login failed') }
     }
-    const { error } = await sb.auth.signInWithOtp({ phone })
-    if (error) return { error: friendly(error.message) }
-    return { mode: 'signin' }
-  } catch (e) {
-    return { error: friendly(e instanceof Error ? e.message : 'unknown') }
-  }
-}
-
-export async function verifyPhoneOtp(
-  phone: string, token: string, mode: OtpMode,
-): Promise<{ ok: true } | { error: string }> {
-  try {
-    const type = mode === 'link' ? 'phone_change' : 'sms'
-    const { error } = await getClient().auth.verifyOtp({ phone, token, type })
+    const { access_token, refresh_token } = await res.json()
+    if (!access_token || !refresh_token) return { error: 'login failed' }
+    const { error } = await getClient().auth.setSession({ access_token, refresh_token })
     if (error) return { error: friendly(error.message) }
     return { ok: true }
   } catch (e) {
-    return { error: friendly(e instanceof Error ? e.message : 'unknown') }
+    return { error: friendly(e instanceof Error ? e.message : 'login failed') }
   }
 }
 
@@ -69,10 +62,8 @@ export async function signOutToGuest(): Promise<void> {
 }
 
 function friendly(m: string): string {
-  if (/already.*registered|already.*in use/i.test(m)) return 'That number is already linked to an account.'
+  if (/not verified|otp/i.test(m)) return 'Couldn’t verify that code — try again.'
   if (/rate|limit|too many|429/i.test(m)) return 'Too many attempts — wait a minute and try again.'
-  if (/otp|token|expired|invalid/i.test(m)) return 'That code didn’t work — re-check it or resend.'
-  if (/sms|provider|twilio|messaging/i.test(m)) return 'Couldn’t send the code right now. Try again shortly.'
-  if (/phone/i.test(m)) return 'Please enter a valid phone number with country code.'
+  if (/phone/i.test(m)) return 'Please enter a valid phone number.'
   return m
 }

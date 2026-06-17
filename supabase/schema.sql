@@ -84,6 +84,13 @@ create trigger game_state_updated_at
   before update on public.game_state
   for each row execute function public.set_updated_at();
 
+-- Look up a Supabase user id by phone (used by the msg91-auth bridge edge fn to
+-- find a returning user). auth.users stores phone WITHOUT the leading '+'.
+create or replace function public.get_user_id_by_phone(phone_number text)
+returns uuid language sql security definer set search_path = '' as $$
+  select id from auth.users where phone = phone_number limit 1;
+$$;
+
 -- Durable per-user rate limit for the paid AI/TTS endpoints (lore-chat, narrate).
 -- One row per (user, endpoint); a fixed window that resets once it expires.
 create table if not exists public.ai_usage (

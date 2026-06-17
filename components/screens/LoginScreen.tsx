@@ -1,40 +1,110 @@
 'use client'
-import { useState, type CSSProperties } from 'react'
+import { useState, useEffect, useRef, type CSSProperties } from 'react'
 import { useApp } from '@/lib/context'
-import { sendPhoneOtp, verifyPhoneOtp, type OtpMode } from '@/lib/auth'
+import { completeMsg91Login } from '@/lib/auth'
 
-// Phone-number login. Keeps the player's guest progress by linking the phone to
-// their existing anonymous session (see lib/auth.ts). On success we full-reload
-// so the app re-boots as the now-permanent user.
+// Phone login via the MSG91 OTP Widget. The widget sends + verifies the OTP and
+// returns a JWT; completeMsg91Login() exchanges it for a Supabase session (which
+// links the guest's progress). On success we full-reload as the signed-in user.
+
+declare global {
+  interface Window {
+    initSendOTP?: (config: Record<string, unknown>) => void
+    sendOtp?: (identifier: string, success: (d: unknown) => void, failure: (e: unknown) => void) => void
+    verifyOtp?: (otp: string, success: (d: unknown) => void, failure: (e: unknown) => void) => void
+    retryOtp?: (channel: string | null, success: (d: unknown) => void, failure: (e: unknown) => void) => void
+  }
+}
+
+// MSG91 widget id + client token are PUBLIC by design (embedded in the browser
+// widget). Committed as defaults so the deployed app works without extra env;
+// override via env if they ever change. (The server authkey is NOT here — it's
+// a Supabase edge-fn secret used only by msg91-auth.)
+const WIDGET_ID = process.env.NEXT_PUBLIC_MSG91_WIDGET_ID || '366671733063373330303731'
+const TOKEN_AUTH = process.env.NEXT_PUBLIC_MSG91_TOKEN_AUTH || '533925TdinOE5GXgE6a32ef1cP1'
+
+function loadWidget(): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (typeof window === 'undefined') return reject(new Error('no window'))
+    if (window.initSendOTP) return resolve()
+    const urls = ['https://verify.msg91.com/otp-provider.js', 'https://verify.phone91.com/otp-provider.js']
+    let i = 0
+    const attempt = () => {
+      const s = document.createElement('script')
+      s.src = urls[i]; s.async = true
+      s.onload = () => resolve()
+      s.onerror = () => { i++; i < urls.length ? attempt() : reject(new Error('script load failed')) }
+      document.head.appendChild(s)
+    }
+    attempt()
+  })
+}
+
+// The widget returns the verified JWT in various shapes; normalise it.
+function extractToken(d: unknown): string {
+  if (typeof d === 'string') return d
+  const o = (d ?? {}) as Record<string, unknown>
+  return String(o.message ?? o.access_token ?? o['access-token'] ?? o.accessToken ?? '')
+}
+
 export default function LoginScreen() {
   const { navigate, goBack } = useApp()
   const [step, setStep] = useState<'phone' | 'otp'>('phone')
   const [cc, setCc] = useState('+91')
   const [num, setNum] = useState('')
   const [code, setCode] = useState('')
-  const [mode, setMode] = useState<OtpMode>('link')
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
+  const ready = useRef(false)
+
+  useEffect(() => {
+    let alive = true
+    if (!WIDGET_ID || !TOKEN_AUTH) { setErr('Login isn’t configured yet.'); return }
+    loadWidget()
+      .then(() => {
+        if (!alive) return
+        window.initSendOTP?.({ widgetId: WIDGET_ID, tokenAuth: TOKEN_AUTH, exposeMethods: true, success: () => {}, failure: () => {} })
+        ready.current = true
+      })
+      .catch(() => { if (alive) setErr('Couldn’t load the verification widget — check your connection.') })
+    return () => { alive = false }
+  }, [])
 
   const phone = `${cc}${num.replace(/\D/g, '')}`
   const phoneValid = /^\+\d{8,15}$/.test(phone)
 
-  async function send() {
+  function send() {
     if (!phoneValid || busy) return
+    if (!ready.current || !window.sendOtp) { setErr('Still loading — try again in a second.'); return }
     setBusy(true); setErr(null)
-    const r = await sendPhoneOtp(phone)
-    setBusy(false)
-    if ('error' in r) { setErr(r.error); return }
-    setMode(r.mode); setStep('otp'); setCode('')
+    window.sendOtp(
+      phone.replace('+', ''),
+      () => { setBusy(false); setStep('otp'); setCode('') },
+      (e) => { setBusy(false); setErr(typeof e === 'string' ? e : 'Couldn’t send the code. Try again.') },
+    )
   }
 
-  async function verify() {
+  function verify() {
     if (code.length < 4 || busy) return
+    if (!window.verifyOtp) { setErr('Verification not ready — resend the code.'); return }
     setBusy(true); setErr(null)
-    const r = await verifyPhoneOtp(phone, code.trim(), mode)
-    if ('error' in r) { setBusy(false); setErr(r.error); return }
-    // Re-boot as the signed-in user (loads their save; merges/keeps progress).
-    if (typeof window !== 'undefined') window.location.reload()
+    window.verifyOtp(
+      code.trim(),
+      async (d) => {
+        const token = extractToken(d)
+        if (!token) { setBusy(false); setErr('Verification failed — try again.'); return }
+        const r = await completeMsg91Login(token)
+        if ('error' in r) { setBusy(false); setErr(r.error); return }
+        if (typeof window !== 'undefined') window.location.reload()
+      },
+      (e) => { setBusy(false); setErr(typeof e === 'string' ? e : 'That code didn’t work — re-check or resend.') },
+    )
+  }
+
+  function resend() {
+    if (!window.retryOtp || busy) return
+    setErr(null)
+    window.retryOtp(null, () => {}, (e) => setErr(typeof e === 'string' ? e : 'Couldn’t resend.'))
   }
 
   const input: CSSProperties = {
@@ -90,7 +160,7 @@ export default function LoginScreen() {
             </button>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 14 }}>
               <button onClick={() => { setStep('phone'); setErr(null) }} style={{ background: 'none', border: 'none', color: 'var(--ink3)', fontSize: 13, cursor: 'pointer' }}>Change number</button>
-              <button onClick={send} disabled={busy} style={{ background: 'none', border: 'none', color: 'var(--fame)', fontSize: 13, cursor: 'pointer' }}>Resend code</button>
+              <button onClick={resend} disabled={busy} style={{ background: 'none', border: 'none', color: 'var(--fame)', fontSize: 13, cursor: 'pointer' }}>Resend code</button>
             </div>
           </>
         )}
