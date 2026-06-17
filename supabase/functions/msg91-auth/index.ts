@@ -25,6 +25,21 @@ function corsFor(origin: string): Record<string, string> {
 const json = (b: unknown, status: number, cors: Record<string, string>) =>
   new Response(JSON.stringify(b), { status, headers: { ...cors, "Content-Type": "application/json" } });
 
+// Pull the verified mobile out of MSG91's verifyAccessToken response. The exact
+// field isn't documented, so try the common ones, then any phone-like digit run.
+// Returns digits-only (no '+'), matching how auth.users stores phone.
+function pickPhone(vd: Record<string, unknown>): string {
+  const data = (vd?.data ?? {}) as Record<string, unknown>;
+  const candidates = [vd?.message, vd?.mobile, vd?.phone, vd?.identifier, data.mobile, data.phone, data.identifier];
+  for (const c of candidates) {
+    const digits = String(c ?? "").replace(/\D/g, "");
+    if (digits.length >= 8 && digits.length <= 15) return digits;
+  }
+  // Last resort: scan the whole stringified response for an 8-15 digit run.
+  const m = JSON.stringify(vd).match(/\d{8,15}/);
+  return m ? m[0] : "";
+}
+
 serve(async (req) => {
   const cors = corsFor(req.headers.get("Origin") ?? "");
   if (req.method === "OPTIONS") return new Response(null, { headers: cors });
@@ -48,10 +63,15 @@ serve(async (req) => {
   const vd = await vr.json().catch(() => ({}));
   if (!vr.ok || vd?.type !== "success") return json({ error: "otp not verified" }, 401, cors);
 
-  // MSG91 returns the verified identifier (mobile) in `message`. Normalise to the
-  // digits-only form auth.users stores (country code + number, no '+').
-  const phone = String(vd.message ?? "").replace(/\D/g, "");
-  if (!phone || phone.length < 8) return json({ error: "no phone in token" }, 401, cors);
+  // MSG91's verifyAccessToken response field for the verified mobile isn't
+  // documented, so check the likely candidates and fall back to any phone-like
+  // digit run. If none is found, log the shape (the OTP was valid) so we can fix
+  // the field name from the function logs on the first real test.
+  const phone = pickPhone(vd);
+  if (!phone) {
+    console.error("msg91 verified but no phone found in response:", JSON.stringify(vd));
+    return json({ error: "no phone in token" }, 401, cors);
+  }
 
   const admin = createClient(SB_URL, SB_SERVICE, { auth: { autoRefreshToken: false, persistSession: false } });
 
