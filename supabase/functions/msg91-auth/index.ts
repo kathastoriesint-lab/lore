@@ -9,7 +9,8 @@
 // Deploy:  supabase functions deploy msg91-auth --no-verify-jwt
 // Secret:  supabase secrets set MSG91_AUTH_KEY=...
 // (SUPABASE_URL / SUPABASE_ANON_KEY / SUPABASE_SERVICE_ROLE_KEY are auto-injected.)
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+// Use the native Deno.serve global (no deno.land/std import) — one fewer remote
+// fetch at bundle time, and the pattern Supabase Edge Functions now recommend.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const ALLOWED_ORIGINS = ["https://lore-next-wine.vercel.app", "https://lore-next-ashy.vercel.app"];
@@ -40,7 +41,7 @@ function pickPhone(vd: Record<string, unknown>): string {
   return m ? m[0] : "";
 }
 
-serve(async (req) => {
+Deno.serve(async (req) => {
   const cors = corsFor(req.headers.get("Origin") ?? "");
   if (req.method === "OPTIONS") return new Response(null, { headers: cors });
 
