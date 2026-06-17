@@ -84,8 +84,40 @@ create trigger game_state_updated_at
   before update on public.game_state
   for each row execute function public.set_updated_at();
 
--- Phone auth: look up a Supabase user by phone number (used by /api/auth/exchange)
-create or replace function public.get_user_id_by_phone(phone_number text)
-returns uuid language sql security definer as $$
-  select id from auth.users where phone = phone_number limit 1;
-$$;
+-- Durable per-user rate limit for the paid AI/TTS endpoints (lore-chat, narrate).
+-- One row per (user, endpoint); a fixed window that resets once it expires.
+create table if not exists public.ai_usage (
+  user_id      uuid not null references auth.users on delete cascade,
+  endpoint     text not null,
+  window_start timestamptz not null default now(),
+  count        int not null default 0,
+  primary key (user_id, endpoint)
+);
+alter table public.ai_usage enable row level security;
+-- No RLS policies → no direct client access. Only the SECURITY DEFINER function below touches it.
+
+-- Atomically count this call against the caller's window. Returns true if allowed,
+-- false if the window cap is exceeded. Uses auth.uid() so the user can't be spoofed.
+create or replace function public.consume_ai_quota(
+  p_endpoint text, p_max int, p_window_secs int
+) returns boolean
+language plpgsql security definer set search_path = public as $$
+declare
+  v_user uuid := auth.uid();
+  v_count int;
+begin
+  if v_user is null then return false; end if;
+  insert into public.ai_usage (user_id, endpoint, window_start, count)
+    values (v_user, p_endpoint, now(), 1)
+  on conflict (user_id, endpoint) do update set
+    window_start = case
+      when public.ai_usage.window_start < now() - make_interval(secs => p_window_secs)
+        then now() else public.ai_usage.window_start end,
+    count = case
+      when public.ai_usage.window_start < now() - make_interval(secs => p_window_secs)
+        then 1 else public.ai_usage.count + 1 end
+  returning count into v_count;
+  return v_count <= p_max;
+end; $$;
+
+grant execute on function public.consume_ai_quota(text, int, int) to anon, authenticated;

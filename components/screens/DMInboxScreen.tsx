@@ -2,7 +2,7 @@
 import { useApp } from '@/lib/context'
 import type { CharId } from '@/lib/types'
 import { CHARS, DM_ORDER } from '@/lib/data'
-import { CRICKET_CHARS } from '@/lib/cricket-data'
+import { getCricketChars } from '@/lib/content'
 import GoalCard from '@/components/GoalCard'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -53,7 +53,7 @@ function setOpened(userId: string, charId: string) {
 export default function DMInboxScreen() {
   const { goBack, navigate, showToast, openDMThread, dmHistory, dmLastUpdated, game } = useApp()
   const isCricket = game.world === 'cricket'
-  const allChars = { ...CHARS, ...CRICKET_CHARS }
+  const allChars = { ...CHARS, ...getCricketChars() }
   const [userId, setUserId] = useState('anon')
   const [openedMap, setOpenedMap] = useState<Record<string, number>>({})
 

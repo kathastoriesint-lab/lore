@@ -1,6 +1,6 @@
 'use client'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import type { CharId, DMMessage, GameState, Screen } from '@/lib/types'
+import type { CharId, DMMessage, GameState, Screen, Situation } from '@/lib/types'
 import { AppContext, ImpactNotif, RelationshipAlert } from '@/lib/context'
 import {
   applyDeltas, applyFlagDeltas, charMeters, ensureSession, getAIReply, scoreTrustDelta,
@@ -8,7 +8,7 @@ import {
   fameToFollowers, DEFAULT_FLAGS, buildCricketQueue, buildCHQueue,
 } from '@/lib/game'
 import { CHARS, SITUATIONS, DM_MOCK, DM_HOOKS, DM_ORDER, DM_TRUST, getVisibleSituations } from '@/lib/data'
-import { CRICKET_CHARS, CRICKET_DM_TRUST_START, CRICKET_LOW_TRUST_FEED, CRICKET_SITUATIONS } from '@/lib/cricket-data'
+import { getCricketChars, getCricketDMTrustStart, getCricketSituations, initContent } from '@/lib/content'
 import WorldsScreen from '@/components/screens/WorldsScreen'
 import WorldIntroScreen from '@/components/screens/WorldIntroScreen'
 import FeedScreen from '@/components/screens/FeedScreen'
@@ -56,7 +56,7 @@ const trustGuidanceFor = (trust: number, teamTrust?: number) => {
 }
 
 const defaultDmTrustFor = (world: GameState['world'], charId: CharId) => (
-  world === 'cricket' ? (CRICKET_DM_TRUST_START[charId] ?? 50) : (DM_TRUST[charId] ?? 50)
+  world === 'cricket' ? (getCricketDMTrustStart()[charId] ?? 50) : (DM_TRUST[charId] ?? 50)
 )
 
 // First-contact opener DMs for the dressing room. Seniors greet a 16-year-old
@@ -143,6 +143,7 @@ export default function App() {
   }, [])
 
   useEffect(() => {
+    initContent().catch(() => {}) // background content refresh; bundled content renders meanwhile
     if (typeof window !== 'undefined' && new URLSearchParams(location.search).has('reset')) {
       resetGameState().finally(() => {
         window.history.replaceState(null, '', location.pathname)
@@ -288,7 +289,7 @@ export default function App() {
         flags: DEFAULT_FLAGS, runMemory: {},
         narrator_done: true, dayUnlockTime: {},
       }
-      setDmTrust({ ...CRICKET_DM_TRUST_START })
+      setDmTrust({ ...getCricketDMTrustStart() })
       setRelationshipAlerts([])
       saveAndSet(cricketState)
       analytics.track('world_entered', 'cricket', { world_id: 'cricket' })
@@ -333,7 +334,7 @@ export default function App() {
       flags: DEFAULT_FLAGS, runMemory: {},
       narrator_done: true, dayUnlockTime: {},
     }
-    setDmTrust({ ...CRICKET_DM_TRUST_START })
+    setDmTrust({ ...getCricketDMTrustStart() })
     setRelationshipAlerts([])
     saveAndSet(newState)
     analytics.track('world_entered', 'cricket', { world_id: 'cricket' })
@@ -359,7 +360,7 @@ export default function App() {
     })
   }, [game.world, queueLowTrustAlert])
 
-  const applyChoiceRelationshipEffects = useCallback((sit: { react?: { char: CharId } | null }, ch: NonNullable<typeof CRICKET_SITUATIONS[number]['choices'][number]>, previousMeters: GameState['meters'], nextMeters: GameState['meters']) => {
+  const applyChoiceRelationshipEffects = useCallback((sit: { react?: { char: CharId } | null }, ch: NonNullable<Situation['choices'][number]>, previousMeters: GameState['meters'], nextMeters: GameState['meters']) => {
     if (game.world !== 'cricket') return
     const deltas: Partial<Record<CharId, number>> = {}
     const add = (id: CharId, delta: number) => {
@@ -412,7 +413,7 @@ export default function App() {
 
       // Day gate: look up next situation by ID
       const sitMap = prev.world === 'cricket'
-        ? Object.fromEntries(CRICKET_SITUATIONS.map(s => [s.id, s]))
+        ? Object.fromEntries(getCricketSituations().map(s => [s.id, s]))
         : Object.fromEntries(getVisibleSituations(prev.meters, prev.choices).map(s => [s.id, s]))
       const currentSit = sitMap[queue[prev.situation]]
       const nextSit    = sitMap[queue[nextIdx]]
@@ -566,7 +567,7 @@ export default function App() {
     // Look up current situation by ID from the queue (world-aware, index-shift-safe)
     const currentId = game.situationQueue[game.situation]
     const sitMap = game.world === 'cricket'
-      ? Object.fromEntries(CRICKET_SITUATIONS.map(s => [s.id, s]))
+      ? Object.fromEntries(getCricketSituations().map(s => [s.id, s]))
       : Object.fromEntries(getVisibleSituations(game.meters, game.choices).map(s => [s.id, s]))
     const sit = sitMap[currentId]
     const ch = sit?.choices?.[idx]
@@ -637,7 +638,7 @@ export default function App() {
   // Build a brief narrative summary of the player's journey so far
   const buildStorySummary = useCallback(() => {
     if (game.world !== 'cricket' || game.choices.length === 0) return null
-    const sitMap = Object.fromEntries(CRICKET_SITUATIONS.map(s => [s.id, s]))
+    const sitMap = Object.fromEntries(getCricketSituations().map(s => [s.id, s]))
     const lines: string[] = []
     const queue = game.situationQueue
     game.choices.forEach((letter, idx) => {
@@ -754,7 +755,7 @@ export default function App() {
     const newFame = Math.min(100, currentFameMeter + Math.ceil(fameDelta / 3))
     setCharFame(prev => ({ ...prev, [charId]: Math.min(100, (prev[charId] ?? 50) + fameDelta) }))
     saveAndSet({ ...game, meters: { ...game.meters, [fameSlot]: newFame } })
-    const allChars = game.world === 'cricket' ? { ...CHARS, ...CRICKET_CHARS } : CHARS
+    const allChars = game.world === 'cricket' ? { ...CHARS, ...getCricketChars() } : CHARS
     const charName = allChars[charId]?.name
     const tasksTotal = game.situationQueue.length || (game.world === 'cricket' ? buildCricketQueue().length : SITUATIONS.length)
     showImpact({

@@ -4,18 +4,18 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "tsx scripts/publish-content.ts",
     "build": "next build",
     "start": "next start",
     "test": "vitest run",
     "test:watch": "vitest",
+    "publish:content": "tsx scripts/publish-content.ts",
     "simulate:outcomes": "node scripts/simulate-outcomes.mjs --write"
   },
   "dependencies": {
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.49.0",
-    "jose": "^6.2.3",
     "next": "^16.2.6",
-    "openai": "^6.42.0",
     "react": "19.0.0",
     "react-dom": "19.0.0"
   },
@@ -27,6 +27,7 @@
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^6.0.2",
     "jsdom": "^29.1.1",
+    "tsx": "^4.19.2",
     "typescript": "^5",
     "vitest": "^4.1.8"
   }

@@ -3,7 +3,8 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useApp } from '@/lib/context'
 import type { CharId, Choice, ChoicePost, Meters } from '@/lib/types'
 import { CHARS, SITUATIONS, getVisibleSituations } from '@/lib/data'
-import { CRICKET_CHARS, CRICKET_SITUATIONS, CRICKET_ENDING_DATA, resolveCricketEnding, CRICKET_DM_TRUST_START } from '@/lib/cricket-data'
+import { getCricketChars, getCricketSituations, getCricketEndingData, getCricketDMTrustStart } from '@/lib/content'
+import { resolveCricketEnding } from '@/lib/cricket-rules'
 import { getWeek, weekForSituationId, SEASON_WEEKS } from '@/lib/season'
 import { getStats, clamp, resolveEnding, resolveTokens } from '@/lib/game'
 import { sentimentDelta } from '@/lib/relationships'
@@ -94,7 +95,7 @@ export default function LiveScreen() {
   // (Removed the first-visit coach-mark tab tour — the bottom nav is already
   // labeled (Feed/Messages/Live/Profile) and the choices are obviously tappable.
   // Instructions on a self-evident screen add clutter; simpler without them.)
-  const allChars = isCricket ? { ...CHARS, ...CRICKET_CHARS } : CHARS
+  const allChars = isCricket ? { ...CHARS, ...getCricketChars() } : CHARS
   // 'player' is the cricket sentinel — the user plays as themselves, not an NPC.
   // char is null in cricket; use a synthetic player object only where post-card needs it.
   const char = game.char && game.char !== 'player' ? allChars[game.char] : null
@@ -109,7 +110,7 @@ export default function LiveScreen() {
 
   // Build situation lookup map from the active world's list
   const allSituations = isCricket
-    ? Object.fromEntries(CRICKET_SITUATIONS.map(s => [s.id, s]))
+    ? Object.fromEntries(getCricketSituations().map(s => [s.id, s]))
     : Object.fromEntries(getVisibleSituations(game.meters, game.choices).map(s => [s.id, s]))
 
   // Resolve current and adjacent situations by ID from the queue
@@ -326,7 +327,7 @@ export default function LiveScreen() {
         ? getWeek(goalWeekNum).gate.find(g => g.kind === 'charTrust' && g.charId === anchorChar) as { threshold: number } | undefined
         : undefined
       const need = req?.threshold ?? 55
-      const cur = Math.round(dmTrust[anchorChar] ?? CRICKET_DM_TRUST_START[anchorChar] ?? 50)
+      const cur = Math.round(dmTrust[anchorChar] ?? getCricketDMTrustStart()[anchorChar] ?? 50)
       const seenKey = `lore_trust_nudge_${sit.id}`
       let seen = false; try { seen = !!localStorage.getItem(seenKey) } catch {}
       if (cur < need && !seen) {
@@ -351,7 +352,7 @@ export default function LiveScreen() {
     ? isCricket ? resolveCricketEnding(game.meters) : resolveEnding(game.meters)
     : null
   const finaleArc = endingKey
-    ? (isCricket ? CRICKET_ENDING_DATA[endingKey as keyof typeof CRICKET_ENDING_DATA] : FINALE_DATA[endingKey as keyof typeof FINALE_DATA])
+    ? (isCricket ? getCricketEndingData()[endingKey] : FINALE_DATA[endingKey as keyof typeof FINALE_DATA])
     : null
 
   // game.char === null means no world started yet; 'player' is the cricket sentinel (user plays as themselves)

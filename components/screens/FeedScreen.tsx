@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useApp } from '@/lib/context'
 import type { CharId, Choice, ChoicePost, Meters, Reaction } from '@/lib/types'
 import { CHARS, POST_COMMENTS, PostCommentOption, getVisibleSituations } from '@/lib/data'
-import { CRICKET_CHARS, CRICKET_SITUATIONS } from '@/lib/cricket-data'
+import { getCricketChars, getCricketSituations } from '@/lib/content'
 import { applyDeltas, resolveTokens } from '@/lib/game'
 import MeterHUD from '@/components/MeterHUD'
 import CHStatusCard from '@/components/CHStatusCard'
@@ -183,7 +183,7 @@ const CRICKET_COMMENTS: Record<string, PostCommentOption[]> = {
 }
 
 function CricketSeedFeed({ likedPosts, commentedPosts, onLike, onComment, commentOpen, onHandleComment, playingCharName, onViewChar }: CricketSeedProps) {
-  const cricketChars = { ...CHARS, ...CRICKET_CHARS }
+  const cricketChars = { ...CHARS, ...getCricketChars() }
 
   const seedPost = (id: string, charKey: string, bg: string, caption: string, fullCaption: string, likes: string, time: string, imageUrl?: string) => {
     const char = cricketChars[charKey]
@@ -445,7 +445,7 @@ export default function FeedScreen() {
   }, [navigate, enterLive])
 
 
-  const allChars = { ...CHARS, ...CRICKET_CHARS }
+  const allChars = { ...CHARS, ...getCricketChars() }
   const playingChar = game.char ? (allChars[game.char] ?? null) : null
   const worldLabel = isCricket ? 'Indian Dressing Room' : 'Creator House'
 
@@ -486,7 +486,7 @@ export default function FeedScreen() {
         }
       : game.char ? (allChars[game.char] ?? null) : null
     const cricketSitMap = isCricket
-      ? Object.fromEntries(CRICKET_SITUATIONS.map(s => [s.id, s]))
+      ? Object.fromEntries(getCricketSituations().map(s => [s.id, s]))
       : {}
 
     for (let i = 0; i < game.choices.length; i++) {
@@ -574,7 +574,7 @@ export default function FeedScreen() {
   }, [game.choices, game.char, isCricket])
 
   // Current visible situations (for Story Drop CTA only)
-  const visibleSits = isCricket ? CRICKET_SITUATIONS : getVisibleSituations(game.meters, game.choices)
+  const visibleSits = isCricket ? getCricketSituations() : getVisibleSituations(game.meters, game.choices)
   const nextSit = visibleSits[game.situation]
 
   const handleComment = useCallback((postKey: string, postId: string, opt: PostCommentOption) => {

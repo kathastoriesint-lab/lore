@@ -1,6 +1,7 @@
 'use client'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { audioHashBrowser } from '@/lib/voice'
+import { ensureSession } from '@/lib/game'
 
 type PlayState = 'loading' | 'playing' | 'paused' | 'idle' | 'blocked' | 'error'
 
@@ -41,9 +42,16 @@ export default function NarrationButton({ text, active, pauseSignal }: Props) {
         const hash = await audioHashBrowser(text)
         let res = await fetch(`/audio/${hash}.mp3`)
         if (!res.ok) {
-          res = await fetch('/api/narrate', {
+          // Send the session token (works from a bundled Capacitor origin where
+          // cookies don't carry) and an absolute API base when bundled.
+          const session = await ensureSession()
+          const apiBase = process.env.NEXT_PUBLIC_API_BASE || ''
+          res = await fetch(`${apiBase}/api/narrate`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+              'Content-Type': 'application/json',
+              ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+            },
             body: JSON.stringify({ text }),
           })
         }

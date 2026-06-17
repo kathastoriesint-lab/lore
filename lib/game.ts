@@ -2,7 +2,7 @@
 import { createClient } from './supabase'
 import type { CharId, GameState, GameFlags, RunMemory, Meters, DMMessage, Situation } from './types'
 import { CHARS, DM_HOOKS, DM_MOCK } from './data'
-import { CRICKET_DM_HOOKS } from './cricket-data'
+import { getCricketDMHooks, getCricketSituations } from './content'
 
 // Lazy init — avoids module-level instantiation during SSR/prerender
 let _supabase: ReturnType<typeof createClient> | null = null
@@ -28,9 +28,7 @@ export const CRICKET_STARTING_METERS = CRICKET_START_METERS
 
 // ── Situation queue builders ───────────────────────────────────────────────────
 export function buildCricketQueue(): string[] {
-  // Lazy import to avoid circular deps — cricket-data imports from types, not game
-  const { CRICKET_SITUATIONS } = require('./cricket-data')
-  return (CRICKET_SITUATIONS as Situation[]).filter(s => s.id !== 'CR-S28').map(s => s.id)
+  return getCricketSituations().filter(s => s.id !== 'CR-S28').map(s => s.id)
 }
 
 export function buildCHQueue(meters: Meters, choices: ('A'|'B')[]): string[] {
@@ -195,7 +193,7 @@ export async function loadDMs(charId: CharId): Promise<DMMessage[]> {
 
   if (!data || data.length === 0) {
     // First time — insert opening hook
-    const hook: DMMessage = { role: 'char', text: DM_HOOKS[charId] ?? CRICKET_DM_HOOKS[charId] ?? 'Hey! Kya chal raha hai?' }
+    const hook: DMMessage = { role: 'char', text: DM_HOOKS[charId] ?? getCricketDMHooks()[charId] ?? 'Hey! Kya chal raha hai?' }
     await saveDM(charId, hook)
     return [hook]
   }

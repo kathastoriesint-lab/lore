@@ -12,7 +12,7 @@
  */
 
 import { getVisibleSituations } from './data'
-import { CRICKET_SITUATIONS } from './cricket-data'
+import { getCricketSituations } from './content'
 import { resolveTokens, applyDeltas } from './game'
 
 // ── Relationship metadata ──────────────────────────────────────────────────────
@@ -199,7 +199,7 @@ export function computeBond(
   let latestPost: string | undefined
 
   if (world === 'cricket') {
-    const cricketQueue = CRICKET_SITUATIONS.filter(s => s.id !== 'CR-S28')
+    const cricketQueue = getCricketSituations().filter(s => s.id !== 'CR-S28')
     for (let i = 0; i < choices.length; i++) {
       const sit = cricketQueue[i]
       if (!sit) continue

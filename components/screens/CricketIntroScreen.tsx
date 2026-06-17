@@ -1,6 +1,6 @@
 'use client'
 import { useApp } from '@/lib/context'
-import { CRICKET_CHARS, CRICKET_NARR_CHARS } from '@/lib/cricket-data'
+import { getCricketChars, getCricketNarrChars } from '@/lib/content'
 
 export default function CricketIntroScreen() {
   const { startCricketGame, navigate, game } = useApp()
@@ -48,8 +48,8 @@ export default function CricketIntroScreen() {
 
         {/* Cast */}
         <div className="wintro-chars" style={{ marginTop: 20 }}>
-          {CRICKET_NARR_CHARS.map(([id, desc]) => {
-            const ch = CRICKET_CHARS[id]
+          {getCricketNarrChars().map(([id, desc]) => {
+            const ch = getCricketChars()[id]
             if (!ch) return null
             return (
               <div key={id} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 14 }}>

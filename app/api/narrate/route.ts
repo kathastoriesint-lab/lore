@@ -8,34 +8,36 @@ import { VOICE_ID, MODEL_ID, VOICE_SETTINGS, cacheKeyInput } from '@/lib/voice'
 
 const AUDIO_DIR = join(process.cwd(), 'public', 'audio')
 
-// Require a valid Supabase session (read from the cookie the app sets) so this
-// paid ElevenLabs endpoint can't be called anonymously. Returns the user or null.
-async function getSessionUser() {
+// Require a valid Supabase session so this paid ElevenLabs endpoint can't be
+// called anonymously. Accepts a Bearer JWT (Capacitor/native — cookies don't
+// cross origins) and falls back to the session cookie (web). Returns the
+// authenticated supabase client (carrying the caller's auth) + user, or null.
+async function getSessionUser(req: NextRequest) {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!
+  const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  const authHeader = req.headers.get('authorization') ?? ''
+
+  if (/^Bearer\s+/i.test(authHeader)) {
+    try {
+      const supabase = createServerClient(url, anon, {
+        cookies: { getAll: () => [], setAll: () => {} },
+        global: { headers: { Authorization: authHeader } },
+      })
+      const { data: { user } } = await supabase.auth.getUser(authHeader.replace(/^Bearer\s+/i, ''))
+      if (user) return { user, supabase }
+    } catch { /* fall through to cookie */ }
+  }
+
   try {
     const cookieStore = await cookies()
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      { cookies: { getAll: () => cookieStore.getAll(), setAll: () => {} } },
-    )
+    const supabase = createServerClient(url, anon, {
+      cookies: { getAll: () => cookieStore.getAll(), setAll: () => {} },
+    })
     const { data: { user } } = await supabase.auth.getUser()
-    return user
-  } catch {
-    return null
-  }
-}
+    if (user) return { user, supabase }
+  } catch { /* ignore */ }
 
-// Best-effort per-user rate limit (in-memory; resets per instance / on cold start).
-// Caps rapid abuse of the paid TTS API. Durable limiting would need Vercel KV/Upstash.
-const RATE_MAX = 30
-const RATE_WINDOW_MS = 60_000
-const rateHits = new Map<string, number[]>()
-function rateLimited(key: string): boolean {
-  const now = Date.now()
-  const recent = (rateHits.get(key) ?? []).filter(t => now - t < RATE_WINDOW_MS)
-  recent.push(now)
-  rateHits.set(key, recent)
-  return recent.length > RATE_MAX
+  return null
 }
 
 const hashText = (text: string) =>
@@ -59,11 +61,15 @@ async function fetchFromElevenLabs(text: string, apiKey: string): Promise<Buffer
 
 export async function POST(req: NextRequest) {
   // Auth: only logged-in (incl. anonymous) app sessions may call this paid route.
-  const user = await getSessionUser()
-  if (!user) {
+  const session = await getSessionUser(req)
+  if (!session) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
   }
-  if (rateLimited(user.id)) {
+  // Durable per-user rate limit (fails open if the RPC isn't deployed yet).
+  const { data: allowed, error: quotaErr } = await session.supabase.rpc('consume_ai_quota', {
+    p_endpoint: 'narrate', p_max: 30, p_window_secs: 60,
+  })
+  if (!quotaErr && allowed === false) {
     return NextResponse.json({ error: 'rate limited' }, { status: 429 })
   }
 

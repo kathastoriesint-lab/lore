@@ -2,7 +2,7 @@
 import { useEffect, useMemo } from 'react'
 import { useApp } from '@/lib/context'
 import { CHARS } from '@/lib/data'
-import { CRICKET_CHARS } from '@/lib/cricket-data'
+import { getCricketChars } from '@/lib/content'
 import { relationshipFor, computeBond, bondColor, bondWord } from '@/lib/relationships'
 import { DOSSIERS, TRUTH_BOND, SECRET_BOND } from '@/lib/dossier'
 import type { CharId } from '@/lib/types'
@@ -23,7 +23,7 @@ const StatusBar = () => (
 
 export default function CharProfileScreen() {
   const { goBack, viewingCharId, dmTrust, game, openDMThread, screen, setViewingChar } = useApp()
-  const allChars = { ...CHARS, ...CRICKET_CHARS }
+  const allChars = { ...CHARS, ...getCricketChars() }
   const charId = viewingCharId
   const char = charId ? (allChars[charId] ?? null) : null
 

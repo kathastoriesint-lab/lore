@@ -3,8 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useApp } from '@/lib/context'
 import type { CharId, DMMessage } from '@/lib/types'
 import { CHARS, DM_TRUST } from '@/lib/data'
-import { CRICKET_CHARS, CRICKET_SITUATIONS, CRICKET_TRUST_GOALS } from '@/lib/cricket-data'
-import { CRICKET_DM_TRUST_START } from '@/lib/cricket-data'
+import { getCricketChars, getCricketSituations, getCricketTrustGoals, getCricketDMTrustStart } from '@/lib/content'
 import { getReplySuggestions } from '@/lib/game'
 import { trustMomentFor, trustGateThreshold } from '@/lib/season'
 import { relationshipFor, computeBond, bondColor } from '@/lib/relationships'
@@ -34,7 +33,7 @@ const StatusBar = () => (
 export default function DMThreadScreen() {
   const { goBack, showToast, dmChar, dmHistory, dmTrust, sendDM, game, completeTrustMoment } = useApp()
 
-  const allChars = { ...CHARS, ...CRICKET_CHARS }
+  const allChars = { ...CHARS, ...getCricketChars() }
   const charId = dmChar as CharId | null
   const char = charId ? (allChars[charId] ?? null) : null
   const messages: DMMessage[] = charId ? (dmHistory[charId] ?? []) : []
@@ -59,7 +58,7 @@ export default function DMThreadScreen() {
 
   // Trust: LLM-scored live value from context, falls back to static default
   const trustVal = charId
-    ? (dmTrust[charId] ?? (game.world === 'cricket' ? CRICKET_DM_TRUST_START[charId] : DM_TRUST[charId]) ?? 50)
+    ? (dmTrust[charId] ?? (game.world === 'cricket' ? getCricketDMTrustStart()[charId] : DM_TRUST[charId]) ?? 50)
     : 50
   const trustBand = trustVal < 30 ? 'LOW' : trustVal < 60 ? 'NORMAL' : 'HIGH'
 
@@ -68,7 +67,7 @@ export default function DMThreadScreen() {
   // from the Live nudge land on a clear objective, not a blank thread.
   const trustGoal = (() => {
     if (game.world !== 'cricket' || !charId) return null
-    const goal = CRICKET_TRUST_GOALS[charId]
+    const goal = getCricketTrustGoals()[charId]
     const need = trustGateThreshold(charId)
     if (!goal || need == null) return null
     return { ...goal, need, met: trustVal >= need }
@@ -136,7 +135,7 @@ export default function DMThreadScreen() {
     // The situation the player is about to face next in the game — lets the
     // suggestion quietly set them up for it.
     const nextSitId = game.situationQueue[game.situation]
-    const nextSit = nextSitId ? CRICKET_SITUATIONS.find(s => s.id === nextSitId) : null
+    const nextSit = nextSitId ? getCricketSituations().find(s => s.id === nextSitId) : null
     const nextSituation = nextSit ? `${nextSit.title} — ${nextSit.q}` : undefined
 
     let cancelled = false

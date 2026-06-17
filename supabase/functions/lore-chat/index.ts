@@ -10,6 +10,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 // other websites from calling this paid endpoint from a visitor's browser.
 // (Direct scripts ignore CORS — the JWT check in the handler is what stops those.)
 const ALLOWED_ORIGINS = [
+  "https://lore-next-wine.vercel.app",
   "https://lore-next-ashy.vercel.app",
 ];
 function corsFor(origin: string): Record<string, string> {
@@ -326,15 +327,26 @@ serve(async (req) => {
   // the player's session access_token (lib/game.ts → loreChatAuth). Deployed with
   // --no-verify-jwt so the gateway forwards every request; we verify here.
   {
-    const jwt = (req.headers.get("Authorization") ?? "").replace(/^Bearer\s+/i, "");
+    const authHeader = req.headers.get("Authorization") ?? "";
+    const jwt = authHeader.replace(/^Bearer\s+/i, "");
     const SB_URL = Deno.env.get("SUPABASE_URL");
     const SB_ANON = Deno.env.get("SUPABASE_ANON_KEY");
     if (!jwt || !SB_URL || !SB_ANON) {
       return new Response(JSON.stringify({ error: "unauthorized" }), { status: 401, headers: { ...cors, "Content-Type": "application/json" } });
     }
-    const { data: { user }, error: authErr } = await createClient(SB_URL, SB_ANON).auth.getUser(jwt);
+    // Client carries the user's JWT so auth.uid() resolves in the quota RPC.
+    const sb = createClient(SB_URL, SB_ANON, { global: { headers: { Authorization: authHeader } } });
+    const { data: { user }, error: authErr } = await sb.auth.getUser(jwt);
     if (authErr || !user) {
       return new Response(JSON.stringify({ error: "unauthorized" }), { status: 401, headers: { ...cors, "Content-Type": "application/json" } });
+    }
+    // Durable per-user rate limit. Fails OPEN if the RPC isn't deployed yet,
+    // so this is safe to ship before the SQL migration is applied.
+    const { data: allowed, error: quotaErr } = await sb.rpc("consume_ai_quota", {
+      p_endpoint: "lore_chat", p_max: 60, p_window_secs: 60,
+    });
+    if (!quotaErr && allowed === false) {
+      return new Response(JSON.stringify({ error: "rate_limited" }), { status: 429, headers: { ...cors, "Content-Type": "application/json" } });
     }
   }
 

@@ -1,7 +1,7 @@
 'use client'
 import { useApp } from '@/lib/context'
 import { getWeek, evaluateGate, surfaceHint, weekForSituationId, SEASON_WEEKS } from '@/lib/season'
-import { CRICKET_CHARS } from '@/lib/cricket-data'
+import { getCricketChars } from '@/lib/content'
 import type { CharId } from '@/lib/types'
 
 // Persistent goal banner — always answers: what am I aiming at, how close, where to go.
@@ -15,6 +15,7 @@ export default function GoalCard({ variant = 'full' }: { variant?: Variant }) {
   const { game, dmTrust, navigate, openDMThread } = useApp()
 
   if (game.world !== 'cricket') return null
+  const CRICKET_CHARS = getCricketChars()
   const week = game.week ?? 1
   if (week >= SEASON_WEEKS.length && !game.lockExpiresAt) return null
 
