@@ -2,8 +2,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useApp } from '@/lib/context'
 import type { CharId, Choice, ChoicePost, Meters } from '@/lib/types'
-import { CHARS, SITUATIONS, getVisibleSituations } from '@/lib/data'
-import { getCricketChars, getCricketSituations, getCricketEndingData, getCricketDMTrustStart } from '@/lib/content'
+import { getVisibleSituations } from '@/lib/ch-rules'
+import { getCricketChars, getCricketSituations, getCricketEndingData, getCricketDMTrustStart, getCHChars } from '@/lib/content'
 import { resolveCricketEnding } from '@/lib/cricket-rules'
 import { getWeek, weekForSituationId, SEASON_WEEKS } from '@/lib/season'
 import { getStats, clamp, resolveEnding, resolveTokens } from '@/lib/game'
@@ -95,7 +95,7 @@ export default function LiveScreen() {
   // (Removed the first-visit coach-mark tab tour — the bottom nav is already
   // labeled (Feed/Messages/Live/Profile) and the choices are obviously tappable.
   // Instructions on a self-evident screen add clutter; simpler without them.)
-  const allChars = isCricket ? { ...CHARS, ...getCricketChars() } : CHARS
+  const allChars = isCricket ? { ...getCHChars(), ...getCricketChars() } : getCHChars()
   // 'player' is the cricket sentinel — the user plays as themselves, not an NPC.
   // char is null in cricket; use a synthetic player object only where post-card needs it.
   const char = game.char && game.char !== 'player' ? allChars[game.char] : null

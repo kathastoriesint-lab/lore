@@ -1,10 +1,9 @@
 'use client'
 import { useEffect, useMemo } from 'react'
 import { useApp } from '@/lib/context'
-import { CHARS } from '@/lib/data'
-import { getCricketChars } from '@/lib/content'
+import { getCricketChars, getCHChars, getCHDossiers } from '@/lib/content'
 import { relationshipFor, computeBond, bondColor, bondWord } from '@/lib/relationships'
-import { DOSSIERS, TRUTH_BOND, SECRET_BOND } from '@/lib/dossier'
+import { TRUTH_BOND, SECRET_BOND } from '@/lib/ch-rules'
 import type { CharId } from '@/lib/types'
 
 const TIE_COLOR: Record<string, string> = {
@@ -23,7 +22,7 @@ const StatusBar = () => (
 
 export default function CharProfileScreen() {
   const { goBack, viewingCharId, dmTrust, game, openDMThread, screen, setViewingChar } = useApp()
-  const allChars = { ...CHARS, ...getCricketChars() }
+  const allChars = { ...getCHChars(), ...getCricketChars() }
   const charId = viewingCharId
   const char = charId ? (allChars[charId] ?? null) : null
 
@@ -111,7 +110,7 @@ export default function CharProfileScreen() {
         {/* Dossier — the bible's history layer. Persona/wants always shown;
             the mask and the receipts unlock as your bond grows. */}
         {(() => {
-          const d = DOSSIERS[charId]
+          const d = getCHDossiers()[charId]
           if (!d) return null
           const truthOpen = bond >= TRUTH_BOND
           const secretOpen = bond >= SECRET_BOND

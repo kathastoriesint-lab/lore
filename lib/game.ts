@@ -1,8 +1,7 @@
 'use client'
 import { createClient } from './supabase'
 import type { CharId, GameState, GameFlags, RunMemory, Meters, DMMessage, Situation } from './types'
-import { CHARS, DM_HOOKS, DM_MOCK } from './data'
-import { getCricketDMHooks, getCricketSituations } from './content'
+import { getCricketDMHooks, getCricketSituations, getCHDMHooks, getCHDMMock, getCHSituations } from './content'
 
 // Lazy init — avoids module-level instantiation during SSR/prerender
 let _supabase: ReturnType<typeof createClient> | null = null
@@ -32,8 +31,8 @@ export function buildCricketQueue(): string[] {
 }
 
 export function buildCHQueue(meters: Meters, choices: ('A'|'B')[]): string[] {
-  const { getVisibleSituations } = require('./data')
-  return (getVisibleSituations(meters, choices) as Situation[]).map(s => s.id)
+  void meters; void choices
+  return getCHSituations().map(s => s.id)
 }
 
 /** Apply flag deltas from a choice, clamping to 0–5. */
@@ -193,7 +192,7 @@ export async function loadDMs(charId: CharId): Promise<DMMessage[]> {
 
   if (!data || data.length === 0) {
     // First time — insert opening hook
-    const hook: DMMessage = { role: 'char', text: DM_HOOKS[charId] ?? getCricketDMHooks()[charId] ?? 'Hey! Kya chal raha hai?' }
+    const hook: DMMessage = { role: 'char', text: getCHDMHooks()[charId] ?? getCricketDMHooks()[charId] ?? 'Hey! Kya chal raha hai?' }
     await saveDM(charId, hook)
     return [hook]
   }
@@ -387,7 +386,7 @@ export async function getAIReply(
 }
 
 function pickMock(charId: CharId): string {
-  const arr = DM_MOCK[charId] ?? []
+  const arr = getCHDMMock()[charId] ?? []
   return arr.length > 0 ? arr[Math.floor(Math.random() * arr.length)] : 'Haan yaar.'
 }
 

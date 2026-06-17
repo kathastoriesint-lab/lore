@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useMemo, useState } from 'react'
 import { useApp } from '@/lib/context'
-import { CHARS } from '@/lib/data'
+import { getCHChars } from '@/lib/content'
 import { buildEviction } from '@/lib/creator-house'
 import { resolveTokens } from '@/lib/game'
 import PlayerAvatar from '@/components/PlayerAvatar'
@@ -21,7 +21,7 @@ function Avatar({ id, size = 64, dim = false }: { id: CharId; size?: number; dim
       </div>
     )
   }
-  const c = CHARS[id]
+  const c = getCHChars()[id]
   return (
     <div className={`av ${c?.cls ?? ''}`} style={{
       width: size, height: size, fontSize: size * 0.34, flexShrink: 0, opacity: dim ? 0.35 : 1,
@@ -37,8 +37,8 @@ export default function EvictionScreen() {
   const { game, navigate, resolveEviction, screen } = useApp()
   const name = (s: string) => resolveTokens(s, game.playerName, game.playerGender)
   // Name/handle that work for the player sentinel too.
-  const dispName = (id: CharId) => id === 'player' ? (game.playerName || 'Tum') : (CHARS[id]?.name ?? '')
-  const dispHandle = (id: CharId) => id === 'player' ? 'you' : (CHARS[id]?.handle ?? '')
+  const dispName = (id: CharId) => id === 'player' ? (game.playerName || 'Tum') : (getCHChars()[id]?.name ?? '')
+  const dispHandle = (id: CharId) => id === 'player' ? 'you' : (getCHChars()[id]?.handle ?? '')
 
   const ev = useMemo(
     () => (game.pendingEviction ? buildEviction(game.pendingEviction, game) : null),

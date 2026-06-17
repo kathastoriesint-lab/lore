@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import type { ImpactNotif } from '@/lib/context'
-import { CHARS } from '@/lib/data'
+import { getCHChars } from '@/lib/content'
 
 function fmt(n: number, showSign = true): string {
   const sign = n > 0 ? '+' : ''
@@ -13,7 +13,7 @@ function fmt(n: number, showSign = true): string {
 export default function ImpactPill({ notif }: { notif: ImpactNotif }) {
   const [expanded, setExpanded] = useState(false)
   const [visible, setVisible] = useState(true)
-  const charAvatar = notif.charId ? CHARS[notif.charId as keyof typeof CHARS] : null
+  const charAvatar = notif.charId ? getCHChars()[notif.charId] : null
 
   useEffect(() => {
     const t = setTimeout(() => setVisible(false), 3800)

@@ -1225,9 +1225,7 @@ export const DM_QUICK: Partial<Record<string, string[]>> = {
   zoya:   ['Kya notice kiya tune?', 'Seedhi baat kar', 'Kispe nazar hai teri?'],
 }
 
-export function getVisibleSituations(_meters?: import('./types').Meters, _choices?: ('A' | 'B')[]): Situation[] {
-  return SITUATIONS
-}
+// getVisibleSituations moved to lib/ch-rules.ts (reads served content via the provider).
 
 
 // ── Post comment options (shown when tapping comment on a feed post) ──────────

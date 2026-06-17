@@ -1,7 +1,7 @@
 'use client'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useApp } from '@/lib/context'
-import { CHARS, NARR_LINES, NARR_CHARS } from '@/lib/data'
+import { getCHChars, getCHNarrLines, getCHNarrChars } from '@/lib/content'
 
 // Creator House intro: you ARE yourself — the new creator who just moved in.
 // This is a "meet the house" beat (the cast you're walking into), then you enter
@@ -9,6 +9,9 @@ import { CHARS, NARR_LINES, NARR_CHARS } from '@/lib/data'
 // {crush}, {p|...}), so the player is the 'player' self-sentinel, never a housemate.
 export default function NarratorScreen() {
   const { navigate, setChar } = useApp()
+  const CHARS = getCHChars()
+  const NARR_LINES = getCHNarrLines()
+  const NARR_CHARS = getCHNarrChars()
 
   const totalLines = NARR_LINES.length + NARR_CHARS.length + 1 // +1 for final line
   const [visibleLines, setVisibleLines] = useState<boolean[]>(Array(totalLines).fill(false))

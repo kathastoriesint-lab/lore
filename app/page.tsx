@@ -7,8 +7,8 @@ import {
   loadDMs, loadGameState, recordChoice, resetGameState, saveDM, saveGameState,
   fameToFollowers, DEFAULT_FLAGS, buildCricketQueue, buildCHQueue,
 } from '@/lib/game'
-import { CHARS, SITUATIONS, DM_MOCK, DM_HOOKS, DM_ORDER, DM_TRUST, getVisibleSituations } from '@/lib/data'
-import { getCricketChars, getCricketDMTrustStart, getCricketSituations, initContent } from '@/lib/content'
+import { getVisibleSituations } from '@/lib/ch-rules'
+import { getCricketChars, getCricketDMTrustStart, getCricketSituations, initContent, getCHChars, getCHSituations, getCHDMMock, getCHDMHooks, getCHDMOrder, getCHDMTrust } from '@/lib/content'
 import WorldsScreen from '@/components/screens/WorldsScreen'
 import WorldIntroScreen from '@/components/screens/WorldIntroScreen'
 import FeedScreen from '@/components/screens/FeedScreen'
@@ -57,7 +57,7 @@ const trustGuidanceFor = (trust: number, teamTrust?: number) => {
 }
 
 const defaultDmTrustFor = (world: GameState['world'], charId: CharId) => (
-  world === 'cricket' ? (getCricketDMTrustStart()[charId] ?? 50) : (DM_TRUST[charId] ?? 50)
+  world === 'cricket' ? (getCricketDMTrustStart()[charId] ?? 50) : (getCHDMTrust()[charId] ?? 50)
 )
 
 // First-contact opener DMs for the dressing room. Seniors greet a 16-year-old
@@ -700,7 +700,7 @@ export default function App() {
       coach:  ['Kal subah 6 baje. Aa sakta hai?', '10 minute rona allowed. Phir kya?', 'Footwork pe kaam karo. Samajh aaya?'],
       friend: ['BHAI REPLY KAR 😭 Tu theek hai?', 'Tu theek hai? Genuinely pooch raha hoon.', 'Main hoon yaar. Baat kar. Kya ho raha hai?'],
     }
-    const mockArr = DM_MOCK[charId] ?? CRICKET_MOCK_FALLBACK[charId] ?? ['Haan yaar. Kya chal raha hai?', 'Interesting. Aur?', 'Hmm. Kya feel hua?']
+    const mockArr = getCHDMMock()[charId] ?? CRICKET_MOCK_FALLBACK[charId] ?? ['Haan yaar. Kya chal raha hai?', 'Interesting. Aur?', 'Hmm. Kya feel hua?']
     const reply = raw?.trim() || mockArr[Math.floor(Math.random() * mockArr.length)]
 
     // Split into separate chat bubbles (model uses "|||" between thoughts) and
@@ -756,9 +756,9 @@ export default function App() {
     const newFame = Math.min(100, currentFameMeter + Math.ceil(fameDelta / 3))
     setCharFame(prev => ({ ...prev, [charId]: Math.min(100, (prev[charId] ?? 50) + fameDelta) }))
     saveAndSet({ ...game, meters: { ...game.meters, [fameSlot]: newFame } })
-    const allChars = game.world === 'cricket' ? { ...CHARS, ...getCricketChars() } : CHARS
+    const allChars = game.world === 'cricket' ? { ...getCHChars(), ...getCricketChars() } : getCHChars()
     const charName = allChars[charId]?.name
-    const tasksTotal = game.situationQueue.length || (game.world === 'cricket' ? buildCricketQueue().length : SITUATIONS.length)
+    const tasksTotal = game.situationQueue.length || (game.world === 'cricket' ? buildCricketQueue().length : getCHSituations().length)
     showImpact({
       action: `Liked ${charName}'s post`,
       followerDelta: Math.round(fameDelta * 180),
@@ -807,8 +807,8 @@ export default function App() {
       if (count >= 2) seedTier(DM_OPENER_TIER2, 't2', id => CRICKET_DM_OPENERS[id] ?? '', 1000)
     } else {
       // Creator House: the housemates reach out to the newcomer after the 1st situation.
-      const houseChars = DM_ORDER.filter(id => id !== game.char)
-      if (count >= 1) seedTier(houseChars, 'ch1', id => DM_HOOKS[id] ?? '', 700)
+      const houseChars = getCHDMOrder().filter(id => id !== game.char)
+      if (count >= 1) seedTier(houseChars, 'ch1', id => getCHDMHooks()[id] ?? '', 700)
     }
   }, [game.world, game.char, game.choices.length, injectCharDM])
 
@@ -823,7 +823,7 @@ export default function App() {
     const publicFameDelta = isCricket ? deltas.heat : deltas.fame
     const teamTrustDelta = isCricket ? deltas.image : deltas.heat
     const teamTrustVal = isCricket ? nextMeters.image : nextMeters.heat
-    const tasksTotal = game.situationQueue.length || (isCricket ? buildCricketQueue().length : SITUATIONS.length)
+    const tasksTotal = game.situationQueue.length || (isCricket ? buildCricketQueue().length : getCHSituations().length)
     saveAndSet({ ...game, meters: nextMeters })
     showImpact({
       action: charName ? `Commented on ${charName}'s post` : 'Commented',

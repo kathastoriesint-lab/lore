@@ -11,7 +11,7 @@
  * existing situation content, so it stays in sync automatically.
  */
 
-import { getVisibleSituations } from './data'
+import { getVisibleSituations } from './ch-rules'
 import { getCricketSituations } from './content'
 import { resolveTokens, applyDeltas } from './game'
 

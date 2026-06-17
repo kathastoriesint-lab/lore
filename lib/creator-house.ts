@@ -8,7 +8,7 @@
 // Voice: roman-Hinglish, the way real users talk.
 
 import type { CharId, GameState, Situation } from './types'
-import { SITUATIONS } from './data'
+import { getCHSituations } from './content'
 import { allyLoyalty } from './game'
 
 export interface HouseVote { voter: CharId; target: CharId; line: string }
@@ -72,7 +72,7 @@ export function playerStatusAt(evId: string, trust: number): RiskStatus {
 
 function loyaltyOf(game: GameState): number {
   const sits = game.situationQueue
-    .map(id => SITUATIONS.find(s => s.id === id))
+    .map(id => getCHSituations().find(s => s.id === id))
     .filter(Boolean) as Situation[]
   return allyLoyalty(game.choices, sits)
 }

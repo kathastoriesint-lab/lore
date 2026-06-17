@@ -25,8 +25,7 @@ export interface Dossier {
   ties: DossierTie[]             // the feud map — always visible
 }
 
-export const TRUTH_BOND = 45      // "mask ke peeche dekh liya"
-export const SECRET_BOND = 68     // "ab woh tujhpe sach ke saath bharosa karte hain"
+// TRUTH_BOND / SECRET_BOND moved to lib/ch-rules.ts (kept out of the content module).
 
 export const DOSSIERS: Partial<Record<CharId, Dossier>> = {
   ria: {

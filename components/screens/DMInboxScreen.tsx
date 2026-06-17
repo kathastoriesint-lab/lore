@@ -1,8 +1,7 @@
 'use client'
 import { useApp } from '@/lib/context'
 import type { CharId } from '@/lib/types'
-import { CHARS, DM_ORDER } from '@/lib/data'
-import { getCricketChars } from '@/lib/content'
+import { getCricketChars, getCHChars, getCHDMOrder } from '@/lib/content'
 import GoalCard from '@/components/GoalCard'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -53,7 +52,7 @@ function setOpened(userId: string, charId: string) {
 export default function DMInboxScreen() {
   const { goBack, navigate, showToast, openDMThread, dmHistory, dmLastUpdated, game } = useApp()
   const isCricket = game.world === 'cricket'
-  const allChars = { ...CHARS, ...getCricketChars() }
+  const allChars = { ...getCHChars(), ...getCricketChars() }
   const [userId, setUserId] = useState('anon')
   const [openedMap, setOpenedMap] = useState<Record<string, number>>({})
 
@@ -71,7 +70,7 @@ export default function DMInboxScreen() {
   const visibleChars = useMemo(() => {
     const baseOrder = isCricket
       ? CRICKET_DM_ORDER
-      : DM_ORDER.filter(id => id !== game.char)
+      : getCHDMOrder().filter(id => id !== game.char)
     return [...baseOrder].sort((a, b) => {
       const aHasMessages = (dmHistory[a]?.length ?? 0) > 0
       const bHasMessages = (dmHistory[b]?.length ?? 0) > 0

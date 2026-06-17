@@ -15,7 +15,10 @@
 // files). The TS module lib/cricket-data.ts stays the authoring source; this
 // module is what the app reads.
 import type { Character, Situation, CharId } from './types'
+import type { Dossier } from './dossier'
+import type { PostCommentOption } from './data'
 import cricketBundled from '@/public/content/cricket-v1.json'
+import chBundled from '@/public/content/creator-house-v1.json'
 
 export interface CricketContent {
   version: number
@@ -78,19 +81,19 @@ async function fetchJson(url: string, timeoutMs: number): Promise<unknown> {
 // only upgrades it. Loads last-known-good first (offline-friendly), then tries
 // the remote source. Any failure is swallowed — bundled keeps the game playable.
 export async function initContent(): Promise<void> {
-  try {
-    const cached = localStorage.getItem(LKG_KEY)
-    if (cached) applyCricket(JSON.parse(cached))
-  } catch { /* ignore */ }
+  // Last-known-good from a previous session (offline-friendly).
+  try { const c = localStorage.getItem(LKG_KEY); if (c) applyCricket(JSON.parse(c)) } catch { /* ignore */ }
+  try { const c = localStorage.getItem(CH_LKG_KEY); if (c) applyCH(JSON.parse(c)) } catch { /* ignore */ }
 
+  // Background remote refresh — both worlds, best-effort.
   try {
     const base = process.env.NEXT_PUBLIC_CONTENT_URL || '/content'
-    const manifest = (await fetchJson(`${base}/manifest.json`, 1500)) as { cricket?: { file?: string } } | null
-    const file = manifest?.cricket?.file
-    if (file) {
-      const remote = await fetchJson(`${base}/${file}`, 2500)
-      applyCricket(remote)
-    }
+    const manifest = (await fetchJson(`${base}/manifest.json`, 1500)) as
+      { cricket?: { file?: string }; 'creator-house'?: { file?: string } } | null
+    const cf = manifest?.cricket?.file
+    if (cf) applyCricket(await fetchJson(`${base}/${cf}`, 2500))
+    const chf = manifest?.['creator-house']?.file
+    if (chf) applyCH(await fetchJson(`${base}/${chf}`, 2500))
   } catch { /* ignore — bundled/LKG stands */ }
 }
 
@@ -106,3 +109,53 @@ export const getCricketSocialAccounts = () => cricket.socialAccounts
 export const getCricketEndingData = () => cricket.endingData
 export const getCricketDMHooks = () => cricket.dmHooks
 export const getCricketDMMock = () => cricket.dmMock
+
+// ── Creator House content ───────────────────────────────────────────────────
+export interface CHContent {
+  version: number
+  chars: Record<string, Character>
+  situations: Situation[]
+  narrLines: Array<{ text: string; cls?: string }>
+  narrChars: Array<[CharId, string]>
+  dmHooks: Partial<Record<string, string>>
+  dmMock: Partial<Record<string, string[]>>
+  dmOrder: CharId[]
+  dmTrust: Partial<Record<string, number>>
+  postComments: Record<string, PostCommentOption[]>
+  dossiers: Partial<Record<CharId, Dossier>>
+}
+
+let ch: CHContent = chBundled as unknown as CHContent
+const CH_LKG_KEY = 'lore_content_ch'
+
+export function isValidCHContent(c: unknown): c is CHContent {
+  if (!c || typeof c !== 'object') return false
+  const x = c as Record<string, unknown>
+  if (typeof x.version !== 'number') return false
+  if (!Array.isArray(x.situations) || x.situations.length === 0) return false
+  const okSituations = x.situations.every(
+    (s) => !!s && typeof (s as { id?: unknown }).id === 'string' && Array.isArray((s as { choices?: unknown }).choices),
+  )
+  if (!okSituations) return false
+  if (!x.chars || typeof x.chars !== 'object') return false
+  return true
+}
+
+function applyCH(candidate: unknown): boolean {
+  if (!isValidCHContent(candidate)) return false
+  if (candidate.version < ch.version) return false
+  ch = candidate
+  try { localStorage.setItem(CH_LKG_KEY, JSON.stringify(candidate)) } catch { /* ignore */ }
+  return true
+}
+
+export const getCHChars = (): Record<string, Character> => ch.chars
+export const getCHSituations = (): Situation[] => ch.situations
+export const getCHNarrLines = () => ch.narrLines
+export const getCHNarrChars = () => ch.narrChars
+export const getCHDMHooks = () => ch.dmHooks
+export const getCHDMMock = () => ch.dmMock
+export const getCHDMOrder = () => ch.dmOrder
+export const getCHDMTrust = () => ch.dmTrust
+export const getCHPostComments = () => ch.postComments
+export const getCHDossiers = () => ch.dossiers

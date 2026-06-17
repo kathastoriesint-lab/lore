@@ -1,9 +1,10 @@
 'use client'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useApp } from '@/lib/context'
-import type { CharId, Choice, ChoicePost, Meters, Reaction } from '@/lib/types'
-import { CHARS, POST_COMMENTS, PostCommentOption, getVisibleSituations } from '@/lib/data'
-import { getCricketChars, getCricketSituations } from '@/lib/content'
+import type { CharId, Choice, ChoicePost, Meters, Reaction, Character } from '@/lib/types'
+import { getVisibleSituations } from '@/lib/ch-rules'
+import type { PostCommentOption } from '@/lib/data'
+import { getCricketChars, getCricketSituations, getCHChars, getCHPostComments } from '@/lib/content'
 import { applyDeltas, resolveTokens } from '@/lib/game'
 import MeterHUD from '@/components/MeterHUD'
 import CHStatusCard from '@/components/CHStatusCard'
@@ -81,7 +82,7 @@ interface SeedPostProps {
 }
 
 function SeedPost({ id, charId, onViewChar, bg, caption, fullCaption, likes, time, imageUrl, likedPosts, commentedPosts, onLike, onComment, commentOpen, comments, onHandleComment, playingCharName }: SeedPostProps) {
-  const char = CHARS[charId as CharId]
+  const char = getCHChars()[charId as CharId]
   if (!char) return null
   const isOpen = commentOpen === id
   const liked = likedPosts.has(id)
@@ -183,7 +184,7 @@ const CRICKET_COMMENTS: Record<string, PostCommentOption[]> = {
 }
 
 function CricketSeedFeed({ likedPosts, commentedPosts, onLike, onComment, commentOpen, onHandleComment, playingCharName, onViewChar }: CricketSeedProps) {
-  const cricketChars = { ...CHARS, ...getCricketChars() }
+  const cricketChars = { ...getCHChars(), ...getCricketChars() }
 
   const seedPost = (id: string, charKey: string, bg: string, caption: string, fullCaption: string, likes: string, time: string, imageUrl?: string) => {
     const char = cricketChars[charKey]
@@ -445,14 +446,14 @@ export default function FeedScreen() {
   }, [navigate, enterLive])
 
 
-  const allChars = { ...CHARS, ...getCricketChars() }
+  const allChars = { ...getCHChars(), ...getCricketChars() }
   const playingChar = game.char ? (allChars[game.char] ?? null) : null
   const worldLabel = isCricket ? 'Indian Dressing Room' : 'Creator House'
 
   // Replay game state step-by-step to find the correct situation for each choice.
   // Cricket must follow situationQueue because S28 is skipped in the playable path.
   type FeedPost =
-    | { type: 'npc';    postId: string; sit: ReturnType<typeof getVisibleSituations>[0]; stepIndex: number; postOffset: number; choice: 'A'|'B'; reaction: { char: string; caption: string }; char: (typeof CHARS)[keyof typeof CHARS] }
+    | { type: 'npc';    postId: string; sit: ReturnType<typeof getVisibleSituations>[0]; stepIndex: number; postOffset: number; choice: 'A'|'B'; reaction: { char: string; caption: string }; char: Character }
     | {
         type: 'authored'
         postId: string
@@ -771,7 +772,7 @@ export default function FeedScreen() {
                 >
                   <svg viewBox="0 0 24 24" fill={liked ? 'var(--accent)' : 'none'} stroke={liked ? 'var(--accent)' : '#fff'} strokeWidth="1.8" strokeLinecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
                 </button>
-                {POST_COMMENTS[reactChar.id] && !commented && (
+                {getCHPostComments()[reactChar.id] && !commented && (
                   <button
                     onClick={() => setCommentPost(commentPost === post.postId ? null : post.postId)}
                     style={{ background:'none', border:'none', cursor:'pointer', display:'flex', alignItems:'center' }}
@@ -779,7 +780,7 @@ export default function FeedScreen() {
                     <svg viewBox="0 0 24 24" fill="none" stroke={commentPost===post.postId ? 'var(--accent)' : '#fff'} strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                   </button>
                 )}
-                {POST_COMMENTS[reactChar.id] && commented && (
+                {getCHPostComments()[reactChar.id] && commented && (
                   <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.3)" strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                 )}
                 <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
@@ -787,10 +788,10 @@ export default function FeedScreen() {
               </div>
               <div className="likes">{feedLikes(i, isCricket)} likes</div>
               <div className="caption"><b>{reactChar.handle}</b> {resolveTokens(post.reaction.caption, game.playerName, game.playerGender)}</div>
-              {commentPost === post.postId && POST_COMMENTS[reactChar.id] && !commented && (
+              {commentPost === post.postId && getCHPostComments()[reactChar.id] && !commented && (
                 <div className="comment-sheet">
                   <div className="comment-sheet-label">Comment as {playingChar?.name ?? 'you'}</div>
-                  {POST_COMMENTS[reactChar.id].map((opt, j) => (
+                  {getCHPostComments()[reactChar.id].map((opt, j) => (
                     <button key={j} className="comment-option" onClick={() => handleComment(reactChar.id, post.postId, opt)}>
                       {opt.text}
                     </button>
@@ -842,7 +843,7 @@ export default function FeedScreen() {
           likes="84,291" time="6 HOURS AGO"
           imageUrl="/generated/creator-house-posts/seed-ria.png"
           likedPosts={likedPosts} commentedPosts={commentedPosts} onLike={likePost} onComment={setCommentPost}
-          commentOpen={commentPost} comments={POST_COMMENTS.ria}
+          commentOpen={commentPost} comments={getCHPostComments().ria}
           onHandleComment={handleComment} playingCharName={playingChar?.name ?? 'you'}
         />
 
@@ -855,7 +856,7 @@ export default function FeedScreen() {
           likes="29,441" time="5 HOURS AGO"
           imageUrl="/generated/creator-house-posts/seed-zoya.png"
           likedPosts={likedPosts} commentedPosts={commentedPosts} onLike={likePost} onComment={setCommentPost}
-          commentOpen={commentPost} comments={POST_COMMENTS.zoya}
+          commentOpen={commentPost} comments={getCHPostComments().zoya}
           onHandleComment={handleComment} playingCharName={playingChar?.name ?? 'you'}
         />
 
@@ -894,7 +895,7 @@ export default function FeedScreen() {
               {commentPost === 'housewatch' && !hwCommented && (
                 <div className="comment-sheet">
                   <div className="comment-sheet-label">Comment as {playingChar?.name ?? 'you'}</div>
-                  {POST_COMMENTS.housewatch.map((opt, i) => (
+                  {getCHPostComments().housewatch.map((opt, i) => (
                     <button key={i} className="comment-option" onClick={() => handleComment('housewatch', 'housewatch', opt)}>{opt.text}</button>
                   ))}
                 </div>
@@ -915,7 +916,7 @@ export default function FeedScreen() {
           likes="41,882" time="3 HOURS AGO"
           imageUrl="/generated/creator-house-posts/seed-kabir.png"
           likedPosts={likedPosts} commentedPosts={commentedPosts} onLike={likePost} onComment={setCommentPost}
-          commentOpen={commentPost} comments={POST_COMMENTS.kabir}
+          commentOpen={commentPost} comments={getCHPostComments().kabir}
           onHandleComment={handleComment} playingCharName={playingChar?.name ?? 'you'}
         />
 
@@ -928,7 +929,7 @@ export default function FeedScreen() {
           likes="18,204" time="4 HOURS AGO"
           imageUrl="/generated/creator-house-posts/seed-dev.png"
           likedPosts={likedPosts} commentedPosts={commentedPosts} onLike={likePost} onComment={setCommentPost}
-          commentOpen={commentPost} comments={POST_COMMENTS.dev}
+          commentOpen={commentPost} comments={getCHPostComments().dev}
           onHandleComment={handleComment} playingCharName={playingChar?.name ?? 'you'}
         />
 
@@ -941,7 +942,7 @@ export default function FeedScreen() {
           likes="2,108,441" time="45 MINUTES AGO"
           imageUrl="/generated/creator-house-posts/seed-ananya.png"
           likedPosts={likedPosts} commentedPosts={commentedPosts} onLike={likePost} onComment={setCommentPost}
-          commentOpen={commentPost} comments={POST_COMMENTS.ananya}
+          commentOpen={commentPost} comments={getCHPostComments().ananya}
           onHandleComment={handleComment} playingCharName={playingChar?.name ?? 'you'}
         />
 

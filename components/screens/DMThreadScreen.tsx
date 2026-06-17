@@ -2,12 +2,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useApp } from '@/lib/context'
 import type { CharId, DMMessage } from '@/lib/types'
-import { CHARS, DM_TRUST } from '@/lib/data'
-import { getCricketChars, getCricketSituations, getCricketTrustGoals, getCricketDMTrustStart } from '@/lib/content'
+import { getCricketChars, getCricketSituations, getCricketTrustGoals, getCricketDMTrustStart, getCHChars, getCHDMTrust, getCHDossiers } from '@/lib/content'
 import { getReplySuggestions } from '@/lib/game'
 import { trustMomentFor, trustGateThreshold } from '@/lib/season'
 import { relationshipFor, computeBond, bondColor } from '@/lib/relationships'
-import { DOSSIERS } from '@/lib/dossier'
 
 const DM_CAP = 20
 
@@ -33,7 +31,7 @@ const StatusBar = () => (
 export default function DMThreadScreen() {
   const { goBack, showToast, dmChar, dmHistory, dmTrust, sendDM, game, completeTrustMoment } = useApp()
 
-  const allChars = { ...CHARS, ...getCricketChars() }
+  const allChars = { ...getCHChars(), ...getCricketChars() }
   const charId = dmChar as CharId | null
   const char = charId ? (allChars[charId] ?? null) : null
   const messages: DMMessage[] = charId ? (dmHistory[charId] ?? []) : []
@@ -48,7 +46,7 @@ export default function DMThreadScreen() {
   // crisp + helpful (the dossier is the deep bible; this is the living relationship).
   const chContext = useMemo(() => {
     if (game.world === 'cricket' || !charId) return null
-    const d = DOSSIERS[charId]
+    const d = getCHDossiers()[charId]
     const rel = relationshipFor(charId, game.playerGender)
     if (!d || !rel) return null
     const { bond, moments } = computeBond(charId, game.world, game.choices, game.playerName, game.playerGender, dmTrust)
@@ -58,7 +56,7 @@ export default function DMThreadScreen() {
 
   // Trust: LLM-scored live value from context, falls back to static default
   const trustVal = charId
-    ? (dmTrust[charId] ?? (game.world === 'cricket' ? getCricketDMTrustStart()[charId] : DM_TRUST[charId]) ?? 50)
+    ? (dmTrust[charId] ?? (game.world === 'cricket' ? getCricketDMTrustStart()[charId] : getCHDMTrust()[charId]) ?? 50)
     : 50
   const trustBand = trustVal < 30 ? 'LOW' : trustVal < 60 ? 'NORMAL' : 'HIGH'
 

@@ -1,6 +1,6 @@
 'use client'
 import { useApp } from '@/lib/context'
-import { SITUATIONS } from '@/lib/data'
+import { getCHSituations } from '@/lib/content'
 import { evictionRisk } from '@/lib/creator-house'
 
 // Creator House eviction risk — the CH equivalent of cricket's focused goal.
@@ -8,7 +8,7 @@ import { evictionRisk } from '@/lib/creator-house'
 //   focus (Live)  → the ONE number you optimise: your eviction risk + the safety line.
 //   slim  (Feed)  → a one-liner under the 3-meter overview.
 
-const idToDay: Record<string, number> = Object.fromEntries(SITUATIONS.map(s => [s.id, s.day]))
+const idToDay: Record<string, number> = Object.fromEntries(getCHSituations().map(s => [s.id, s.day]))
 const TOTAL_DAYS = 10
 
 const STATUS = {
