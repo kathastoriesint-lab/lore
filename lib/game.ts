@@ -7,6 +7,8 @@ import { getCricketDMHooks, getCricketSituations } from './content'
 // Lazy init — avoids module-level instantiation during SSR/prerender
 let _supabase: ReturnType<typeof createClient> | null = null
 const supabase = () => { if (!_supabase) _supabase = createClient(); return _supabase }
+/** Shared browser Supabase client — reuse this everywhere (one GoTrue instance). */
+export const getClient = () => supabase()
 
 const DEFAULT_METERS: Meters = { fame: 20, heat: 50, image: 30 }
 const CRICKET_START_METERS: Meters = { fame: 40, heat: 25, image: 20 } // Form 40 · Fame 25 · Team Trust 20

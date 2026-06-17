@@ -19,6 +19,7 @@ import DMThreadScreen from '@/components/screens/DMThreadScreen'
 import ProfileScreen from '@/components/screens/ProfileScreen'
 import CharProfileScreen from '@/components/screens/CharProfileScreen'
 import OnboardingScreen from '@/components/screens/OnboardingScreen'
+import LoginScreen from '@/components/screens/LoginScreen'
 import CricketIntroScreen from '@/components/screens/CricketIntroScreen'
 import CricketCarouselScreen from '@/components/screens/CricketCarouselScreen'
 import LockScreen from '@/components/screens/LockScreen'
@@ -888,6 +889,7 @@ export default function App() {
           <ErrorBoundary>
           <div className="viewport">
             <Slot id="onboarding"    cur={screen} prev={prev}><OnboardingScreen /></Slot>
+            <Slot id="login"         cur={screen} prev={prev}><LoginScreen /></Slot>
             <Slot id="worlds"        cur={screen} prev={prev}><WorldsScreen /></Slot>
             <Slot id="world-intro"   cur={screen} prev={prev}><WorldIntroScreen /></Slot>
             <Slot id="cricket-intro"    cur={screen} prev={prev}><CricketIntroScreen /></Slot>
