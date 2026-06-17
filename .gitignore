@@ -6,3 +6,6 @@ node_modules/
 .env.local
 .env*.local
 voice-samples/
+
+# Supabase CLI scratch
+supabase/.temp/

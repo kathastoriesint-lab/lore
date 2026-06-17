@@ -32,6 +32,7 @@ import {
   DEFAULT_LOCK_MS, FRESH_INTERLUDE, parseClockOverride,
 } from '@/lib/season'
 import { EVICTION_TRIGGERS, buildEviction } from '@/lib/creator-house'
+import { scheduleLockNotification, cancelLockNotification } from '@/lib/native-notify'
 
 const clampTrust = (n: number) => Math.max(0, Math.min(100, Math.round(n)))
 
@@ -855,6 +856,13 @@ export default function App() {
     setRelationshipAlerts([])
     navigate('worlds', { replace: true })
   }, [navigate])
+
+  // Native only (no-op on web): nudge the player back when the 3h lock expires.
+  useEffect(() => {
+    if (game.world !== 'cricket') return
+    if (game.lockExpiresAt && game.lockExpiresAt > Date.now()) scheduleLockNotification(game.lockExpiresAt)
+    else cancelLockNotification()
+  }, [game.world, game.lockExpiresAt])
 
   const prev = navHistory[navHistory.length - 2] ?? null
 

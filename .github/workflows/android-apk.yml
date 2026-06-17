@@ -1,0 +1,48 @@
+name: Build Android APK
+
+# Produces a shareable debug APK as a downloadable artifact. The app is a
+# live-shell (loads the deployed site), so this only needs rebuilding when the
+# native project / config changes — or on demand via "Run workflow".
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'android/**'
+      - 'capacitor.config.ts'
+      - 'capacitor-shell/**'
+      - '.github/workflows/android-apk.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - uses: android-actions/setup-android@v3
+
+      # Copy web assets + plugin config into the native project.
+      - run: npx cap sync android
+
+      # Debug build is signed with the auto-generated debug keystore — installable
+      # by sideloading (Settings → allow unknown sources). Fine for sharing with
+      # friends; release/Play signing comes later.
+      - name: Build debug APK
+        run: cd android && ./gradlew assembleDebug --no-daemon --stacktrace
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lore-debug-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
