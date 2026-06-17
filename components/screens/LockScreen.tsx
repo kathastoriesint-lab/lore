@@ -65,7 +65,15 @@ export default function LockScreen() {
   if (!game.lockExpiresAt) return null
 
   const isHardGate = !!nextWeek.hardGate
+  // Early unlock: completing interlude activities (a nets session + a senior DM)
+  // lets the player force the squad decision now instead of waiting out the timer.
+  // The 3h clock is only the fallback for players who don't engage.
+  const il = game.interlude
+  const netsedOnce = (il?.netsUsed ?? 0) >= 1
+  const dmedSenior = !!il?.trustMomentUsed || Object.keys(il?.chatTrustEarned ?? {}).length > 0
+  const unlockedByActivity = netsedOnce && dmedSenior
   const announcementReady = passed || expired
+  const canUnlockEarly = unlockedByActivity && !announcementReady
   const variant: 'success' | 'fail' = passed ? 'success' : 'fail'
   const beatText = resolveTokens(
     passed ? nextWeek.successBeat : nextWeek.failBeat,
@@ -213,6 +221,26 @@ export default function LockScreen() {
               {fmtCountdown(remaining)}
             </span>
           </div>
+
+          {/* Early-unlock path — engage to skip the wait; timer is the fallback */}
+          {canUnlockEarly ? (
+            <div style={{ padding: '10px 20px 0' }}>
+              <button
+                onClick={() => setShowAnnouncement(true)}
+                style={{
+                  width: '100%', padding: '15px 0', borderRadius: 14, border: 'none',
+                  background: 'var(--accent)', color: '#fff', fontWeight: 800, fontSize: 15,
+                  fontFamily: 'var(--sans)', cursor: 'pointer', boxShadow: '0 8px 28px rgba(255,45,120,.3)',
+                }}
+              >
+                Squad decision is ready — see it now →
+              </button>
+            </div>
+          ) : (
+            <div style={{ padding: '8px 20px 0', fontSize: 12, color: 'var(--ink3)', lineHeight: 1.6 }}>
+              Or decide now — {netsedOnce ? '✓' : '○'} hit the nets · {dmedSenior ? '✓' : '○'} DM a senior
+            </div>
+          )}
 
           <GoalCard />
 

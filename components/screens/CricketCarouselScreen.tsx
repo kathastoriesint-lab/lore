@@ -21,7 +21,12 @@ export default function CricketCarouselScreen() {
     // Resume an in-progress run — startCricketGame would wipe it.
     if (game.world === 'cricket' && game.situation > 0) navigate('live')
     else if (game.playerName) startCricketGame()
-    else navigate('onboarding')
+    else {
+      // Fresh player: remember they came from cricket so name-entry flows straight
+      // into the game (saveProfile reads this) instead of bouncing back to Worlds.
+      if (typeof window !== 'undefined') localStorage.setItem('lore_pending_world', 'cricket')
+      navigate('onboarding')
+    }
   }
 
   const isLast = cur === TOTAL - 1

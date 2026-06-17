@@ -114,7 +114,10 @@ export const SEASON_WEEKS: SeasonWeek[] = [
 ]
 
 // ── Lock clock ────────────────────────────────────────────────────────────────
-export const DEFAULT_LOCK_MS = 24 * 60 * 60 * 1000 // 24h real-time per interlude
+// 3h real-time per interlude (one lock per Match Week). The timer is a fallback:
+// completing interlude activities (a nets session + a senior DM) unlocks early —
+// see LockScreen's unlock-by-activity path.
+export const DEFAULT_LOCK_MS = 3 * 60 * 60 * 1000 // 3h real-time per interlude
 
 /** Parse a ?clock= override like "5m", "30s", "2h" → ms. Returns null if absent/bad. */
 export function parseClockOverride(param: string | null): number | null {

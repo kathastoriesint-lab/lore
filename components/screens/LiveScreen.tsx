@@ -14,6 +14,18 @@ import NarrationButton from '@/components/NarrationButton'
 
 const stripHtml = (s: string) => s.replace(/<[^>]+>/g, '')
 
+// Stable per-situation display order for the two choices. Roughly half the
+// situations render with the choices swapped, so the dominant ("team-first")
+// option isn't always the top button — this kills tap-the-top-slot autopilot.
+// The TRUE choice index is always what gets recorded (handleChoice uses it), so
+// deltas / flags / story summary stay correct regardless of display order.
+const choiceDisplayOrder = (sit: { id?: string; choices: unknown[] }): number[] => {
+  const idx = sit.choices.map((_, i) => i)
+  if (sit.choices.length !== 2 || !sit.id) return idx
+  const seed = sit.id.split('').reduce((a, c) => a + c.charCodeAt(0), 0)
+  return seed % 2 === 1 ? [idx[1], idx[0]] : idx
+}
+
 
 const StatusBar = () => (
   <div className="statusbar">
@@ -984,12 +996,15 @@ export default function LiveScreen() {
           {chosen === null ? (
             <>
               <div className="choice-q">{r(displaySit.q)}</div>
-              {displaySit.choices.map((ch, i) => (
-                <button key={i} className="choice" onClick={() => handleChoice(i as 0 | 1)}>
-                  <div className="ct">{r(ch.t)}</div>
-                  <div className="cs">{r(ch.s)}</div>
-                </button>
-              ))}
+              {choiceDisplayOrder(displaySit).map(trueIdx => {
+                const ch = displaySit.choices[trueIdx]
+                return (
+                  <button key={trueIdx} className="choice" onClick={() => handleChoice(trueIdx as 0 | 1)}>
+                    <div className="ct">{r(ch.t)}</div>
+                    <div className="cs">{r(ch.s)}</div>
+                  </button>
+                )
+              })}
               {stats && (
                 <div className="social-proof">
                   {stats.total.toLocaleString()} played · {stats.pctA}% chose A

@@ -273,10 +273,30 @@ export default function App() {
     if (pending === 'creator-house') {
       localStorage.removeItem('lore_pending_world')
       navigate('world-intro')
+    } else if (pending === 'cricket') {
+      // Fresh cricket player just named themselves — start the run now instead of
+      // bouncing to Worlds (which would replay the carousel). Mirrors startCricketGame.
+      localStorage.removeItem('lore_pending_world')
+      localStorage.setItem('lore_feed_seen', '1')
+      localStorage.removeItem('lore_dm_openers_v1')
+      localStorage.removeItem('lore_dm_cap')
+      const cricketState: GameState = {
+        playerName: name, playerGender: gender, avatarUrl,
+        world: 'cricket', char: 'player',
+        situation: 0, situationQueue: buildCricketQueue(), choices: [],
+        meters: { fame: 40, heat: 25, image: 20 },
+        flags: DEFAULT_FLAGS, runMemory: {},
+        narrator_done: true, dayUnlockTime: {},
+      }
+      setDmTrust({ ...CRICKET_DM_TRUST_START })
+      setRelationshipAlerts([])
+      saveAndSet(cricketState)
+      analytics.track('world_entered', 'cricket', { world_id: 'cricket' })
+      navigate('live')
     } else {
       navigate('worlds')
     }
-  }, [game, navigate, extrasSnapshot])
+  }, [game, navigate, extrasSnapshot, saveAndSet])
 
   const startGame = useCallback(() => {
     if (!game.playerName) {
@@ -298,6 +318,7 @@ export default function App() {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('lore_feed_seen')
       localStorage.removeItem('lore_dm_openers_v1') // fresh run re-seeds openers
+      localStorage.removeItem('lore_dm_cap')        // fresh run clears DM throttle
     }
     navigate('narrator')
   }, [game.playerName, game.playerGender, saveAndSet, navigate])
@@ -319,6 +340,7 @@ export default function App() {
     if (typeof window !== 'undefined') {
       localStorage.setItem('lore_feed_seen', '1')
       localStorage.removeItem('lore_dm_openers_v1') // fresh run re-seeds openers
+      localStorage.removeItem('lore_dm_cap')        // fresh run clears DM throttle
     }
     navigate('live')
   }, [game.playerName, game.playerGender, saveAndSet, navigate])
@@ -820,6 +842,11 @@ export default function App() {
 
   const resetGame = useCallback(async () => {
     await resetGameState()
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('lore_dm_cap')
+      localStorage.removeItem('lore_feed_seen')
+      localStorage.removeItem('lore_dm_openers_v1')
+    }
     setGame({ playerName: '', playerGender: 'male' as const, world: 'creator-house', char: null, situation: 0, situationQueue: [], choices: [], meters: { fame: 20, heat: 50, image: 30 }, flags: DEFAULT_FLAGS, runMemory: {}, narrator_done: false, dayUnlockTime: {} })
     setDmHistory({})
     setDmLastUpdated({})
