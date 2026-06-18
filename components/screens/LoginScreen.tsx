@@ -30,7 +30,7 @@ const RESEND_SECS = 24
 // Cinematic hero loop — cricket (Indian Dressing Room) stills, cross-faded as a
 // slow ambient backdrop. Web-light JPEGs (~100-150KB each). To add/replace frames,
 // drop JPEGs in /public and list them here.
-const HERO_FRAMES = ['/login-hero-1.jpg', '/login-hero-2.jpg', '/login-hero-3.jpg']
+const HERO_FRAMES = ['/login-hero-1.jpg', '/login-hero-3.jpg', '/login-hero-2.jpg']
 const HERO_INTERVAL = 5500
 
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/
