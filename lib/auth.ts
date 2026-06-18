@@ -7,6 +7,7 @@
 // progress) or signs into the existing account, and returns a real Supabase
 // session that we adopt here. Downstream there's ONE identity: the Supabase user.
 import { getClient, ensureSession } from './game'
+import { createClient } from './supabase'
 
 export interface AuthInfo {
   isAuthed: boolean
@@ -50,7 +51,18 @@ export async function completeMsg91Login(msg91Token: string): Promise<{ ok: true
     if (!access_token || !refresh_token) return { error: 'login failed' }
     const { error } = await getClient().auth.setSession({ access_token, refresh_token })
     if (error) return { error: friendly(error.message) }
-    return { ok: true }
+    // supabase-js persists the new session to storage asynchronously (via the
+    // SIGNED_IN event), so a caller that reloads immediately can race the write
+    // and boot back as a fresh guest. Poll a FRESH client — which reads from
+    // cookie storage rather than the in-memory cache — until it sees the new
+    // session, so the reload is safe. Cap the wait at ~2s.
+    for (let i = 0; i < 20; i++) {
+      const { data: { session: persisted } } = await createClient().auth.getSession()
+      if (persisted?.access_token === access_token) return { ok: true }
+      await new Promise(r => setTimeout(r, 100))
+    }
+    // Storage never confirmed — surface it rather than reloading into a guest.
+    return { error: 'Signed in, but the session didn’t save — please try again.' }
   } catch (e) {
     return { error: friendly(e instanceof Error ? e.message : 'login failed') }
   }
