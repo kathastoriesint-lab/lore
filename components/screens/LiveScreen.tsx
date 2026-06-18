@@ -60,6 +60,10 @@ const CHAR_COLORS: Record<string, string> = {
   tilak:'#2a5a8f', coach:'#3a2a5a', friend:'#1a4a6a', player:'#FF2D78',
 }
 
+// Plausible like counts for the Live "world reacts" post (mirrors the Feed's
+// fabricated counts so the card reads like a real Instagram post).
+const LIVE_LIKES = [94102, 128441, 76220, 183004, 52018, 211908]
+
 // Story-pause nudges: a senior's trust is the relationship spine of the season. We
 // pause at the STORY BEAT where that senior is judging the player, then send them
 // into the DM with a seed that references the scene — so "build trust" becomes a
@@ -447,48 +451,59 @@ export default function LiveScreen() {
       const postBg = postSpec.imageUrl
         ? `linear-gradient(to bottom, rgba(0,0,0,.04) 0%, rgba(0,0,0,.12) 52%, rgba(0,0,0,.62) 100%), url(${postSpec.imageUrl}) center/cover`
         : `linear-gradient(150deg, ${postOwner.color} 0%, #022058 60%, #0a0a18 100%)`
+      const likes = LIVE_LIKES[(situation + postIndex) % LIVE_LIKES.length].toLocaleString('en-IN')
       return (
         <div key={`${displaySit!.id}-${chosen}-${postIndex}`} style={{ marginTop: 16, background: '#0f0f18', borderRadius: 16, overflow: 'hidden', border: '1px solid rgba(255,255,255,.08)', animation: 'slideUp .45s cubic-bezier(.32,.72,0,1) both' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '10px 12px' }}>
-            <div className={postOwner.cls ? `av ${postOwner.cls}` : 'av'} style={{ width: 30, height: 30, fontSize: 12, flexShrink: 0, background: postOwner.avatarUrl ? 'transparent' : postOwner.color, backgroundImage: postOwner.avatarUrl ? `url(${postOwner.avatarUrl})` : undefined, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+          {/* header */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '10px 14px' }}>
+            <div className={postOwner.cls ? `av ${postOwner.cls}` : 'av'} style={{ width: 32, height: 32, fontSize: 12, flexShrink: 0, background: postOwner.avatarUrl ? 'transparent' : postOwner.color, backgroundImage: postOwner.avatarUrl ? `url(${postOwner.avatarUrl})` : undefined, backgroundSize: 'cover', backgroundPosition: 'center' }}>
               {!postOwner.avatarUrl && postOwner.init}
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ fontWeight: 700, fontSize: 13, color: '#fff' }}>@{postOwner.handle}</span></div>
+              <div style={{ fontWeight: 700, fontSize: 13, color: '#fff' }}>{postOwner.handle}</div>
               <div style={{ fontSize: 10, color: 'var(--ink3)' }}>{postSpec.label ?? 'abhi · MI Season 1'}</div>
             </div>
             {hasRealPost && <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--accent)', background: 'rgba(255,45,120,.12)', padding: '3px 8px', borderRadius: 20 }}>NEW</div>}
           </div>
           {hasRealPost ? (
             <>
-              <div style={{ position: 'relative', margin: '0 12px', borderRadius: 10, overflow: 'hidden', aspectRatio: '16/10', background: postBg }}>
+              {/* image — edge-to-edge, IG portrait crop */}
+              <div style={{ position: 'relative', aspectRatio: '4 / 5', background: postBg }}>
                 {!postSpec.imageUrl && (
-                  <p style={{ position: 'absolute', left: 0, right: 0, bottom: 0, margin: 0, padding: '30px 14px 14px', fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 14.5, lineHeight: 1.45, color: '#fff', background: 'linear-gradient(to top, rgba(0,0,0,.6), transparent)', textShadow: '0 1px 6px rgba(0,0,0,.5)' }}>{r(postSpec.caption)}</p>
+                  <p style={{ position: 'absolute', left: 0, right: 0, bottom: 0, margin: 0, padding: '40px 16px 18px', fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 16, lineHeight: 1.45, color: '#fff', background: 'linear-gradient(to top, rgba(0,0,0,.6), transparent)', textShadow: '0 1px 6px rgba(0,0,0,.5)' }}>{r(postSpec.caption)}</p>
                 )}
               </div>
-              {/* Caption below the photo (image posts) — for text-only posts it's
-                  already overlaid on the gradient card above. */}
-              {postSpec.imageUrl && (
-                <div style={{ padding: '10px 14px 0', fontSize: 13, lineHeight: 1.45, color: 'rgba(255,255,255,.9)' }}>
-                  <b>@{postOwner.handle}</b> {r(postSpec.caption)}
-                </div>
-              )}
+              {/* IG action row (decorative — the real likes/comments live on Feed) */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '10px 14px 4px' }}>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+              </div>
+              {/* likes */}
+              <div style={{ fontWeight: 700, fontSize: 14, padding: '0 14px', color: '#fff' }}>{likes} likes</div>
+              {/* caption — prominent (IG hierarchy) */}
+              <div style={{ fontSize: 14, lineHeight: 1.5, padding: '5px 14px 2px', color: 'var(--ink)' }}>
+                <b>{postOwner.handle}</b> {r(postSpec.caption)}
+              </div>
+              {/* comments — smaller + muted */}
               {postReactions.length > 0 && (
-                <div style={{ padding: '10px 14px 12px', display: 'flex', flexDirection: 'column', gap: 7 }}>
+                <div style={{ padding: '2px 14px', display: 'flex', flexDirection: 'column', gap: 3 }}>
                   {postReactions.map((rx, j) => {
                     const isFan = rx.char === '__fan'
                     const rxChar = isFan ? null : allChars[rx.char as CharId]
                     return (
-                      <div key={j} style={{ fontSize: 12, lineHeight: 1.4, color: 'rgba(255,255,255,.82)' }}>
-                        <b style={{ color: '#fff' }}>{isFan || !rxChar ? `@${rx.name ?? 'fan'}` : rxChar.name}</b> {r(rx.text)}
+                      <div key={j} style={{ fontSize: 12, lineHeight: 1.45, color: 'rgba(255,255,255,.6)' }}>
+                        <b style={{ color: 'rgba(255,255,255,.88)', fontWeight: 600 }}>{isFan || !rxChar ? (rx.name ?? 'fan') : (rxChar.handle ?? rxChar.name)}</b> {r(rx.text)}
                       </div>
                     )
                   })}
                 </div>
               )}
+              {/* timestamp */}
+              <div style={{ fontSize: 11, color: 'var(--ink3)', padding: '6px 14px 12px', letterSpacing: '.04em' }}>JUST NOW</div>
             </>
           ) : (
-            <div style={{ margin: '0 12px 12px', padding: '14px 16px', borderRadius: 10, background: 'rgba(255,255,255,.03)', border: '1px solid rgba(255,255,255,.06)' }}>
+            <div style={{ margin: '0 14px 14px', padding: '14px 16px', borderRadius: 10, background: 'rgba(255,255,255,.03)', border: '1px solid rgba(255,255,255,.06)' }}>
               <div style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 14, color: 'var(--ink3)', lineHeight: 1.5 }}>
                 {r(postSpec.caption).replace(/<\/?em>/g, '').replace(/^\(|\)$/g, '')}
               </div>
@@ -1198,6 +1213,10 @@ export default function LiveScreen() {
         const isResult = chosen !== null
         const expanded = isResult || sheetOpen
         const ch = isResult ? displaySit.choices[chosen as 0 | 1] : null
+        // "N new" on the Feed button = posts the player hasn't seen on the Feed yet,
+        // i.e. situations played since the Feed was last opened (FeedScreen records it).
+        const seenChoices = typeof window !== 'undefined' ? parseInt(localStorage.getItem('lore_feed_seen_choices') || '0', 10) : 0
+        const newPosts = Math.max(0, game.choices.length - seenChoices)
         return (
           <div style={{ position: 'absolute', left: 0, right: 0, bottom: 'var(--tabbar)', zIndex: 10, background: 'var(--surf2)', borderRadius: '22px 22px 0 0', borderTop: '1px solid rgba(255,255,255,.08)', boxShadow: '0 -16px 40px rgba(0,0,0,.55)' }}>
             <button onClick={() => { if (!isResult) setSheetOpen(o => !o) }}
@@ -1235,7 +1254,7 @@ export default function LiveScreen() {
                       <button className="lo-press" onClick={resetAfterChoice} style={{ flex: 2, height: 56, border: 'none', borderRadius: 16, cursor: 'pointer', fontFamily: 'var(--sans)', fontSize: 16, fontWeight: 700, color: '#fff', background: 'var(--accent)', boxShadow: '0 8px 24px rgba(255,45,120,.35)' }}>{isFinale ? 'Continue →' : 'Next →'}</button>
                       <button className="lo-press" onClick={() => navigate('feed')} style={{ flex: 1, height: 56, border: '1px solid rgba(255,255,255,.12)', borderRadius: 16, cursor: 'pointer', fontFamily: 'var(--sans)', background: 'rgba(255,255,255,.06)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2 }}>
                         <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--ink)' }}>Feed</span>
-                        <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--accent)' }}>3 new</span>
+                        {newPosts > 0 && <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--accent)' }}>{newPosts} new</span>}
                       </button>
                     </div>
                   ) : (

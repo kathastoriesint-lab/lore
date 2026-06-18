@@ -396,7 +396,16 @@ const StatusBar = () => (
 )
 
 export default function FeedScreen() {
-  const { navigate, goBack, showToast, game, likePost, likedPosts, applyFeedDeltas, setViewingChar, dmBadgeCount, relationshipAlerts } = useApp()
+  const { navigate, goBack, showToast, game, screen, likePost, likedPosts, applyFeedDeltas, setViewingChar, dmBadgeCount, relationshipAlerts } = useApp()
+
+  // Mark how many posts the player has "seen" — recorded only while the Feed is the
+  // ACTIVE screen (Slots keep every screen mounted). The Live sheet's "N new" badge
+  // reads this: new posts ≈ choices played since the Feed was last open.
+  useEffect(() => {
+    if (screen === 'feed' && typeof window !== 'undefined') {
+      localStorage.setItem('lore_feed_seen_choices', String(game.choices.length))
+    }
+  }, [screen, game.choices.length])
   const [commentPost, setCommentPost] = useState<string | null>(null)
   const [commentedPosts, setCommentedPosts] = useState<Set<string>>(new Set())
 
