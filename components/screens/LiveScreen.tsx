@@ -1219,16 +1219,29 @@ export default function LiveScreen() {
         const newPosts = Math.max(0, game.choices.length - seenChoices)
         return (
           <div style={{ position: 'absolute', left: 0, right: 0, bottom: 'var(--tabbar)', zIndex: 10, background: 'var(--surf2)', borderRadius: '22px 22px 0 0', borderTop: '1px solid rgba(255,255,255,.08)', boxShadow: '0 -16px 40px rgba(0,0,0,.55)' }}>
-            <button onClick={() => { if (!isResult) setSheetOpen(o => !o) }}
-              style={{ width: '100%', background: 'none', border: 'none', cursor: isResult ? 'default' : 'pointer', padding: '10px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-              <div style={{ width: 38, height: 4, borderRadius: 99, background: 'rgba(255,255,255,.18)' }} />
-              {!isResult && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 19, color: '#fff', textAlign: 'center' }}>{r(displaySit.q)}</span>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--ink3)" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, transform: expanded ? 'rotate(0deg)' : 'rotate(180deg)', transition: 'transform .3s' }}><polyline points="18 15 12 9 6 15" /></svg>
-                </div>
-              )}
-            </button>
+            {/* Collapsed: a clear, obvious accent button carrying the question. */}
+            {!isResult && !sheetOpen && (
+              <div style={{ padding: '14px 16px 16px' }}>
+                <button className="lo-press" onClick={() => setSheetOpen(true)}
+                  style={{ width: '100%', background: 'var(--accent)', border: 'none', borderRadius: 16, padding: '15px 18px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, boxShadow: '0 8px 24px rgba(255,45,120,.35)' }}>
+                  <span style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 16.5, color: '#fff', lineHeight: 1.25, textAlign: 'center' }}>{r(displaySit.q)}</span>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><polyline points="6 9 12 15 18 9" /></svg>
+                </button>
+              </div>
+            )}
+            {/* Expanded: question becomes a plain header above the choices. */}
+            {!isResult && sheetOpen && (
+              <div style={{ padding: '14px 16px 6px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+                <div style={{ width: 38, height: 4, borderRadius: 99, background: 'rgba(255,255,255,.18)' }} />
+                <span style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 19, color: '#fff', textAlign: 'center', lineHeight: 1.25 }}>{r(displaySit.q)}</span>
+              </div>
+            )}
+            {/* Result: minimal grab handle only. */}
+            {isResult && (
+              <div style={{ padding: '12px 0 2px', display: 'flex', justifyContent: 'center' }}>
+                <div style={{ width: 38, height: 4, borderRadius: 99, background: 'rgba(255,255,255,.18)' }} />
+              </div>
+            )}
 
             <div style={{ maxHeight: isResult ? '62vh' : (sheetOpen ? 360 : 0), opacity: expanded ? 1 : 0, overflowY: isResult ? 'auto' : 'hidden', overflowX: 'hidden', transition: 'max-height .4s cubic-bezier(.32,.72,0,1), opacity .3s' }}>
               {!isResult ? (
