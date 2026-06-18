@@ -1,6 +1,7 @@
 'use client'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback } from 'react'
 import { useApp } from '@/lib/context'
+import type { World } from '@/lib/types'
 
 const StatusBar = () => (
   <div className="statusbar">
@@ -13,211 +14,168 @@ const StatusBar = () => (
   </div>
 )
 
-const LoreLogo = () => (
-  <svg className="lore-mark" viewBox="0 0 32 32" fill="none">
-    <defs>
-      <linearGradient id="lg" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" stopColor="#ff2d78"/>
-        <stop offset=".55" stopColor="#ff8a3d"/>
-        <stop offset="1" stopColor="#ffd24d"/>
-      </linearGradient>
-    </defs>
-    <circle className="ring" cx="16" cy="16" r="13.5" stroke="url(#lg)" strokeWidth="3" strokeDasharray="58 12" strokeLinecap="round"/>
-    <circle cx="16" cy="16" r="6.4" stroke="#ff2d78" strokeWidth="2.4"/>
-    <circle cx="16" cy="16" r="1.9" fill="#ffd24d"/>
-  </svg>
-)
+// Real scene art + character photos per world (never initials placeholders).
+const WORLD_ART: Record<World, {
+  art: string; name: string; teaser: string; meta: string
+  liveColor: string; avatars: string[]; more: string
+}> = {
+  cricket: {
+    art: '/avatars/cricket-wankhede.png',
+    name: 'Indian Dressing Room',
+    teaser: '16 saal. MI debut. India tak ka safar.',
+    meta: 'Mumbai Indians · 30 situations · 5 endings',
+    liveColor: 'var(--fame)',
+    avatars: ['/avatars/rohit.png', '/avatars/bumrah.png', '/avatars/hardik.png'],
+    more: '+9',
+  },
+  'creator-house': {
+    art: '/avatars/seed-villa.png',
+    name: 'Creator House',
+    teaser: 'Reality villa · 8 housemates · 1.2M following',
+    meta: '6 creators · 1.2M following',
+    liveColor: 'var(--trust)',
+    avatars: ['/avatars/reya.png', '/avatars/kabir.png', '/avatars/meher.png'],
+    more: '+5',
+  },
+}
 
-const LockIcon = () => (
-  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#fff" strokeWidth="1.8">
-    <rect x="5" y="11" width="14" height="9" rx="2"/>
-    <path d="M8 11V7a4 4 0 0 1 8 0v4"/>
-  </svg>
-)
+const LOCKED = [
+  { id: 'college-hostel',   name: 'College Hostel' },
+  { id: 'indian-mythology', name: 'Indian Mythology' },
+  { id: 'corporate-drama',  name: 'Corporate Drama' },
+]
 
 export default function WorldsScreen() {
-  const { navigate, showToast, game } = useApp()
-  const [shakingCard, setShakingCard] = useState<string | null>(null)
-  const shakeTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({})
+  const { navigate, game } = useApp()
 
-  const [appIntroSlide, setAppIntroSlide] = useState(0)
-  const [showAppIntro, setShowAppIntro] = useState(false)
-  useEffect(() => {
-    if (typeof window !== 'undefined' && !localStorage.getItem('seen_app_intro')) {
-      const t = setTimeout(() => setShowAppIntro(true), 550)
-      return () => clearTimeout(t)
+  const inProgress = useCallback((id: World) => game.world === id && game.situation > 0, [game.world, game.situation])
+
+  // Hierarchy: the active/most-recent world leads. Default to the flagship
+  // (cricket) — only feature Creator House when the player has a CH run going.
+  const featuredId: World = inProgress('creator-house') ? 'creator-house' : 'cricket'
+  const compactId: World = featuredId === 'cricket' ? 'creator-house' : 'cricket'
+
+  const enterWorld = useCallback((id: World) => {
+    if (id === 'cricket') {
+      // Resume an in-progress run (LiveScreen redirects to the lock screen if an
+      // interlude is active); fresh runs play the carousel. Never wipe progress.
+      navigate(inProgress('cricket') ? 'live' : 'cricket-carousel')
+    } else {
+      navigate('world-intro')
     }
-  }, [])
+  }, [navigate, inProgress])
 
-  const dismissAppIntro = useCallback(() => {
-    localStorage.setItem('seen_app_intro', '1')
-    setShowAppIntro(false)
-  }, [])
+  const badge = (id: World) => {
+    if (id === 'cricket') return inProgress('cricket') ? `CONTINUE · WEEK ${game.week ?? 1}` : 'LIVE · SEASON 1'
+    return inProgress('creator-house') ? 'IN PROGRESS' : 'LIVE · SEASON 1'
+  }
 
-  const nextAppIntro = useCallback(() => {
-    if (appIntroSlide < 2) setAppIntroSlide(s => s + 1)
-    else dismissAppIntro()
-  }, [appIntroSlide, dismissAppIntro])
+  const LiveBadge = ({ id, top = 15 }: { id: World; top?: number }) => (
+    <span style={{
+      position: 'absolute', top, left: 15, display: 'inline-flex', alignItems: 'center', gap: 6,
+      fontSize: 9.5, fontWeight: 800, letterSpacing: '.06em', color: WORLD_ART[id].liveColor,
+      background: 'rgba(8,8,15,.5)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)',
+      padding: '6px 11px', borderRadius: 20,
+    }}>
+      <span style={{ position: 'relative', width: 6, height: 6 }}>
+        <span style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: WORLD_ART[id].liveColor }} />
+        <span style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: WORLD_ART[id].liveColor, animation: 'pulse 1.8s ease-out infinite' }} />
+      </span>
+      {badge(id)}
+    </span>
+  )
 
-  const handleTab = useCallback((tab: string) => {
-    if (tab === 'live') {
-      if (game.world === 'cricket') navigate('feed')
-      else navigate('world-intro')
-    }
-  }, [navigate, game.world])
+  const grain = <div style={{ position: 'absolute', inset: 0, background: 'var(--grain)', opacity: 0.32, mixBlendMode: 'overlay', pointerEvents: 'none' }} />
 
-  const triggerShake = useCallback((cardId: string, msg: string) => {
-    setShakingCard(cardId)
-    showToast(msg)
-    if (shakeTimers.current[cardId]) clearTimeout(shakeTimers.current[cardId])
-    shakeTimers.current[cardId] = setTimeout(() => setShakingCard(null), 500)
-  }, [showToast])
-
-  const handleCreatorHouse = useCallback(() => {
-    navigate('world-intro')
-  }, [navigate])
+  const featured = WORLD_ART[featuredId]
+  const compact = WORLD_ART[compactId]
+  const avatar = (url: string, ml = 0) => (
+    <div key={url} style={{ width: 36, height: 36, borderRadius: '50%', border: '2px solid var(--bg)', marginLeft: ml, backgroundColor: '#0a1a4a', backgroundImage: `url(${url})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
+  )
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: 'var(--bg)', fontFamily: 'var(--sans)' }}>
       <StatusBar />
 
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', padding: '4px 20px 12px' }}>
-        <div className="worlds-head">
-          <div className="lore-logo">
-            <LoreLogo />
-            <div>
-              <div className="logo">Lore</div>
-              <div className="logo-sub">Live your story</div>
-            </div>
-          </div>
-        </div>
-        <button className="icon-btn" onClick={() => showToast('Notifications coming soon')}>
-          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round">
-            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-          </svg>
+      <div style={{ flex: 'none', padding: '8px 22px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 24, color: '#fff' }}>Choose a world</div>
+        <button
+          className="lo-press"
+          onClick={() => navigate('profile-global')}
+          aria-label="Profile"
+          style={{
+            width: 40, height: 40, borderRadius: '50%', border: 'none', cursor: 'pointer', padding: 0,
+            display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden',
+            background: game.avatarUrl ? `center/cover url(${game.avatarUrl})` : 'linear-gradient(135deg,#ff2d78,#ff8a3d)',
+            fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 18, color: '#fff',
+          }}
+        >
+          {!game.avatarUrl && (game.playerName?.[0]?.toUpperCase() ?? 'A')}
         </button>
       </div>
 
-      {/* World list */}
-      <div className="scroll">
-        <div className="world-list">
+      {/* Gallery */}
+      <div className="scroll" style={{ flex: 1, padding: '4px 18px 14px' }}>
 
-          {/* Indian Dressing Room — lead world for India */}
-          <button
-            className="world-card"
-            onClick={() => navigate(
-              // In-progress run resumes where it left off (LiveScreen redirects
-              // to the lock screen if an interlude is active). Carousel only
-              // plays for fresh runs — re-entering must never wipe progress.
-              game.world === 'cricket' && game.situation > 0 ? 'live' : 'cricket-carousel'
-            )}
-            style={{ boxShadow: '0 0 0 1.5px rgba(0,48,135,.5), 0 12px 40px rgba(0,48,135,.25)' }}
+        {/* ===== Featured / Continue ===== */}
+        <button
+          className="lo-press"
+          onClick={() => enterWorld(featuredId)}
+          style={{ position: 'relative', display: 'block', width: '100%', height: 370, borderRadius: 24, overflow: 'hidden', marginBottom: 16, border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left' }}
+        >
+          <img src={featured.art} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+          {grain}
+          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(8,8,15,.4) 0%, transparent 28%, rgba(8,8,15,.5) 58%, rgba(8,8,15,.94) 100%)' }} />
+          <LiveBadge id={featuredId} />
+          <div style={{ position: 'absolute', left: 20, right: 20, bottom: 20 }}>
+            <div style={{ display: 'flex', marginBottom: 13 }}>
+              {featured.avatars.map((u, i) => avatar(u, i === 0 ? 0 : -12))}
+              <div style={{ width: 36, height: 36, borderRadius: '50%', border: '2px solid var(--bg)', marginLeft: -12, background: 'rgba(8,8,15,.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, color: '#fff' }}>{featured.more}</div>
+            </div>
+            <div style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 28, color: '#fff', lineHeight: 1.1 }}>{featured.name}</div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,.75)', marginTop: 6 }}>{featured.teaser}</div>
+            <div style={{ marginTop: 14, height: 50, borderRadius: 14, background: 'var(--accent)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontWeight: 700, fontSize: 15.5, fontFamily: 'var(--sans)', boxShadow: '0 8px 24px rgba(255,45,120,.35)' }}>
+              ▶&nbsp;&nbsp;{inProgress(featuredId) ? 'Continue your story' : 'Start your story'}
+            </div>
+          </div>
+        </button>
+
+        {/* ===== Other real world (compact) ===== */}
+        <button
+          className="lo-press"
+          onClick={() => enterWorld(compactId)}
+          style={{ position: 'relative', display: 'block', width: '100%', height: 206, borderRadius: 24, overflow: 'hidden', marginBottom: 16, border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left' }}
+        >
+          <img src={compact.art} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+          {grain}
+          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, transparent 28%, rgba(8,8,15,.92))' }} />
+          <LiveBadge id={compactId} />
+          <div style={{ position: 'absolute', left: 20, right: 20, bottom: 18 }}>
+            <div style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 24, color: '#fff' }}>{compact.name}</div>
+            <div style={{ fontSize: 12.5, color: 'rgba(255,255,255,.72)', marginTop: 4 }}>{compact.meta}</div>
+          </div>
+        </button>
+
+        {/* ===== Locked / coming soon ===== */}
+        {LOCKED.map(w => (
+          <div
+            key={w.id}
+            style={{ position: 'relative', height: 150, borderRadius: 24, overflow: 'hidden', marginBottom: 16, background: 'linear-gradient(135deg,#22202a,#141219)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 9 }}
           >
-            <div
-              className="wc-cover"
-              style={{ background: 'linear-gradient(135deg,#003087,#001540)', height: 210 }}
-            >
-              <div className="wc-badge" style={{ color: '#FFB020' }}>
-                <div className="pulse" style={{ background: '#FFB020' }} />
-                LIVE · SEASON 1
-              </div>
-              <div className="wc-name">Indian Dressing Room</div>
-              <div className="wc-status">
-                <div className="pulse" style={{ background: '#FFB020' }} />
-                16 saal. Mumbai Indians. Pehla IPL.
-              </div>
-            </div>
-            <div className="wc-foot">
-              <div className="av-stack">
-                {[
-                  { init: 'H', cls: 'c-hardik' },
-                  { init: 'R', cls: 'c-rohit' },
-                  { init: 'S', cls: 'c-surya' },
-                  { init: 'J', cls: 'c-bumrah' },
-                ].map((c) => (
-                  <div key={c.init} className={`av ${c.cls}`} style={{ width: 24, height: 24, fontSize: 10 }}>
-                    {c.init}
-                  </div>
-                ))}
-              </div>
-              <div className="wc-meta">Mumbai Indians · 30 situations · 5 endings</div>
-            </div>
-          </button>
-
-          {/* Creator House */}
-          <button
-            className={`world-card${shakingCard === 'creator-house' ? ' shake' : ''}`}
-            onClick={handleCreatorHouse}
-            style={{ boxShadow: '0 0 0 1.5px rgba(255,45,120,.35), 0 12px 40px rgba(255,45,120,.18)' }}
-          >
-            <div
-              className="wc-cover"
-              style={{ background: 'linear-gradient(135deg,#ff2d78,#7a1140)', height: 210 }}
-            >
-              <div className="wc-badge">
-                <div className="pulse" />
-                LIVE · SEASON 1
-              </div>
-              <div className="wc-name">Creator House</div>
-              <div className="wc-status">
-                <div className="pulse" />
-                6 creators. Ek villa. 10 din.
-              </div>
-            </div>
-            <div className="wc-foot">
-              <div className="av-stack">
-                {(['R','K','M','A'] as const).map((init, i) => {
-                  const cls = ['c-reya','c-kabir','c-meher','c-ananya'][i]
-                  return (
-                    <div key={init} className={`av ${cls}`} style={{ width: 24, height: 24, fontSize: 10 }}>
-                      {init}
-                    </div>
-                  )
-                })}
-              </div>
-              <div className="wc-meta">6 creators · 1.2M following</div>
-            </div>
-          </button>
-
-          {/* Locked worlds — coming soon */}
-          {[
-            { id: 'college-hostel',   name: 'College Hostel',    sub: 'Ragging, crush, exams, politics.', gradient: 'linear-gradient(135deg,#1a5a3a,#0a2a1a)', accent: '#2a9a6a' },
-            { id: 'indian-mythology', name: 'Indian Mythology',  sub: 'Gods, wars, dharma, destiny.',      gradient: 'linear-gradient(135deg,#7a3a1a,#3a1a0a)', accent: '#FFB020' },
-            { id: 'corporate-drama',  name: 'Corporate Drama',   sub: 'Office politics. Real money.',      gradient: 'linear-gradient(135deg,#1a2a5a,#0a1020)', accent: '#6a8aff' },
-          ].map(w => (
-            <button
-              key={w.id}
-              className={`world-card${shakingCard === w.id ? ' shake' : ''}`}
-              onClick={() => triggerShake(w.id, 'Yeh world jald aayega 🔐')}
-              style={{ opacity: 0.72 }}
-            >
-              <div className="wc-cover" style={{ background: w.gradient, height: 140 }}>
-                <div className="wc-badge" style={{ color: w.accent, borderColor: `${w.accent}44` }}>
-                  <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                    <rect x="5" y="11" width="14" height="9" rx="2"/>
-                    <path d="M8 11V7a4 4 0 0 1 8 0v4"/>
-                  </svg>
-                  COMING SOON
-                </div>
-                <div className="wc-name" style={{ fontSize: 22, opacity: 0.9 }}>{w.name}</div>
-                <div className="wc-status" style={{ opacity: 0.6 }}>{w.sub}</div>
-              </div>
-            </button>
-          ))}
-
-        </div>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--ink3)" strokeWidth="2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+            <div style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 19, color: 'var(--ink2)' }}>{w.name}</div>
+            <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.05em', color: 'var(--ink3)' }}>COMING SOON</div>
+          </div>
+        ))}
       </div>
 
-      {/* Tab bar */}
+      {/* Tab bar — out-of-world (Worlds · Profile) */}
       <div className="tabbar">
         <button className="tab active" onClick={() => {}}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="9"/>
-            <path d="M12 3c-2.5 3-4 5.7-4 9s1.5 6 4 9"/>
-            <path d="M12 3c2.5 3 4 5.7 4 9s-1.5 6-4 9"/>
-            <path d="M3 12h18"/>
+            <path d="M12 3c-2.5 3-4 5.7-4 9s1.5 6 4 9M12 3c2.5 3 4 5.7 4 9s-1.5 6-4 9M3 12h18"/>
           </svg>
           <span>Worlds</span>
         </button>
@@ -227,96 +185,6 @@ export default function WorldsScreen() {
           </svg>
           <span>Profile</span>
         </button>
-      </div>
-
-      {/* Toast */}
-      {/* Toast is rendered by parent via context; individual screens don't render it */}
-
-      {/* App Intro Overlay */}
-      <div className={`app-intro-overlay${showAppIntro ? ' show' : ''}`}>
-        <div className="app-intro-sheet">
-          <div className="app-intro-handle" />
-          <div className="app-intro-window">
-            <div className="app-intro-track" style={{ transform: `translateX(-${appIntroSlide * 100}%)` }}>
-
-              {/* Slide 1 — What is Lore */}
-              <div className="app-intro-slide">
-                <div className="app-intro-logo">
-                  <svg viewBox="0 0 32 32" fill="none" width="28" height="28">
-                    <defs>
-                      <linearGradient id="aiG" x1="0" y1="0" x2="1" y2="1">
-                        <stop offset="0" stopColor="#ff2d78"/>
-                        <stop offset=".55" stopColor="#ff8a3d"/>
-                        <stop offset="1" stopColor="#ffd24d"/>
-                      </linearGradient>
-                    </defs>
-                    <circle cx="16" cy="16" r="13.5" stroke="url(#aiG)" strokeWidth="3" strokeDasharray="58 12" strokeLinecap="round"/>
-                    <circle cx="16" cy="16" r="6.4" stroke="#ff2d78" strokeWidth="2.4"/>
-                    <circle cx="16" cy="16" r="1.9" fill="#ffd24d"/>
-                  </svg>
-                  <span>Lore</span>
-                </div>
-                <div className="app-intro-h">Pick a world.<br />Become a character.</div>
-                <p className="app-intro-p">
-                  Every choice has fallout.<br /><br />
-                  This isn&apos;t a story you read —<br />it&apos;s a world you live in.
-                </p>
-              </div>
-
-              {/* Slide 2 — How it works */}
-              <div className="app-intro-slide">
-                <div className="app-intro-h">Teen tarike hain duniya jeene ke.</div>
-                <div className="app-intro-rows">
-                  <div className="app-intro-row">
-                    <div className="app-intro-row-dot" style={{ background: 'var(--accent)' }} />
-                    <div>
-                      <div className="app-intro-row-label">Live</div>
-                      <div className="app-intro-row-sub">Choices karo. Har choice ka fallout hota hai — meters pe, relationships pe.</div>
-                    </div>
-                  </div>
-                  <div className="app-intro-row">
-                    <div className="app-intro-row-dot" style={{ background: 'var(--trust)' }} />
-                    <div>
-                      <div className="app-intro-row-label">DMs</div>
-                      <div className="app-intro-row-sub">Characters tumse baat karte hain. Trust ke saath unka tone badalta hai.</div>
-                    </div>
-                  </div>
-                  <div className="app-intro-row">
-                    <div className="app-intro-row-dot" style={{ background: 'var(--fame)' }} />
-                    <div>
-                      <div className="app-intro-row-label">Feed</div>
-                      <div className="app-intro-row-sub">Duniya tumhari moves pe react karti hai. Viral ya forgotten — tumhare haath mein.</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Slide 3 — CTA */}
-              <div className="app-intro-slide" style={{ justifyContent: 'center', display: 'flex', flexDirection: 'column' }}>
-                <div className="app-intro-h" style={{ fontSize: 36 }}>Ab shuru karo.</div>
-                <p className="app-intro-p" style={{ marginTop: 16 }}>
-                  Ek world chunno.<br />Apni story jeeo.
-                </p>
-              </div>
-
-            </div>
-          </div>
-
-          <div className="app-intro-dots">
-            {[0, 1, 2].map(i => (
-              <span key={i} className={`app-intro-dot${i === appIntroSlide ? ' active' : ''}`} />
-            ))}
-          </div>
-
-          <div className="app-intro-foot">
-            <button className="app-intro-cta-btn" onClick={nextAppIntro}>
-              {appIntroSlide === 2 ? 'Duniya Chunno →' : 'Next →'}
-            </button>
-            {appIntroSlide < 2 && (
-              <button className="app-intro-skip-btn" onClick={dismissAppIntro}>Skip</button>
-            )}
-          </div>
-        </div>
       </div>
     </div>
   )
