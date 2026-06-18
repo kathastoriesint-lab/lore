@@ -466,6 +466,13 @@ export default function LiveScreen() {
                   <p style={{ position: 'absolute', left: 0, right: 0, bottom: 0, margin: 0, padding: '30px 14px 14px', fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 14.5, lineHeight: 1.45, color: '#fff', background: 'linear-gradient(to top, rgba(0,0,0,.6), transparent)', textShadow: '0 1px 6px rgba(0,0,0,.5)' }}>{r(postSpec.caption)}</p>
                 )}
               </div>
+              {/* Caption below the photo (image posts) — for text-only posts it's
+                  already overlaid on the gradient card above. */}
+              {postSpec.imageUrl && (
+                <div style={{ padding: '10px 14px 0', fontSize: 13, lineHeight: 1.45, color: 'rgba(255,255,255,.9)' }}>
+                  <b>@{postOwner.handle}</b> {r(postSpec.caption)}
+                </div>
+              )}
               {postReactions.length > 0 && (
                 <div style={{ padding: '10px 14px 12px', display: 'flex', flexDirection: 'column', gap: 7 }}>
                   {postReactions.map((rx, j) => {
