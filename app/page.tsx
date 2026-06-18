@@ -34,6 +34,7 @@ import {
 } from '@/lib/season'
 import { EVICTION_TRIGGERS, buildEviction } from '@/lib/creator-house'
 import { scheduleLockNotification, cancelLockNotification } from '@/lib/native-notify'
+import { recordWorldEntered, bumpChoices, touchDayStreak } from '@/lib/profile-stats'
 
 const clampTrust = (n: number) => Math.max(0, Math.min(100, Math.round(n)))
 
@@ -146,6 +147,7 @@ export default function App() {
 
   useEffect(() => {
     initContent().catch(() => {}) // background content refresh; bundled content renders meanwhile
+    touchDayStreak() // cross-world day-streak for the global profile
     if (typeof window !== 'undefined' && new URLSearchParams(location.search).has('reset')) {
       resetGameState().finally(() => {
         window.history.replaceState(null, '', location.pathname)
@@ -322,6 +324,7 @@ export default function App() {
     setRelationshipAlerts([])
     saveAndSet(newState)
     analytics.track('world_entered', 'creator-house', { world_id: 'creator-house' })
+    recordWorldEntered('creator-house')
     if (typeof window !== 'undefined') {
       localStorage.removeItem('lore_feed_seen')
       localStorage.removeItem('lore_dm_openers_v1') // fresh run re-seeds openers
@@ -344,6 +347,7 @@ export default function App() {
     setRelationshipAlerts([])
     saveAndSet(newState)
     analytics.track('world_entered', 'cricket', { world_id: 'cricket' })
+    recordWorldEntered('cricket')
     if (typeof window !== 'undefined') {
       localStorage.setItem('lore_feed_seen', '1')
       localStorage.removeItem('lore_dm_openers_v1') // fresh run re-seeds openers
@@ -578,6 +582,7 @@ export default function App() {
     const sit = sitMap[currentId]
     const ch = sit?.choices?.[idx]
     if (!ch) return
+    bumpChoices() // lifetime choice counter for the global profile
     const letter = idx === 0 ? 'A' : 'B'
     const newMeters = applyDeltas(game.meters, ch.deltas)
     const newFlags = applyFlagDeltas(game.flags, ch.flagDeltas)

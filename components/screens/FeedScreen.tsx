@@ -6,6 +6,7 @@ import { getVisibleSituations } from '@/lib/ch-rules'
 import type { PostCommentOption } from '@/lib/data'
 import { getCricketChars, getCricketSituations, getCHChars, getCHPostComments } from '@/lib/content'
 import { applyDeltas, resolveTokens } from '@/lib/game'
+import { derivePosts, type FeedPost } from '@/lib/feed-posts'
 import MeterHUD from '@/components/MeterHUD'
 import CHStatusCard from '@/components/CHStatusCard'
 
@@ -459,129 +460,8 @@ export default function FeedScreen() {
   const playingChar = game.char ? (allChars[game.char] ?? null) : null
   const worldLabel = isCricket ? 'Indian Dressing Room' : 'Creator House'
 
-  // Replay game state step-by-step to find the correct situation for each choice.
-  // Cricket must follow situationQueue because S28 is skipped in the playable path.
-  type FeedPost =
-    | { type: 'npc';    postId: string; sit: ReturnType<typeof getVisibleSituations>[0]; stepIndex: number; postOffset: number; choice: 'A'|'B'; reaction: { char: string; caption: string }; char: Character }
-    | {
-        type: 'authored'
-        postId: string
-        sit: ReturnType<typeof getVisibleSituations>[0]
-        stepIndex: number
-        postOffset: number
-        choice: 'A'|'B'
-        caption: string
-        imageUrl?: string
-        owner: { id: string; cls: string; init: string; handle: string; avatarUrl?: string; color: string; isPlayer: boolean; likeTarget?: CharId }
-        label?: string
-        reactions: Reaction[]
-      }
-
-  const completedPosts = useMemo((): FeedPost[] => {
-    if (game.choices.length === 0) return []
-    const STARTING_METERS = isCricket
-      ? { fame: 40, heat: 25, image: 20 }
-      : { fame: 20, heat: 50, image: 30 }
-    let meters = { ...STARTING_METERS }
-    const posts: FeedPost[] = []
-    const playerCharObj = isCricket
-      ? {
-          id: 'player' as CharId,
-          cls: '',
-          init: (game.playerName?.[0] ?? 'N').toUpperCase(),
-          name: game.playerName || 'Player',
-          handle: (game.playerName || 'player').toLowerCase().replace(/\s+/g, ''),
-          fame: 0,
-          role: '',
-        }
-      : game.char ? (allChars[game.char] ?? null) : null
-    const cricketSitMap = isCricket
-      ? Object.fromEntries(getCricketSituations().map(s => [s.id, s]))
-      : {}
-
-    for (let i = 0; i < game.choices.length; i++) {
-      const letter = game.choices[i]
-      const sitsAtStep = isCricket
-        ? [cricketSitMap[game.situationQueue[i]]]
-        : getVisibleSituations(meters, game.choices.slice(0, i) as ('A'|'B')[])
-      const sit = isCricket ? sitsAtStep[0] : sitsAtStep[i]
-      if (!sit) continue
-      const ch = sit.choices[letter === 'A' ? 0 : 1]
-
-      // NPC feedReaction post pushed FIRST — after reverse(), it sits below player post
-      const reaction = isCricket ? null : sit.feedReaction?.[letter]
-      if (reaction) {
-        const char = allChars[reaction.char as CharId]
-        if (char) posts.push({ type: 'npc', postId: `react-${sit.id}-${letter}`, sit, stepIndex: i, postOffset: 2, choice: letter, reaction, char })
-      }
-
-      const legacyPost: ChoicePost | null = ch?.caption
-        ? { source: 'player', caption: ch.caption, reactions: ch.reactions ?? [] }
-        : null
-      const outcome = ch ? resolveChoiceOutcome(ch, meters) : null
-      const authoredPosts = asArray(outcome?.post !== undefined ? outcome.post : (ch?.post !== undefined ? ch.post : (isCricket ? null : legacyPost)))
-        .filter(post => post.display !== 'live-only')
-      if (authoredPosts.length > 0 && playerCharObj) {
-        authoredPosts.forEach((authoredPost, postIndex) => {
-          const owner = (() => {
-          if (authoredPost.source === 'account') {
-            const handle = authoredPost.handle ?? authoredPost.name?.toLowerCase().replace(/\s+/g, '') ?? 'update'
-            return {
-              id: '__account',
-              cls: '',
-              init: authoredPost.avatarText ?? (authoredPost.name ?? handle)[0]?.toUpperCase() ?? 'U',
-              handle,
-              color: '#003087',
-              isPlayer: false,
-            }
-          }
-          if (authoredPost.source === 'character' && authoredPost.char) {
-            const c = allChars[authoredPost.char]
-            if (!c) return null
-            return {
-              id: c.id,
-              cls: c.cls,
-              init: c.init,
-              handle: c.handle,
-              avatarUrl: `/avatars/${c.id}.png`,
-              color: CHAR_COLORS_HEX[c.id] ?? '#1a1a2e',
-              isPlayer: false,
-              likeTarget: c.id as CharId,
-            }
-          }
-          return {
-            id: playerCharObj.id,
-            cls: playerCharObj.cls,
-            init: playerCharObj.init,
-            handle: authoredPost.handle ?? (game.playerName || playerCharObj.handle).toLowerCase().replace(/\s+/g, ''),
-            avatarUrl: isCricket ? game.avatarUrl : `/avatars/${playerCharObj.id}.png`,
-            color: CHAR_COLORS_HEX[playerCharObj.id] ?? '#1a1a2e',
-            isPlayer: true,
-            likeTarget: playerCharObj.id as CharId,
-          }
-        })()
-          if (owner) {
-            posts.push({
-              type: 'authored',
-              postId: `post-${sit.id}-${letter}-${postIndex}`,
-              sit,
-              stepIndex: i,
-              postOffset: postIndex * 2,
-              choice: letter,
-              caption: authoredPost.caption,
-              imageUrl: authoredPost.imageUrl,
-              owner,
-              label: authoredPost.label,
-              reactions: authoredPost.reactions ?? [],
-            })
-          }
-        })
-      }
-
-      if (ch) meters = applyDeltas(meters, ch.deltas)
-    }
-    return posts.reverse()
-  }, [game.choices, game.char, isCricket])
+  // Player's run → feed posts (newest first). Shared with the world profile.
+  const completedPosts = useMemo<FeedPost[]>(() => derivePosts(game), [game.choices, game.char, isCricket])
 
   // Current visible situations (for Story Drop CTA only)
   const visibleSits = isCricket ? getCricketSituations() : getVisibleSituations(game.meters, game.choices)

@@ -13,6 +13,7 @@ export interface AuthInfo {
   isAuthed: boolean
   isAnonymous: boolean
   phone: string | null
+  email: string | null
 }
 
 export async function getAuthInfo(): Promise<AuthInfo> {
@@ -22,9 +23,10 @@ export async function getAuthInfo(): Promise<AuthInfo> {
       isAuthed: !!user,
       isAnonymous: !!user?.is_anonymous,
       phone: user?.phone ? `+${user.phone}` : null,
+      email: user?.email ?? null,
     }
   } catch {
-    return { isAuthed: false, isAnonymous: false, phone: null }
+    return { isAuthed: false, isAnonymous: false, phone: null, email: null }
   }
 }
 
