@@ -94,11 +94,12 @@ export default function GoalCard({ variant = 'full' }: { variant?: Variant }) {
     }
     const unlock = UNLOCK_SHORT[goalWeekNum] ?? goalWeek.name
 
-    // Teal fill — progress toward the goal. (Deliberately NOT the meter's own
-    // colour: this bar is "how close to the target", not "how big your score".)
-    const bar = (cur: number, target: number) => (
+    // Each gate is coloured by its meter — Form gold, Fame orange, Trust teal —
+    // matching the meter set everywhere else (charTrust gates count as trust).
+    const metricColor = (label: string) => /trust/i.test(label) ? '#3DD6C8' : /fame/i.test(label) ? '#FF5C3A' : '#FFB020'
+    const bar = (cur: number, target: number, color: string) => (
       <span style={{ display: 'block', height: 7, borderRadius: 4, background: 'rgba(255,255,255,.08)', overflow: 'hidden' }}>
-        <span style={{ display: 'block', height: '100%', borderRadius: 4, width: `${Math.min(100, (cur / target) * 100)}%`, background: 'var(--trust)', transition: 'width .5s ease' }} />
+        <span style={{ display: 'block', height: '100%', borderRadius: 4, width: `${Math.min(100, (cur / target) * 100)}%`, background: color, transition: 'width .5s ease' }} />
       </span>
     )
     return (
@@ -121,6 +122,7 @@ export default function GoalCard({ variant = 'full' }: { variant?: Variant }) {
         {single ? (() => {
           const g = gGaps[0]
           const remaining = Math.max(0, g.threshold - g.current)
+          const c = metricColor(g.label)
           return (
             <>
               {/* Tier 2 — lead with the GOAL and the GAP. The current value is
@@ -132,11 +134,11 @@ export default function GoalCard({ variant = 'full' }: { variant?: Variant }) {
                   <div style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 17, lineHeight: 1.1, color: '#fff', marginTop: 3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{unlock}</div>
                 </div>
                 <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                  <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--trust)' }}>{g.passed ? '✓ Ready' : `${remaining} aur chahiye`}</div>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: c }}>{g.passed ? '✓ Ready' : `${remaining} aur chahiye`}</div>
                   <div style={{ fontSize: 11, color: 'var(--ink3)', marginTop: 2, fontVariantNumeric: 'tabular-nums' }}>{g.label} {g.current}/{g.threshold}</div>
                 </div>
               </div>
-              {bar(g.current, g.threshold)}
+              {bar(g.current, g.threshold, c)}
               {/* DM-trust gate: tappable straight into that senior's chat. */}
               {g.surface === 'dms' && dmCharName && !g.passed && (
                 <button
@@ -172,7 +174,7 @@ export default function GoalCard({ variant = 'full' }: { variant?: Variant }) {
                       {g.current} <span style={{ color: 'var(--ink3)', fontSize: 12 }}>→ {g.threshold}</span>
                     </span>
                   </div>
-                  {bar(g.current, g.threshold)}
+                  {bar(g.current, g.threshold, metricColor(g.label))}
                   {isDm && (
                     <div style={{ fontSize: 10.5, color: 'var(--trust)', marginTop: 5 }}>
                       → {dmCharName} se DM pe baat karke trust banao
