@@ -1,14 +1,12 @@
 'use client'
-import { useRef, useState } from 'react'
+import { useRef, useState, type CSSProperties } from 'react'
 import { useApp } from '@/lib/context'
 
-const TOTAL = 4
-
-const METERS = [
-  { label: 'FORM',  color: '#FFB020', val: 'Kya tum khelna jaante ho?', pct: 18 },
-  { label: 'FAME',  color: '#FFD24D', val: 'Duniya kya sochti hai?',    pct: 28 },
-  { label: 'TRUST', color: '#3DD6C8', val: 'Dressing room ka yakeen?',  pct: 10 },
-]
+// Cricket intro — "split card" redesign (handoff: cricket carousel). Three tight
+// slides: scene image on top (~54%), text on a solid panel below, navy CTA in a
+// footer bar. Logic (enter() routing, goTo, swipe) is unchanged from before.
+const TOTAL = 3
+const NAVY = 'linear-gradient(135deg,#003087,#001a5a)'
 
 export default function CricketCarouselScreen() {
   const { navigate, game, startCricketGame } = useApp()
@@ -31,147 +29,105 @@ export default function CricketCarouselScreen() {
 
   const isLast = cur === TOTAL - 1
 
+  // ── shared styles ──
+  const imgWrap: CSSProperties = { position: 'relative', height: '54%', flex: 'none' }
+  const img: CSSProperties = { width: '100%', height: '100%', objectFit: 'cover', display: 'block' }
+  const grain: CSSProperties = { position: 'absolute', inset: 0, background: 'var(--grain)', opacity: 0.3, mixBlendMode: 'overlay', pointerEvents: 'none' }
+  const scrim: CSSProperties = { position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(8,8,15,.3) 0%, transparent 40%, var(--bg) 100%)' }
+  const eyebrow: CSSProperties = { display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 10, fontWeight: 800, letterSpacing: '.14em', color: 'var(--fame)', marginBottom: 14 }
+  const big = (size: number): CSSProperties => ({ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: size, lineHeight: 1.07, color: '#fff' })
+  const body: CSSProperties = { fontSize: 16, color: 'var(--ink2)', lineHeight: 1.55, marginTop: 13 }
+  const av = (first: boolean): CSSProperties => ({ width: 46, height: 46, borderRadius: '50%', border: '2px solid var(--bg)', marginLeft: first ? 0 : -13, background: '#0a1a4a center/cover', objectFit: 'cover' })
+
   return (
     <div
-      className="cc-root"
+      style={{ position: 'relative', width: '100%', height: '100%', background: 'var(--bg)', overflow: 'hidden', fontFamily: 'var(--sans)', display: 'flex', flexDirection: 'column' }}
       onTouchStart={e => { touchStartX.current = e.touches[0].clientX }}
       onTouchEnd={e => {
         const dx = e.changedTouches[0].clientX - touchStartX.current
         if (Math.abs(dx) > 50) goTo(dx < 0 ? cur + 1 : cur - 1)
       }}
     >
-      <button className="cc-skip-btn" onClick={enter}>Skip →</button>
+      <div style={{ position: 'relative', flex: 1, overflow: 'hidden' }}>
+        <div style={{ display: 'flex', width: '300%', height: '100%', transform: `translateX(-${cur * 33.333}%)`, transition: 'transform .55s cubic-bezier(.32,.72,0,1)' }}>
 
-      <div className="cc-dots">
-        {Array.from({ length: TOTAL }).map((_, i) => (
-          <div key={i} className={`cc-dot${i === cur ? ' active' : ''}`} />
-        ))}
+          {/* Slide 1 — the breakthrough */}
+          <div style={{ width: '33.333%', height: '100%', display: 'flex', flexDirection: 'column' }}>
+            <div style={imgWrap}>
+              <img src="/avatars/cricket-wankhede.png" alt="" style={img} />
+              <div style={grain} /><div style={scrim} />
+            </div>
+            <div style={{ flex: 1, padding: '4px 28px 28px', display: 'flex', flexDirection: 'column' }}>
+              <div style={eyebrow}><span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--fame)' }} />MUMBAI INDIANS · IPL · SEASON 1</div>
+              <div style={big(36)}>Tum 16 saal ke ho.</div>
+              <div style={body}>Saat saal ki mehnat. Aur aaj — Mumbai Indians ne tumhe kharida.</div>
+            </div>
+          </div>
+
+          {/* Slide 2 — the dressing room */}
+          <div style={{ width: '33.333%', height: '100%', display: 'flex', flexDirection: 'column' }}>
+            <div style={imgWrap}>
+              <img src="/avatars/cricket-dressing-room.png" alt="" style={img} />
+              <div style={grain} /><div style={scrim} />
+            </div>
+            <div style={{ flex: 1, padding: '0 28px 28px', display: 'flex', flexDirection: 'column' }}>
+              <div style={{ display: 'flex', marginTop: -26, marginBottom: 16, position: 'relative', zIndex: 2 }}>
+                <img src="/avatars/rohit.png" alt="" style={av(true)} />
+                <img src="/avatars/bumrah.png" alt="" style={av(false)} />
+                <img src="/avatars/hardik.png" alt="" style={av(false)} />
+              </div>
+              <div style={big(32)}>Rohit. Bumrah. Hardik.</div>
+              <div style={body}>Ab inke saath dressing room. Par yeh tumhe nahi jaante — trust kamaana padega.</div>
+            </div>
+          </div>
+
+          {/* Slide 3 — the goal */}
+          <div style={{ width: '33.333%', height: '100%', display: 'flex', flexDirection: 'column' }}>
+            <div style={imgWrap}>
+              <img src="/avatars/cricket-nets.png" alt="" style={img} />
+              <div style={grain} /><div style={scrim} />
+            </div>
+            <div style={{ flex: 1, padding: '4px 28px 28px', display: 'flex', flexDirection: 'column' }}>
+              <div style={{ ...eyebrow, marginBottom: 12 }}>SEASON 1 · THE GOAL</div>
+              <div style={big(36)}>India tak pahuncho.</div>
+              <div style={body}>Squad ka bharosa jeeto, runs banao. Yahan chha gaye — toh India ka call-up tumhara.</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginTop: 18, flexWrap: 'wrap' }}>
+                {['MI Debut', 'Main Nets', 'India'].map((step, i) => (
+                  <div key={step} style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                    <span style={{
+                      fontSize: 11, fontWeight: 800, padding: '6px 10px', borderRadius: 8,
+                      background: i === 2 ? 'rgba(255,176,32,.16)' : 'rgba(255,255,255,.05)',
+                      color: i === 2 ? 'var(--fame)' : 'var(--ink2)',
+                      border: i === 2 ? '1px solid rgba(255,176,32,.4)' : '1px solid transparent',
+                    }}>{step}</span>
+                    {i < 2 && <span style={{ color: 'var(--ink3)', fontSize: 13 }}>→</span>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        {/* Skip → last slide */}
+        <button onClick={() => goTo(TOTAL - 1)} className="lo-press"
+          style={{ position: 'absolute', top: 20, right: 18, zIndex: 5, background: 'rgba(8,8,15,.4)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,.14)', color: 'rgba(255,255,255,.85)', fontFamily: 'var(--sans)', fontSize: 13, fontWeight: 600, padding: '7px 14px', borderRadius: 20, cursor: 'pointer' }}>
+          Skip
+        </button>
       </div>
 
-      <div className="cc-slides-window">
-        <div className="cc-slides-track" style={{ transform: `translateX(-${cur * 100}%)` }}>
-
-          {/* Slide 1 — The Breakthrough */}
-          <div className="cc-slide">
-            <div className="cc-live-badge">
-              <span className="cc-live-dot" />
-              LIVE — IPL · MUMBAI INDIANS · SEASON 1
-            </div>
-            <div className="cc-big">Tum 16 saal ke ho.</div>
-            <div className="cc-body">
-              Saat saal se cricket khel rahe ho. Aur aaj — tumhaara
-              pehla bada breakthrough.<br /><br />
-              Mumbai Indians ne tumhe kharida hai. Yeh tumhaari
-              cricketing story ka Season 1 hai.
-            </div>
-          </div>
-
-          {/* Slide 2 — The Dressing Room */}
-          <div className="cc-slide">
-            <div className="cc-big">Rohit. Hardik. Bumrah.</div>
-            <div className="cc-body">
-              Ab tum inn superstars ke saath dressing room
-              share karoge.<br /><br />
-              Par yeh log tumhe nahi jaante — abhi. Wankhede ka
-              dressing room utna warm nahi hota jitna TV par dikhta hai.<br /><br />
-              Trust kamaana padega.
-            </div>
-            <div className="cc-avatars">
-              {[
-                { init: 'R', name: 'Rohit' },
-                { init: 'J', name: 'Bumrah' },
-                { init: 'H', name: 'Hardik' },
-              ].map(a => (
-                <div key={a.name} className="cc-av-wrap">
-                  <div className="cc-av">{a.init}</div>
-                  <div className="cc-av-name">{a.name}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Slide 3 — Meters */}
-          <div className="cc-slide">
-            <div className="cc-big" style={{ fontSize: 30 }}>
-              Teen cheezein matter karti hain.
-            </div>
-            <div className="cc-meters">
-              {METERS.map(m => (
-                <div key={m.label} className="cc-meter-row">
-                  <div className="cc-meter-head">
-                    <span className="cc-meter-label" style={{ color: m.color }}>{m.label}</span>
-                    <span className="cc-meter-val">{m.val}</span>
-                  </div>
-                  <div className="cc-meter-track">
-                    <div className="cc-meter-fill" style={{ background: m.color, width: `${m.pct}%` }} />
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="cc-body" style={{ marginTop: 16 }}>Har choice inhein badlegi.</div>
-          </div>
-
-          {/* Slide 4 — The Goal: why any of this matters */}
-          <div className="cc-slide">
-            <div className="cc-live-badge" style={{ color: '#FFB020' }}>
-              <span className="cc-live-dot" style={{ background: '#FFB020' }} />
-              SEASON 1 · THE GOAL
-            </div>
-            <div className="cc-big">India tak pahuncho.</div>
-            <div className="cc-body">
-              Yeh <b>Mumbai Indians</b> ka ghar hai. Yahan har match, har net session,
-              har dressing-room moment ek hi raaste pe le jaata hai.<br /><br />
-              Season 1 mein achha perform karo — squad ka bharosa jeeto, runs banao,
-              feed pe chha jao. Yahan kamaal kiya, toh{' '}
-              <b style={{ color: '#FFB020' }}>India ka call-up</b> tumhara.<br /><br />
-              Khel nahi paaye? Season yahin ruk jaata hai.
-            </div>
-
-            {/* The ladder — MI is the proving ground; India is the prize */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 22, flexWrap: 'wrap' }}>
-              {['MI Debut', 'Main Nets', 'India Call-Up'].map((step, i) => (
-                <div key={step} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span style={{
-                    fontSize: 11, fontWeight: 800, letterSpacing: '.03em',
-                    padding: '6px 10px', borderRadius: 8,
-                    background: i === 2 ? 'rgba(255,176,32,.14)' : 'rgba(255,255,255,.05)',
-                    color: i === 2 ? '#FFB020' : 'var(--ink2)',
-                    border: i === 2 ? '1px solid rgba(255,176,32,.4)' : '1px solid rgba(255,255,255,.08)',
-                  }}>{step}</span>
-                  {i < 2 && <span style={{ color: 'var(--ink3)', fontSize: 13 }}>→</span>}
-                </div>
-              ))}
-            </div>
-          </div>
-
+      {/* Footer: dots + navy CTA */}
+      <div style={{ flex: 'none', padding: '18px 24px 30px', background: 'var(--bg)' }}>
+        <div style={{ display: 'flex', gap: 6, justifyContent: 'center', marginBottom: 18 }}>
+          {Array.from({ length: TOTAL }).map((_, i) => (
+            <div key={i} style={{ height: 4, borderRadius: 2, width: i === cur ? 20 : 6, background: i === cur ? 'rgba(255,255,255,.85)' : 'rgba(255,255,255,.28)', transition: 'all .35s' }} />
+          ))}
         </div>
+        <button onClick={() => (isLast ? enter() : goTo(cur + 1))} className="lo-press"
+          style={{ width: '100%', height: 54, border: 'none', borderRadius: 16, cursor: 'pointer', fontFamily: 'var(--sans)', fontSize: 16, fontWeight: 700, color: '#fff', background: NAVY, boxShadow: '0 10px 30px rgba(0,48,135,.5)' }}>
+          {isLast ? 'Enter the Dressing Room →' : 'Continue →'}
+        </button>
       </div>
-
-      {/* Back / Next nav (slides 0–2) */}
-      {!isLast && (
-        <div className="cc-nav">
-          <button
-            className="cc-back-btn"
-            onClick={() => goTo(cur - 1)}
-            style={{ opacity: cur === 0 ? 0 : 1, pointerEvents: cur === 0 ? 'none' : 'all' }}
-          >
-            ← Back
-          </button>
-          <button className="cc-next-btn" onClick={() => goTo(cur + 1)}>
-            Next →
-          </button>
-        </div>
-      )}
-
-      {/* Enter CTA (slide 4) */}
-      {isLast && (
-        <div className="cc-cta-wrap">
-          <button className="cc-enter-btn" onClick={enter}>
-            Enter the Dressing Room →
-          </button>
-          <div className="cc-coming-soon">Season 2 · Season 3 · coming soon</div>
-        </div>
-      )}
     </div>
   )
 }
