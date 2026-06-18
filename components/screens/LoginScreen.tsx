@@ -30,6 +30,12 @@ const TOKEN_AUTH = process.env.NEXT_PUBLIC_MSG91_TOKEN_AUTH || '533925TdinOE5GXg
 const OTP_LENGTH = Number(process.env.NEXT_PUBLIC_MSG91_OTP_LENGTH) || 4
 const RESEND_SECS = 24
 
+// Cinematic hero loop — cricket (Indian Dressing Room) stills, cross-faded as a
+// slow ambient backdrop. Web-light JPEGs (~100-150KB each). To add/replace frames,
+// drop JPEGs in /public and list them here.
+const HERO_FRAMES = ['/login-hero-1.jpg', '/login-hero-2.jpg', '/login-hero-3.jpg']
+const HERO_INTERVAL = 5500
+
 function loadWidget(): Promise<void> {
   return new Promise((resolve, reject) => {
     if (typeof window === 'undefined') return reject(new Error('no window'))
@@ -74,6 +80,7 @@ export default function LoginScreen() {
   const [err, setErr] = useState<string | null>(null)
   const [methodOpen, setMethodOpen] = useState(false)
   const [resendIn, setResendIn] = useState(RESEND_SECS)
+  const [heroIdx, setHeroIdx] = useState(0)
   const ready = useRef(false)
   const otpRefs = useRef<Array<HTMLInputElement | null>>([])
   const resendTimer = useRef<ReturnType<typeof setInterval> | null>(null)
@@ -89,6 +96,14 @@ export default function LoginScreen() {
       })
       .catch(() => { if (alive) setErr('Couldn’t load the verification widget — check your connection.') })
     return () => { alive = false; if (resendTimer.current) clearInterval(resendTimer.current) }
+  }, [])
+
+  // Ambient hero cross-fade (paused for users who prefer reduced motion).
+  useEffect(() => {
+    if (HERO_FRAMES.length < 2) return
+    if (typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return
+    const t = setInterval(() => setHeroIdx(i => (i + 1) % HERO_FRAMES.length), HERO_INTERVAL)
+    return () => clearInterval(t)
   }, [])
 
   const digits = num.replace(/\D/g, '')
@@ -197,7 +212,10 @@ export default function LoginScreen() {
 
       {/* ===== HERO ===== */}
       <div style={{ position: 'relative', height: 382, flex: 'none' }}>
-        <img src="/login-hero.jpg" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+        {HERO_FRAMES.map((src, i) => (
+          <img key={src} src={src} alt="" aria-hidden="true"
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: i === heroIdx ? 1 : 0, transition: 'opacity 1.2s ease-in-out' }} />
+        ))}
         <div style={{ position: 'absolute', inset: 0, background: 'var(--grain)', opacity: 0.4, mixBlendMode: 'overlay', pointerEvents: 'none' }} />
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(8,8,15,.35) 0%, rgba(8,8,15,0) 30%, rgba(8,8,15,.55) 72%, var(--bg) 100%)' }} />
         <div style={{ position: 'absolute', left: 0, right: 0, bottom: 54, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
