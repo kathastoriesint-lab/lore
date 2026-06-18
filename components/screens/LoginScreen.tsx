@@ -22,6 +22,9 @@ declare global {
 // a Supabase edge-fn secret used only by msg91-auth.)
 const WIDGET_ID = process.env.NEXT_PUBLIC_MSG91_WIDGET_ID || '366671733063373330303731'
 const TOKEN_AUTH = process.env.NEXT_PUBLIC_MSG91_TOKEN_AUTH || '533925TdinOE5GXgE6a32ef1cP1'
+// OTP length MUST match the MSG91 widget's configured OTP length (set to 4 in the
+// MSG91 dashboard). Drives the input cap, placeholder, submit gate, and auto-submit.
+const OTP_LENGTH = Number(process.env.NEXT_PUBLIC_MSG91_OTP_LENGTH) || 4
 
 function loadWidget(): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -96,12 +99,13 @@ export default function LoginScreen() {
     )
   }
 
-  function verify() {
-    if (code.length < 4 || busy) return
+  function verify(codeArg?: string) {
+    const c = (codeArg ?? code).replace(/\D/g, '')
+    if (c.length < OTP_LENGTH || busy) return
     if (!window.verifyOtp) { setErr('Verification not ready — resend the code.'); return }
     setBusy(true); setErr(null)
     window.verifyOtp(
-      code.trim(),
+      c,
       async (d) => {
         const token = extractToken(d)
         if (!token) { setBusy(false); setErr('Verification failed — try again.'); return }
@@ -153,8 +157,13 @@ export default function LoginScreen() {
               onKeyDown={e => { if (e.key === 'Enter') send() }} />
           </div>
         ) : (
-          <input value={code} onChange={e => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-            inputMode="numeric" autoFocus placeholder="6-digit code"
+          <input value={code}
+            onChange={e => {
+              const v = e.target.value.replace(/\D/g, '').slice(0, OTP_LENGTH)
+              setCode(v)
+              if (v.length === OTP_LENGTH) verify(v)   // auto-submit once the full code is in
+            }}
+            inputMode="numeric" autoFocus placeholder={`${OTP_LENGTH}-digit code`} maxLength={OTP_LENGTH}
             style={{ ...input, letterSpacing: '.3em', textAlign: 'center', fontSize: 22 }}
             aria-label="OTP code" onKeyDown={e => { if (e.key === 'Enter') verify() }} />
         )}
@@ -167,7 +176,7 @@ export default function LoginScreen() {
           </button>
         ) : (
           <>
-            <button onClick={verify} disabled={code.length < 4 || busy} style={primary}>
+            <button onClick={() => verify()} disabled={code.length < OTP_LENGTH || busy} style={primary}>
               {busy ? 'Verifying…' : 'Verify & continue'}
             </button>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 14 }}>
