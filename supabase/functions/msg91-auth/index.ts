@@ -105,7 +105,9 @@ Deno.serve(async (req) => {
   // 4. Mint a real Supabase session: set a throwaway password, then sign in with
   //    it server-side. The password never leaves the server; the client gets a
   //    genuine GoTrue session (with refresh).
-  const pwd = `${crypto.randomUUID()}${crypto.randomUUID()}Aa1!`;
+  // NOTE: bcrypt (GoTrue) rejects passwords >72 chars. One UUID (122 bits of
+  // entropy) + a complexity suffix = 40 chars — plenty, and safely under the cap.
+  const pwd = `${crypto.randomUUID()}Aa1!`;
   const { error: pwErr } = await admin.auth.admin.updateUserById(userId, { password: pwd });
   if (pwErr) {
     console.error("session prep (set password) failed:", pwErr);
