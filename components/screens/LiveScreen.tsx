@@ -51,6 +51,15 @@ const asArray = <T,>(value: T | T[] | null | undefined): T[] => {
   return Array.isArray(value) ? value : [value]
 }
 
+// Inline char colors — must match .c-{id}{--cc} in globals.css (DESIGN.md compliant).
+// Module-scope so both the Creator-House inline result and the cricket sheet reuse it.
+const CHAR_COLORS: Record<string, string> = {
+  ria:'#c41060', kabir:'#8a1840', dev:'#7a1535', ananya:'#b03060', zoya:'#a02858',
+  meher:'#952050', rishi:'#6a1030', adi:'#b54070',
+  hardik:'#003087', rohit:'#1a3a6e', surya:'#004080', bumrah:'#0a1a4a',
+  tilak:'#2a5a8f', coach:'#3a2a5a', friend:'#1a4a6a', player:'#FF2D78',
+}
+
 // Story-pause nudges: a senior's trust is the relationship spine of the season. We
 // pause at the STORY BEAT where that senior is judging the player, then send them
 // into the DM with a seed that references the scene — so "build trust" becomes a
@@ -176,6 +185,9 @@ export default function LiveScreen() {
 
   // Choice state
   const [chosen, setChosen] = useState<0 | 1 | null>(null)
+  // Cricket choice sheet: peek (question only) vs expanded (choices). Once a
+  // choice is made it auto-expands to the result. Cricket-only — CH keeps its bar.
+  const [sheetOpen, setSheetOpen] = useState(false)
   const [showImpact, setShowImpact] = useState(false)
   const [pauseSignal, setPauseSignal] = useState(0)
   const [showPost, setShowPost] = useState(false)
@@ -204,6 +216,7 @@ export default function LiveScreen() {
   useEffect(() => {
     if (inFlowRef.current) return  // advanceSituation fires during flow — don't reset UI
     setChosen(null)
+    setSheetOpen(false)
     setShowImpact(false)
     setShowPost(false)
     setStats(null)
@@ -270,6 +283,7 @@ export default function LiveScreen() {
     timersRef.current.forEach(clearTimeout)
     timersRef.current = []
     setChosen(null)
+    setSheetOpen(false)
     setShowImpact(false)
     setShowPost(false)
     setShowBeat(false)
@@ -401,6 +415,110 @@ export default function LiveScreen() {
 
   // Next situation for chapter beat display
   const nextSitForBeat = queue[game.situation] ? allSituations[queue[game.situation]] ?? null : null
+
+  // "The world reacts" IG post(s) for a chosen choice — used by the cricket
+  // result sheet. (Creator House renders its own inline copy below, unchanged.)
+  const postCards = (ch: Choice, before: Meters) => {
+    const legacyPost: ChoicePost | null = ch.caption
+      ? { source: 'player', caption: ch.caption, reactions: ch.reactions ?? [] }
+      : null
+    const outcome = resolveChoiceOutcome(ch, before)
+    const postSource = outcome?.post !== undefined ? outcome.post : (ch.post !== undefined ? ch.post : legacyPost)
+    const postSpecs = asArray(postSource).filter(post => post.display !== 'feed-only')
+    const resolvePostOwner = (postSpec: ChoicePost) => {
+      if (!postSpec) return null
+      if (postSpec.source === 'account') {
+        const handle = postSpec.handle ?? postSpec.name?.toLowerCase().replace(/\s+/g, '') ?? 'update'
+        return { id: '__account', cls: '', init: postSpec.avatarText ?? (postSpec.name ?? handle)[0]?.toUpperCase() ?? 'U', name: postSpec.name ?? handle, handle, avatarUrl: undefined as string | undefined, color: '#003087' }
+      }
+      if (postSpec.source === 'character' && postSpec.char) {
+        const c = allChars[postSpec.char]
+        if (!c) return null
+        return { id: c.id, cls: c.cls, init: c.init, name: c.name, handle: c.handle, avatarUrl: `/avatars/${c.id}.png`, color: CHAR_COLORS[c.id] ?? '#1a1a2e' }
+      }
+      if (!playerChar) return null
+      return { id: playerChar.id, cls: playerChar.cls, init: playerChar.init, name: playerChar.name, handle: postSpec.handle ?? (game.playerName || playerChar.handle || 'you').toLowerCase().replace(/\s+/g, ''), avatarUrl: game.avatarUrl, color: CHAR_COLORS[playerChar.id] ?? '#1a1a2e' }
+    }
+    return postSpecs.map((postSpec, postIndex) => {
+      const postOwner = resolvePostOwner(postSpec)
+      if (!postOwner) return null
+      const hasRealPost = !!postSpec.caption && !postSpec.caption.startsWith('*(')
+      const postReactions = postSpec.reactions ?? []
+      const postBg = postSpec.imageUrl
+        ? `linear-gradient(to bottom, rgba(0,0,0,.04) 0%, rgba(0,0,0,.12) 52%, rgba(0,0,0,.62) 100%), url(${postSpec.imageUrl}) center/cover`
+        : `linear-gradient(150deg, ${postOwner.color} 0%, #022058 60%, #0a0a18 100%)`
+      return (
+        <div key={`${displaySit!.id}-${chosen}-${postIndex}`} style={{ marginTop: 16, background: '#0f0f18', borderRadius: 16, overflow: 'hidden', border: '1px solid rgba(255,255,255,.08)', animation: 'slideUp .45s cubic-bezier(.32,.72,0,1) both' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '10px 12px' }}>
+            <div className={postOwner.cls ? `av ${postOwner.cls}` : 'av'} style={{ width: 30, height: 30, fontSize: 12, flexShrink: 0, background: postOwner.avatarUrl ? 'transparent' : postOwner.color, backgroundImage: postOwner.avatarUrl ? `url(${postOwner.avatarUrl})` : undefined, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+              {!postOwner.avatarUrl && postOwner.init}
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ fontWeight: 700, fontSize: 13, color: '#fff' }}>@{postOwner.handle}</span></div>
+              <div style={{ fontSize: 10, color: 'var(--ink3)' }}>{postSpec.label ?? 'abhi · MI Season 1'}</div>
+            </div>
+            {hasRealPost && <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--accent)', background: 'rgba(255,45,120,.12)', padding: '3px 8px', borderRadius: 20 }}>NEW</div>}
+          </div>
+          {hasRealPost ? (
+            <>
+              <div style={{ position: 'relative', margin: '0 12px', borderRadius: 10, overflow: 'hidden', aspectRatio: '16/10', background: postBg }}>
+                {!postSpec.imageUrl && (
+                  <p style={{ position: 'absolute', left: 0, right: 0, bottom: 0, margin: 0, padding: '30px 14px 14px', fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 14.5, lineHeight: 1.45, color: '#fff', background: 'linear-gradient(to top, rgba(0,0,0,.6), transparent)', textShadow: '0 1px 6px rgba(0,0,0,.5)' }}>{r(postSpec.caption)}</p>
+                )}
+              </div>
+              {postReactions.length > 0 && (
+                <div style={{ padding: '10px 14px 12px', display: 'flex', flexDirection: 'column', gap: 7 }}>
+                  {postReactions.map((rx, j) => {
+                    const isFan = rx.char === '__fan'
+                    const rxChar = isFan ? null : allChars[rx.char as CharId]
+                    return (
+                      <div key={j} style={{ fontSize: 12, lineHeight: 1.4, color: 'rgba(255,255,255,.82)' }}>
+                        <b style={{ color: '#fff' }}>{isFan || !rxChar ? `@${rx.name ?? 'fan'}` : rxChar.name}</b> {r(rx.text)}
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </>
+          ) : (
+            <div style={{ margin: '0 12px 12px', padding: '14px 16px', borderRadius: 10, background: 'rgba(255,255,255,.03)', border: '1px solid rgba(255,255,255,.06)' }}>
+              <div style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 14, color: 'var(--ink3)', lineHeight: 1.5 }}>
+                {r(postSpec.caption).replace(/<\/?em>/g, '').replace(/^\(|\)$/g, '')}
+              </div>
+            </div>
+          )}
+        </div>
+      )
+    })
+  }
+
+  // Compact 3-meter impact card for the cricket result sheet (FORM/FAME/TEAM TRUST).
+  const cricketImpactCard = (d: Meters) => {
+    const before = { fame: Math.max(0, game.meters.fame - d.fame), heat: Math.max(0, game.meters.heat - d.heat), image: Math.max(0, game.meters.image - d.image) }
+    const rows = [
+      { icon: '🏏', label: 'FORM', color: '#FFB020', delta: d.fame, to: game.meters.fame, from: before.fame },
+      { icon: '⭐', label: 'FAME', color: '#FF5C3A', delta: d.heat, to: game.meters.heat, from: before.heat },
+      { icon: '🤝', label: 'TEAM TRUST', color: '#3DD6C8', delta: d.image, to: game.meters.image, from: before.image },
+    ]
+    return (
+      <div style={{ marginTop: 14, background: 'var(--surf)', border: '1px solid var(--line)', borderRadius: 14, overflow: 'hidden' }}>
+        {rows.map((m, idx) => (
+          <div key={m.label} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '10px 14px', borderTop: idx === 0 ? 'none' : '1px solid rgba(255,255,255,.05)' }}>
+            <div style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 26, lineHeight: 1, color: m.color, width: 40, textAlign: 'center', flexShrink: 0, fontVariantNumeric: 'tabular-nums' }}>{m.delta > 0 ? '+' : ''}{m.delta}</div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 5 }}>
+                <span style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: '.06em', color: m.color, whiteSpace: 'nowrap' }}>{m.icon} {m.label}</span>
+                <span style={{ fontSize: 11, color: 'var(--ink3)', fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap', paddingLeft: 8 }}>{m.from} → {m.to}</span>
+              </div>
+              <div style={{ height: 6, borderRadius: 3, background: 'rgba(255,255,255,.08)', overflow: 'hidden' }}>
+                <div style={{ height: '100%', width: `${Math.max(0, Math.min(100, m.to))}%`, borderRadius: 3, background: m.color, transition: 'width .6s cubic-bezier(.32,.72,0,1)' }} />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    )
+  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', position: 'relative' }}>
@@ -774,8 +892,9 @@ export default function LiveScreen() {
               )
             })()}
 
-            {/* ── Post-choice: collapsible impact + player post + reactions ── */}
-            {showImpact && chosen !== null && displaySit!.choices[chosen] && (() => {
+            {/* ── Post-choice: collapsible impact + player post + reactions ──
+                 Creator House only — cricket renders its result inside the choice sheet. */}
+            {!isCricket && showImpact && chosen !== null && displaySit!.choices[chosen] && (() => {
               const ch = displaySit!.choices[chosen]
               const d = ch.deltas
               const isCritical = game.meters.heat > 75
@@ -1020,8 +1139,8 @@ export default function LiveScreen() {
         {displaySit && <div style={{ height: 160 }} />}
       </div>
 
-      {/* Sticky bottom — choices before pick, CTAs after */}
-      {displaySit && (
+      {/* Sticky bottom — choices before pick, CTAs after (Creator House) */}
+      {displaySit && !isCricket && (
         <div className="choice-wrap">
           {chosen === null ? (
             <>
@@ -1064,6 +1183,63 @@ export default function LiveScreen() {
           )}
         </div>
       )}
+
+      {/* Cricket choice / result sheet — peek → choices → result, above the tab bar.
+           One continuous surface: tap the question to reveal choices; after a pick the
+           same sheet shows the compact impact card, the IG post, then Next / Feed. */}
+      {displaySit && isCricket && (() => {
+        const isResult = chosen !== null
+        const expanded = isResult || sheetOpen
+        const ch = isResult ? displaySit.choices[chosen as 0 | 1] : null
+        return (
+          <div style={{ position: 'absolute', left: 0, right: 0, bottom: 'var(--tabbar)', zIndex: 10, background: 'var(--surf2)', borderRadius: '22px 22px 0 0', borderTop: '1px solid rgba(255,255,255,.08)', boxShadow: '0 -16px 40px rgba(0,0,0,.55)' }}>
+            <button onClick={() => { if (!isResult) setSheetOpen(o => !o) }}
+              style={{ width: '100%', background: 'none', border: 'none', cursor: isResult ? 'default' : 'pointer', padding: '10px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+              <div style={{ width: 38, height: 4, borderRadius: 99, background: 'rgba(255,255,255,.18)' }} />
+              {!isResult && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 19, color: '#fff', textAlign: 'center' }}>{r(displaySit.q)}</span>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--ink3)" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, transform: expanded ? 'rotate(0deg)' : 'rotate(180deg)', transition: 'transform .3s' }}><polyline points="18 15 12 9 6 15" /></svg>
+                </div>
+              )}
+            </button>
+
+            <div style={{ maxHeight: isResult ? '62vh' : (sheetOpen ? 360 : 0), opacity: expanded ? 1 : 0, overflowY: isResult ? 'auto' : 'hidden', overflowX: 'hidden', transition: 'max-height .4s cubic-bezier(.32,.72,0,1), opacity .3s' }}>
+              {!isResult ? (
+                <div style={{ padding: '0 16px 6px' }}>
+                  {choiceDisplayOrder(displaySit).map(trueIdx => {
+                    const c = displaySit.choices[trueIdx]
+                    return (
+                      <button key={trueIdx} className="lo-press" onClick={() => handleChoice(trueIdx as 0 | 1)}
+                        style={{ width: '100%', textAlign: 'left', borderRadius: 16, padding: '14px 16px', marginBottom: 10, background: 'rgba(255,255,255,.10)', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)', border: '1px solid rgba(255,255,255,.2)', cursor: 'pointer' }}>
+                        <div style={{ fontWeight: 700, fontSize: 14.5, color: '#fff' }}>{r(c.t)}</div>
+                        <div style={{ fontSize: 11.5, color: 'rgba(255,255,255,.6)', marginTop: 3 }}>{r(c.s)}</div>
+                      </button>
+                    )
+                  })}
+                  {stats && <div style={{ fontSize: 11, color: 'rgba(255,255,255,.5)', textAlign: 'center', padding: '2px 0 14px' }}>{stats.total.toLocaleString()} played · {stats.pctA}% chose A</div>}
+                </div>
+              ) : ch ? (
+                <div style={{ padding: '2px 16px 18px' }}>
+                  {cricketImpactCard(ch.deltas)}
+                  {showPost && postCards(ch, { fame: Math.max(0, game.meters.fame - ch.deltas.fame), heat: Math.max(0, game.meters.heat - ch.deltas.heat), image: Math.max(0, game.meters.image - ch.deltas.image) })}
+                  {showPost ? (
+                    <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
+                      <button className="lo-press" onClick={resetAfterChoice} style={{ flex: 2, height: 56, border: 'none', borderRadius: 16, cursor: 'pointer', fontFamily: 'var(--sans)', fontSize: 16, fontWeight: 700, color: '#fff', background: 'var(--accent)', boxShadow: '0 8px 24px rgba(255,45,120,.35)' }}>{isFinale ? 'Continue →' : 'Next →'}</button>
+                      <button className="lo-press" onClick={() => navigate('feed')} style={{ flex: 1, height: 56, border: '1px solid rgba(255,255,255,.12)', borderRadius: 16, cursor: 'pointer', fontFamily: 'var(--sans)', background: 'rgba(255,255,255,.06)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2 }}>
+                        <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--ink)' }}>Feed</span>
+                        <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--accent)' }}>3 new</span>
+                      </button>
+                    </div>
+                  ) : (
+                    <div style={{ height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><div className="pulse" style={{ width: 8, height: 8 }} /></div>
+                  )}
+                </div>
+              ) : null}
+            </div>
+          </div>
+        )
+      })()}
 
       {/* Coach marks — first Live visit */}
       {activeCoach && (() => {
