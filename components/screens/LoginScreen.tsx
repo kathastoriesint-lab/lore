@@ -1,11 +1,14 @@
 'use client'
-import { useState, useEffect, useRef, type CSSProperties } from 'react'
+import { useState, useEffect, useRef, type CSSProperties, type FormEvent, type KeyboardEvent } from 'react'
 import { useApp } from '@/lib/context'
 import { completeMsg91Login } from '@/lib/auth'
 
 // Phone login via the MSG91 OTP Widget. The widget sends + verifies the OTP and
 // returns a JWT; completeMsg91Login() exchanges it for a Supabase session (which
 // links the guest's progress). On success we full-reload as the signed-in user.
+//
+// UI redesign (Indian Android handoff): cinematic hero + bottom-sheet form.
+// Auth integration is untouched — only layout/copy changed.
 
 declare global {
   interface Window {
@@ -23,8 +26,9 @@ declare global {
 const WIDGET_ID = process.env.NEXT_PUBLIC_MSG91_WIDGET_ID || '366671733063373330303731'
 const TOKEN_AUTH = process.env.NEXT_PUBLIC_MSG91_TOKEN_AUTH || '533925TdinOE5GXgE6a32ef1cP1'
 // OTP length MUST match the MSG91 widget's configured OTP length (set to 4 in the
-// MSG91 dashboard). Drives the input cap, placeholder, submit gate, and auto-submit.
+// MSG91 dashboard). Drives the box count, submit gate, and auto-submit.
 const OTP_LENGTH = Number(process.env.NEXT_PUBLIC_MSG91_OTP_LENGTH) || 4
+const RESEND_SECS = 24
 
 function loadWidget(): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -63,14 +67,16 @@ function errText(e: unknown, fallback: string): string {
 }
 
 export default function LoginScreen() {
-  const { navigate, goBack, game } = useApp()
+  const { navigate, game, showToast } = useApp()
   const [step, setStep] = useState<'phone' | 'otp'>('phone')
-  const [cc, setCc] = useState('+91')
   const [num, setNum] = useState('')
-  const [code, setCode] = useState('')
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
+  const [methodOpen, setMethodOpen] = useState(false)
+  const [resendIn, setResendIn] = useState(RESEND_SECS)
   const ready = useRef(false)
+  const otpRefs = useRef<Array<HTMLInputElement | null>>([])
+  const resendTimer = useRef<ReturnType<typeof setInterval> | null>(null)
 
   useEffect(() => {
     let alive = true
@@ -82,11 +88,28 @@ export default function LoginScreen() {
         ready.current = true
       })
       .catch(() => { if (alive) setErr('Couldn’t load the verification widget — check your connection.') })
-    return () => { alive = false }
+    return () => { alive = false; if (resendTimer.current) clearInterval(resendTimer.current) }
   }, [])
 
-  const phone = `${cc}${num.replace(/\D/g, '')}`
-  const phoneValid = /^\+\d{8,15}$/.test(phone)
+  const digits = num.replace(/\D/g, '')
+  const phone = `+91${digits}`
+  const phoneValid = digits.length === 10
+  const phoneDisplay = `+91 ${digits ? digits.replace(/(\d{5})(\d{0,5})/, '$1 $2').trim() : '98765 43210'}`
+
+  // ── OTP boxes (uncontrolled — managed via refs, like the design prototype) ──
+  const otpValue = () => otpRefs.current.map(r => r?.value || '').join('')
+  const clearOtp = () => otpRefs.current.forEach(r => { if (r) r.value = '' })
+
+  function startResend() {
+    if (resendTimer.current) clearInterval(resendTimer.current)
+    setResendIn(RESEND_SECS)
+    resendTimer.current = setInterval(() => {
+      setResendIn(s => {
+        if (s <= 1) { if (resendTimer.current) clearInterval(resendTimer.current); return 0 }
+        return s - 1
+      })
+    }, 1000)
+  }
 
   function send() {
     if (!phoneValid || busy) return
@@ -94,13 +117,13 @@ export default function LoginScreen() {
     setBusy(true); setErr(null)
     window.sendOtp(
       phone.replace('+', ''),
-      () => { setBusy(false); setStep('otp'); setCode('') },
+      () => { setBusy(false); setStep('otp'); clearOtp(); startResend(); setTimeout(() => otpRefs.current[0]?.focus(), 60) },
       (e) => { setBusy(false); setErr(errText(e, 'Couldn’t send the code. Try again.')) },
     )
   }
 
   function verify(codeArg?: string) {
-    const c = (codeArg ?? code).replace(/\D/g, '')
+    const c = (codeArg ?? otpValue()).replace(/\D/g, '')
     if (c.length < OTP_LENGTH || busy) return
     if (!window.verifyOtp) { setErr('Verification not ready — resend the code.'); return }
     setBusy(true); setErr(null)
@@ -118,79 +141,168 @@ export default function LoginScreen() {
   }
 
   function resend() {
-    if (!window.retryOtp || busy) return
-    setErr(null)
-    window.retryOtp(null, () => { setErr('New code bhej diya ✅') }, (e) => setErr(errText(e, 'Couldn’t resend.')))
+    if (!window.retryOtp || busy || resendIn > 0) return
+    setErr(null); clearOtp(); otpRefs.current[0]?.focus()
+    window.retryOtp(null, () => startResend(), (e) => setErr(errText(e, 'Couldn’t resend.')))
   }
 
-  const input: CSSProperties = {
-    background: 'var(--surf)', border: '1px solid var(--line)', borderRadius: 12,
-    color: 'var(--ink)', fontSize: 17, padding: '14px 14px', fontFamily: 'var(--sans)', outline: 'none',
+  function backToPhone() {
+    if (resendTimer.current) clearInterval(resendTimer.current)
+    clearOtp(); setErr(null); setStep('phone')
   }
-  const primary: CSSProperties = {
-    width: '100%', padding: '15px 0', borderRadius: 14, border: 'none', marginTop: 18,
-    background: phoneValid || step === 'otp' ? 'var(--accent)' : 'var(--surf)',
-    color: '#fff', fontWeight: 800, fontSize: 15, fontFamily: 'var(--sans)',
-    cursor: busy ? 'default' : 'pointer', opacity: busy ? 0.6 : 1,
+
+  function onOtpInput(i: number, e: FormEvent<HTMLInputElement>) {
+    const el = e.currentTarget
+    el.value = el.value.replace(/\D/g, '').slice(-1)
+    if (err) setErr(null)
+    if (el.value && i < OTP_LENGTH - 1) otpRefs.current[i + 1]?.focus()
+    const full = otpValue()
+    if (full.length === OTP_LENGTH) verify(full)
   }
+  function onOtpKey(i: number, e: KeyboardEvent<HTMLInputElement>) {
+    if (e.key === 'Backspace' && !e.currentTarget.value && i > 0) otpRefs.current[i - 1]?.focus()
+  }
+
+  function continueAsGuest() {
+    setMethodOpen(false)
+    navigate(game.playerName ? 'worlds' : 'onboarding')
+  }
+  function continueWithEmail() {
+    setMethodOpen(false)
+    // TODO: wire to email auth when it exists. No email provider today.
+    showToast('Email login jald aayega ✉️')
+  }
+
+  // ── styles ──
+  const inputBase: CSSProperties = {
+    height: 54, background: 'var(--surf)', border: '1px solid var(--line)',
+    borderRadius: 'var(--r-sm)', color: 'var(--ink)', fontSize: 16, fontFamily: 'var(--sans)', outline: 'none',
+  }
+  const headline: CSSProperties = { fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 25, color: 'var(--ink)', lineHeight: 1.2 }
+  const subtext: CSSProperties = { fontSize: 14, color: 'var(--ink2)', marginTop: 8, lineHeight: 1.45 }
+  const primaryBtn = (enabled: boolean): CSSProperties => ({
+    width: '100%', height: 54, border: 'none', borderRadius: 'var(--r-md)', background: 'var(--accent)',
+    color: '#fff', fontWeight: 700, fontSize: 16, fontFamily: 'var(--sans)', boxShadow: 'var(--sh-cta)',
+    cursor: enabled && !busy ? 'pointer' : 'default', opacity: enabled && !busy ? 1 : 0.45,
+  })
+  const secondaryBtn: CSSProperties = {
+    width: '100%', height: 54, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+    background: 'rgba(255,255,255,.08)', border: '1px solid var(--line)', borderRadius: 'var(--r-md)',
+    color: 'var(--ink)', fontWeight: 600, fontSize: 15, fontFamily: 'var(--sans)', cursor: 'pointer',
+  }
+  const errLine = err ? <div style={{ color: 'var(--heat)', fontSize: 12.5, marginTop: 12, textAlign: 'center' }}>{err}</div> : null
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: 'var(--bg)', padding: '52px 22px 28px' }}>
-      <button onClick={goBack} style={{ alignSelf: 'flex-start', background: 'none', border: 'none', color: 'var(--ink3)', fontSize: 14, cursor: 'pointer', marginBottom: 24 }}>← Back</button>
+    <div style={{ position: 'relative', height: '100%', width: '100%', background: 'var(--bg)', overflow: 'hidden', fontFamily: 'var(--sans)', display: 'flex', flexDirection: 'column' }}>
 
-      <div style={{ fontFamily: 'var(--serif)', fontSize: 26, fontWeight: 600, color: 'var(--ink)', lineHeight: 1.25 }}>
-        {step === 'phone' ? 'Apni progress save karo' : 'Code daalo'}
-      </div>
-      <div style={{ fontSize: 13, color: 'var(--ink3)', marginTop: 8, lineHeight: 1.5 }}>
-        {step === 'phone'
-          ? 'Number daalo taaki tumhari story kisi bhi phone pe wapas mile. OTP aayega.'
-          : `Humne ${phone} pe ek code bheja. Neeche daalo.`}
-      </div>
-
-      <div style={{ marginTop: 26, display: 'flex', flexDirection: 'column' }}>
-        {step === 'phone' ? (
-          <div style={{ display: 'flex', gap: 8 }}>
-            <input value={cc} onChange={e => setCc(e.target.value)} inputMode="tel"
-              style={{ ...input, width: 64, textAlign: 'center' }} aria-label="Country code" />
-            <input value={num} onChange={e => setNum(e.target.value)} inputMode="numeric" autoFocus
-              placeholder="98765 43210" style={{ ...input, flex: 1 }} aria-label="Phone number"
-              onKeyDown={e => { if (e.key === 'Enter') send() }} />
+      {/* ===== HERO ===== */}
+      <div style={{ position: 'relative', height: 382, flex: 'none' }}>
+        <img src="/login-hero.jpg" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'var(--grain)', opacity: 0.4, mixBlendMode: 'overlay', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(8,8,15,.35) 0%, rgba(8,8,15,0) 30%, rgba(8,8,15,.55) 72%, var(--bg) 100%)' }} />
+        <div style={{ position: 'absolute', left: 0, right: 0, bottom: 54, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <div style={{ width: 56, height: 56, filter: 'drop-shadow(0 0 22px rgba(255,45,120,.55))', marginBottom: 14 }}>
+            <svg viewBox="0 0 32 32" fill="none" width={56} height={56}>
+              <defs><linearGradient id="loreMarkLogin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#ff2d78" /><stop offset=".55" stopColor="#ff8a3d" /><stop offset="1" stopColor="#ffd24d" /></linearGradient></defs>
+              <circle cx="16" cy="16" r="13.5" stroke="url(#loreMarkLogin)" strokeWidth="3" strokeDasharray="58 12" strokeLinecap="round" style={{ transformOrigin: 'center', animation: 'loreSpin 14s linear infinite' }} />
+              <circle cx="16" cy="16" r="6.4" stroke="#ff2d78" strokeWidth="2.4" />
+              <circle cx="16" cy="16" r="1.9" fill="#ffd24d" />
+            </svg>
           </div>
-        ) : (
-          <input value={code}
-            onChange={e => {
-              const v = e.target.value.replace(/\D/g, '').slice(0, OTP_LENGTH)
-              setCode(v)
-              if (v.length === OTP_LENGTH) verify(v)   // auto-submit once the full code is in
-            }}
-            inputMode="numeric" autoFocus placeholder={`${OTP_LENGTH}-digit code`} maxLength={OTP_LENGTH}
-            style={{ ...input, letterSpacing: '.3em', textAlign: 'center', fontSize: 22 }}
-            aria-label="OTP code" onKeyDown={e => { if (e.key === 'Enter') verify() }} />
-        )}
+          <div style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 40, color: 'var(--ink)', lineHeight: 1, letterSpacing: '.5px' }}>Lore</div>
+          <div style={{ fontSize: 14, color: 'var(--ink2)', marginTop: 8, letterSpacing: '.3px' }}>Live your story</div>
+        </div>
+      </div>
 
-        {err && <div style={{ color: 'var(--heat)', fontSize: 12.5, marginTop: 10 }}>{err}</div>}
+      {/* ===== SHEET ===== */}
+      <div style={{ flex: 1, marginTop: -26, background: 'var(--surf2)', borderRadius: 'var(--r-2xl) var(--r-2xl) 0 0', borderTop: '1px solid rgba(255,255,255,.06)', boxShadow: 'var(--sh-sheet)', padding: '14px 22px 26px', display: 'flex', flexDirection: 'column', position: 'relative', zIndex: 2 }}>
+        <div style={{ width: 38, height: 4, borderRadius: 99, background: 'rgba(255,255,255,.14)', alignSelf: 'center', marginBottom: 22 }} />
 
         {step === 'phone' ? (
-          <button onClick={send} disabled={!phoneValid || busy} style={primary}>
-            {busy ? 'Sending…' : 'Send code'}
-          </button>
+          <>
+            <div style={headline}>Enter your mobile number</div>
+            <div style={subtext}>Continue on any phone, anytime — your story stays saved.</div>
+
+            <div style={{ display: 'flex', gap: 10, marginTop: 22 }}>
+              <div style={{ ...inputBase, display: 'flex', alignItems: 'center', gap: 6, padding: '0 14px', fontWeight: 600, flex: 'none' }}>
+                +91
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--ink3)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9" /></svg>
+              </div>
+              <input value={num} onChange={e => setNum(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                inputMode="numeric" autoFocus placeholder="Enter your number" aria-label="Phone number"
+                onKeyDown={e => { if (e.key === 'Enter') send() }}
+                style={{ ...inputBase, flex: 1, padding: '0 16px', letterSpacing: '.5px' }} />
+            </div>
+
+            <button className="lo-press" onClick={send} disabled={!phoneValid || busy} style={{ ...primaryBtn(phoneValid), marginTop: 18 }}>
+              {busy ? 'Sending…' : 'Continue'}
+            </button>
+            {errLine}
+
+            <button onClick={() => setMethodOpen(true)} style={{ background: 'none', border: 'none', color: 'var(--ink2)', fontSize: 14, fontFamily: 'var(--sans)', textDecoration: 'underline', textUnderlineOffset: 3, cursor: 'pointer', alignSelf: 'center', marginTop: 20, padding: 8 }}>
+              Or login using another method
+            </button>
+
+            <div style={{ flex: 1 }} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: 7, justifyContent: 'center', color: 'var(--ink3)', fontSize: 12, marginTop: 18 }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+              Only used to save your game. No spam, ever.
+            </div>
+          </>
         ) : (
           <>
-            <button onClick={() => verify()} disabled={code.length < OTP_LENGTH || busy} style={primary}>
+            <div style={headline}>Enter the code</div>
+            <div style={subtext}>
+              Sent to <span style={{ color: 'var(--ink)' }}>{phoneDisplay}</span> ·{' '}
+              <span onClick={backToPhone} style={{ color: 'var(--accent)', cursor: 'pointer' }}>Change</span>
+            </div>
+
+            <div style={{ display: 'flex', gap: 12, marginTop: 24 }}>
+              {Array.from({ length: OTP_LENGTH }).map((_, i) => (
+                <input key={i} ref={el => { otpRefs.current[i] = el }}
+                  onInput={e => onOtpInput(i, e)} onKeyDown={e => onOtpKey(i, e)}
+                  inputMode="numeric" maxLength={1} autoFocus={i === 0} aria-label={`OTP digit ${i + 1}`}
+                  style={{ flex: 1, minWidth: 0, maxWidth: 66, height: 64, textAlign: 'center', background: 'var(--surf)', border: '1px solid var(--line)', borderRadius: 'var(--r-md)', color: 'var(--ink)', fontSize: 26, fontWeight: 700, fontFamily: 'var(--sans)', outline: 'none', caretColor: 'var(--accent)' }} />
+              ))}
+            </div>
+
+            <div onClick={resend} style={{ fontSize: 13, color: resendIn > 0 ? 'var(--ink3)' : 'var(--fame)', marginTop: 16, cursor: resendIn > 0 ? 'default' : 'pointer' }}>
+              {resendIn > 0 ? `Auto-fills from SMS · Resend in 0:${String(resendIn).padStart(2, '0')}` : 'Didn’t get it? Resend code'}
+            </div>
+
+            <button className="lo-press" onClick={() => verify()} disabled={busy} style={{ ...primaryBtn(true), marginTop: 24 }}>
               {busy ? 'Verifying…' : 'Verify & continue'}
             </button>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 14 }}>
-              <button onClick={() => { setStep('phone'); setErr(null) }} style={{ background: 'none', border: 'none', color: 'var(--ink3)', fontSize: 13, cursor: 'pointer' }}>Change number</button>
-              <button onClick={resend} disabled={busy} style={{ background: 'none', border: 'none', color: 'var(--fame)', fontSize: 13, cursor: 'pointer' }}>Resend code</button>
-            </div>
+            {errLine}
+            <div style={{ flex: 1 }} />
           </>
         )}
       </div>
 
-      <div style={{ flex: 1 }} />
-      <button onClick={() => navigate(game.playerName ? 'worlds' : 'onboarding')} style={{ background: 'none', border: 'none', color: 'var(--ink3)', fontSize: 13, cursor: 'pointer', padding: 10 }}>
-        Abhi nahi — keep playing as guest
-      </button>
+      {/* ===== "MORE WAYS TO CONTINUE" POPUP ===== */}
+      {methodOpen && (
+        <>
+          <div onClick={() => setMethodOpen(false)} style={{ position: 'absolute', inset: 0, zIndex: 5, background: 'var(--scrim-blur)', backdropFilter: 'blur(3px)', WebkitBackdropFilter: 'blur(3px)', animation: 'loFade .2s ease both' }} />
+          <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, zIndex: 6, background: 'var(--surf2)', borderRadius: 'var(--r-2xl) var(--r-2xl) 0 0', borderTop: '1px solid rgba(255,255,255,.06)', boxShadow: 'var(--sh-sheet)', padding: '14px 22px 30px', animation: 'loSheetUp .28s var(--ease-out) both' }}>
+            <div style={{ width: 38, height: 4, borderRadius: 99, background: 'rgba(255,255,255,.14)', margin: '0 auto 18px' }} />
+            <div style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 19, color: 'var(--ink)', textAlign: 'center' }}>More ways to continue</div>
+            <div style={{ fontSize: 13, color: 'var(--ink2)', textAlign: 'center', marginTop: 6, marginBottom: 20 }}>Pick whatever’s easiest for you.</div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <button className="lo-press" onClick={continueWithEmail} style={secondaryBtn}>
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2" /><path d="m22 7-10 5L2 7" /></svg>
+                Continue with email
+              </button>
+              <button className="lo-press" onClick={continueAsGuest} style={secondaryBtn}>
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+                Continue as guest
+              </button>
+            </div>
+
+            <div style={{ fontSize: 11.5, color: 'var(--ink3)', textAlign: 'center', marginTop: 18, lineHeight: 1.45 }}>Guest progress saves on this phone only.</div>
+          </div>
+        </>
+      )}
     </div>
   )
 }
