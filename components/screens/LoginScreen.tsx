@@ -63,7 +63,7 @@ function errText(e: unknown, fallback: string): string {
 }
 
 export default function LoginScreen() {
-  const { navigate, goBack } = useApp()
+  const { navigate, goBack, game } = useApp()
   const [step, setStep] = useState<'phone' | 'otp'>('phone')
   const [cc, setCc] = useState('+91')
   const [num, setNum] = useState('')
@@ -188,7 +188,7 @@ export default function LoginScreen() {
       </div>
 
       <div style={{ flex: 1 }} />
-      <button onClick={() => navigate('worlds')} style={{ background: 'none', border: 'none', color: 'var(--ink3)', fontSize: 13, cursor: 'pointer', padding: 10 }}>
+      <button onClick={() => navigate(game.playerName ? 'worlds' : 'onboarding')} style={{ background: 'none', border: 'none', color: 'var(--ink3)', fontSize: 13, cursor: 'pointer', padding: 10 }}>
         Abhi nahi — keep playing as guest
       </button>
     </div>

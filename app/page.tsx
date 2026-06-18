@@ -191,7 +191,11 @@ export default function App() {
           localStorage.setItem('lore_session_ord', String(ord))
           sessionOrdinalRef.current = ord
         } catch {}
-        navigate(s.playerName ? 'worlds' : 'onboarding', { replace: true })
+        // New/guest visitors land on login first; returning (signed-in, non-anon)
+        // users skip straight into the app. Guests can still choose "keep playing
+        // as guest" on the login screen to continue without an account.
+        const authed = !!session?.user && !session.user.is_anonymous
+        navigate(!authed ? 'login' : (s.playerName ? 'worlds' : 'onboarding'), { replace: true })
       } catch {
         analytics.init(null)
         navigate('worlds', { replace: true })
