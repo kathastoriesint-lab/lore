@@ -94,9 +94,11 @@ export default function GoalCard({ variant = 'full' }: { variant?: Variant }) {
     }
     const unlock = UNLOCK_SHORT[goalWeekNum] ?? goalWeek.name
 
-    const bar = (cur: number, target: number, met: boolean) => (
+    // Teal fill — progress toward the goal. (Deliberately NOT the meter's own
+    // colour: this bar is "how close to the target", not "how big your score".)
+    const bar = (cur: number, target: number) => (
       <span style={{ display: 'block', height: 7, borderRadius: 4, background: 'rgba(255,255,255,.08)', overflow: 'hidden' }}>
-        <span style={{ display: 'block', height: '100%', borderRadius: 4, width: `${Math.min(100, (cur / target) * 100)}%`, background: met ? 'var(--trust)' : accent, transition: 'width .5s ease' }} />
+        <span style={{ display: 'block', height: '100%', borderRadius: 4, width: `${Math.min(100, (cur / target) * 100)}%`, background: 'var(--trust)', transition: 'width .5s ease' }} />
       </span>
     )
     return (
@@ -112,7 +114,7 @@ export default function GoalCard({ variant = 'full' }: { variant?: Variant }) {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, marginBottom: 11 }}>
           <span className="live-badge" style={{ margin: 0, flexShrink: 0 }}><span className="pulse" />LIVE</span>
           <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.05em', color: 'var(--ink3)', textAlign: 'right' }}>
-            STAGE {curWeekNum} · {curWeek.name.toUpperCase()} · {posInWeek}/{weekLen}
+            STAGE {curWeekNum} · {posInWeek}/{weekLen}
           </span>
         </div>
 
@@ -121,20 +123,22 @@ export default function GoalCard({ variant = 'full' }: { variant?: Variant }) {
           const remaining = Math.max(0, g.threshold - g.current)
           return (
             <>
-              {/* Tier 2 — hero: the one number, and the gap */}
-              <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 10, marginBottom: 9 }}>
-                <span style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
-                  <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.1em', color: 'var(--ink3)' }}>{g.label}</span>
-                  <span style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 34, lineHeight: 1, color: g.passed ? 'var(--trust)' : accent, fontVariantNumeric: 'tabular-nums' }}>
-                    {g.current}
-                  </span>
-                  <span style={{ fontSize: 16, color: 'var(--ink3)', fontWeight: 600 }}>→ {g.threshold}</span>
-                </span>
+              {/* Tier 2 — lead with the GOAL and the GAP. The current value is
+                  muted (right, small) so a low starting number can't read as an
+                  achievement — the takeaway is "what I'm chasing + how far". */}
+              <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 12, marginBottom: 9 }}>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontSize: 9.5, fontWeight: 800, letterSpacing: '.12em', color: 'var(--ink3)' }}>AGLA TARGET</div>
+                  <div style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 17, lineHeight: 1.1, color: '#fff', marginTop: 3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{unlock}</div>
+                </div>
+                <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--trust)' }}>{g.passed ? '✓ Ready' : `${remaining} aur chahiye`}</div>
+                  <div style={{ fontSize: 11, color: 'var(--ink3)', marginTop: 2, fontVariantNumeric: 'tabular-nums' }}>{g.label} {g.current}/{g.threshold}</div>
+                </div>
               </div>
-              {bar(g.current, g.threshold, g.passed)}
-              {/* Tier 3 — caption: what clearing this unlocks. A DM-trust gate
-                  points at the person and is tappable straight into their chat. */}
-              {g.surface === 'dms' && dmCharName && !g.passed ? (
+              {bar(g.current, g.threshold)}
+              {/* DM-trust gate: tappable straight into that senior's chat. */}
+              {g.surface === 'dms' && dmCharName && !g.passed && (
                 <button
                   onClick={openTrustDM}
                   style={{
@@ -145,10 +149,6 @@ export default function GoalCard({ variant = 'full' }: { variant?: Variant }) {
                 >
                   → {dmCharName} se DM pe baat karke trust banao
                 </button>
-              ) : (
-                <div style={{ fontSize: 12, fontWeight: 700, color: g.passed ? 'var(--trust)' : accent, marginTop: 9, lineHeight: 1.4 }}>
-                  {g.passed ? `✓ ${unlock} ready` : `→ ${unlock} ke liye ${remaining} aur`}
-                </div>
               )}
             </>
           )
@@ -172,7 +172,7 @@ export default function GoalCard({ variant = 'full' }: { variant?: Variant }) {
                       {g.current} <span style={{ color: 'var(--ink3)', fontSize: 12 }}>→ {g.threshold}</span>
                     </span>
                   </div>
-                  {bar(g.current, g.threshold, g.passed)}
+                  {bar(g.current, g.threshold)}
                   {isDm && (
                     <div style={{ fontSize: 10.5, color: 'var(--trust)', marginTop: 5 }}>
                       → {dmCharName} se DM pe baat karke trust banao
