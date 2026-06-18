@@ -95,7 +95,10 @@ Deno.serve(async (req) => {
     userId = anonUserId;                    // guest upgraded in place → progress preserved
   } else {
     const { data, error } = await admin.auth.admin.createUser({ phone, phone_confirm: true });
-    if (error || !data.user) return json({ error: "create failed" }, 500, cors);
+    if (error || !data.user) {
+      console.error("createUser failed:", error);
+      return json({ error: "create failed: " + (error?.message ?? "unknown") }, 500, cors);
+    }
     userId = data.user.id;
   }
 
@@ -104,11 +107,17 @@ Deno.serve(async (req) => {
   //    genuine GoTrue session (with refresh).
   const pwd = `${crypto.randomUUID()}${crypto.randomUUID()}Aa1!`;
   const { error: pwErr } = await admin.auth.admin.updateUserById(userId, { password: pwd });
-  if (pwErr) return json({ error: "session prep failed" }, 500, cors);
+  if (pwErr) {
+    console.error("session prep (set password) failed:", pwErr);
+    return json({ error: "session prep failed: " + pwErr.message }, 500, cors);
+  }
 
   const anonClient = createClient(SB_URL, SB_ANON, { auth: { autoRefreshToken: false, persistSession: false } });
   const { data: signIn, error: siErr } = await anonClient.auth.signInWithPassword({ phone, password: pwd });
-  if (siErr || !signIn.session) return json({ error: "sign-in failed" }, 500, cors);
+  if (siErr || !signIn.session) {
+    console.error("sign-in after prep failed:", siErr);
+    return json({ error: "sign-in failed: " + (siErr?.message ?? "no session returned") }, 500, cors);
+  }
 
   return json({
     access_token: signIn.session.access_token,
