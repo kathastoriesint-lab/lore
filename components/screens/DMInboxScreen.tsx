@@ -92,7 +92,7 @@ export default function DMInboxScreen() {
   const handleTab = useCallback((tab: string) => {
     if (tab === 'home') navigate('feed')
     else if (tab === 'live') navigate('live')
-    else if (tab === 'profile') showToast('Profile jald aayega 🔥')
+    else if (tab === 'profile') navigate('profile')
   }, [navigate, showToast])
 
   return (

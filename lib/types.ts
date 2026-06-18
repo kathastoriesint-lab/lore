@@ -158,6 +158,7 @@ export type Screen =
   | 'dm-inbox'
   | 'dm-thread'
   | 'profile'
+  | 'profile-global'
   | 'char-profile'
   | 'onboarding'
   | 'login'
