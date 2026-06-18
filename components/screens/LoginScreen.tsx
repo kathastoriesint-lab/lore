@@ -47,6 +47,18 @@ function extractToken(d: unknown): string {
   return String(o.message ?? o.access_token ?? o['access-token'] ?? o.accessToken ?? '')
 }
 
+// MSG91 hands its failure callbacks an OBJECT ({message,type,...}), not a string —
+// so a `typeof e === 'string'` check always discarded the real reason. Pull the
+// actual message out (and log the raw payload) so the user/logs see WHY it failed.
+function errText(e: unknown, fallback: string): string {
+  if (typeof window !== 'undefined') console.error('[msg91]', e)
+  if (typeof e === 'string') return e || fallback
+  const o = (e ?? {}) as Record<string, unknown>
+  const data = (o.data ?? {}) as Record<string, unknown>
+  const m = o.message ?? o.msg ?? o.error ?? data.message
+  return typeof m === 'string' && m.trim() ? m : fallback
+}
+
 export default function LoginScreen() {
   const { navigate, goBack } = useApp()
   const [step, setStep] = useState<'phone' | 'otp'>('phone')
@@ -80,7 +92,7 @@ export default function LoginScreen() {
     window.sendOtp(
       phone.replace('+', ''),
       () => { setBusy(false); setStep('otp'); setCode('') },
-      (e) => { setBusy(false); setErr(typeof e === 'string' ? e : 'Couldn’t send the code. Try again.') },
+      (e) => { setBusy(false); setErr(errText(e, 'Couldn’t send the code. Try again.')) },
     )
   }
 
@@ -97,14 +109,14 @@ export default function LoginScreen() {
         if ('error' in r) { setBusy(false); setErr(r.error); return }
         if (typeof window !== 'undefined') window.location.reload()
       },
-      (e) => { setBusy(false); setErr(typeof e === 'string' ? e : 'That code didn’t work — re-check or resend.') },
+      (e) => { setBusy(false); setErr(errText(e, 'That code didn’t work — re-check or resend.')) },
     )
   }
 
   function resend() {
     if (!window.retryOtp || busy) return
     setErr(null)
-    window.retryOtp(null, () => {}, (e) => setErr(typeof e === 'string' ? e : 'Couldn’t resend.'))
+    window.retryOtp(null, () => { setErr('New code bhej diya ✅') }, (e) => setErr(errText(e, 'Couldn’t resend.')))
   }
 
   const input: CSSProperties = {
