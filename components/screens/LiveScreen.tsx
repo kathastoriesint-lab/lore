@@ -92,9 +92,38 @@ export default function LiveScreen() {
 
   const isCricket = game.world === 'cricket'
 
-  // (Removed the first-visit coach-mark tab tour — the bottom nav is already
-  // labeled (Feed/Messages/Live/Profile) and the choices are obviously tappable.
-  // Instructions on a self-evident screen add clutter; simpler without them.)
+  // Coach marks — shown once on first Live visit
+  const [coachStep, setCoachStep] = useState(-1)
+  // True while first-visit coach marks are pending/showing — holds narration
+  // until the tutorial is dismissed (so audio starts after, not during).
+  const [coachPending, setCoachPending] = useState(false)
+  const coachShownRef = useRef(false)
+  useEffect(() => {
+    if (screen !== 'live') return
+    if (coachShownRef.current) return
+    if (typeof window !== 'undefined' && localStorage.getItem('seen_live_tips')) return
+    coachShownRef.current = true
+    setCoachPending(true)
+    const t = setTimeout(() => setCoachStep(0), 700)
+    return () => clearTimeout(t)
+  }, [screen])
+  const dismissCoach = useCallback(() => {
+    localStorage.setItem('seen_live_tips', '1')
+    setCoachStep(-1)
+    setCoachPending(false)
+  }, [])
+
+  const coachSteps = isCricket
+    ? [
+        { label: 'Yahan choices hoti hain',      tabIdx: 2, tabCount: 4 },
+        { label: 'Characters se baat karo', tabIdx: 1, tabCount: 4 },
+        { label: 'World ki reactions',             tabIdx: 0, tabCount: 4 },
+      ]
+    : [
+        { label: 'Yahan choices hoti hain', tabIdx: 1, tabCount: 3 },
+        { label: 'World ki reactions',       tabIdx: 0, tabCount: 3 },
+      ]
+  const activeCoach = coachStep >= 0 ? coachSteps[coachStep] : null
   const allChars = isCricket ? { ...getCHChars(), ...getCricketChars() } : getCHChars()
   // 'player' is the cricket sentinel — the user plays as themselves, not an NPC.
   // char is null in cricket; use a synthetic player object only where post-card needs it.
@@ -689,7 +718,7 @@ export default function LiveScreen() {
               <NarrationButton
                 text={[displaySit.title, ...displaySit.body].map(p => stripHtml(r(p))).join('. ')}
                 pauseSignal={pauseSignal}
-                active={screen === 'live'}
+                active={screen === 'live' && !coachPending}
               />
             )}
             <div className="sit-tag">{displaySit.tag}</div>
@@ -1035,6 +1064,31 @@ export default function LiveScreen() {
           )}
         </div>
       )}
+
+      {/* Coach marks — first Live visit */}
+      {activeCoach && (() => {
+        const tabW = 100 / activeCoach.tabCount
+        const tooltipLeft = activeCoach.tabIdx * tabW + tabW / 2
+        const glowLeft = activeCoach.tabIdx * tabW
+        return (
+          <div className="coach-overlay show">
+            <div className="coach-tooltip" style={{ left: `clamp(88px, ${tooltipLeft}%, calc(100% - 88px))`, transform: 'translateX(-50%)' }}>
+              <div className="coach-pill">{activeCoach.label}</div>
+              <div className="coach-arrow" />
+            </div>
+            <div className="coach-tab-glow" style={{ left: `${glowLeft}%`, width: `${tabW}%` }} />
+            <div className="coach-foot">
+              <button className="coach-skip-btn" onClick={dismissCoach}>Skip</button>
+              <button className="coach-next-btn" onClick={() => {
+                if (coachStep < coachSteps.length - 1) setCoachStep(s => s + 1)
+                else dismissCoach()
+              }}>
+                {coachStep === coachSteps.length - 1 ? 'Got it ✓' : 'Next →'}
+              </button>
+            </div>
+          </div>
+        )
+      })()}
 
       {/* Tab bar */}
       <div className="tabbar">
