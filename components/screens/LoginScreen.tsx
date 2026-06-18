@@ -1,14 +1,13 @@
 'use client'
 import { useState, useEffect, useRef, type CSSProperties, type FormEvent, type KeyboardEvent } from 'react'
 import { useApp } from '@/lib/context'
-import { completeMsg91Login } from '@/lib/auth'
+import { completeMsg91Login, sendEmailOtp, verifyEmailOtp } from '@/lib/auth'
 
-// Phone login via the MSG91 OTP Widget. The widget sends + verifies the OTP and
-// returns a JWT; completeMsg91Login() exchanges it for a Supabase session (which
-// links the guest's progress). On success we full-reload as the signed-in user.
+// Phone login via the MSG91 OTP Widget (sends + verifies the OTP, returns a JWT
+// that completeMsg91Login exchanges for a Supabase session) OR email login via
+// Supabase's native email OTP. On success we full-reload as the signed-in user.
 //
 // UI redesign (Indian Android handoff): cinematic hero + bottom-sheet form.
-// Auth integration is untouched — only layout/copy changed.
 
 declare global {
   interface Window {
@@ -20,14 +19,12 @@ declare global {
 }
 
 // MSG91 widget id + client token are PUBLIC by design (embedded in the browser
-// widget). Committed as defaults so the deployed app works without extra env;
-// override via env if they ever change. (The server authkey is NOT here — it's
-// a Supabase edge-fn secret used only by msg91-auth.)
+// widget). Committed as defaults; override via env. (Server authkey is NOT here.)
 const WIDGET_ID = process.env.NEXT_PUBLIC_MSG91_WIDGET_ID || '366671733063373330303731'
 const TOKEN_AUTH = process.env.NEXT_PUBLIC_MSG91_TOKEN_AUTH || '533925TdinOE5GXgE6a32ef1cP1'
-// OTP length MUST match the MSG91 widget's configured OTP length (set to 4 in the
-// MSG91 dashboard). Drives the box count, submit gate, and auto-submit.
+// Phone OTP length MUST match the MSG91 widget config (4). Supabase email OTP is 6.
 const OTP_LENGTH = Number(process.env.NEXT_PUBLIC_MSG91_OTP_LENGTH) || 4
+const EMAIL_OTP_LENGTH = 6
 const RESEND_SECS = 24
 
 // Cinematic hero loop — cricket (Indian Dressing Room) stills, cross-faded as a
@@ -35,6 +32,10 @@ const RESEND_SECS = 24
 // drop JPEGs in /public and list them here.
 const HERO_FRAMES = ['/login-hero-1.jpg', '/login-hero-2.jpg', '/login-hero-3.jpg']
 const HERO_INTERVAL = 5500
+
+const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/
+
+type Step = 'phone' | 'otp' | 'email' | 'email-otp'
 
 function loadWidget(): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -60,9 +61,8 @@ function extractToken(d: unknown): string {
   return String(o.message ?? o.access_token ?? o['access-token'] ?? o.accessToken ?? '')
 }
 
-// MSG91 hands its failure callbacks an OBJECT ({message,type,...}), not a string —
-// so a `typeof e === 'string'` check always discarded the real reason. Pull the
-// actual message out (and log the raw payload) so the user/logs see WHY it failed.
+// MSG91 hands its failure callbacks an OBJECT ({message,type,...}), not a string;
+// pull the real message out (and log the raw payload) so the reason is visible.
 function errText(e: unknown, fallback: string): string {
   if (typeof window !== 'undefined') console.error('[msg91]', e)
   if (typeof e === 'string') return e || fallback
@@ -73,9 +73,10 @@ function errText(e: unknown, fallback: string): string {
 }
 
 export default function LoginScreen() {
-  const { navigate, game, showToast } = useApp()
-  const [step, setStep] = useState<'phone' | 'otp'>('phone')
+  const { navigate, game } = useApp()
+  const [step, setStep] = useState<Step>('phone')
   const [num, setNum] = useState('')
+  const [email, setEmail] = useState('')
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
   const [methodOpen, setMethodOpen] = useState(false)
@@ -110,8 +111,11 @@ export default function LoginScreen() {
   const phone = `+91${digits}`
   const phoneValid = digits.length === 10
   const phoneDisplay = `+91 ${digits ? digits.replace(/(\d{5})(\d{0,5})/, '$1 $2').trim() : '98765 43210'}`
+  const emailValid = EMAIL_RE.test(email.trim())
+  const isEmailOtp = step === 'email-otp'
+  const otpLen = isEmailOtp ? EMAIL_OTP_LENGTH : OTP_LENGTH
 
-  // ── OTP boxes (uncontrolled — managed via refs, like the design prototype) ──
+  // ── OTP boxes (uncontrolled — managed via refs, shared by phone + email) ──
   const otpValue = () => otpRefs.current.map(r => r?.value || '').join('')
   const clearOtp = () => otpRefs.current.forEach(r => { if (r) r.value = '' })
 
@@ -126,6 +130,7 @@ export default function LoginScreen() {
     }, 1000)
   }
 
+  // ── Phone (MSG91) ──
   function send() {
     if (!phoneValid || busy) return
     if (!ready.current || !window.sendOtp) { setErr('Still loading — try again in a second.'); return }
@@ -136,7 +141,6 @@ export default function LoginScreen() {
       (e) => { setBusy(false); setErr(errText(e, 'Couldn’t send the code. Try again.')) },
     )
   }
-
   function verify(codeArg?: string) {
     const c = (codeArg ?? otpValue()).replace(/\D/g, '')
     if (c.length < OTP_LENGTH || busy) return
@@ -155,38 +159,53 @@ export default function LoginScreen() {
     )
   }
 
-  function resend() {
-    if (!window.retryOtp || busy || resendIn > 0) return
-    setErr(null); clearOtp(); otpRefs.current[0]?.focus()
-    window.retryOtp(null, () => startResend(), (e) => setErr(errText(e, 'Couldn’t resend.')))
+  // ── Email (Supabase native OTP) ──
+  async function sendEmail() {
+    if (!emailValid || busy) return
+    setBusy(true); setErr(null)
+    const r = await sendEmailOtp(email)
+    setBusy(false)
+    if ('error' in r) { setErr(r.error); return }
+    setStep('email-otp'); clearOtp(); startResend(); setTimeout(() => otpRefs.current[0]?.focus(), 60)
+  }
+  async function verifyEmail(codeArg?: string) {
+    const c = (codeArg ?? otpValue()).replace(/\D/g, '')
+    if (c.length < EMAIL_OTP_LENGTH || busy) return
+    setBusy(true); setErr(null)
+    const r = await verifyEmailOtp(email, c)
+    if ('error' in r) { setBusy(false); setErr(r.error); clearOtp(); otpRefs.current[0]?.focus(); return }
+    if (typeof window !== 'undefined') window.location.reload()
   }
 
-  function backToPhone() {
+  function resend() {
+    if (busy || resendIn > 0) return
+    setErr(null); clearOtp(); otpRefs.current[0]?.focus()
+    if (isEmailOtp) {
+      sendEmailOtp(email).then(r => { if ('error' in r) setErr(r.error); else startResend() })
+    } else {
+      if (!window.retryOtp) return
+      window.retryOtp(null, () => startResend(), (e) => setErr(errText(e, 'Couldn’t resend.')))
+    }
+  }
+  function backFromOtp() {
     if (resendTimer.current) clearInterval(resendTimer.current)
-    clearOtp(); setErr(null); setStep('phone')
+    clearOtp(); setErr(null); setStep(isEmailOtp ? 'email' : 'phone')
   }
 
   function onOtpInput(i: number, e: FormEvent<HTMLInputElement>) {
     const el = e.currentTarget
     el.value = el.value.replace(/\D/g, '').slice(-1)
     if (err) setErr(null)
-    if (el.value && i < OTP_LENGTH - 1) otpRefs.current[i + 1]?.focus()
+    if (el.value && i < otpLen - 1) otpRefs.current[i + 1]?.focus()
     const full = otpValue()
-    if (full.length === OTP_LENGTH) verify(full)
+    if (full.length === otpLen) (isEmailOtp ? verifyEmail(full) : verify(full))
   }
   function onOtpKey(i: number, e: KeyboardEvent<HTMLInputElement>) {
     if (e.key === 'Backspace' && !e.currentTarget.value && i > 0) otpRefs.current[i - 1]?.focus()
   }
 
-  function continueAsGuest() {
-    setMethodOpen(false)
-    navigate(game.playerName ? 'worlds' : 'onboarding')
-  }
-  function continueWithEmail() {
-    setMethodOpen(false)
-    // TODO: wire to email auth when it exists. No email provider today.
-    showToast('Email login jald aayega ✉️')
-  }
+  function continueAsGuest() { setMethodOpen(false); navigate(game.playerName ? 'worlds' : 'onboarding') }
+  function continueWithEmail() { setMethodOpen(false); setErr(null); setStep('email') }
 
   // ── styles ──
   const inputBase: CSSProperties = {
@@ -205,7 +224,17 @@ export default function LoginScreen() {
     background: 'rgba(255,255,255,.08)', border: '1px solid var(--line)', borderRadius: 'var(--r-md)',
     color: 'var(--ink)', fontWeight: 600, fontSize: 15, fontFamily: 'var(--sans)', cursor: 'pointer',
   }
+  const linkBtn: CSSProperties = { background: 'none', border: 'none', color: 'var(--ink2)', fontSize: 14, fontFamily: 'var(--sans)', textDecoration: 'underline', textUnderlineOffset: 3, cursor: 'pointer', alignSelf: 'center', marginTop: 20, padding: 8 }
   const errLine = err ? <div style={{ color: 'var(--heat)', fontSize: 12.5, marginTop: 12, textAlign: 'center' }}>{err}</div> : null
+  const trustLine = (
+    <>
+      <div style={{ flex: 1 }} />
+      <div style={{ display: 'flex', alignItems: 'center', gap: 7, justifyContent: 'center', color: 'var(--ink3)', fontSize: 12, marginTop: 18 }}>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+        Only used to save your game. No spam, ever.
+      </div>
+    </>
+  )
 
   return (
     <div style={{ position: 'relative', height: '100%', width: '100%', background: 'var(--bg)', overflow: 'hidden', fontFamily: 'var(--sans)', display: 'flex', flexDirection: 'column' }}>
@@ -236,7 +265,7 @@ export default function LoginScreen() {
       <div style={{ flex: 1, marginTop: -26, background: 'var(--surf2)', borderRadius: 'var(--r-2xl) var(--r-2xl) 0 0', borderTop: '1px solid rgba(255,255,255,.06)', boxShadow: 'var(--sh-sheet)', padding: '14px 22px 26px', display: 'flex', flexDirection: 'column', position: 'relative', zIndex: 2 }}>
         <div style={{ width: 38, height: 4, borderRadius: 99, background: 'rgba(255,255,255,.14)', alignSelf: 'center', marginBottom: 22 }} />
 
-        {step === 'phone' ? (
+        {step === 'phone' && (
           <>
             <div style={headline}>Enter your mobile number</div>
             <div style={subtext}>Continue on any phone, anytime — your story stays saved.</div>
@@ -257,30 +286,45 @@ export default function LoginScreen() {
             </button>
             {errLine}
 
-            <button onClick={() => setMethodOpen(true)} style={{ background: 'none', border: 'none', color: 'var(--ink2)', fontSize: 14, fontFamily: 'var(--sans)', textDecoration: 'underline', textUnderlineOffset: 3, cursor: 'pointer', alignSelf: 'center', marginTop: 20, padding: 8 }}>
-              Or login using another method
-            </button>
-
-            <div style={{ flex: 1 }} />
-            <div style={{ display: 'flex', alignItems: 'center', gap: 7, justifyContent: 'center', color: 'var(--ink3)', fontSize: 12, marginTop: 18 }}>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
-              Only used to save your game. No spam, ever.
-            </div>
+            <button onClick={() => setMethodOpen(true)} style={linkBtn}>Or login using another method</button>
+            {trustLine}
           </>
-        ) : (
+        )}
+
+        {step === 'email' && (
+          <>
+            <div style={headline}>Enter your email</div>
+            <div style={subtext}>We’ll email you a code to verify it — your story stays saved.</div>
+
+            <input value={email} onChange={e => setEmail(e.target.value)}
+              type="email" inputMode="email" autoComplete="email" autoFocus placeholder="you@example.com" aria-label="Email address"
+              onKeyDown={e => { if (e.key === 'Enter') sendEmail() }}
+              style={{ ...inputBase, width: '100%', padding: '0 16px', marginTop: 22 }} />
+
+            <button className="lo-press" onClick={sendEmail} disabled={!emailValid || busy} style={{ ...primaryBtn(emailValid), marginTop: 18 }}>
+              {busy ? 'Sending…' : 'Continue'}
+            </button>
+            {errLine}
+
+            <button onClick={() => { setErr(null); setStep('phone') }} style={linkBtn}>← Use phone number instead</button>
+            {trustLine}
+          </>
+        )}
+
+        {(step === 'otp' || step === 'email-otp') && (
           <>
             <div style={headline}>Enter the code</div>
             <div style={subtext}>
-              Sent to <span style={{ color: 'var(--ink)' }}>{phoneDisplay}</span> ·{' '}
-              <span onClick={backToPhone} style={{ color: 'var(--accent)', cursor: 'pointer' }}>Change</span>
+              Sent to <span style={{ color: 'var(--ink)' }}>{isEmailOtp ? email : phoneDisplay}</span> ·{' '}
+              <span onClick={backFromOtp} style={{ color: 'var(--accent)', cursor: 'pointer' }}>Change</span>
             </div>
 
-            <div style={{ display: 'flex', gap: 12, marginTop: 24 }}>
-              {Array.from({ length: OTP_LENGTH }).map((_, i) => (
+            <div style={{ display: 'flex', gap: otpLen > 4 ? 8 : 12, marginTop: 24 }}>
+              {Array.from({ length: otpLen }).map((_, i) => (
                 <input key={i} ref={el => { otpRefs.current[i] = el }}
                   onInput={e => onOtpInput(i, e)} onKeyDown={e => onOtpKey(i, e)}
-                  inputMode="numeric" maxLength={1} autoFocus={i === 0} aria-label={`OTP digit ${i + 1}`}
-                  style={{ flex: 1, minWidth: 0, maxWidth: 66, height: 64, textAlign: 'center', background: 'var(--surf)', border: '1px solid var(--line)', borderRadius: 'var(--r-md)', color: 'var(--ink)', fontSize: 26, fontWeight: 700, fontFamily: 'var(--sans)', outline: 'none', caretColor: 'var(--accent)' }} />
+                  inputMode="numeric" maxLength={1} autoFocus={i === 0} aria-label={`Code digit ${i + 1}`}
+                  style={{ flex: 1, minWidth: 0, maxWidth: 66, height: 64, textAlign: 'center', background: 'var(--surf)', border: '1px solid var(--line)', borderRadius: 'var(--r-md)', color: 'var(--ink)', fontSize: otpLen > 4 ? 22 : 26, fontWeight: 700, fontFamily: 'var(--sans)', outline: 'none', caretColor: 'var(--accent)' }} />
               ))}
             </div>
 
@@ -288,7 +332,7 @@ export default function LoginScreen() {
               {resendIn > 0 ? `Auto-fills from SMS · Resend in 0:${String(resendIn).padStart(2, '0')}` : 'Didn’t get it? Resend code'}
             </div>
 
-            <button className="lo-press" onClick={() => verify()} disabled={busy} style={{ ...primaryBtn(true), marginTop: 24 }}>
+            <button className="lo-press" onClick={() => (isEmailOtp ? verifyEmail() : verify())} disabled={busy} style={{ ...primaryBtn(true), marginTop: 24 }}>
               {busy ? 'Verifying…' : 'Verify & continue'}
             </button>
             {errLine}

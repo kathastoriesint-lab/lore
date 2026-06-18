@@ -51,17 +51,48 @@ export async function completeMsg91Login(msg91Token: string): Promise<{ ok: true
     if (!access_token || !refresh_token) return { error: 'login failed' }
     const { error } = await getClient().auth.setSession({ access_token, refresh_token })
     if (error) return { error: friendly(error.message) }
-    // supabase-js persists the new session to storage asynchronously (via the
-    // SIGNED_IN event), so a caller that reloads immediately can race the write
-    // and boot back as a fresh guest. Poll a FRESH client — which reads from
-    // cookie storage rather than the in-memory cache — until it sees the new
-    // session, so the reload is safe. Cap the wait at ~2s.
-    for (let i = 0; i < 20; i++) {
-      const { data: { session: persisted } } = await createClient().auth.getSession()
-      if (persisted?.access_token === access_token) return { ok: true }
-      await new Promise(r => setTimeout(r, 100))
-    }
-    // Storage never confirmed — surface it rather than reloading into a guest.
+    if (await awaitPersistedSession(access_token)) return { ok: true }
+    return { error: 'Signed in, but the session didn’t save — please try again.' }
+  } catch (e) {
+    return { error: friendly(e instanceof Error ? e.message : 'login failed') }
+  }
+}
+
+// supabase-js persists a new session to cookie storage asynchronously (via the
+// SIGNED_IN event), so a caller that reloads immediately can race the write and
+// boot back as a guest. Poll a FRESH client (reads storage, not the in-memory
+// cache) until it sees the session. Returns true once persisted (cap ~2s).
+async function awaitPersistedSession(accessToken: string): Promise<boolean> {
+  for (let i = 0; i < 20; i++) {
+    const { data: { session } } = await createClient().auth.getSession()
+    if (session?.access_token === accessToken) return true
+    await new Promise(r => setTimeout(r, 100))
+  }
+  return false
+}
+
+// ── Email OTP (Supabase native — no edge-fn bridge needed) ──────────────────
+// Sends a code to the email via Supabase Auth. Requires the email template to
+// include {{ .Token }} so a CODE is delivered (not just a magic link).
+export async function sendEmailOtp(email: string): Promise<{ ok: true } | { error: string }> {
+  try {
+    const { error } = await getClient().auth.signInWithOtp({ email: email.trim(), options: { shouldCreateUser: true } })
+    if (error) return { error: friendly(error.message) }
+    return { ok: true }
+  } catch (e) {
+    return { error: friendly(e instanceof Error ? e.message : 'Couldn’t send the code') }
+  }
+}
+
+// Verifies the emailed code, adopts the Supabase session, and waits for it to
+// persist (same race guard as the phone path) before the caller reloads.
+export async function verifyEmailOtp(email: string, token: string): Promise<{ ok: true } | { error: string }> {
+  try {
+    const { data, error } = await getClient().auth.verifyOtp({ email: email.trim(), token: token.trim(), type: 'email' })
+    if (error) return { error: friendly(error.message) }
+    const at = data.session?.access_token
+    if (!at) return { error: 'login failed' }
+    if (await awaitPersistedSession(at)) return { ok: true }
     return { error: 'Signed in, but the session didn’t save — please try again.' }
   } catch (e) {
     return { error: friendly(e instanceof Error ? e.message : 'login failed') }
@@ -74,8 +105,10 @@ export async function signOutToGuest(): Promise<void> {
 }
 
 function friendly(m: string): string {
-  if (/not verified|otp/i.test(m)) return 'Couldn’t verify that code — try again.'
   if (/rate|limit|too many|429/i.test(m)) return 'Too many attempts — wait a minute and try again.'
+  if (/expired/i.test(m)) return 'That code expired — request a new one.'
+  if (/valid email|email address|email.*invalid/i.test(m)) return 'Please enter a valid email.'
+  if (/not verified|otp|invalid/i.test(m)) return 'Couldn’t verify that code — try again.'
   if (/phone/i.test(m)) return 'Please enter a valid phone number.'
   return m
 }
