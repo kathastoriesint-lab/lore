@@ -30,20 +30,18 @@ export default function WorldIntroScreen() {
   const isLast = cur === TOTAL - 1
 
   // ── shared styles (mirror CricketCarouselScreen) ──
-  const imgWrap: CSSProperties = { position: 'relative', height: '48%', flex: 'none' }
+  const imgWrap: CSSProperties = { position: 'relative', height: '54%', flex: 'none' }
   const img: CSSProperties = { width: '100%', height: '100%', objectFit: 'cover', display: 'block' }
   const grain: CSSProperties = { position: 'absolute', inset: 0, background: 'var(--grain)', opacity: 0.3, mixBlendMode: 'overlay', pointerEvents: 'none' }
   const scrim: CSSProperties = { position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(8,8,15,.3) 0%, transparent 40%, var(--bg) 100%)' }
   const eyebrow: CSSProperties = { display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 10, fontWeight: 800, letterSpacing: '.14em', color: 'var(--accent)', marginBottom: 14 }
   const big = (size: number): CSSProperties => ({ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: size, lineHeight: 1.07, color: '#fff' })
-  const body: CSSProperties = { fontSize: 15, color: 'var(--ink2)', lineHeight: 1.5, marginTop: 12 }
+  const body: CSSProperties = { fontSize: 16, color: 'var(--ink2)', lineHeight: 1.55, marginTop: 13 }
   const av = (first: boolean): CSSProperties => ({ width: 46, height: 46, borderRadius: '50%', border: '2px solid var(--bg)', marginLeft: first ? 0 : -13, background: '#2a0d1c center/cover', objectFit: 'cover' })
-  // Text panel: scrolls within itself if a slide's copy runs long, so nothing ever
-  // clips off-screen on a short device. (No-overflow guard for the carousel.)
-  const panel: CSSProperties = { flex: 1, minHeight: 0, overflowY: 'auto', padding: '10px 28px 22px', display: 'flex', flexDirection: 'column' }
-  // Slide 2's avatar row overlaps UP into the image (negative margin + z-index), so this
-  // panel must NOT clip — keep overflow visible. Its copy is short, so no overflow risk.
-  const panel2: CSSProperties = { flex: 1, padding: '0 28px 22px', display: 'flex', flexDirection: 'column' }
+  // Text panel below the image (image ~54%), matching the design + the cricket intro.
+  // Panels do NOT clip — slide 2's avatar row overlaps up into the image. (panel2 = slide 2.)
+  const panel: CSSProperties = { flex: 1, padding: '4px 28px 28px', display: 'flex', flexDirection: 'column' }
+  const panel2: CSSProperties = { flex: 1, padding: '0 28px 28px', display: 'flex', flexDirection: 'column' }
 
   return (
     <div
@@ -65,7 +63,7 @@ export default function WorldIntroScreen() {
             </div>
             <div style={panel}>
               <div style={eyebrow}><span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--accent)' }} />CREATOR HOUSE · GOA · SEASON 1</div>
-              <div style={big(32)}>Tum viral ho gaye.</div>
+              <div style={big(36)}>Tum viral ho gaye.</div>
               <div style={body}>Sahi video, sahi waqt. Aur ab — Creator House ne tumhe bulaya. 6 creators, ek villa, 10 din.</div>
             </div>
           </div>
@@ -80,7 +78,7 @@ export default function WorldIntroScreen() {
               <div style={{ display: 'flex', marginTop: -26, marginBottom: 16, position: 'relative', zIndex: 2 }}>
                 {CAST.map((id, i) => <img key={id} src={`/avatars/${id}.png`} alt="" style={av(i === 0)} />)}
               </div>
-              <div style={big(30)}>Ria. Kabir. Ananya.</div>
+              <div style={big(32)}>Ria. Kabir. Ananya.</div>
               <div style={body}>Sab apna game khel rahe hain. Koi dost banega, koi dushman — par abhi tumhe koi nahi jaanta.</div>
             </div>
           </div>
@@ -93,7 +91,7 @@ export default function WorldIntroScreen() {
             </div>
             <div style={panel}>
               <div style={{ ...eyebrow, marginBottom: 12 }}>SEASON 1 · THE GOAL</div>
-              <div style={big(32)}>Finale tak pahuncho.</div>
+              <div style={big(36)}>Finale tak pahuncho.</div>
               <div style={body}>Followers badhao, sahi log apne saath rakho, eviction nights nikaalo. Internet dekh raha hai — chha gaye toh finale tumhara.</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginTop: 18, flexWrap: 'wrap' }}>
                 {['Day 1', 'Eviction Nights', 'Finale'].map((step, i) => (
