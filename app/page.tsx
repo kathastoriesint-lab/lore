@@ -316,11 +316,13 @@ export default function App() {
     }
     const newState: GameState = {
       playerName: game.playerName, playerGender: game.playerGender,
-      world: 'creator-house', char: null,
+      // char:'player' is the self-sentinel (same as cricket). We land straight on Live —
+      // the separate narrator/cast screen is gone; the cast is met via the feed.
+      world: 'creator-house', char: 'player',
       situation: 0, situationQueue: buildCHQueue({ fame: 20, heat: 50, image: 30 }, []), choices: [],
       meters: { fame: 20, heat: 50, image: 30 },
       flags: DEFAULT_FLAGS, runMemory: {},
-      narrator_done: false, dayUnlockTime: {},
+      narrator_done: true, dayUnlockTime: {},
     }
     setRelationshipAlerts([])
     saveAndSet(newState)
@@ -331,7 +333,8 @@ export default function App() {
       localStorage.removeItem('lore_dm_openers_v1') // fresh run re-seeds openers
       localStorage.removeItem('lore_dm_cap')        // fresh run clears DM throttle
     }
-    navigate('narrator')
+    // Land on the engine (Live), mirroring cricket. (DD1, CEO/design review 2026-06.)
+    navigate('live')
   }, [game.playerName, game.playerGender, saveAndSet, navigate])
 
   const startCricketGame = useCallback(() => {

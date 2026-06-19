@@ -11,10 +11,12 @@ import { evictionRisk } from '@/lib/creator-house'
 const idToDay: Record<string, number> = Object.fromEntries(getCHSituations().map(s => [s.id, s.day]))
 const TOTAL_DAYS = 10
 
+// Follower-pressure tiers (psychological only — the player is never actually evicted).
+// Severity ramp: teal (safe) → gold (on the block) → orange (name leading the vote).
 const STATUS = {
-  safe:     { word: 'SAFE',         color: 'var(--trust)' },
-  risk:     { word: 'AT RISK',      color: 'var(--fame)' },
-  critical: { word: 'KHATRE MEIN',  color: 'var(--heat)' },
+  safe:     { word: 'SAFE',          color: 'var(--trust)' },
+  risk:     { word: 'ON THE BLOCK',  color: 'var(--fame)' },
+  critical: { word: 'NAME LEADING',  color: 'var(--heat)' },
 } as const
 
 export default function CHStatusCard({ variant = 'focus' }: { variant?: 'focus' | 'slim' }) {
@@ -68,8 +70,8 @@ export default function CHStatusCard({ variant = 'focus' }: { variant?: 'focus' 
       background: 'var(--surf)', border: '1px solid var(--line)', borderRadius: 14, padding: '12px 16px',
     }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-        <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.1em', color: 'var(--ink3)' }}>EVICTION RISK</span>
-        <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.06em', color: 'var(--ink3)' }}>DIN {risk.day} · DAY {day}/{TOTAL_DAYS}</span>
+        <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.1em', color: 'var(--ink3)' }}>FOLLOWERS WATCHING</span>
+        <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.06em', color: 'var(--ink3)' }}>DIN {risk.day} EVICTION · DAY {day}/{TOTAL_DAYS}</span>
       </div>
 
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 9 }}>
@@ -85,8 +87,8 @@ export default function CHStatusCard({ variant = 'focus' }: { variant?: 'focus' 
 
       <div style={{ fontSize: 11.5, color: 'var(--ink3)', lineHeight: 1.4 }}>
         {safe
-          ? '→ Ghar tumhaare saath hai. Naam nahi aayega.'
-          : `→ ${remaining} TRUST aur chahiye — DMs mein log banao, warna naam aa sakta hai.`}
+          ? '→ Ghar tumhaare saath hai. Eviction night pe naam nahi aayega.'
+          : `→ ${remaining} TRUST aur chahiye — DM mein log se trust banao. Naam top pe aaya toh followers bachate hain, par ghar note karta hai.`}
       </div>
     </div>
   )

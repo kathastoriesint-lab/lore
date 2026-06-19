@@ -158,11 +158,11 @@ export default function EvictionScreen() {
         </div>
       )}
 
-      {/* ── AUDIENCE TALLY ── */}
+      {/* ── FOLLOWERS' VOTE TALLY ── */}
       {phase === 'tally' && (
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', position: 'relative' }}>
           <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.14em', color: 'var(--ink3)', textAlign: 'center', marginBottom: 24 }}>
-            PUBLIC VOTE · LIVE
+            FOLLOWERS&apos; VOTE · LIVE
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
             {ev.nominees.map(id => {

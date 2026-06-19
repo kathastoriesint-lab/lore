@@ -52,20 +52,21 @@ function renderWithCtx(ctx: Partial<AppCtx> = {}) {
   return { ...render(<AppContext.Provider value={value}><WorldIntroScreen /></AppContext.Provider>), value }
 }
 
-// The intro is a 4-slide carousel: slides 0-2 show "Next →", the last slide shows
-// the "Enter the House →" CTA and a bottom "Skip" (back to worlds).
-const SLIDES = 4
+// The intro is now a 3-slide split-card carousel (parity with the cricket Dressing
+// Room intro): slides 0-1 show "Continue →", the last slide shows "Enter the House →".
+// The top-right "Skip" jumps to the last slide.
+const SLIDES = 3
 const advanceToLastSlide = () => {
-  for (let i = 0; i < SLIDES - 1; i++) fireEvent.click(screen.getByText('Next →'))
+  for (let i = 0; i < SLIDES - 1; i++) fireEvent.click(screen.getByText('Continue →'))
 }
 
 describe('WorldIntroScreen', () => {
   it('renders the Skip button', () => {
     renderWithCtx()
-    expect(screen.getByText('Skip →')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Skip' })).toBeInTheDocument()
   })
 
-  it('calls startGame when the Enter CTA is clicked', () => {
+  it('calls startGame when the Enter CTA is clicked (fresh run)', () => {
     const startGame = vi.fn()
     renderWithCtx({ startGame })
     advanceToLastSlide()
@@ -73,11 +74,9 @@ describe('WorldIntroScreen', () => {
     expect(startGame).toHaveBeenCalled()
   })
 
-  it('navigates to worlds when the bottom Skip is clicked', () => {
-    const navigate = vi.fn()
-    renderWithCtx({ navigate })
-    advanceToLastSlide()
+  it('Skip jumps to the last slide (the Enter the House CTA appears)', () => {
+    renderWithCtx()
     fireEvent.click(screen.getByRole('button', { name: 'Skip' }))
-    expect(navigate).toHaveBeenCalledWith('worlds')
+    expect(screen.getByRole('button', { name: /Enter the House/i })).toBeInTheDocument()
   })
 })

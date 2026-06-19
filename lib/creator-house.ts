@@ -34,11 +34,14 @@ export const EVICTION_TRIGGERS: Record<string, string> = {
   'D7-2': 'EV-D7',
 }
 
-// ── Survival: TRUST drives eviction (Option B) ──────────────────────────────────
+// ── Eviction-night TENSION: TRUST drives follower pressure (psychological only) ──
 // TRUST (the `image` meter — "logon ka bharosa") is who has your back at a vote.
-//   trust >= threshold → SAFE: a housemate goes, you're untouched.
-//   floor <= trust < threshold → AT RISK: your name comes up, you survive by a thread.
-//   trust < floor → you're the one voted out. Real loss.
+// The player is NEVER actually evicted — your followers always keep you — but the
+// threat is real on screen. TRUST decides how close it gets:
+//   trust >= threshold → SAFE: a housemate goes, your name never comes up.
+//   floor <= trust < threshold → ON THE BLOCK: your name comes up, you survive.
+//   trust < floor → FOLLOWER PRESSURE peaks: your name leads the vote, your followers
+//                   save you anyway — but the house noticed. (Never a real loss.)
 export const EVICTION_SAFETY: Record<string, { day: number; threshold: number; floor: number }> = {
   'EV-D3': { day: 3, threshold: 28, floor: 16 },  // lenient — TRUST starts at 30
   'EV-D7': { day: 7, threshold: 40, floor: 26 },  // by now you should have built it
@@ -88,32 +91,31 @@ export function buildEviction(id: string, game: GameState): EvictionNight | null
   if (status === 'safe') return base
 
   const ally: CharId = game.playerGender === 'male' ? 'kabir' : 'ananya'
-  const topNominee = base.nominees.find(n => n !== ally) ?? base.nominees[0]
 
   if (status === 'critical') {
-    // Your name comes up — and this time you go. Real loss.
+    // Follower pressure peaks — your name leads the vote and it looks lost... but your
+    // followers keep you in. You stay; the house NPC still goes. (Psychological only —
+    // the player is never evicted.) The house noticed how close it got.
     return {
       ...base,
-      nominees: ['player', topNominee],
-      evicted: 'player',
-      playerEvicted: true,
+      nominees: ['player', ...base.nominees],
       houseVotes: [
-        { voter: 'ria',  target: 'player',    line: 'Naye banda ka bharosa hi nahi bana ghar mein. Sorry.' },
-        { voter: 'zoya', target: 'player',    line: 'Tumne kisi ko apna nahi banaya. Yahi anjaam hota hai. 💅' },
-        { voter: ally,   target: topNominee,  line: 'Main tumhaare saath tha... par akela kya karta.' },
+        { voter: 'ria',  target: 'player',     line: 'Naye banda ka bharosa hi nahi bana ghar mein. Dekhte hain followers kya kehte hain.' },
+        { voter: 'zoya', target: 'player',     line: 'Tumne kisi ko apna nahi banaya. Risky hai tumhaare liye. 💅' },
+        { voter: ally,   target: base.evicted, line: 'Main tumhaare saath hoon — chahe ghar kuch bhi kahe.' },
       ],
-      audience: { player: 57, [topNominee]: 43 },
-      goodbye: 'Ghar mein the, par ghar ke nahi ban paaye. Trust nahi banaya — aur yahaan wahi bachata hai.',
-      aftermath: 'Tumhaari khaali kursi. Ghar chalta rahega — tumhaare bina.',
+      // High share = closest to eviction; base.evicted (an NPC) still tops it, you sit just under.
+      audience: { [base.evicted]: 44, player: 40, ...Object.fromEntries(base.nominees.filter(n => n !== base.evicted).map(n => [n, 16])) },
+      aftermath: base.aftermath + ' Tumhaara naam aakhir tak top pe gunja — followers ne bachaya, bas. Ghar ne note kar liya: trust nahi banaya toh akele pad jaoge.',
     }
   }
 
-  // status === 'risk' — your name comes up, but you survive by a thread.
+  // status === 'risk' — your name comes up, but you survive comfortably.
   return {
     ...base,
     nominees: ['player', ...base.nominees],
-    audience: { [topNominee]: 46, player: 33, ...Object.fromEntries(base.nominees.filter(n => n !== topNominee).map(n => [n, 21])) },
-    aftermath: base.aftermath + ' Aur tumhaara naam bhi aaya — TRUST giraa toh agli baar bach nahi paoge.',
+    audience: { [base.evicted]: 46, player: 33, ...Object.fromEntries(base.nominees.filter(n => n !== base.evicted).map(n => [n, 21])) },
+    aftermath: base.aftermath + ' Aur tumhaara naam bhi aaya — TRUST banaye rakho, warna har baar yeh tension rahegi.',
   }
 }
 

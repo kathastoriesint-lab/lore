@@ -11,6 +11,7 @@ import { sentimentDelta } from '@/lib/relationships'
 import MeterHUD from '@/components/MeterHUD'
 import GoalCard from '@/components/GoalCard'
 import CHStatusCard from '@/components/CHStatusCard'
+import ChoiceSheet from '@/components/ChoiceSheet'
 import NarrationButton from '@/components/NarrationButton'
 
 const stripHtml = (s: string) => s.replace(/<[^>]+>/g, '')
@@ -39,11 +40,10 @@ const StatusBar = () => (
   </div>
 )
 
+// Two reachable endings (CEO review 2026-06): Fame-led → Main Character, Heat-led → The Heart.
 const FINALE_DATA = {
-  heart: { arc: 'Heat King/Queen', sub: 'Tu viral hai, controversial hai, aur everyone is talking about you. Bura naam bhi naam hota hai.', color: '#FF5C3A' },
-  main:  { arc: 'Main Character', sub: 'Har scene tumhara. Har headline tumhara. Yahi hai Creator House.', color: '#FFB020' },
-  brand: { arc: 'Brand Icon', sub: 'Brands queue mein hain. Image perfect hai. Creator House ne tumhe polish kiya.', color: '#3DD6C8' },
-  dark:  { arc: 'Dark Horse', sub: 'Quietly. Deadly. Is ghar mein sab ne underestimate kiya — aur sab galat the.', color: '#8a4ab0' },
+  heart: { arc: 'The Heart', sub: 'Tum sabse zyada baat hue — viral, talked-about, unmissable. Is ghar ka dil tum the.', color: '#FF5C3A' },
+  main:  { arc: 'The Main Character', sub: 'Har scene tumhara. Har headline tumhara. Yahi hai Creator House.', color: '#FFB020' },
 }
 
 const asArray = <T,>(value: T | T[] | null | undefined): T[] => {
@@ -99,7 +99,7 @@ const resolveChoiceOutcome = (choice: Choice, meters: Meters) => {
 }
 
 export default function LiveScreen() {
-  const { navigate, game, screen, makeChoice, advanceSituation, injectCharDM, openDMThread, dmTrust, dmBadgeCount } = useApp()
+  const { navigate, game, screen, makeChoice, advanceSituation, injectCharDM, openDMThread, dmTrust, dmBadgeCount, startGame } = useApp()
   // Tracks when we're mid-choice-flow so the situation-change effect doesn't clear showPost
   const inFlowRef = useRef(false)
 
@@ -126,16 +126,15 @@ export default function LiveScreen() {
     setCoachPending(false)
   }, [])
 
-  const coachSteps = isCricket
-    ? [
-        { label: 'Yahan choices hoti hain',      tabIdx: 2, tabCount: 4 },
-        { label: 'Characters se baat karo', tabIdx: 1, tabCount: 4 },
-        { label: 'World ki reactions',             tabIdx: 0, tabCount: 4 },
-      ]
-    : [
-        { label: 'Yahan choices hoti hain', tabIdx: 1, tabCount: 3 },
-        { label: 'World ki reactions',       tabIdx: 0, tabCount: 3 },
-      ]
+  // Both worlds share the 4-tab bar (Feed · Messages · Live · Profile), so the coach
+  // marks are the same 3-step shape with tabCount 4 (CH previously used tabCount 3 →
+  // the highlight landed on the wrong tab). The DM step teaches each world's spine:
+  // cricket = senior trust; Creator House = the Trust meter that keeps you off the block.
+  const coachSteps = [
+    { label: 'Yahan choices hoti hain', tabIdx: 2, tabCount: 4 },
+    { label: isCricket ? 'Characters se baat karo' : 'DM mein trust banao — eviction se yahi bachata hai', tabIdx: 1, tabCount: 4 },
+    { label: 'World ki reactions', tabIdx: 0, tabCount: 4 },
+  ]
   const activeCoach = coachStep >= 0 ? coachSteps[coachStep] : null
   const allChars = isCricket ? { ...getCHChars(), ...getCricketChars() } : getCHChars()
   // 'player' is the cricket sentinel — the user plays as themselves, not an NPC.
@@ -830,22 +829,51 @@ export default function LiveScreen() {
                 {isCricket ? '⭐ Fame' : '🔥 Heat'} {game.meters.heat}
               </div>
               <div style={{ padding: '10px 16px', background: 'color-mix(in srgb, #3DD6C8 20%, transparent)', border: '1px solid color-mix(in srgb, #3DD6C8 40%, transparent)', borderRadius: 12, fontSize: 12, fontWeight: 700, color: '#3DD6C8' }}>
-                🤝 {isCricket ? 'Team Trust' : 'Image'} {game.meters.image}
+                🤝 {isCricket ? 'Team Trust' : 'Trust'} {game.meters.image}
               </div>
             </div>
+
+            {/* Creator House recap — why this ending + the run you just played. */}
+            {!isCricket && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 2 }}>
+                <div style={{ fontSize: 13, color: 'var(--ink2)', lineHeight: 1.5 }}>
+                  {endingKey === 'main'
+                    ? 'Fame sabse upar raha — duniya ne tumhe Main Character maana.'
+                    : 'Heat sabse upar raha — poora ghar sabse zyada tumhaari baat karta raha.'}
+                </div>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', fontSize: 11.5, color: 'var(--ink3)' }}>
+                  <span style={{ background: 'var(--surf)', border: '1px solid var(--line)', borderRadius: 99, padding: '5px 11px' }}>10 din complete</span>
+                  <span style={{ background: 'var(--surf)', border: '1px solid var(--line)', borderRadius: 99, padding: '5px 11px' }}>{game.choices.length} choices</span>
+                  <span style={{ background: 'var(--surf)', border: '1px solid var(--line)', borderRadius: 99, padding: '5px 11px' }}>2 eviction nights survive ki</span>
+                </div>
+              </div>
+            )}
+
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 16 }}>
               <button
-                style={{ width: '100%', height: 54, background: 'var(--accent)', color: '#fff', fontWeight: 700, fontSize: 16, borderRadius: 14 }}
+                className="lo-press"
+                style={{ width: '100%', height: 54, background: 'var(--accent)', color: '#fff', fontWeight: 700, fontSize: 16, borderRadius: 14, border: 'none', cursor: 'pointer', fontFamily: 'var(--sans)' }}
                 onClick={() => navigate('profile')}
               >
                 View Profile →
               </button>
-              <button
-                style={{ width: '100%', height: 48, background: 'transparent', color: 'var(--ink3)', fontWeight: 500, fontSize: 14, borderRadius: 14, border: '1px solid var(--line)' }}
-                onClick={() => navigate('feed')}
-              >
-                View Feed →
-              </button>
+              {!isCricket ? (
+                <button
+                  className="lo-press"
+                  style={{ width: '100%', height: 48, background: 'transparent', color: 'var(--ink2)', fontWeight: 600, fontSize: 14, borderRadius: 14, border: '1px solid var(--line)', cursor: 'pointer', fontFamily: 'var(--sans)' }}
+                  onClick={startGame}
+                >
+                  Dobara khelo ↺
+                </button>
+              ) : (
+                <button
+                  className="lo-press"
+                  style={{ width: '100%', height: 48, background: 'transparent', color: 'var(--ink3)', fontWeight: 500, fontSize: 14, borderRadius: 14, border: '1px solid var(--line)', cursor: 'pointer', fontFamily: 'var(--sans)' }}
+                  onClick={() => navigate('feed')}
+                >
+                  View Feed →
+                </button>
+              )}
             </div>
           </div>
         )}
@@ -1028,7 +1056,7 @@ export default function LiveScreen() {
                               <div className="impact-row-glow" />
                               <div className="impact-delta">{d.image > 0 ? '+' : ''}{d.image}</div>
                               <div className="impact-meta">
-                                <div className="impact-mlabel">{isCricket ? '🤝 TEAM TRUST' : '🤝 IMAGE'}</div>
+                                <div className="impact-mlabel">{isCricket ? '🤝 TEAM TRUST' : '🤝 TRUST'}</div>
                                 <div className="impact-bar-track"><div className="impact-bar-fill" style={{ width: `${Math.max(0, Math.min(100, game.meters.image))}%` }} /></div>
                                 <div className="impact-consequence">{before.image} → {game.meters.image}</div>
                               </div>
@@ -1161,122 +1189,74 @@ export default function LiveScreen() {
         {displaySit && <div style={{ height: 160 }} />}
       </div>
 
-      {/* Sticky bottom — choices before pick, CTAs after (Creator House) */}
-      {displaySit && !isCricket && (
-        <div className="choice-wrap">
-          {chosen === null ? (
-            <>
-              <div className="choice-q">{r(displaySit.q)}</div>
-              {choiceDisplayOrder(displaySit).map(trueIdx => {
-                const ch = displaySit.choices[trueIdx]
-                return (
-                  <button key={trueIdx} className="choice" onClick={() => handleChoice(trueIdx as 0 | 1)}>
-                    <div className="ct">{r(ch.t)}</div>
-                    <div className="cs">{r(ch.s)}</div>
-                  </button>
-                )
-              })}
-              {stats && (
-                <div className="social-proof">
-                  {stats.total.toLocaleString()} played · {stats.pctA}% chose A
-                </div>
-              )}
-            </>
-          ) : showPost ? (
-            <div style={{ display: 'flex', gap: 10 }}>
-              <button
-                onClick={resetAfterChoice}
-                style={{ flex: 2, height: 50, background: 'var(--accent)', color: '#fff', fontWeight: 700, fontSize: 15, borderRadius: 14, border: 'none', cursor: 'pointer', fontFamily: 'var(--sans)' }}
-              >
-                Next Situation →
-              </button>
-              <button
-                onClick={goToFeed}
-                style={{ flex: 1, height: 50, background: 'rgba(255,255,255,.07)', color: 'var(--ink2)', fontWeight: 600, fontSize: 13, borderRadius: 14, border: '1px solid rgba(255,255,255,.1)', cursor: 'pointer', fontFamily: 'var(--sans)' }}
-              >
-                Go to Feed
-              </button>
-            </div>
-          ) : (
-            /* chosen but showPost not yet — show a brief loading state */
-            <div style={{ height: 50, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <div className="pulse" style={{ width: 8, height: 8 }} />
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Cricket choice / result sheet — peek → choices → result, above the tab bar.
-           One continuous surface: tap the question to reveal choices; after a pick the
-           same sheet shows the compact impact card, the IG post, then Next / Feed. */}
-      {displaySit && isCricket && (() => {
+      {/* Creator House choice / result — shared <ChoiceSheet> shell (parity with cricket):
+           peek button → frosted choice cards → Next / Feed. The impact card + posts render
+           inline in the scroll above (CH keeps its richer impact detail there). */}
+      {displaySit && !isCricket && (() => {
         const isResult = chosen !== null
-        const expanded = isResult || sheetOpen
-        const ch = isResult ? displaySit.choices[chosen as 0 | 1] : null
-        // "N new" on the Feed button = posts the player hasn't seen on the Feed yet,
-        // i.e. situations played since the Feed was last opened (FeedScreen records it).
         const seenChoices = typeof window !== 'undefined' ? parseInt(localStorage.getItem('lore_feed_seen_choices') || '0', 10) : 0
         const newPosts = Math.max(0, game.choices.length - seenChoices)
         return (
-          <div style={{ position: 'absolute', left: 0, right: 0, bottom: 'var(--tabbar)', zIndex: 10, background: 'var(--surf2)', borderRadius: '22px 22px 0 0', borderTop: '1px solid rgba(255,255,255,.08)', boxShadow: '0 -16px 40px rgba(0,0,0,.55)' }}>
-            {/* Collapsed: a clear, obvious accent button carrying the question. */}
-            {!isResult && !sheetOpen && (
-              <div style={{ padding: '14px 16px 16px' }}>
-                <button className="lo-press" onClick={() => setSheetOpen(true)}
-                  style={{ width: '100%', background: 'var(--accent)', border: 'none', borderRadius: 16, padding: '15px 18px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, boxShadow: '0 8px 24px rgba(255,45,120,.35)' }}>
-                  <span style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 16.5, color: '#fff', lineHeight: 1.25, textAlign: 'center' }}>{r(displaySit.q)}</span>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><polyline points="6 9 12 15 18 9" /></svg>
+          <ChoiceSheet
+            question={r(displaySit.q)}
+            choices={choiceDisplayOrder(displaySit).map(trueIdx => ({ trueIdx, t: r(displaySit.choices[trueIdx].t), s: r(displaySit.choices[trueIdx].s) }))}
+            sheetOpen={sheetOpen}
+            onOpen={() => setSheetOpen(true)}
+            onChoose={(i) => handleChoice(i)}
+            social={stats}
+            isResult={isResult}
+          >
+            {showPost ? (
+              <div style={{ display: 'flex', gap: 10, padding: '2px 16px 18px' }}>
+                <button className="lo-press" onClick={resetAfterChoice} style={{ flex: 2, height: 56, border: 'none', borderRadius: 16, cursor: 'pointer', fontFamily: 'var(--sans)', fontSize: 16, fontWeight: 700, color: '#fff', background: 'var(--accent)', boxShadow: '0 8px 24px rgba(255,45,120,.35)' }}>{isFinale ? 'Continue →' : 'Next →'}</button>
+                <button className="lo-press" onClick={goToFeed} style={{ flex: 1, height: 56, border: '1px solid rgba(255,255,255,.12)', borderRadius: 16, cursor: 'pointer', fontFamily: 'var(--sans)', background: 'rgba(255,255,255,.06)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2 }}>
+                  <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--ink)' }}>Feed</span>
+                  {newPosts > 0 && <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--accent)' }}>{newPosts} new</span>}
                 </button>
               </div>
+            ) : (
+              <div style={{ height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><div className="pulse" style={{ width: 8, height: 8 }} /></div>
             )}
-            {/* Expanded: question becomes a plain header above the choices. */}
-            {!isResult && sheetOpen && (
-              <div style={{ padding: '14px 16px 6px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
-                <div style={{ width: 38, height: 4, borderRadius: 99, background: 'rgba(255,255,255,.18)' }} />
-                <span style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 19, color: '#fff', textAlign: 'center', lineHeight: 1.25 }}>{r(displaySit.q)}</span>
-              </div>
-            )}
-            {/* Result: minimal grab handle only. */}
-            {isResult && (
-              <div style={{ padding: '12px 0 2px', display: 'flex', justifyContent: 'center' }}>
-                <div style={{ width: 38, height: 4, borderRadius: 99, background: 'rgba(255,255,255,.18)' }} />
-              </div>
-            )}
+          </ChoiceSheet>
+        )
+      })()}
 
-            <div style={{ maxHeight: isResult ? '62vh' : (sheetOpen ? 360 : 0), opacity: expanded ? 1 : 0, overflowY: isResult ? 'auto' : 'hidden', overflowX: 'hidden', transition: 'max-height .4s cubic-bezier(.32,.72,0,1), opacity .3s' }}>
-              {!isResult ? (
-                <div style={{ padding: '0 16px 6px' }}>
-                  {choiceDisplayOrder(displaySit).map(trueIdx => {
-                    const c = displaySit.choices[trueIdx]
-                    return (
-                      <button key={trueIdx} className="lo-press" onClick={() => handleChoice(trueIdx as 0 | 1)}
-                        style={{ width: '100%', textAlign: 'left', borderRadius: 16, padding: '14px 16px', marginBottom: 10, background: 'rgba(255,255,255,.10)', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)', border: '1px solid rgba(255,255,255,.2)', cursor: 'pointer' }}>
-                        <div style={{ fontWeight: 700, fontSize: 14.5, color: '#fff' }}>{r(c.t)}</div>
-                        <div style={{ fontSize: 11.5, color: 'rgba(255,255,255,.6)', marginTop: 3 }}>{r(c.s)}</div>
-                      </button>
-                    )
-                  })}
-                  {stats && <div style={{ fontSize: 11, color: 'rgba(255,255,255,.5)', textAlign: 'center', padding: '2px 0 14px' }}>{stats.total.toLocaleString()} played · {stats.pctA}% chose A</div>}
-                </div>
-              ) : ch ? (
-                <div style={{ padding: '2px 16px 18px' }}>
-                  {cricketImpactCard(ch.deltas)}
-                  {showPost && postCards(ch, { fame: Math.max(0, game.meters.fame - ch.deltas.fame), heat: Math.max(0, game.meters.heat - ch.deltas.heat), image: Math.max(0, game.meters.image - ch.deltas.image) })}
-                  {showPost ? (
-                    <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
-                      <button className="lo-press" onClick={resetAfterChoice} style={{ flex: 2, height: 56, border: 'none', borderRadius: 16, cursor: 'pointer', fontFamily: 'var(--sans)', fontSize: 16, fontWeight: 700, color: '#fff', background: 'var(--accent)', boxShadow: '0 8px 24px rgba(255,45,120,.35)' }}>{isFinale ? 'Continue →' : 'Next →'}</button>
-                      <button className="lo-press" onClick={() => navigate('feed')} style={{ flex: 1, height: 56, border: '1px solid rgba(255,255,255,.12)', borderRadius: 16, cursor: 'pointer', fontFamily: 'var(--sans)', background: 'rgba(255,255,255,.06)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2 }}>
-                        <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--ink)' }}>Feed</span>
-                        {newPosts > 0 && <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--accent)' }}>{newPosts} new</span>}
-                      </button>
-                    </div>
-                  ) : (
-                    <div style={{ height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><div className="pulse" style={{ width: 8, height: 8 }} /></div>
-                  )}
-                </div>
-              ) : null}
-            </div>
-          </div>
+      {/* Cricket choice / result sheet — shared <ChoiceSheet> shell. The result content
+           (compact impact card + IG post + Next/Feed) is passed as children. */}
+      {displaySit && isCricket && (() => {
+        const isResult = chosen !== null
+        const ch = isResult ? displaySit.choices[chosen as 0 | 1] : null
+        // "N new" on the Feed button = posts played since the Feed was last opened.
+        const seenChoices = typeof window !== 'undefined' ? parseInt(localStorage.getItem('lore_feed_seen_choices') || '0', 10) : 0
+        const newPosts = Math.max(0, game.choices.length - seenChoices)
+        return (
+          <ChoiceSheet
+            question={r(displaySit.q)}
+            choices={choiceDisplayOrder(displaySit).map(trueIdx => ({ trueIdx, t: r(displaySit.choices[trueIdx].t), s: r(displaySit.choices[trueIdx].s) }))}
+            sheetOpen={sheetOpen}
+            onOpen={() => setSheetOpen(true)}
+            onChoose={(i) => handleChoice(i)}
+            social={stats}
+            isResult={isResult}
+          >
+            {ch && (
+              <div style={{ padding: '2px 16px 18px' }}>
+                {cricketImpactCard(ch.deltas)}
+                {showPost && postCards(ch, { fame: Math.max(0, game.meters.fame - ch.deltas.fame), heat: Math.max(0, game.meters.heat - ch.deltas.heat), image: Math.max(0, game.meters.image - ch.deltas.image) })}
+                {showPost ? (
+                  <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
+                    <button className="lo-press" onClick={resetAfterChoice} style={{ flex: 2, height: 56, border: 'none', borderRadius: 16, cursor: 'pointer', fontFamily: 'var(--sans)', fontSize: 16, fontWeight: 700, color: '#fff', background: 'var(--accent)', boxShadow: '0 8px 24px rgba(255,45,120,.35)' }}>{isFinale ? 'Continue →' : 'Next →'}</button>
+                    <button className="lo-press" onClick={() => navigate('feed')} style={{ flex: 1, height: 56, border: '1px solid rgba(255,255,255,.12)', borderRadius: 16, cursor: 'pointer', fontFamily: 'var(--sans)', background: 'rgba(255,255,255,.06)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2 }}>
+                      <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--ink)' }}>Feed</span>
+                      {newPosts > 0 && <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--accent)' }}>{newPosts} new</span>}
+                    </button>
+                  </div>
+                ) : (
+                  <div style={{ height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><div className="pulse" style={{ width: 8, height: 8 }} /></div>
+                )}
+              </div>
+            )}
+          </ChoiceSheet>
         )
       })()}
 

@@ -18,10 +18,8 @@ Generated from: `docs/creator-house-content-v2.md`
 
 ### Endings
 
-- The Heart: `507903170` (94.60%)
-- The Main Character: `28967742` (5.40%)
-- The Brand: `0` (0.00%)
-- The Dark Horse: `0` (0.00%)
+- The Heart: `185027909` (34.46%)
+- The Main Character: `351843003` (65.54%)
 
 ### Most Frequent Final Meter Triples
 
@@ -50,10 +48,8 @@ Generated from: `docs/creator-house-content-v2.md`
 
 ### Endings
 
-- The Heart: `4114468666` (95.80%)
-- The Main Character: `180498630` (4.20%)
-- The Brand: `0` (0.00%)
-- The Dark Horse: `0` (0.00%)
+- The Heart: `1507660279` (35.10%)
+- The Main Character: `2787307017` (64.90%)
 
 ### Most Frequent Final Meter Triples
 

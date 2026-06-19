@@ -437,14 +437,16 @@ export function allyLoyalty(choices: ('A' | 'B')[], situations: import('./types'
 }
 
 // ── Ending resolution ─────────────────────────────────────────────────────────
-// Thresholds lowered to 65-70 (from 78) so endings are reachable.
-// Starting meters: CH=20/50/30, Cricket=40/25/20.
-// ~30 situations × avg net +3 per meter = realistic reach of 65-75 per meter.
-export function resolveEnding(m: Meters): 'heart' | 'main' | 'brand' | 'dark' {
-  if (m.heat  >= 67 && m.heat  > m.fame  && m.heat  > m.image) return 'heart'
-  if (m.fame  >= 67 && m.fame  > m.heat  && m.fame  > m.image) return 'main'
-  if (m.image >= 67 && m.image > m.fame  && m.image > m.heat)  return 'brand'
-  return 'dark'
+// Creator House ships TWO reachable endings (CEO review, 2026-06): the old 4-ending
+// model collapsed to 94.6% "Heart" with Brand + Dark Horse mathematically impossible.
+// Fame and Heat are the two "who you become" axes; whichever ends higher decides.
+// (Image/Trust no longer maps to an ending — it drives eviction-night pressure.)
+//   fame > heat → The Main Character (celebrity)
+//   else        → The Heart (the most-talked-about, the emotional core)
+// Both are genuinely reachable: a fame-leaning playstyle lands Main, a heat-leaning
+// one lands Heart. The tie defaults to Heart.
+export function resolveEnding(m: Meters): 'heart' | 'main' {
+  return m.fame > m.heat ? 'main' : 'heart'
 }
 
 // ── Fame → followers ──────────────────────────────────────────────────────────

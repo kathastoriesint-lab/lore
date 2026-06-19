@@ -58,11 +58,11 @@ function buildSequence(steps, includeVotes) {
   return seq;
 }
 
-function endingForMeters(fame, heat, image) {
-  if (heat >= 65) return 'The Heart';
-  if (fame >= 70) return 'The Main Character';
-  if (image >= 60) return 'The Brand';
-  return 'The Dark Horse';
+// Two-ending model (CEO review 2026-06) — mirrors lib/game.ts resolveEnding.
+// Fame and Heat are the two "who you become" axes; whichever ends higher decides.
+// Image/Trust no longer maps to an ending (it drives eviction-night pressure).
+function endingForMeters(fame, heat, _image) {
+  return fame > heat ? 'The Main Character' : 'The Heart';
 }
 
 function percent(part, total) {
@@ -109,8 +109,6 @@ function simulate(steps, includeVotes) {
   const endingCounts = new Map([
     ['The Heart', 0n],
     ['The Main Character', 0n],
-    ['The Brand', 0n],
-    ['The Dark Horse', 0n],
   ]);
 
   const meterTriples = new Map();

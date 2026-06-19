@@ -40,7 +40,7 @@ export default function GlobalProfileScreen() {
     : `Day ${Math.min(10, Math.ceil((game.situation + 1) / 3))} of 10`
   const resumeWorld = () => {
     if (game.world === 'cricket') navigate(game.situation > 0 ? 'live' : 'cricket-carousel')
-    else navigate(game.char ? 'feed' : 'world-intro')
+    else navigate(game.char ? 'live' : 'world-intro')
   }
 
   const deleteAccount = () => {

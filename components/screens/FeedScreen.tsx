@@ -700,7 +700,7 @@ export default function FeedScreen() {
               : { background: 'linear-gradient(135deg,#ff2d78,#7a1140)' }}>
               <div className="sd-badge" style={isCricket ? { color: '#FFB020' } : {}}>
                 <span className="pulse" style={{ marginRight: 5, background: isCricket ? '#FFB020' : undefined }} />
-                {isCricket ? `SITUATION ${game.situation + 1} · ${nextSit.tag.split('·')[1]?.trim() ?? 'NEXT'}` : `STORY DROP · DAY ${nextSit.day}`}
+                {isCricket ? `SITUATION ${game.situation + 1} · ${nextSit.tag.split('·')[1]?.trim() ?? 'NEXT'}` : `NEXT CHOICE · DAY ${nextSit.day}`}
               </div>
               <div className="sd-title">{nextSit.title}</div>
               <div className="sd-sub">{(resolveTokens(nextSit.body[0] ?? '', game.playerName, game.playerGender).replace(/<[^>]+>/g, '').slice(0, 72))}...</div>

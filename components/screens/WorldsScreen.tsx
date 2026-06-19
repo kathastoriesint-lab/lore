@@ -31,11 +31,11 @@ const WORLD_ART: Record<World, {
   'creator-house': {
     art: '/avatars/seed-villa.png',
     name: 'Creator House',
-    teaser: 'Reality villa · 8 housemates · 1.2M following',
+    teaser: 'Reality villa · 6 creators · 10 din',
     meta: '6 creators · 1.2M following',
     liveColor: 'var(--trust)',
-    avatars: ['/avatars/reya.png', '/avatars/kabir.png', '/avatars/meher.png'],
-    more: '+5',
+    avatars: ['/avatars/ria.png', '/avatars/kabir.png', '/avatars/ananya.png'],
+    more: '+2',
   },
 }
 
@@ -61,7 +61,9 @@ export default function WorldsScreen() {
       // interlude is active); fresh runs play the carousel. Never wipe progress.
       navigate(inProgress('cricket') ? 'live' : 'cricket-carousel')
     } else {
-      navigate('world-intro')
+      // Same shape for Creator House: resume in-progress runs straight to Live,
+      // fresh runs play the world-intro carousel. (Parity with cricket.)
+      navigate(inProgress('creator-house') ? 'live' : 'world-intro')
     }
   }, [navigate, inProgress])
 

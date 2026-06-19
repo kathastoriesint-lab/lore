@@ -45,17 +45,18 @@ describe('fameToFollowers', () => {
 })
 
 describe('resolveEnding', () => {
-  it('returns heart when heat is dominant and gap ≥ 8', () => {
-    expect(resolveEnding({ fame: 40, heat: 80, image: 40 })).toBe('heart')
-  })
-  it('returns main when fame is dominant and gap ≥ 8', () => {
+  // Two-ending model (CEO review 2026-06): fame > heat → main, else heart.
+  it('returns main when fame > heat', () => {
     expect(resolveEnding({ fame: 80, heat: 40, image: 40 })).toBe('main')
   })
-  it('returns brand when image is dominant and gap ≥ 8', () => {
-    expect(resolveEnding({ fame: 40, heat: 40, image: 80 })).toBe('brand')
+  it('returns heart when heat >= fame', () => {
+    expect(resolveEnding({ fame: 40, heat: 80, image: 40 })).toBe('heart')
   })
-  it('returns dark when no meter dominates by gap ≥ 8', () => {
-    expect(resolveEnding({ fame: 50, heat: 50, image: 50 })).toBe('dark')
+  it('ties to heart when fame === heat', () => {
+    expect(resolveEnding({ fame: 50, heat: 50, image: 50 })).toBe('heart')
+  })
+  it('image (trust) no longer affects the ending — it drives eviction pressure', () => {
+    expect(resolveEnding({ fame: 70, heat: 40, image: 99 })).toBe('main')
   })
 })
 

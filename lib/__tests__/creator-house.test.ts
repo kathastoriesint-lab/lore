@@ -35,11 +35,14 @@ describe('Creator House — TRUST drives eviction (Option B)', () => {
     expect(ev.playerEvicted).toBeFalsy()
   })
 
-  it('TRUST critical → the player is the one voted out', () => {
+  it('TRUST critical → player leads the vote but the audience saves them (never evicted)', () => {
     const ev = buildEviction('EV-D3', gameWithTrust(10))!
-    expect(ev.evicted).toBe('player')
-    expect(ev.playerEvicted).toBe(true)
-    expect(ev.nominees).toContain('player')
+    expect(ev.nominees).toContain('player')   // your name is on the block
+    expect(ev.evicted).toBe('dev')            // an NPC still goes — psychological only
+    expect(ev.playerEvicted).toBeFalsy()      // the player is NEVER evicted
+    // audience pressure peaks: your share is high but just under the evicted NPC
+    expect(ev.audience.player).toBeGreaterThan(35)
+    expect(ev.audience.dev!).toBeGreaterThanOrEqual(ev.audience.player!)
   })
 
   it('evictionRisk readout matches the day + threshold', () => {
