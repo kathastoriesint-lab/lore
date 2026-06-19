@@ -567,6 +567,14 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .login-ring-dot{transform-origin:44px 44px;animation:lorePulse 2.4s ease-in-out infinite}
 @keyframes loreCounterSpin{to{transform:rotate(-360deg)}}
 @keyframes lorePulse{0%,100%{opacity:.7;transform:scale(1)}50%{opacity:1;transform:scale(1.2)}}
+
+/* ── Loading splash (LoadingScreen + capacitor-shell) ── */
+.lo-mark .lo-ring{transform-origin:16px 16px;animation:loreSpin 2.6s linear infinite}
+.lo-mark .lo-inner{transform-origin:16px 16px;animation:loreCounterSpin 3.4s linear infinite}
+.lo-mark .lo-core{transform-origin:16px 16px;animation:lorePulse 1.6s ease-in-out infinite}
+.lo-halo{animation:lorePulse 2.6s ease-in-out infinite}
+.lo-prog{animation:loBar 1.25s cubic-bezier(.4,0,.2,1) infinite}
+@keyframes loBar{0%{left:-42%}100%{left:100%}}
 .login-wordmark{font-family:var(--serif);font-size:36px;font-weight:600;margin-top:14px;letter-spacing:-.01em}
 .login-tagline{font-size:13px;color:var(--ink3);margin-top:6px;text-align:center;line-height:1.6}
 .login-form{margin-top:auto;width:100%;position:relative;z-index:2}

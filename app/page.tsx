@@ -13,6 +13,7 @@ import WorldsScreen from '@/components/screens/WorldsScreen'
 import WorldIntroScreen from '@/components/screens/WorldIntroScreen'
 import FeedScreen from '@/components/screens/FeedScreen'
 import NarratorScreen from '@/components/screens/NarratorScreen'
+import LoadingScreen from '@/components/LoadingScreen'
 import LiveScreen from '@/components/screens/LiveScreen'
 import DMInboxScreen from '@/components/screens/DMInboxScreen'
 import DMThreadScreen from '@/components/screens/DMThreadScreen'
@@ -882,8 +883,8 @@ export default function App() {
 
   if (!ready) return (
     <div className="stage">
-      <div className="phone" style={{ display:'flex', alignItems:'center', justifyContent:'center' }}>
-        <div className="pulse" style={{ width:16, height:16 }} />
+      <div className="phone">
+        <LoadingScreen />
       </div>
     </div>
   )
