@@ -50,9 +50,12 @@ export default function WorldsScreen() {
 
   const inProgress = useCallback((id: World) => game.world === id && game.situation > 0, [game.world, game.situation])
 
-  // Hierarchy: the active/most-recent world leads. Default to the flagship
-  // (cricket) — only feature Creator House when the player has a CH run going.
-  const featuredId: World = inProgress('creator-house') ? 'creator-house' : 'cricket'
+  // Order: an in-progress world leads (resume continuity); otherwise default by the
+  // player's gender — female → Creator House on top, male → Indian Dressing Room on top.
+  const genderTop: World = game.playerGender === 'female' ? 'creator-house' : 'cricket'
+  const featuredId: World = inProgress('creator-house') ? 'creator-house'
+    : inProgress('cricket') ? 'cricket'
+    : genderTop
   const compactId: World = featuredId === 'cricket' ? 'creator-house' : 'cricket'
 
   const enterWorld = useCallback((id: World) => {
