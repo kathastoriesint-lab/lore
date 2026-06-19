@@ -89,10 +89,10 @@ export default function WorldsScreen() {
 
   const grain = <div style={{ position: 'absolute', inset: 0, background: 'var(--grain)', opacity: 0.32, mixBlendMode: 'overlay', pointerEvents: 'none' }} />
 
-  const featured = WORLD_ART[featuredId]
-  const compact = WORLD_ART[compactId]
+  // Both worlds that are open today get equal space — active/most-recent on top.
+  const openWorlds: World[] = [featuredId, compactId]
   const avatar = (url: string, ml = 0) => (
-    <div key={url} style={{ width: 36, height: 36, borderRadius: '50%', border: '2px solid var(--bg)', marginLeft: ml, backgroundColor: '#0a1a4a', backgroundImage: `url(${url})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
+    <div key={url} style={{ width: 30, height: 30, borderRadius: '50%', border: '2px solid var(--bg)', marginLeft: ml, backgroundColor: '#0a1a4a', backgroundImage: `url(${url})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
   )
 
   return (
@@ -120,44 +120,31 @@ export default function WorldsScreen() {
       {/* Gallery */}
       <div className="scroll" style={{ flex: 1, padding: '4px 18px 14px' }}>
 
-        {/* ===== Featured / Continue ===== */}
-        <button
-          className="lo-press"
-          onClick={() => enterWorld(featuredId)}
-          style={{ position: 'relative', display: 'block', width: '100%', height: 370, borderRadius: 24, overflow: 'hidden', marginBottom: 16, border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left' }}
-        >
-          <img src={featured.art} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
-          {grain}
-          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(8,8,15,.4) 0%, transparent 28%, rgba(8,8,15,.5) 58%, rgba(8,8,15,.94) 100%)' }} />
-          <LiveBadge id={featuredId} />
-          <div style={{ position: 'absolute', left: 20, right: 20, bottom: 20 }}>
-            <div style={{ display: 'flex', marginBottom: 13 }}>
-              {featured.avatars.map((u, i) => avatar(u, i === 0 ? 0 : -12))}
-              <div style={{ width: 36, height: 36, borderRadius: '50%', border: '2px solid var(--bg)', marginLeft: -12, background: 'rgba(8,8,15,.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, color: '#fff' }}>{featured.more}</div>
-            </div>
-            <div style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 28, color: '#fff', lineHeight: 1.1 }}>{featured.name}</div>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,.75)', marginTop: 6 }}>{featured.teaser}</div>
-            <div style={{ marginTop: 14, height: 50, borderRadius: 14, background: 'var(--accent)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontWeight: 700, fontSize: 15.5, fontFamily: 'var(--sans)', boxShadow: '0 8px 24px rgba(255,45,120,.35)' }}>
-              ▶&nbsp;&nbsp;{inProgress(featuredId) ? 'Continue your story' : 'Start your story'}
-            </div>
-          </div>
-        </button>
-
-        {/* ===== Other real world (compact) ===== */}
-        <button
-          className="lo-press"
-          onClick={() => enterWorld(compactId)}
-          style={{ position: 'relative', display: 'block', width: '100%', height: 206, borderRadius: 24, overflow: 'hidden', marginBottom: 16, border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left' }}
-        >
-          <img src={compact.art} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
-          {grain}
-          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, transparent 28%, rgba(8,8,15,.92))' }} />
-          <LiveBadge id={compactId} />
-          <div style={{ position: 'absolute', left: 20, right: 20, bottom: 18 }}>
-            <div style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 24, color: '#fff' }}>{compact.name}</div>
-            <div style={{ fontSize: 12.5, color: 'rgba(255,255,255,.72)', marginTop: 4 }}>{compact.meta}</div>
-          </div>
-        </button>
+        {/* ===== Open worlds — equal cards, tap the card to enter (no CTA button) ===== */}
+        {openWorlds.map(id => {
+          const w = WORLD_ART[id]
+          return (
+            <button
+              key={id}
+              className="lo-press"
+              onClick={() => enterWorld(id)}
+              style={{ position: 'relative', display: 'block', width: '100%', height: 244, borderRadius: 24, overflow: 'hidden', marginBottom: 16, border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left' }}
+            >
+              <img src={w.art} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+              {grain}
+              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(8,8,15,.35) 0%, transparent 30%, rgba(8,8,15,.55) 60%, rgba(8,8,15,.94) 100%)' }} />
+              <LiveBadge id={id} />
+              <div style={{ position: 'absolute', left: 20, right: 20, bottom: 18 }}>
+                <div style={{ display: 'flex', marginBottom: 11 }}>
+                  {w.avatars.map((u, i) => avatar(u, i === 0 ? 0 : -10))}
+                  <div style={{ width: 30, height: 30, borderRadius: '50%', border: '2px solid var(--bg)', marginLeft: -10, background: 'rgba(8,8,15,.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, color: '#fff' }}>{w.more}</div>
+                </div>
+                <div style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 25, color: '#fff', lineHeight: 1.1 }}>{w.name}</div>
+                <div style={{ fontSize: 12.5, color: 'rgba(255,255,255,.75)', marginTop: 5 }}>{w.teaser}</div>
+              </div>
+            </button>
+          )
+        })}
 
         {/* ===== Locked / coming soon ===== */}
         {LOCKED.map(w => (
