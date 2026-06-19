@@ -41,7 +41,9 @@ export default function WorldIntroScreen() {
   // Text panel: scrolls within itself if a slide's copy runs long, so nothing ever
   // clips off-screen on a short device. (No-overflow guard for the carousel.)
   const panel: CSSProperties = { flex: 1, minHeight: 0, overflowY: 'auto', padding: '10px 28px 22px', display: 'flex', flexDirection: 'column' }
-  const panel2: CSSProperties = { ...panel, padding: '0 28px 22px' }
+  // Slide 2's avatar row overlaps UP into the image (negative margin + z-index), so this
+  // panel must NOT clip — keep overflow visible. Its copy is short, so no overflow risk.
+  const panel2: CSSProperties = { flex: 1, padding: '0 28px 22px', display: 'flex', flexDirection: 'column' }
 
   return (
     <div
