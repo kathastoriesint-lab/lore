@@ -303,7 +303,7 @@ export default function App() {
       setRelationshipAlerts([])
       saveAndSet(cricketState)
       analytics.track('world_entered', 'cricket', { world_id: 'cricket' })
-      navigate('live')
+      navigate('feed')
     } else {
       navigate('worlds')
     }
@@ -334,8 +334,9 @@ export default function App() {
       localStorage.removeItem('lore_dm_openers_v1') // fresh run re-seeds openers
       localStorage.removeItem('lore_dm_cap')        // fresh run clears DM throttle
     }
-    // Land on the engine (Live), mirroring cricket. (DD1, CEO/design review 2026-06.)
-    navigate('live')
+    // Land on the Feed (the world hub) — Live is entered from the Feed/Messages
+    // banner, not as the first screen.
+    navigate('feed')
   }, [game.playerName, game.playerGender, saveAndSet, navigate])
 
   const startCricketGame = useCallback(() => {
@@ -358,7 +359,7 @@ export default function App() {
       localStorage.removeItem('lore_dm_openers_v1') // fresh run re-seeds openers
       localStorage.removeItem('lore_dm_cap')        // fresh run clears DM throttle
     }
-    navigate('live')
+    navigate('feed')
   }, [game.playerName, game.playerGender, saveAndSet, navigate])
 
   const queueLowTrustAlert = useCallback((_charId: CharId) => {

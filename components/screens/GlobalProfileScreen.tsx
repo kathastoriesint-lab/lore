@@ -39,8 +39,9 @@ export default function GlobalProfileScreen() {
     ? `Week ${game.week ?? 1} · Situation ${Math.min(game.situation + 1, game.situationQueue.length || 30)} of ${game.situationQueue.length || 30}`
     : `Day ${Math.min(10, Math.ceil((game.situation + 1) / 3))} of 10`
   const resumeWorld = () => {
-    if (game.world === 'cricket') navigate(game.situation > 0 ? 'live' : 'cricket-carousel')
-    else navigate(game.char ? 'live' : 'world-intro')
+    // Resume into the Feed (the world hub); Live is entered from its banner.
+    if (game.world === 'cricket') navigate(game.situation > 0 ? 'feed' : 'cricket-carousel')
+    else navigate(game.char ? 'feed' : 'world-intro')
   }
 
   const deleteAccount = () => {

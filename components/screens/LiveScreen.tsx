@@ -10,7 +10,6 @@ import { getStats, clamp, resolveEnding, resolveTokens } from '@/lib/game'
 import { sentimentDelta } from '@/lib/relationships'
 import MeterHUD from '@/components/MeterHUD'
 import GoalCard from '@/components/GoalCard'
-import CHStatusCard from '@/components/CHStatusCard'
 import ChoiceSheet from '@/components/ChoiceSheet'
 
 
@@ -688,17 +687,9 @@ export default function LiveScreen() {
       )}
 
       {/* HUD. On cricket Live you optimize for the focused goal — show the goal card
-          (big), not the 3-meter row (too heavy, and the gap gets lost). It surfaces
-          the per-senior trust (Rohit/Hardik) for the story gates; the full
-          FORM/FAME/TEAM TRUST overview lives on Feed. Creator House keeps its
-          3-meter HUD + day/eviction status. */}
-      {isCricket ? (
-        <GoalCard variant="focus" />
-      ) : (
-        /* CH Live: optimise for ONE number — your eviction risk. The full
-           FAME/HEAT/TRUST overview lives on Feed. */
-        <CHStatusCard variant="focus" />
-      )}
+          (big). Creator House Live shows no status header: the FAME/HEAT/TRUST +
+          eviction read lives on Feed, keeping the story screen clean. */}
+      {isCricket && <GoalCard variant="focus" />}
 
       {/* Day-lock overlay — sits above scroll, MeterHUD, sticky buttons, and tab bar */}
       {isDayLocked && sit && (
@@ -1284,10 +1275,6 @@ export default function LiveScreen() {
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
           {dmBadgeCount > 0 && <div className="badge-num" style={{ top:0, right:8 }}>{dmBadgeCount > 9 ? '9+' : dmBadgeCount}</div>}
           <span>Messages</span>
-        </button>
-        <button className="tab active">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2L4.5 13.5H11L9 22l9-12h-6.5L13 2z" strokeLinejoin="round"/></svg>
-          <span>Live</span>
         </button>
         <button className="tab" onClick={() => handleTab('profile')}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>

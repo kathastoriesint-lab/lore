@@ -2,13 +2,13 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useApp } from '@/lib/context'
 import type { CharId, Choice, ChoicePost, Meters, Reaction, Character } from '@/lib/types'
-import { getVisibleSituations } from '@/lib/ch-rules'
 import type { PostCommentOption } from '@/lib/data'
-import { getCricketChars, getCricketSituations, getCHChars, getCHPostComments } from '@/lib/content'
+import { getCricketChars, getCHChars, getCHPostComments } from '@/lib/content'
 import { applyDeltas, resolveTokens } from '@/lib/game'
 import { derivePosts, type FeedPost } from '@/lib/feed-posts'
 import MeterHUD from '@/components/MeterHUD'
 import CHStatusCard from '@/components/CHStatusCard'
+import LiveEntryCard from '@/components/LiveEntryCard'
 
 // Inline character background — color-mix(var(--cc)) fails without a parent with the CSS class
 const CHAR_COLORS_HEX: Record<string, string> = {
@@ -437,23 +437,13 @@ export default function FeedScreen() {
     setTimeout(() => setShowIntro(false), 500)
   }, [])
 
-  // Enter live/narrator
-  const enterLive = useCallback(() => {
-    if (game.char) {
-      navigate('live')
-    } else {
-      navigate('narrator')
-    }
-  }, [navigate, game.char])
-
   const isCricket = game.world === 'cricket'
 
-  // Tab bar
+  // Tab bar (Live is no longer a tab — it's entered via the docked LiveEntryCard)
   const handleTab = useCallback((tab: string) => {
-    if (tab === 'live') enterLive()
-    else if (tab === 'profile') navigate('profile')
+    if (tab === 'profile') navigate('profile')
     else if (tab === 'dms') navigate('dm-inbox')
-  }, [navigate, enterLive])
+  }, [navigate])
 
 
   const allChars = { ...getCHChars(), ...getCricketChars() }
@@ -462,10 +452,6 @@ export default function FeedScreen() {
 
   // Player's run → feed posts (newest first). Shared with the world profile.
   const completedPosts = useMemo<FeedPost[]>(() => derivePosts(game), [game.choices, game.char, isCricket])
-
-  // Current visible situations (for Story Drop CTA only)
-  const visibleSits = isCricket ? getCricketSituations() : getVisibleSituations(game.meters, game.choices)
-  const nextSit = visibleSits[game.situation]
 
   const handleComment = useCallback((postKey: string, postId: string, opt: PostCommentOption) => {
     setCommentPost(null)
@@ -692,25 +678,7 @@ export default function FeedScreen() {
           )
         })}
 
-        {/* Story Drop — dynamic: shows next pending situation */}
-        {nextSit && (
-          <div className="story-drop" onClick={enterLive}>
-            <div className="sd-img" style={isCricket
-              ? { background: 'linear-gradient(to bottom, rgba(0,0,0,.25) 0%, rgba(0,0,0,.65) 100%), url(/avatars/cricket-wankhede.png) center/cover' }
-              : { background: 'linear-gradient(135deg,#ff2d78,#7a1140)' }}>
-              <div className="sd-badge" style={isCricket ? { color: '#FFB020' } : {}}>
-                <span className="pulse" style={{ marginRight: 5, background: isCricket ? '#FFB020' : undefined }} />
-                {isCricket ? `SITUATION ${game.situation + 1} · ${nextSit.tag.split('·')[1]?.trim() ?? 'NEXT'}` : `NEXT CHOICE · DAY ${nextSit.day}`}
-              </div>
-              <div className="sd-title">{nextSit.title}</div>
-              <div className="sd-sub">{(resolveTokens(nextSit.body[0] ?? '', game.playerName, game.playerGender).replace(/<[^>]+>/g, '').slice(0, 72))}...</div>
-              <button className="sd-cta" onClick={(e) => { e.stopPropagation(); enterLive() }}>
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="#000"><polygon points="5,3 19,12 5,21"/></svg>
-                Play the story
-              </button>
-            </div>
-          </div>
-        )}
+        {/* Story Drop moved out of the scroll — now a docked LiveEntryCard above the tab bar */}
 
         {/* Seed posts — world-specific */}
         {isCricket ? (
@@ -841,7 +809,10 @@ export default function FeedScreen() {
         {isCricket && <div style={{ height: 20 }} />}
       </div>
 
-      {/* Tab bar — 4 tabs for cricket, 3 for Creator House */}
+      {/* Docked story entrypoint — replaces the old in-scroll Story Drop + Live tab */}
+      <LiveEntryCard />
+
+      {/* Tab bar — Feed · Messages · Profile (Live is entered via the card above) */}
       <div className="tabbar">
         <button className="tab active">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
@@ -851,10 +822,6 @@ export default function FeedScreen() {
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
           {dmBadgeCount > 0 && <div className="badge-num" style={{ top:0, right:8 }}>{dmBadgeCount > 9 ? '9+' : dmBadgeCount}</div>}
           <span>Messages</span>
-        </button>
-        <button className="tab" onClick={() => handleTab('live')}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2L4.5 13.5H11L9 22l9-12h-6.5L13 2z" strokeLinejoin="round"/></svg>
-          <span>Live</span>
         </button>
         <button className="tab" onClick={() => handleTab('profile')}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>

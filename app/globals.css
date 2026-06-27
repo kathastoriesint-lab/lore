@@ -184,6 +184,20 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .sd-sub{font-size:13px;color:rgba(255,255,255,.85);line-height:1.4;margin-top:7px;max-width:92%}
 .sd-cta{align-self:flex-start;margin-top:14px;background:#fff;color:#000;font-weight:700;font-size:13px;padding:13px 20px;border-radius:30px;display:flex;align-items:center;gap:7px;min-height:44px}
 
+/* ── Live entry banner — docked above the tab bar on Feed + Messages.
+   Replaces the old in-tab "Live" entrypoint. ── */
+.le-wrap{flex:none;padding:10px 12px;background:rgba(10,10,14,.82);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--line)}
+.le-cta{position:relative;border-radius:18px;overflow:hidden;background:linear-gradient(110deg,#ff2d78,#b51552);box-shadow:0 10px 26px -6px rgba(255,45,120,.5);cursor:pointer;border:none;width:100%;padding:0;text-align:left;display:block}
+.le-cta.cricket{background:linear-gradient(110deg,#1a3a6e,#06183f);box-shadow:0 10px 26px -6px rgba(0,48,135,.5)}
+.le-row{position:relative;display:flex;align-items:center;gap:13px;padding:13px 15px;min-height:44px}
+.le-play{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;position:relative;flex:none}
+.le-play span{position:absolute;inset:0;border-radius:50%;border:2px solid rgba(255,255,255,.7);animation:lp 1.7s ease-out infinite}
+.le-eye{font:800 9px var(--sans);letter-spacing:.13em;color:rgba(255,255,255,.92)}
+.le-ttl{font-family:var(--serif);font-weight:600;font-size:19px;color:#fff;line-height:1.1;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.le-sub{font:500 11px var(--sans);color:rgba(255,255,255,.82);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.le-chev{flex:none}
+@keyframes lp{0%{transform:scale(1);opacity:.6}70%{transform:scale(2.4);opacity:0}100%{opacity:0}}
+
 /* ── Story viewer overlay ── */
 .story-viewer{position:absolute;inset:0;z-index:50;display:flex;flex-direction:column;opacity:0;pointer-events:none;transition:opacity .22s}
 .story-viewer.active{opacity:1;pointer-events:all}

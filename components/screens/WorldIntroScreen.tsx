@@ -20,10 +20,10 @@ export default function WorldIntroScreen() {
 
   const goTo = (i: number) => setCur(Math.max(0, Math.min(TOTAL - 1, i)))
 
-  // Resume an in-progress Creator House run — startGame would wipe it. Land on Live
-  // (the engine), mirroring cricket. (DD1, CEO/design review 2026-06.)
+  // Resume an in-progress Creator House run — startGame would wipe it. Land on the
+  // Feed (the world hub); Live is entered from its banner.
   const enter = () => {
-    if (game.world === 'creator-house' && game.situation > 0 && game.char) navigate('live')
+    if (game.world === 'creator-house' && game.situation > 0 && game.char) navigate('feed')
     else startGame()
   }
 

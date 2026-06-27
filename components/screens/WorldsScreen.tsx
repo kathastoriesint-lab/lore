@@ -60,13 +60,13 @@ export default function WorldsScreen() {
 
   const enterWorld = useCallback((id: World) => {
     if (id === 'cricket') {
-      // Resume an in-progress run (LiveScreen redirects to the lock screen if an
-      // interlude is active); fresh runs play the carousel. Never wipe progress.
-      navigate(inProgress('cricket') ? 'live' : 'cricket-carousel')
+      // Resume an in-progress run on the Feed (the world hub — Live is entered from
+      // its banner); fresh runs play the carousel. Never wipe progress.
+      navigate(inProgress('cricket') ? 'feed' : 'cricket-carousel')
     } else {
-      // Same shape for Creator House: resume in-progress runs straight to Live,
+      // Same shape for Creator House: resume in-progress runs land on the Feed,
       // fresh runs play the world-intro carousel. (Parity with cricket.)
-      navigate(inProgress('creator-house') ? 'live' : 'world-intro')
+      navigate(inProgress('creator-house') ? 'feed' : 'world-intro')
     }
   }, [navigate, inProgress])
 

@@ -16,8 +16,9 @@ export default function CricketCarouselScreen() {
   const goTo = (i: number) => setCur(Math.max(0, Math.min(TOTAL - 1, i)))
 
   const enter = () => {
-    // Resume an in-progress run — startCricketGame would wipe it.
-    if (game.world === 'cricket' && game.situation > 0) navigate('live')
+    // Resume an in-progress run — startCricketGame would wipe it. Land on the Feed
+    // (the world hub); Live is entered from its banner.
+    if (game.world === 'cricket' && game.situation > 0) navigate('feed')
     else if (game.playerName) startCricketGame()
     else {
       // Fresh player: remember they came from cricket so name-entry flows straight
