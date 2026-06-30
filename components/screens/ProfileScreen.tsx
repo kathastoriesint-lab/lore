@@ -4,9 +4,10 @@ import { useApp } from '@/lib/context'
 import { getCHChars } from '@/lib/content'
 import { derivePosts, deriveKeyDecisions, feedLikes } from '@/lib/feed-posts'
 import { getWeek, evaluateGate, weekForSituationId, SEASON_WEEKS } from '@/lib/season'
-import { resolveTokens } from '@/lib/game'
+import { resolveTokens, fameToFollowers } from '@/lib/game'
+import { computeBond, crushTier } from '@/lib/relationships'
 
-// World profile — per-world identity for the in-world Profile tab. Shared structure,
+// World profile — per-world identity for the in-world Profile tab. Shared layout,
 // world-specific accent / meters / role / copy (cricket fully designed; Creator House
 // mirrors it). The cross-world Global profile is a separate screen.
 
@@ -65,13 +66,26 @@ export default function ProfileScreen() {
   const decisions = deriveKeyDecisions(game).slice(0, 4)
   const posts = derivePosts(game).filter((p): p is Extract<typeof p, { type: 'authored' }> => p.type === 'authored').slice(0, 6)
 
+  // Creator House goals — followers-led season goal + the crush "spine".
+  // (Drops Fame/Heat/Image: the world now runs on Followers + the crush bond.)
+  const followers = fameToFollowers(game.meters.fame)
+  const followersStr = followers >= 1_000_000 ? `${(followers / 1_000_000).toFixed(1)}M` : followers >= 1000 ? `${(followers / 1000).toFixed(1)}K` : `${followers}`
+  const followerPct = Math.min(100, Math.round((followers / 100_000) * 100))
+  const chDayNum = Math.min(10, Math.ceil(pos / 3))
+  const crushId = game.playerGender === 'female' ? 'kabir' : 'ananya'
+  const crushChar = getCHChars()[crushId]
+  const bond = !isCricket ? computeBond(crushId, 'creator-house', game.choices, name, game.playerGender, dmTrust).bond : 0
+  const crushTierLabel = crushTier(bond)
+  const spineTitle = ({ ananya: 'Wahi shakl, 3 saal baad', kabir: 'Dosti, ya usse zyada?' } as Record<string, string>)[crushId] ?? 'Kuch toh chal raha hai'
+
   const sectionLabel: CSSProperties = { fontSize: 11, fontWeight: 800, letterSpacing: '.1em', color: 'var(--ink3)', padding: '0 4px 12px' }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', position: 'relative', background: 'var(--bg)' }}>
       <div className="scroll" style={{ flex: 1 }}>
 
-        {/* ── Character header ── */}
+        {isCricket ? (<>
+        {/* ── Character header (cricket cover banner) ── */}
         <div style={{ position: 'relative' }}>
           <div style={{ position: 'absolute', inset: 0, height: 150, background: cover }} />
           <div style={{ position: 'absolute', inset: 0, height: 150, background: 'var(--grain)', opacity: 0.3, mixBlendMode: 'overlay' }} />
@@ -125,6 +139,66 @@ export default function ProfileScreen() {
             ))}
           </div>
         </div>
+        </>) : (<>
+        {/* ── Creator House — centered identity + goals (no Fame/Heat/Image) ── */}
+        <div style={{ padding: '16px 18px 0' }}>
+          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <button onClick={() => navigate('profile-global')} aria-label="Account & settings"
+              style={{ width: 34, height: 34, borderRadius: '50%', background: 'rgba(255,255,255,.1)', border: 'none', cursor: 'pointer', display: 'grid', placeItems: 'center' }}>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="#fff"><circle cx="5" cy="12" r="2" /><circle cx="12" cy="12" r="2" /><circle cx="19" cy="12" r="2" /></svg>
+            </button>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: 4 }}>
+            <div style={{ width: 96, height: 96, borderRadius: '50%', background: game.avatarUrl ? `url(${game.avatarUrl}) center/cover` : 'linear-gradient(150deg,#ff2d78,#a01050)', display: 'grid', placeItems: 'center', fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 40, color: '#fff' }}>
+              {!game.avatarUrl && initial}
+            </div>
+            <div style={{ fontWeight: 800, fontSize: 22, color: '#fff', marginTop: 14 }}>@{(game.playerName || 'you').toLowerCase().replace(/\s+/g, '')}</div>
+            <div style={{ fontSize: 13, color: 'var(--ink3)', marginTop: 3 }}>Creator House · Day {chDayNum} of 10</div>
+          </div>
+        </div>
+
+        {/* Two co-equal stats: Followers + crush Bond */}
+        <div style={{ display: 'flex', gap: 12, padding: '20px 16px 0' }}>
+          <div style={{ flex: 1, background: 'var(--surf)', border: '1px solid var(--line)', borderRadius: 14, padding: '15px 16px', textAlign: 'center' }}>
+            <div style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 26, color: '#FFB020', lineHeight: 1 }}>{followersStr}</div>
+            <div style={{ fontSize: 12, color: 'var(--ink3)', marginTop: 6 }}>Followers</div>
+          </div>
+          <div style={{ flex: 1, background: 'var(--surf)', border: '1px solid var(--line)', borderRadius: 14, padding: '15px 16px', textAlign: 'center' }}>
+            <div style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 20, color: '#FF6AA6', lineHeight: 1.1 }}>{crushTierLabel}</div>
+            <div style={{ fontSize: 12, color: 'var(--ink3)', marginTop: 6 }}>Bond · {crushChar?.name ?? 'Crush'}</div>
+          </div>
+        </div>
+
+        {/* Season 1 goal — followers → become the main character */}
+        <div style={{ padding: '14px 16px 0' }}>
+          <div style={{ background: 'var(--surf)', border: '1px solid var(--line)', borderRadius: 14, padding: '15px 16px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+              <span style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: '.1em', color: 'var(--ink3)' }}>SEASON 1 GOAL</span>
+              <span style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: '.08em', color: '#FFB020' }}>DAY {chDayNum} / 10</span>
+            </div>
+            <div style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 21, color: '#fff', marginTop: 9 }}>Become the main character</div>
+            <div style={{ height: 7, borderRadius: 4, background: 'rgba(255,255,255,.08)', overflow: 'hidden', marginTop: 12 }}>
+              <div style={{ height: '100%', width: `${followerPct}%`, borderRadius: 4, background: 'linear-gradient(90deg,#FFB020,#FF2D78)', transition: 'width .6s cubic-bezier(.32,.72,0,1)' }} />
+            </div>
+            <div style={{ fontSize: 11.5, color: 'var(--ink3)', marginTop: 8 }}>{followers.toLocaleString('en-IN')} / 100,000 followers</div>
+          </div>
+        </div>
+
+        {/* The Spine — the loud contextual objective (crush romance) */}
+        <div style={{ padding: '12px 16px 0' }}>
+          <div style={{ background: 'var(--surf)', border: '1px solid var(--line)', borderRadius: 14, padding: '15px 16px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+              <span style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: '.1em', color: '#FF6AA6' }}>THE SPINE</span>
+              <span style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: '.08em', color: '#FF6AA6' }}>ROMANCE</span>
+            </div>
+            <div style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 21, color: '#fff', marginTop: 9 }}>{spineTitle}</div>
+            <div style={{ height: 7, borderRadius: 4, background: 'rgba(255,255,255,.08)', overflow: 'hidden', marginTop: 12 }}>
+              <div style={{ height: '100%', width: `${Math.min(100, bond)}%`, borderRadius: 4, background: '#FF6AA6', transition: 'width .6s cubic-bezier(.32,.72,0,1)' }} />
+            </div>
+            <div style={{ fontSize: 11.5, color: 'var(--ink3)', marginTop: 8 }}>{crushTierLabel} — “Something Real” tak pahunchao</div>
+          </div>
+        </div>
+        </>)}
 
         {/* ── Key decisions ── */}
         {decisions.length > 0 && (

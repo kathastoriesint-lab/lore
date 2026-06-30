@@ -34,6 +34,8 @@ export function buildCricketQueue(): string[] {
 
 export function buildCHQueue(meters: Meters, choices: ('A'|'B')[]): string[] {
   void meters; void choices
+  // Full Season 1 arc (Days 1-10) — all beats now authored in the cinematic
+  // reader[] format. (Previously capped to Day 1 while Days 2-10 were old prose.)
   return getCHSituations().map(s => s.id)
 }
 
@@ -97,6 +99,7 @@ export async function loadGameState(): Promise<GameState> {
     dmTrust: (extra.dmTrust as Record<string, number>) ?? undefined,
     charFame: (extra.charFame as Record<string, number>) ?? undefined,
     likedPosts: Array.isArray(extra.likedPosts) ? (extra.likedPosts as string[]) : undefined,
+    aiPosts: (extra.aiPosts as GameState['aiPosts']) ?? undefined,
     // In-flight save migration: pre-season saves have no week — derive it from
     // the current queue position (weeks overlay the unchanged queue, so the
     // situation index stays valid; no snap-back or replay needed).
@@ -139,6 +142,7 @@ export async function saveGameState(state: GameState, deviceId?: string) {
       dmTrust: state.dmTrust ?? {},
       charFame: state.charFame ?? {},
       likedPosts: state.likedPosts ?? [],
+      aiPosts: state.aiPosts ?? {},
       // Season 1 progression
       week: state.week ?? null,
       lockExpiresAt: state.lockExpiresAt ?? null,
@@ -275,8 +279,11 @@ export async function getReplySuggestions(
 ): Promise<string[]> {
   const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!
 
+  // Keep the last char message in context — it's what we're replying to. Only drop
+  // a leading char bubble once the convo has moved on (e.g. a canned opener greeting),
+  // never when it's the only/most-recent thing said (comment-triggered DMs land that way).
   const msgs = history
-    .filter((_, i) => !(i === 0 && history[0].role === 'char'))
+    .filter((_, i) => !(i === 0 && history.length > 1 && history[0].role === 'char'))
     .slice(-6)
     .map(m => ({ role: m.role === 'me' ? 'user' : 'assistant', content: m.text }))
 

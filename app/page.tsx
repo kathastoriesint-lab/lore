@@ -1,6 +1,6 @@
 'use client'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import type { CharId, DMMessage, GameState, Screen, Situation } from '@/lib/types'
+import type { AiPost, CharId, DMMessage, GameState, Reaction, Screen, Situation } from '@/lib/types'
 import { AppContext, ImpactNotif, RelationshipAlert } from '@/lib/context'
 import {
   applyDeltas, applyFlagDeltas, charMeters, ensureSession, getAIReply, scoreTrustDelta,
@@ -28,6 +28,7 @@ import LockScreen from '@/components/screens/LockScreen'
 import NetsScreen from '@/components/screens/NetsScreen'
 import EvictionScreen from '@/components/screens/EvictionScreen'
 import FeedbackButton from '@/components/FeedbackButton'
+import DMArrivalSheet from '@/components/DMArrivalSheet'
 import ErrorBoundary from '@/components/ErrorBoundary'
 import { analytics, getDeviceId } from '@/lib/analytics'
 import {
@@ -91,6 +92,12 @@ export default function App() {
   const [dmTrust, setDmTrust] = useState<Record<string, number>>({})
   const [relationshipAlerts, setRelationshipAlerts] = useState<RelationshipAlert[]>([])
   const [impactNotif, setImpactNotif] = useState<ImpactNotif | null>(null)
+  // Live "make a post" (gpt-4o) — the freshly-posted key to stream on the feed,
+  // the app-wide DM notification banner, and the transient follower receipt.
+  const [pendingPostReveal, setPendingPostReveal] = useState<string | null>(null)
+  const [dmNotif, setDmNotif] = useState<{ id: string; name: string; cls: string; text: string } | null>(null)
+  const [followerReceipt, setFollowerReceipt] = useState<{ delta: number } | null>(null)
+  const [hudReaction, setHudReaction] = useState<{ base: number; gain: number; key: string } | null>(null)
 
   const showImpact = useCallback((n: ImpactNotif) => {
     setImpactNotif(n)
@@ -264,6 +271,18 @@ export default function App() {
     saveAndSet({ ...game, char: id, situation: 0, choices: [], meters: charMeters(id), narrator_done: true, dayUnlockTime: {} })
   }, [saveAndSet, game])
 
+  // Migrate older Creator House saves whose situation queue was capped to Day 1 —
+  // rebuild it to the full Season-1 arc so the story flows freely Day 1 → Day 10.
+  // (Self-heals on every load; persists with the next choice write.)
+  useEffect(() => {
+    if (game.world !== 'creator-house') return
+    const full = buildCHQueue(game.meters, game.choices)
+    if (game.situationQueue.length < full.length) {
+      setGame(g => ({ ...g, situationQueue: full }))
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [game.world, game.situationQueue.length])
+
   const saveProfile = useCallback(async (name: string, gender: 'male' | 'female', avatarUrl?: string) => {
     const updated: GameState = { ...game, playerName: name, playerGender: gender, avatarUrl }
     setGame(updated)
@@ -377,7 +396,12 @@ export default function App() {
   }, [game.world, queueLowTrustAlert])
 
   const applyChoiceRelationshipEffects = useCallback((sit: { react?: { char: CharId } | null }, ch: NonNullable<Situation['choices'][number]>, previousMeters: GameState['meters'], nextMeters: GameState['meters']) => {
-    if (game.world !== 'cricket') return
+    if (game.world !== 'cricket') {
+      // Creator House: apply the authored per-character bond deltas directly
+      // (e.g. talk to Ananya → Ananya bond up, Zoya tone sours).
+      Object.entries(ch.relationshipDeltas ?? {}).forEach(([id, delta]) => adjustIndividualTrust(id as CharId, delta ?? 0))
+      return
+    }
     const deltas: Partial<Record<CharId, number>> = {}
     const add = (id: CharId, delta: number) => {
       if (!delta || id === 'player') return
@@ -625,7 +649,12 @@ export default function App() {
         const inMemory = prev[charId] ?? []
         const dbKeys = new Set(msgs.map(m => `${m.role}:${m.text}`))
         const onlyInMemory = inMemory.filter(m => !dbKeys.has(`${m.role}:${m.text}`))
-        const merged = [...msgs, ...onlyInMemory]
+        // The DB doesn't store post embeds — re-attach them from the in-memory copy.
+        const dbWithEmbeds = msgs.map(m => {
+          const mem = inMemory.find(im => im.role === m.role && im.text === m.text && im.embed)
+          return mem ? { ...m, embed: mem.embed } : m
+        })
+        const merged = [...dbWithEmbeds, ...onlyInMemory]
         if (merged.length > 0) setDmLastUpdated(times => ({ ...times, [charId]: times[charId] ?? Date.now() }))
         return { ...prev, [charId]: merged }
       })
@@ -633,8 +662,10 @@ export default function App() {
   }, [game.world, navigate])
 
   // ── DM cap helpers (localStorage-backed, 20 msgs → 6h lock) ─────────────
-  const DM_CAP = 20
-  const DM_LOCK_MS = 6 * 60 * 60 * 1000
+  // Per-character DM cap. Ananya (the crush) opens up: a short, precious window of ~7
+  // messages, then a 30-min cooldown. Everyone else keeps the default 20 / 6h.
+  const dmCapFor = (cid: string) => (cid === 'ananya' ? 7 : 20)
+  const dmLockMsFor = (cid: string) => (cid === 'ananya' ? 30 * 60 * 1000 : 6 * 60 * 60 * 1000)
 
   const getDmCapState = useCallback((cid: string) => {
     try {
@@ -684,8 +715,8 @@ export default function App() {
 
     // Increment cap count; lock if limit hit
     const newCount = capState.count + 1
-    if (newCount >= DM_CAP) {
-      setDmCapState(charId, { count: newCount, lockedUntil: Date.now() + DM_LOCK_MS })
+    if (newCount >= dmCapFor(charId)) {
+      setDmCapState(charId, { count: newCount, lockedUntil: Date.now() + dmLockMsFor(charId) })
     } else {
       setDmCapState(charId, { count: newCount, lockedUntil: 0 })
     }
@@ -762,39 +793,52 @@ export default function App() {
   }, [adjustIndividualTrust, dmHistory, game, dmTrust, getDmCapState, setDmCapState, buildStorySummary, extrasSnapshot])
 
   // Like a post — updates player fame + target character's fame (idempotent: no double-like)
-  const likePost = useCallback((postId: string, charId: CharId, fameDelta: number) => {
+  const likePost = useCallback((postId: string, charId: CharId, _fameDelta: number) => {
     if (likedPosts.has(postId)) return  // already liked — full no-op
     setLikedPosts(prev => { const n = new Set(prev); n.add(postId); return n })
-    // In cricket, public Fame lives in the heat slot; Creator House uses fame slot
-    const isCricket = game.world === 'cricket'
-    const fameSlot = isCricket ? 'heat' : 'fame'
-    const currentFameMeter = isCricket ? game.meters.heat : game.meters.fame
-    const newFame = Math.min(100, currentFameMeter + Math.ceil(fameDelta / 3))
-    setCharFame(prev => ({ ...prev, [charId]: Math.min(100, (prev[charId] ?? 50) + fameDelta) }))
-    saveAndSet({ ...game, meters: { ...game.meters, [fameSlot]: newFame } })
+    // A like is low-stakes: liking someone ELSE's post never grows YOUR audience.
+    // It just gets noticed by that creator — a small private trust nudge. The real
+    // stakes (followers, drama, DMs) live in *commenting*, not liking.
+    adjustIndividualTrust(charId, 1)
     const allChars = game.world === 'cricket' ? { ...getCHChars(), ...getCricketChars() } : getCHChars()
     const charName = allChars[charId]?.name
-    const tasksTotal = game.situationQueue.length || (game.world === 'cricket' ? buildCricketQueue().length : getCHSituations().length)
-    showImpact({
-      action: `Liked ${charName}'s post`,
-      followerDelta: Math.round(fameDelta * 180),
-      followerTotal: fameToFollowers(newFame),
-      charId, charName,
-      trustDelta: 3,
-      trustVal: (dmTrust[charId] ?? 50) + 3,
-      tasksLeft: Math.max(0, tasksTotal - game.situation - 1),
-      tasksTotal,
-    })
-  }, [game, likedPosts, saveAndSet, dmTrust, showImpact])
+    if (charName) showToast(`Liked ${charName}'s post ❤️`)
+  }, [likedPosts, adjustIndividualTrust, game.world, showToast])
 
   // Inject a DM message from a character without AI round-trip (used after Live choices)
-  const injectCharDM = useCallback((charId: CharId, text: string) => {
-    const charMsg: DMMessage = { role: 'char', text }
+  const injectCharDM = useCallback((charId: CharId, text: string, embed?: DMMessage['embed']) => {
+    const charMsg: DMMessage = { role: 'char', text, ...(embed ? { embed } : {}) }
     setDmHistory(prev => ({ ...prev, [charId]: [...(prev[charId] ?? []), charMsg] }))
     setDmLastUpdated(prev => ({ ...prev, [charId]: Date.now() }))
     saveDM(charId, charMsg).catch(() => {})
     setDmBadgeCount(prev => prev + 1) // T4: badge notification
   }, [game.world])
+
+  // Inject a DM AND raise the app-wide notification banner. Used by the feed
+  // reveal so a "the world reacts" DM surfaces as a notification on any screen.
+  const notifyDM = useCallback((charId: CharId, text: string, embed?: DMMessage['embed']) => {
+    injectCharDM(charId, text, embed)
+    const c = getCHChars()[charId]
+    // The arrival sheet "types in" this text; it stays until the player taps Reply
+    // or dismisses ("read later") — no auto-timeout, the DM demands a beat.
+    setDmNotif({ id: charId, name: c?.name ?? 'Someone', cls: c?.cls ?? '', text })
+  }, [injectCharDM])
+
+  // Merge a live-generated player post (caption / reactions) into game state and
+  // persist it, so the feed shows the same gpt-4o text on every replay + reload.
+  const upsertAiPost = useCallback((key: string, patch: Partial<AiPost>) => {
+    setGame(prev => {
+      const cur = prev.aiPosts?.[key] ?? { caption: '', reactions: [] as Reaction[] }
+      const next = { ...prev, aiPosts: { ...(prev.aiPosts ?? {}), [key]: { ...cur, ...patch } } }
+      saveGameState({ ...next, ...extrasSnapshot() }).catch(() => {})
+      return next
+    })
+  }, [extrasSnapshot])
+
+  const showFollowerReceipt = useCallback((delta: number) => {
+    setFollowerReceipt({ delta })
+    setTimeout(() => setFollowerReceipt(null), 3600)
+  }, [])
 
   // Progressive DM openers: coach + friend reach out after the 1st situation,
   // the rest of the dressing room after the 2nd — so chats "open" in order.
@@ -821,11 +865,9 @@ export default function App() {
     if (game.world === 'cricket') {
       if (count >= 1) seedTier(DM_OPENER_TIER1, 't1', id => CRICKET_DM_OPENERS[id] ?? '', 700)
       if (count >= 2) seedTier(DM_OPENER_TIER2, 't2', id => CRICKET_DM_OPENERS[id] ?? '', 1000)
-    } else {
-      // Creator House: the housemates reach out to the newcomer after the 1st situation.
-      const houseChars = getCHDMOrder().filter(id => id !== game.char)
-      if (count >= 1) seedTier(houseChars, 'ch1', id => getCHDMHooks()[id] ?? '', 700)
     }
+    // Creator House: the inbox stays EMPTY by design. A DM thread opens only when a
+    // character is triggered — a story choice, or you commenting on their post.
   }, [game.world, game.char, game.choices.length, injectCharDM])
 
   const applyFeedDeltas = useCallback((deltas: { fame: number; heat: number; image: number }, charId?: string, charName?: string) => {
@@ -897,6 +939,7 @@ export default function App() {
       saveProfile,
       advanceSituation, navigate, goBack, showToast, setChar, startGame, startCricketGame,
       makeChoice, sendDM, openDMThread, resetGame, likePost, applyFeedDeltas, injectCharDM, setViewingChar,
+      pendingPostReveal, setPendingPostReveal, upsertAiPost, dmNotif, notifyDM, followerReceipt, showFollowerReceipt, hudReaction, setHudReaction,
       resolveInterlude, restartInterlude, completeNetSession, completeTrustMoment, resolveEviction,
     }}>
       <div className="stage">
@@ -922,6 +965,24 @@ export default function App() {
             <Slot id="char-profile" cur={screen} prev={prev}><CharProfileScreen /></Slot>
           </div>
           </ErrorBoundary>
+
+          {/* App-wide DM arrival — fired when the world DMs you. The character
+              "types in" from the thumb zone; Reply opens the thread, swipe-down reads later. */}
+          {dmNotif && (
+            <DMArrivalSheet
+              notif={dmNotif}
+              onOpen={() => { const id = dmNotif.id as CharId; setDmNotif(null); openDMThread(id) }}
+              onDismiss={() => setDmNotif(null)}
+            />
+          )}
+
+          {/* Transient "+N followers" receipt — the public win surfaced on the feed. */}
+          {followerReceipt && (
+            <div style={{ position: 'absolute', top: dmNotif ? 70 : 12, left: '50%', transform: 'translateX(-50%)', zIndex: 60, padding: '8px 16px', borderRadius: 999, background: 'linear-gradient(135deg, #ff2d78, #ff6a3d)', color: '#fff', fontWeight: 800, fontSize: 13.5, boxShadow: '0 8px 22px rgba(255,45,120,.45)', whiteSpace: 'nowrap', animation: 'slideUp .4s cubic-bezier(.32,.72,0,1) both' }}>
+              ▲ +{followerReceipt.delta.toLocaleString('en-IN')} followers
+            </div>
+          )}
+
           {/* Feedback button — only visible at ?dev=1 */}
           <FeedbackButton />
         </div>

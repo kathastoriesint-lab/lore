@@ -53,7 +53,7 @@ export function derivePosts(game: GameState): FeedPost[] {
   const STARTING_METERS = isCricket ? { fame: 40, heat: 25, image: 20 } : { fame: 20, heat: 50, image: 30 }
   let meters: Meters = { ...STARTING_METERS }
   const posts: FeedPost[] = []
-  const playerCharObj = isCricket
+  const playerCharObj = (isCricket || game.char === 'player')
     ? { id: 'player' as CharId, cls: '', init: (game.playerName?.[0] ?? 'N').toUpperCase(), name: game.playerName || 'Player', handle: (game.playerName || 'player').toLowerCase().replace(/\s+/g, ''), fame: 0, role: '' }
     : game.char ? (allChars[game.char] ?? null) : null
   const cricketSitMap = isCricket ? Object.fromEntries(getCricketSituations().map(s => [s.id, s])) : {}
@@ -88,10 +88,13 @@ export function derivePosts(game: GameState): FeedPost[] {
             if (!c) return null
             return { id: c.id, cls: c.cls, init: c.init, handle: c.handle, avatarUrl: `/avatars/${c.id}.png`, color: CHAR_COLORS_HEX[c.id] ?? '#1a1a2e', isPlayer: false, likeTarget: c.id as CharId }
           }
-          return { id: playerCharObj.id, cls: playerCharObj.cls, init: playerCharObj.init, handle: authoredPost.handle ?? (game.playerName || playerCharObj.handle).toLowerCase().replace(/\s+/g, ''), avatarUrl: isCricket ? game.avatarUrl : `/avatars/${playerCharObj.id}.png`, color: CHAR_COLORS_HEX[playerCharObj.id] ?? '#1a1a2e', isPlayer: true, likeTarget: playerCharObj.id as CharId }
+          return { id: playerCharObj.id, cls: playerCharObj.cls, init: playerCharObj.init, handle: authoredPost.handle ?? (game.playerName || playerCharObj.handle).toLowerCase().replace(/\s+/g, ''), avatarUrl: playerCharObj.id === 'player' ? game.avatarUrl : `/avatars/${playerCharObj.id}.png`, color: CHAR_COLORS_HEX[playerCharObj.id] ?? '#1a1a2e', isPlayer: true, likeTarget: playerCharObj.id as CharId }
         })()
         if (owner) {
-          posts.push({ type: 'authored', postId: `post-${sit.id}-${letter}-${postIndex}`, sit, stepIndex: i, postOffset: postIndex * 2, choice: letter, caption: authoredPost.caption, imageUrl: authoredPost.imageUrl, owner, label: authoredPost.label, reactions: authoredPost.reactions ?? [] })
+          // Live-generated player post overrides the authored caption/reactions
+          // (same key the compose flow writes: `${sit.id}-${letter}`).
+          const ai = owner.isPlayer ? game.aiPosts?.[`${sit.id}-${letter}`] : undefined
+          posts.push({ type: 'authored', postId: `post-${sit.id}-${letter}-${postIndex}`, sit, stepIndex: i, postOffset: postIndex * 2, choice: letter, caption: ai?.caption ?? authoredPost.caption, imageUrl: ai?.imageUrl ?? authoredPost.imageUrl, owner, label: authoredPost.label, reactions: ai?.reactions?.length ? ai.reactions : (authoredPost.reactions ?? []) })
         }
       })
     }

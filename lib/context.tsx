@@ -1,6 +1,6 @@
 'use client'
 import { createContext, useContext } from 'react'
-import type { CharId, DMMessage, GameState, Screen } from './types'
+import type { AiPost, CharId, DMMessage, GameState, Screen } from './types'
 
 export interface ImpactNotif {
   action: string           // "Liked Ria's post"
@@ -40,8 +40,24 @@ export interface AppCtx {
   dmBadgeCount: number
   clearDmBadge: () => void
   likePost: (postId: string, charId: CharId, fameDelta: number) => void
+  // ── Live "make a post" (gpt-4o) ──────────────────────────────────────────
+  /** Key of the freshly-posted player post the feed should stream in, or null. */
+  pendingPostReveal: string | null
+  setPendingPostReveal: (key: string | null) => void
+  /** Create/merge an AI post (caption + reactions) keyed by `${sit.id}-${letter}`. */
+  upsertAiPost: (key: string, patch: Partial<AiPost>) => void
+  /** Transient DM notification banner (app-wide), shown when the world DMs you. */
+  dmNotif: { id: string; name: string; cls: string } | null
+  /** Inject a character DM AND raise the app-wide notification banner. */
+  notifyDM: (charId: CharId, text: string, embed?: DMMessage['embed']) => void
+  /** Transient "+N followers" receipt pill shown on the feed during a reveal. */
+  followerReceipt: { delta: number } | null
+  showFollowerReceipt: (delta: number) => void
+  /** Drives the HUD follower count-up + delta chip during an in-feed reaction. */
+  hudReaction: { base: number; gain: number; key: string } | null
+  setHudReaction: (r: { base: number; gain: number; key: string } | null) => void
   applyFeedDeltas: (deltas: { fame: number; heat: number; image: number }, charId?: string, charName?: string) => void
-  injectCharDM: (charId: CharId, text: string) => void
+  injectCharDM: (charId: CharId, text: string, embed?: DMMessage['embed']) => void
   setViewingChar: (id: CharId | null) => void
   advanceSituation: () => void
   navigate: (s: Screen, opts?: { replace?: boolean }) => void

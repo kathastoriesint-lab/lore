@@ -1,5 +1,5 @@
 'use client'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Fragment, type CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useApp } from '@/lib/context'
 import type { CharId, DMMessage } from '@/lib/types'
 import { getCricketChars, getCricketSituations, getCricketTrustGoals, getCricketDMTrustStart, getCHChars, getCHDMTrust, getCHDossiers } from '@/lib/content'
@@ -7,7 +7,7 @@ import { getReplySuggestions } from '@/lib/game'
 import { trustMomentFor, trustGateThreshold } from '@/lib/season'
 import { relationshipFor, computeBond, bondColor } from '@/lib/relationships'
 
-const DM_CAP = 20
+const dmCapFor = (cid?: string | null) => (cid === 'ananya' ? 7 : 20)
 
 function getDmCap(charId: string) {
   try {
@@ -29,7 +29,7 @@ const StatusBar = () => (
 )
 
 export default function DMThreadScreen() {
-  const { goBack, showToast, dmChar, dmHistory, dmTrust, sendDM, game, completeTrustMoment } = useApp()
+  const { goBack, navigate, showToast, dmChar, dmHistory, dmTrust, sendDM, game, completeTrustMoment } = useApp()
 
   const allChars = { ...getCHChars(), ...getCricketChars() }
   const charId = dmChar as CharId | null
@@ -59,6 +59,15 @@ export default function DMThreadScreen() {
     ? (dmTrust[charId] ?? (game.world === 'cricket' ? getCricketDMTrustStart()[charId] : getCHDMTrust()[charId]) ?? 50)
     : 50
   const trustBand = trustVal < 30 ? 'LOW' : trustVal < 60 ? 'NORMAL' : 'HIGH'
+
+  // Creator House relationship MARKER (no numeric score). The crush (Ananya/Kabir)
+  // shows romance stages; other creators show a trust level. Cricket keeps the % meter.
+  const chWorld = game.world !== 'cricket'
+  const isCrush = chWorld && charId === (game.playerGender === 'female' ? 'kabir' : 'ananya')
+  const relStages = chWorld ? (isCrush ? ['Ajnabi', 'Spark', 'Kuch toh hai', 'Kareeb', 'Dil se'] : ['Low trust', 'Building', 'High trust']) : []
+  const relIdx = relStages.length ? Math.min(relStages.length - 1, Math.floor((trustVal / 100) * relStages.length)) : 0
+  const relCurrent = relStages[relIdx]
+  const relNext = relStages[relIdx + 1]
 
   // Cricket gate-senior goal: if this senior's trust unlocks a week, the chat opens
   // with WHY this conversation matters and HOW to win them over. Makes a redirect
@@ -93,7 +102,7 @@ export default function DMThreadScreen() {
   const capState = charId ? getDmCap(charId) : { count: 0, lockedUntil: 0 }
   const isLocked = capState.lockedUntil > Date.now()
   const msRemaining = isLocked ? capState.lockedUntil - Date.now() : 0
-  const msgsLeft = Math.max(0, DM_CAP - capState.count)
+  const msgsLeft = Math.max(0, dmCapFor(charId) - capState.count)
 
   const lockCountdown = (() => {
     const h = Math.floor(msRemaining / 3_600_000)
@@ -122,21 +131,21 @@ export default function DMThreadScreen() {
     if (el) requestAnimationFrame(() => { el.scrollTop = el.scrollHeight })
   }, [messages.length, typing])
 
-  // Refresh reply suggestions once a character's full burst has landed.
-  // Gated on !typing && !sending so it fires once after all bubbles arrive,
-  // not on every intermediate bubble of a multi-message reply.
-  useEffect(() => {
-    if (!charId || isLocked || typing || sending) return
-    const last = messages[messages.length - 1]
-    if (!last || last.role !== 'char') return
+  // Smart Reply is OPT-IN: people type their own replies by default. Tapping the
+  // lightbulb fetches one contextual suggestion for whatever was just said.
+  const [smartOpen, setSmartOpen] = useState(false)
 
-    // The situation the player is about to face next in the game — lets the
-    // suggestion quietly set them up for it.
+  // Any new message (theirs or yours) makes an open suggestion stale — clear it.
+  useEffect(() => { setSmartOpen(false); setDynamicChips([]); setChipsLoading(false) }, [messages.length])
+
+  const requestSmartReply = useCallback(() => {
+    if (!charId || isLocked || typing || sending || chipsLoading) return
+    // The situation the player is about to face next — lets the suggestion set it up.
     const nextSitId = game.situationQueue[game.situation]
     const nextSit = nextSitId ? getCricketSituations().find(s => s.id === nextSitId) : null
     const nextSituation = nextSit ? `${nextSit.title} — ${nextSit.q}` : undefined
 
-    let cancelled = false
+    setSmartOpen(true)
     setChipsLoading(true)
     setDynamicChips([])
     getReplySuggestions(charId, messages, game.playerName || 'Yaar', {
@@ -147,12 +156,10 @@ export default function DMThreadScreen() {
       choicesMade: game.choices.length,
       playerGender: game.playerGender,
     })
-      .then(suggestions => { if (!cancelled) setDynamicChips(suggestions) })
-      .finally(() => { if (!cancelled) setChipsLoading(false) })
-
-    return () => { cancelled = true }
+      .then(setDynamicChips)
+      .finally(() => setChipsLoading(false))
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [charId, messages.length, typing, sending])
+  }, [charId, isLocked, typing, sending, chipsLoading, messages, game, trustVal])
 
   // Send an explicit string (used by the Smart Reply card — tap to send directly).
   const sendText = useCallback(async (raw: string) => {
@@ -176,6 +183,7 @@ export default function DMThreadScreen() {
   const handleEditSuggestion = useCallback((chip: string) => {
     setInput(chip)
     setDynamicChips([])
+    setSmartOpen(false)
     inputRef.current?.focus()
   }, [])
 
@@ -223,23 +231,44 @@ export default function DMThreadScreen() {
         </button>
       </div>
 
-      {/* Trust meter — updates live as conversation grows */}
-      <div className="dm-trust" style={{ position:'relative' }}>
-        {trustTick && (
-          <span key={trustTick.key} className="trust-tick" style={{
-            color: trustTick.delta > 0 ? 'var(--trust)' : 'var(--heat)',
-          }}>
-            TRUST {trustTick.delta > 0 ? '+' : ''}{trustTick.delta}
-          </span>
-        )}
-        <div className="tl">
-          <span>TRUST LEVEL · {trustBand}</span>
-          <span key={trustVal} style={{ animation:'meterFlash .4s ease-out' }}>{trustVal}%</span>
+      {/* Relationship marker — Creator House shows named stages (no numeric score);
+          cricket keeps the live trust % meter (its gates need the number). */}
+      {chWorld ? (
+        <div
+          className="bondrail"
+          style={{
+            '--rail': isCrush ? '#FF6AA6' : '#3DD6C8',
+            '--rail-glow': isCrush ? 'rgba(255,106,166,.28)' : 'rgba(61,214,200,.25)',
+          } as CSSProperties}
+        >
+          <div className="bondrail-stage">
+            <small>{isCrush ? '♥' : '🤝'} Bond · {char.name}</small>
+            <b>{relCurrent}</b>
+          </div>
+          <div className="bondrail-dots">
+            {relStages.map((_, i) => (
+              <Fragment key={i}>
+                <span className={`stp ${i < relIdx ? 'done' : i === relIdx ? 'cur' : ''}`} />
+                {i < relStages.length - 1 && <span className={`stpl ${i < relIdx ? 'on' : ''}`} />}
+              </Fragment>
+            ))}
+          </div>
+          {relNext && <span className="bondrail-next">Next · <b>{relNext}</b></span>}
         </div>
-        <div className="bar">
-          <i style={{ width:`${trustVal}%`, transition:'width .6s ease' }} />
+      ) : (
+        <div className="dm-trust" style={{ position:'relative' }}>
+          {trustTick && (
+            <span key={trustTick.key} className="trust-tick" style={{ color: trustTick.delta > 0 ? 'var(--trust)' : 'var(--heat)' }}>
+              TRUST {trustTick.delta > 0 ? '+' : ''}{trustTick.delta}
+            </span>
+          )}
+          <div className="tl">
+            <span>TRUST LEVEL · {trustBand}</span>
+            <span key={trustVal} style={{ animation:'meterFlash .4s ease-out' }}>{trustVal}%</span>
+          </div>
+          <div className="bar"><i style={{ width:`${trustVal}%`, transition:'width .6s ease' }} /></div>
         </div>
-      </div>
+      )}
 
       {/* Messages rendered directly from context — no local copy */}
       <div className="chat" ref={chatRef}>
@@ -278,31 +307,8 @@ export default function DMThreadScreen() {
           </div>
         )}
 
-        {/* Creator House — relationship context (who they are to you, where you stand) */}
-        {chContext && (
-          <div style={{
-            margin: '4px 4px 14px', padding: '12px 14px', borderRadius: 14,
-            background: 'var(--surf)', border: '1px solid var(--line)',
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-              <span style={{
-                fontSize: 9, fontWeight: 800, letterSpacing: '.06em', color: chContext.rel.labelColor,
-                background: `color-mix(in srgb, ${chContext.rel.labelColor} 16%, transparent)`,
-                border: `1px solid color-mix(in srgb, ${chContext.rel.labelColor} 35%, transparent)`,
-                padding: '2px 7px', borderRadius: 6,
-              }}>{chContext.rel.label.toUpperCase()}</span>
-              <span style={{ fontSize: 10, color: 'var(--ink3)', fontWeight: 700 }}>
-                BOND <span style={{ color: bondColor(chContext.bond) }}>{chContext.bond}</span>
-              </span>
-            </div>
-            <div style={{ fontSize: 13, color: 'var(--ink2)', lineHeight: 1.5 }}>{chContext.d.tagline}</div>
-            <div style={{ fontSize: 11.5, color: 'var(--ink3)', lineHeight: 1.5, marginTop: 7 }}>
-              {chContext.latest
-                ? <>Abhi tak: <span style={{ color: 'var(--ink2)', fontStyle: 'italic' }}>&ldquo;{chContext.latest.text}&rdquo;</span></>
-                : 'Pehli baat. Kahani yahin se shuru hoti hai.'}
-            </div>
-          </div>
-        )}
+        {/* (Removed the "Your crush · Bond N · Abhi tak…" context card — the header
+            marker already shows where you stand, and we dropped the numeric bond.) */}
 
         {!hasStarted && !chContext && (
           <div style={{ height:'100%', display:'grid', placeItems:'center', textAlign:'center', color:'var(--ink3)', padding:'0 28px' }}>
@@ -331,6 +337,12 @@ export default function DMThreadScreen() {
                 <div className="msg-av">
                   <div className={`av ${char.cls}`} style={{ width:22, height:22, fontSize:10, backgroundImage:`url(/avatars/${charId}.png)`, backgroundSize:'cover', backgroundPosition:'center' }}><span style={{opacity:0}}>{char.init}</span></div>
                   <div className="lbl">{char.name}</div>
+                </div>
+              )}
+              {msg.embed && (
+                <div className="dm-embed">
+                  {msg.embed.imageUrl && <div className="dm-embed-img" style={{ backgroundImage: `url(${msg.embed.imageUrl})` }} />}
+                  <div className="dm-embed-cap">{msg.embed.handle ? <b>@{msg.embed.handle} </b> : null}{msg.embed.caption}</div>
                 </div>
               )}
               <div className={`msg${isIn ? ' in' : ''}${isOut ? ' out' : ''}`}>
@@ -382,15 +394,16 @@ export default function DMThreadScreen() {
         </div>
       )}
 
-      {/* Smart Reply — context-aware suggestion (Kavaana-style card).
-          Collapsed while a trust moment is open so the thread isn't buried. */}
-      {hasStarted && !isLocked && !trustMoment && (dynamicChips.length > 0 || chipsLoading) && (
+      {/* Smart Reply — opt-in. Only renders after the player taps the lightbulb;
+          people type their own replies by default. */}
+      {hasStarted && !isLocked && !trustMoment && smartOpen && (dynamicChips.length > 0 || chipsLoading) && (
         <div className="smart-reply">
           <div className="smart-reply-head">
             <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="var(--accent)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
               <path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.5.5 1 1.2 1 2h6c0-.8.5-1.5 1-2A6 6 0 0 0 12 3z"/>
             </svg>
             <span>Smart Reply</span>
+            <button className="smart-reply-close" onClick={() => { setSmartOpen(false); setDynamicChips([]) }} aria-label="Dismiss suggestion">✕</button>
           </div>
           {chipsLoading ? (
             <div className="smart-reply-card smart-reply-loading">
@@ -426,9 +439,17 @@ export default function DMThreadScreen() {
           <div style={{ fontWeight: 700, color: 'var(--ink)', fontSize: 14, marginBottom: 4 }}>
             {char.name} ne apna phone band kar liya.
           </div>
-          <div style={{ fontSize: 12, color: 'var(--ink3)', marginBottom: 8 }}>
+          <div style={{ fontSize: 12, color: 'var(--ink3)', marginBottom: 14 }}>
             Kal baat karna. Opens in {lockCountdown}
           </div>
+          {/* Chat is over for now — give a clear way back to the feed. */}
+          <button
+            onClick={() => navigate('feed')}
+            style={{ width: '100%', padding: '13px', borderRadius: 12, border: 'none', cursor: 'pointer', background: 'linear-gradient(120deg,#ff2d78,#c01a5a)', color: '#fff', fontWeight: 800, fontSize: 13.5, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+          >
+            Feed pe wapas jao
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6" /></svg>
+          </button>
         </div>
       )}
 
@@ -441,6 +462,17 @@ export default function DMThreadScreen() {
             </div>
           )}
         <div className="input-bar">
+          <button
+            className={`smart-trigger${smartOpen ? ' on' : ''}`}
+            onClick={requestSmartReply}
+            disabled={sending || typing || chipsLoading}
+            aria-label="Suggest a reply"
+            title="Suggest a reply"
+          >
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.5.5 1 1.2 1 2h6c0-.8.5-1.5 1-2A6 6 0 0 0 12 3z"/>
+            </svg>
+          </button>
           <div className="field">
             <input
               ref={inputRef}

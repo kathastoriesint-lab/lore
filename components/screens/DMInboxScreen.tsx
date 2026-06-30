@@ -71,7 +71,8 @@ export default function DMInboxScreen() {
   const visibleChars = useMemo(() => {
     const baseOrder = isCricket
       ? CRICKET_DM_ORDER
-      : getCHDMOrder().filter(id => id !== game.char)
+      // Creator House: inbox shows only triggered threads (a character has DM'd you).
+      : getCHDMOrder().filter(id => id !== game.char && (dmHistory[id]?.length ?? 0) > 0)
     return [...baseOrder].sort((a, b) => {
       const aHasMessages = (dmHistory[a]?.length ?? 0) > 0
       const bHasMessages = (dmHistory[b]?.length ?? 0) > 0

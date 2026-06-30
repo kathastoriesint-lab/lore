@@ -1,0 +1,95 @@
+'use client'
+import { useEffect, useState } from 'react'
+import { useApp } from '@/lib/context'
+import type { CharId } from '@/lib/types'
+
+// Short personas that shape each creator's DM reaction. (Enrich later from content.)
+const CH_PERSONAS: Record<string, string> = {
+  ria: "the house's polished queen bee — image-obsessed, cutting, never rattled",
+  zoya: 'a sharp schemer who reads everyone and plays mind-games — sweet, then savage',
+  kabir: 'the loud, loyal hype-man — warm, all heart, your closest ally',
+  ananya: 'your ex from three years ago — guarded, real, quietly watching you',
+  dev: 'the quiet observer — dry humor, allergic to drama',
+  meher: 'a bubbly lifestyle creator who loves the spotlight',
+  rishi: 'a chill fitness creator, blunt and competitive',
+  adi: 'a chaotic prankster who lives for reactions',
+}
+
+interface Props {
+  character: { id: string; name: string; handle: string }
+  post: { caption: string; imageUrl?: string }
+  onDone: () => void
+}
+
+// On a character's post: 2 AI suggestions + a free-type box. Sending fires the
+// character's DM, sentiment-matched (negative always; positive once per character),
+// with the post embedded in the thread.
+export default function CommentComposer({ character, post, onDone }: Props) {
+  const { notifyDM } = useApp()
+  const [suggestions, setSuggestions] = useState<string[]>([])
+  const [draft, setDraft] = useState('')
+  const [sent, setSent] = useState(false)
+  const persona = CH_PERSONAS[character.id] || 'a Creator House contestant'
+
+  useEffect(() => {
+    let alive = true
+    fetch('/api/lore-post', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mode: 'comment-suggest', character: { name: character.name, persona }, caption: post.caption }),
+    })
+      .then(r => (r.ok ? r.json() : null))
+      .then(d => { if (alive && Array.isArray(d?.suggestions)) setSuggestions(d.suggestions) })
+      .catch(() => {})
+    return () => { alive = false }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const send = async (text: string) => {
+    if (!text.trim() || sent) return
+    setSent(true)
+    let sentiment = 'boring'; let reply = ''
+    try {
+      const res = await fetch('/api/lore-post', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode: 'comment-react', character: { name: character.name, persona }, caption: post.caption, comment: text.trim() }),
+      })
+      if (res.ok) { const d = await res.json(); sentiment = d.sentiment || 'boring'; reply = d.reply || '' }
+    } catch { /* no reply on failure */ }
+    // Trigger rules by tone:
+    //   spicy / negative → always DM (drama is the point)
+    //   positive         → DM once per character (first nice comment lands)
+    //   boring           → no DM (a forgettable comment gets no reaction)
+    let fired = new Set<string>()
+    try { fired = new Set(JSON.parse(localStorage.getItem('lore_comment_dm_v1') || '[]')) } catch {}
+    const alwaysFire = sentiment === 'negative' || sentiment === 'spicy'
+    const firstPositive = sentiment === 'positive' && !fired.has(character.id)
+    if (reply && (alwaysFire || firstPositive)) {
+      fired.add(character.id)
+      try { localStorage.setItem('lore_comment_dm_v1', JSON.stringify([...fired])) } catch {}
+      setTimeout(() => notifyDM(character.id as CharId, reply, { caption: post.caption, imageUrl: post.imageUrl, handle: character.handle }), 700)
+    }
+    setTimeout(onDone, 1000)
+  }
+
+  if (sent) {
+    return <div className="comment-sheet"><div className="comment-sheet-label">Comment posted ✓</div></div>
+  }
+
+  return (
+    <div className="comment-sheet">
+      <div className="comment-sheet-label">Comment on @{character.handle}&apos;s post</div>
+      {suggestions.length === 0
+        ? <div className="comment-option" style={{ opacity: .55 }}>AI suggestions aa rahe hain…</div>
+        : suggestions.map((s, i) => <button key={i} className="comment-option" onClick={() => send(s)}>{s}</button>)}
+      <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+        <input
+          value={draft}
+          onChange={e => setDraft(e.target.value)}
+          onKeyDown={e => { if (e.key === 'Enter') send(draft) }}
+          placeholder="Apna comment likho…"
+          style={{ flex: 1, background: 'var(--surf2,#0f0f12)', border: '1px solid var(--line)', borderRadius: 10, padding: '9px 12px', color: '#fff', fontFamily: 'var(--sans)', fontSize: 13, outline: 'none' }}
+        />
+        <button className="comment-option" style={{ width: 'auto', padding: '0 16px', opacity: draft.trim() ? 1 : .5 }} onClick={() => send(draft)}>Send</button>
+      </div>
+    </div>
+  )
+}

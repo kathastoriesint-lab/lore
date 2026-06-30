@@ -1,16 +1,25 @@
 'use client'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useApp } from '@/lib/context'
-import type { CharId, Choice, ChoicePost, Meters } from '@/lib/types'
+import type { CharId, Choice, ChoicePost, Meters, Reaction } from '@/lib/types'
 import { getVisibleSituations } from '@/lib/ch-rules'
 import { getCricketChars, getCricketSituations, getCricketEndingData, getCricketDMTrustStart, getCHChars } from '@/lib/content'
 import { resolveCricketEnding } from '@/lib/cricket-rules'
 import { getWeek, weekForSituationId, SEASON_WEEKS } from '@/lib/season'
-import { getStats, clamp, resolveEnding, resolveTokens } from '@/lib/game'
+import { getStats, clamp, resolveEnding, resolveTokens, fameToFollowers } from '@/lib/game'
 import { sentimentDelta } from '@/lib/relationships'
 import MeterHUD from '@/components/MeterHUD'
 import GoalCard from '@/components/GoalCard'
 import ChoiceSheet from '@/components/ChoiceSheet'
+import ComposePost, { type ComposeCtx } from '@/components/ComposePost'
+
+// A single on-screen item in the cinematic live-typing reader.
+type CinItem = {
+  kind: 'nar' | 'img' | 'msg'
+  text?: string; big?: boolean
+  src?: string; cap?: string; h?: number; pos?: string
+  who?: string; avatar?: string; typed?: string; phase?: 'dots' | 'typing' | 'done'
+}
 
 
 // Stable per-situation display order for the two choices. Roughly half the
@@ -96,7 +105,7 @@ const resolveChoiceOutcome = (choice: Choice, meters: Meters) => {
 }
 
 export default function LiveScreen() {
-  const { navigate, game, screen, makeChoice, advanceSituation, injectCharDM, openDMThread, dmTrust, dmBadgeCount, startGame } = useApp()
+  const { navigate, game, screen, makeChoice, advanceSituation, injectCharDM, openDMThread, dmTrust, dmBadgeCount, startGame, upsertAiPost, setPendingPostReveal, notifyDM } = useApp()
   // Tracks when we're mid-choice-flow so the situation-change effect doesn't clear showPost
   const inFlowRef = useRef(false)
 
@@ -110,13 +119,15 @@ export default function LiveScreen() {
   const coachShownRef = useRef(false)
   useEffect(() => {
     if (screen !== 'live') return
+    // Creator House plays the clean day1-preview flow — no coach-mark tutorial.
+    if (!isCricket) return
     if (coachShownRef.current) return
     if (typeof window !== 'undefined' && localStorage.getItem('seen_live_tips')) return
     coachShownRef.current = true
     setCoachPending(true)
     const t = setTimeout(() => setCoachStep(0), 700)
     return () => clearTimeout(t)
-  }, [screen])
+  }, [screen, isCricket])
   const dismissCoach = useCallback(() => {
     localStorage.setItem('seen_live_tips', '1')
     setCoachStep(-1)
@@ -185,6 +196,13 @@ export default function LiveScreen() {
 
   // Choice state
   const [chosen, setChosen] = useState<0 | 1 | null>(null)
+  // Cinematic live-typing reveal — messages arrive (typing dots → typewriter), narration
+  // is tap-paced. Mirrors the "Cinematic Live Typing" design-handoff state machine.
+  const [revealed, setRevealed] = useState<CinItem[]>([])
+  const [readerBusy, setReaderBusy] = useState(false)
+  const [readerShowTap, setReaderShowTap] = useState(false)
+  const [readerComplete, setReaderComplete] = useState(false)
+  const readerCtlRef = useRef<{ revealNext: () => void; finishTyping: () => void } | null>(null)
   // Cricket choice sheet: peek (question only) vs expanded (choices). Once a
   // choice is made it auto-expands to the result. Cricket-only — CH keeps its bar.
   const [sheetOpen, setSheetOpen] = useState(false)
@@ -198,6 +216,18 @@ export default function LiveScreen() {
   const [dmNotif, setDmNotif] = useState<{ name: string; cls: string; id: string } | null>(null)
   // Story-pause trust nudge — shows once per stage when a senior's trust gates progress
   const [trustNudge, setTrustNudge] = useState<{ charId: CharId; cur: number; need: number } | null>(null)
+  // Creator House "make a post": when a choice publishes a player post, the compose
+  // sheet opens here (AI caption → Post → stream on the feed) instead of the inline preview.
+  const [compose, setCompose] = useState<{
+    key: string
+    initialCaption: string
+    imageUrl?: string
+    why: { eyebrow: string; line: string; sub: string }
+    ctx: ComposeCtx
+    defaultReactions: Reaction[]
+    dms: { char: CharId; text: string }[]
+    followerDelta: number
+  } | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
   // Ref-based processing guard — synchronously prevents double-tap between React renders
   const processingRef = useRef(false)
@@ -207,6 +237,82 @@ export default function LiveScreen() {
   // situation the player chose in even after advanceSituation() increments game.situation.
   const sitSnapshotRef = useRef<NonNullable<typeof sit> | null>(null)
   const displaySit = (chosen !== null && sitSnapshotRef.current) ? sitSnapshotRef.current : sit
+  // Chat-story reveal state — reader[] blocks stream in one tap at a time; the choice
+  // sheet stays hidden until every line is revealed. Prose situations have no reader → done.
+  const readerBlocks = displaySit?.reader ?? null
+  const readerDone = !readerBlocks || readerComplete
+
+  // The cinematic reveal state machine. Re-arms whenever the situation changes (and
+  // resets if the player un-chooses). Messages auto-arrive and type themselves; a tap
+  // fast-forwards the in-progress line or advances narration. Mirrors the handoff exactly.
+  useEffect(() => {
+    if (isCricket) return
+    const blocks = displaySit?.reader
+    if (!blocks || chosen !== null) return
+    setRevealed([]); setReaderBusy(false); setReaderShowTap(false); setReaderComplete(false)
+
+    const resolve = (t?: string) => resolveTokens(t ?? '', game.playerName, game.playerGender)
+    const stream = blocks.map(blk => blk.t === 'cue'
+      ? { t: 'msg' as const, who: resolve(blk.who), av: blk.avatar, text: resolve(blk.text) }
+      : blk.t === 'img'
+        ? { t: 'img' as const, src: blk.src, cap: blk.text ? resolve(blk.text) : '', h: blk.h, pos: blk.pos }
+        : { t: 'nar' as const, text: resolve(blk.text), big: blk.big })
+
+    let idx = -1
+    const rev: CinItem[] = []
+    let tw: ReturnType<typeof setInterval> | null = null
+    let dwell: ReturnType<typeof setTimeout> | null = null
+    let auto: ReturnType<typeof setTimeout> | null = null
+    let init: ReturnType<typeof setTimeout> | null = null
+    const scroll = () => { const el = scrollRef.current; if (el) requestAnimationFrame(() => { el.scrollTop = el.scrollHeight }) }
+    const commit = () => setRevealed([...rev])
+    const setLast = (patch: Partial<CinItem>) => { rev[rev.length - 1] = { ...rev[rev.length - 1], ...patch }; commit() }
+
+    const afterSettle = () => {
+      // Every beat is tap-gated — nothing auto-chains. The next beat (narration OR a
+      // character message) arrives only when the player taps, never before.
+      void auto
+      setReaderShowTap(true); scroll()
+    }
+    const typeLast = (full: string) => {
+      if (tw) clearInterval(tw)
+      const t0 = performance.now(); const cps = 38
+      tw = setInterval(() => {
+        const n = Math.min(full.length, Math.floor((performance.now() - t0) / 1000 * cps) + 1)
+        setLast({ typed: full.slice(0, n) }); scroll()
+        if (n >= full.length) { if (tw) clearInterval(tw); tw = null; setLast({ phase: 'done' }); setReaderBusy(false); afterSettle() }
+      }, 28)
+    }
+    const finishTyping = () => {
+      if (tw) { clearInterval(tw); tw = null }
+      if (dwell) { clearTimeout(dwell); dwell = null }
+      const it = stream[idx]
+      const last = rev[rev.length - 1]
+      if (last && last.phase !== 'done' && it && it.t === 'msg') setLast({ typed: it.text, phase: 'done' })
+      setReaderBusy(false); scroll(); afterSettle()
+    }
+    function revealNext() {
+      setReaderShowTap(false)
+      idx++
+      if (idx >= stream.length) { setReaderComplete(true); scroll(); return }
+      const it = stream[idx]
+      if (it.t === 'msg') {
+        rev.push({ kind: 'msg', who: it.who, avatar: it.av, typed: '', phase: 'dots', text: it.text })
+        commit(); setReaderBusy(true); scroll()
+        dwell = setTimeout(() => { setLast({ phase: 'typing' }); scroll(); typeLast(it.text) }, 700 + Math.min(600, it.text.length * 8))
+      } else if (it.t === 'img') {
+        rev.push({ kind: 'img', src: it.src, cap: it.cap, h: it.h, pos: it.pos })
+        commit(); setReaderBusy(false); scroll(); afterSettle()
+      } else {
+        rev.push({ kind: 'nar', text: it.text, big: it.big })
+        commit(); setReaderBusy(false); scroll(); afterSettle()
+      }
+    }
+
+    readerCtlRef.current = { revealNext, finishTyping }
+    init = setTimeout(revealNext, 550)
+    return () => { if (tw) clearInterval(tw); if (dwell) clearTimeout(dwell); if (auto) clearTimeout(auto); if (init) clearTimeout(init) }
+  }, [displaySit?.id, isCricket, chosen, game.playerName, game.playerGender])
 
   // Effective react — derived from displaySit so it stays pinned during post-choice flow
   const effectiveReact = displaySit ? displaySit.react : null
@@ -219,6 +325,7 @@ export default function LiveScreen() {
     setShowImpact(false)
     setShowPost(false)
     setStats(null)
+    setRevealed([]); setReaderBusy(false); setReaderShowTap(false); setReaderComplete(false)
     processingRef.current = false
     timersRef.current = []
   }, [situation])
@@ -287,6 +394,7 @@ export default function LiveScreen() {
     setShowPost(false)
     setShowBeat(false)
     setOutcomeFlash(null)
+    setRevealed([]); setReaderBusy(false); setReaderShowTap(false); setReaderComplete(false)
     processingRef.current = false
     scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
   }, [])
@@ -308,7 +416,7 @@ export default function LiveScreen() {
     const preChoiceMeters = { ...game.meters }
     processingRef.current = true
     setChosen(idx)
-    setShowImpact(true)
+    if (isCricket) setShowImpact(true) // Creator House cuts to the feed — no Live impact card
 
     try {
       // makeChoice updates meters+choices in React state only (no Supabase write yet)
@@ -342,8 +450,62 @@ export default function LiveScreen() {
 
     addTimer(() => { scrollRef.current?.scrollTo({ top: 400, behavior: 'smooth' }) }, 200)
 
+    // Creator House: if this choice publishes a player post, open the compose sheet
+    // (gpt-4o caption → Post → stream on the feed) instead of the inline preview.
+    if (!isCricket) {
+      const legacyPost: ChoicePost | null = ch.caption ? { source: 'player', caption: ch.caption, reactions: ch.reactions ?? [] } : null
+      const composeSource = outcome?.post !== undefined ? outcome.post : (ch.post !== undefined ? ch.post : legacyPost)
+      const playerSpec = asArray(composeSource).find(p => p && p.source === 'player' && !!p.caption)
+      if (playerSpec) {
+        const letter = idx === 0 ? 'A' : 'B'
+        const fDelta = fameToFollowers(clamp(preChoiceMeters.fame + ch.deltas.fame)) - fameToFollowers(clamp(preChoiceMeters.fame))
+        const audienceStr = fameToFollowers(clamp(preChoiceMeters.fame)).toLocaleString('en-IN')
+        const whyLine = (ch.postWhy ? r(ch.postWhy) : 'Tumhara move, ab public. Pura ghar, aur tumhare {followers} followers, dekh rahe hain.').replace(/\{followers\}/g, audienceStr)
+        setCompose({
+          key: `${sit.id}-${letter}`,
+          initialCaption: r(playerSpec.caption),
+          imageUrl: playerSpec.imageUrl || sit.reader?.find(b => b.t === 'img')?.src,
+          why: {
+            eyebrow: `AB DUNIYA KO BATAO${ch.postTag ? ' · ' + r(ch.postTag) : ''}`,
+            line: whyLine,
+            sub: `Day ${sit.day} ka tone yahin set hoga`,
+          },
+          ctx: {
+            playerName: game.playerName || 'you',
+            day: sit.day,
+            beatTitle: sit.title,
+            sceneSummary: r(sit.title),
+            choiceText: r(ch.t),
+            characters: Object.values(getCHChars()).map(c => ({ id: c.id, name: c.name })),
+          },
+          defaultReactions: (playerSpec.reactions ?? []).map(rx => ({ ...rx, text: r(rx.text) })),
+          dms: asArray(outcome?.dm !== undefined ? outcome.dm : ch.dm).map(d => ({ char: d.char, text: r(d.text) })),
+          followerDelta: Math.max(0, fDelta),
+        })
+        return
+      }
+    }
+
     const dmSource = outcome?.dm !== undefined ? outcome.dm : ch.dm
-    const dmsToInject = isCricket ? asArray(dmSource) : []
+    // Scripted choice DMs now fire for both worlds (only when the choice authors a dm —
+    // 0 existing CH situations had one, so this is a targeted enable for Day 1+ content).
+    const dmsToInject = asArray(dmSource)
+
+    if (!isCricket) {
+      // Creator House: no Live result screen. The choice's character post lands on the
+      // feed. If you engaged a character (the choice's primary DM, e.g. "talk to
+      // Ananya"), you're taken straight into their thread; other characters' reactions
+      // arrive as app-wide notifications. A choice with no DM just cuts to the feed.
+      const primary = dmsToInject[0]?.char
+      dmsToInject.forEach((d, i) => addTimer(() => {
+        if (d.char === primary) injectCharDM(d.char, r(d.text))
+        else notifyDM(d.char, r(d.text))
+      }, 150 + i * 220))
+      addTimer(() => { doReset(); if (primary) openDMThread(primary); else navigate('feed') }, 520)
+      return
+    }
+
+    // Cricket: inject DMs (with the Live notif banner) + show the result sheet.
     dmsToInject.forEach((dmToInject, dmIndex) => {
       addTimer(() => {
         injectCharDM(dmToInject.char, r(dmToInject.text))
@@ -354,8 +516,6 @@ export default function LiveScreen() {
         }
       }, 900 + dmIndex * 450)
     })
-
-    // Show post preview after impact card appears
     addTimer(() => { setShowPost(true) }, 600)
 
     // Story-pause trust beat: if this situation is a relationship anchor and the
@@ -795,10 +955,36 @@ export default function LiveScreen() {
       )}
 
       {/* Main scroll */}
-      <div className="live-scroll" ref={scrollRef}>
+      <div className="live-scroll" ref={scrollRef}
+        onClick={() => {
+          if (isCricket || !displaySit?.reader || chosen !== null || readerComplete) return
+          if (readerBusy) readerCtlRef.current?.finishTyping()
+          else if (readerShowTap) readerCtlRef.current?.revealNext()
+        }}
+        style={displaySit?.reader && chosen === null && !readerComplete ? { cursor: 'pointer' } : undefined}
+      >
 
-        {/* Finale screen */}
-        {isFinale && finaleArc && (
+        {/* Creator House — Season 1 finale (Day 10 done): reveal the ending the
+            player earned (fame-led → Main Character, heat-led → The Heart). */}
+        {isFinale && !isCricket && (
+          <div style={{ padding: '36px 24px', display: 'flex', flexDirection: 'column', gap: 14, minHeight: '64%', justifyContent: 'center', alignItems: 'flex-start' }}>
+            <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.14em', color: 'var(--accent)' }}>CREATOR HOUSE · SEASON 1 FINALE</div>
+            <div style={{ fontSize: 14.5, color: 'var(--ink2)', lineHeight: 1.5 }}>10 din. Ek ghar. Aur ant mein — duniya ne tumhe yeh maana:</div>
+            <div style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 38, lineHeight: 1.08, color: finaleArc?.color ?? '#FFB020' }}>{finaleArc?.arc ?? 'The Main Character'}</div>
+            <div style={{ fontSize: 15, color: 'var(--ink2)', lineHeight: 1.55 }}>{finaleArc?.sub ?? ''}</div>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', fontSize: 11.5, color: 'var(--ink3)', marginTop: 2 }}>
+              <span style={{ background: 'var(--surf)', border: '1px solid var(--line)', borderRadius: 99, padding: '5px 11px' }}>{game.choices.length} faisle</span>
+              <span style={{ background: 'var(--surf)', border: '1px solid var(--line)', borderRadius: 99, padding: '5px 11px' }}>{fameToFollowers(game.meters.fame).toLocaleString('en-IN')} followers</span>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 18, width: '100%' }}>
+              <button className="lo-press" style={{ width: '100%', height: 54, background: 'var(--accent)', color: '#fff', fontWeight: 700, fontSize: 16, borderRadius: 14, border: 'none', cursor: 'pointer', fontFamily: 'var(--sans)' }} onClick={() => navigate('feed')}>Feed dekho →</button>
+              <button className="lo-press" style={{ width: '100%', height: 48, background: 'none', color: 'var(--ink2)', fontWeight: 600, fontSize: 14, borderRadius: 14, border: '1px solid var(--line)', cursor: 'pointer', fontFamily: 'var(--sans)' }} onClick={() => navigate('profile')}>Profile</button>
+            </div>
+          </div>
+        )}
+
+        {/* Finale screen — cricket season arc only */}
+        {isFinale && isCricket && finaleArc && (
           <div style={{ padding: '32px 24px', display: 'flex', flexDirection: 'column', gap: 20, minHeight: '60%', justifyContent: 'center' }}>
             <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.1em', color: 'var(--ink3)' }}>{isCricket ? 'INDIAN DRESSING ROOM — SEASON FINALE' : 'CREATOR HOUSE — FINALE'}</div>
             <div style={{
@@ -872,13 +1058,67 @@ export default function LiveScreen() {
             <div className="sit-tag">{displaySit.tag}</div>
             <div className="sit-title">{r(displaySit.title)}</div>
             <div className="sit-body">
-              {displaySit.body.map((p, i) => (
-                <p key={i} dangerouslySetInnerHTML={{ __html: r(p) }} />
-              ))}
+              {displaySit.reader ? (
+                <div className="cin-stream">
+                  {revealed.map((it, i) => (
+                    <div className="cin-si" key={i}>
+                      {it.kind === 'nar' && <p className={`cin-nar${it.big ? ' big' : ''}`}>{it.text}</p>}
+                      {it.kind === 'img' && (
+                        <div className="cin-img" style={{ height: it.h ?? 172, backgroundImage: it.src ? `url(${it.src})` : undefined, backgroundPosition: it.pos ?? 'center' }}>
+                          {it.cap ? <span className="cin-imgcap">{it.cap}</span> : null}
+                        </div>
+                      )}
+                      {it.kind === 'msg' && (
+                        <div className="cin-row">
+                          <div className="cin-av" style={{ backgroundImage: it.avatar ? `url(${it.avatar})` : undefined }} />
+                          <div className="cin-bub">
+                            <div className="cin-name">{it.who}</div>
+                            {it.phase === 'dots'
+                              ? <div className="cin-btxt dots"><span className="cin-td" /><span className="cin-td d2" /><span className="cin-td d3" /></div>
+                              : <div className="cin-btxt">{it.typed}{it.phase === 'typing' && <span className="cin-caret" />}</div>}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                  {readerShowTap && (
+                    <div className="cin-taphint">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6" /></svg>
+                      Tap anywhere to continue
+                    </div>
+                  )}
+                </div>
+              ) : (
+                displaySit.body.map((p, i) => (
+                  <p key={i} dangerouslySetInnerHTML={{ __html: r(p) }} />
+                ))
+              )}
             </div>
 
+            {/* Choice cards (design handoff) — "Tum kya karte ho" + stacked cards with a
+                chevron button. Shown once the scene is fully revealed (tap-gated). */}
+            {!isCricket && displaySit.reader && readerDone && chosen === null && (
+              <div style={{ marginTop: 18, display: 'flex', flexDirection: 'column', gap: 11 }}>
+                <div className="cin-chlabel">Tum kya karte ho</div>
+                <div className="cin-choices">
+                  {choiceDisplayOrder(displaySit).map(trueIdx => {
+                    const c = displaySit!.choices[trueIdx]
+                    return (
+                      <button key={trueIdx} className="cin-ch" onClick={() => handleChoice(trueIdx as 0 | 1)}>
+                        <div className="cin-ch-main">
+                          <div className="cin-cht">{r(c.t)}</div>
+                          <div className="cin-chs">{r(c.s)}</div>
+                        </div>
+                        <span className="cin-chgo"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6" /></svg></span>
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+
             {/* Character reaction */}
-            {effectiveReact && (() => {
+            {!readerBlocks && effectiveReact && (() => {
               // Swap kabir↔ananya for female players: kabir=ally for male, ananya=crush for male — roles flip
               const reactCharId: CharId = game.playerGender === 'female'
                 ? effectiveReact.char === 'kabir' ? 'ananya'
@@ -1004,60 +1244,23 @@ export default function LiveScreen() {
               return (
                 <div style={{ marginTop: 16 }}>
 
-                  {/* Impact card — always expanded, no toggle */}
-                  <div className={`impact-card${isCritical ? ' danger' : ''}`} style={{ marginTop: 0 }}>
-                      {/* Always-expanded detail rows */}
-                      {true && (
-                        <>
-                          {d.fame !== 0 && (
-                            <div className="impact-row fame" style={{ borderTop: '1px solid rgba(255,255,255,.05)' }}>
-                              <div className="impact-row-glow" />
-                              <div className="impact-delta">{d.fame > 0 ? '+' : ''}{d.fame}</div>
-                              <div className="impact-meta">
-                                <div className="impact-mlabel">{isCricket ? '🏏 FORM' : '⭐ FAME'}</div>
-                                <div className="impact-bar-track"><div className="impact-bar-fill" style={{ width: `${Math.max(0, Math.min(100, game.meters.fame))}%` }} /></div>
-                                <div className="impact-consequence">{before.fame} → {game.meters.fame}</div>
-                              </div>
-                            </div>
-                          )}
-                          {d.heat !== 0 && (
-                            <div className={`impact-row heat${d.heat < 0 ? ' negative' : ''}`} style={{ borderTop: '1px solid rgba(255,255,255,.05)' }}>
-                              <div className="impact-row-glow" />
-                              <div className="impact-delta">{d.heat > 0 ? '+' : ''}{d.heat}</div>
-                              <div className="impact-meta">
-                                <div className="impact-mlabel">{isCricket ? '⭐ FAME' : '🔥 HEAT'}</div>
-                                <div className="impact-bar-track"><div className="impact-bar-fill" style={{ width: `${Math.max(0, Math.min(100, game.meters.heat))}%` }} /></div>
-                                <div className="impact-consequence">{before.heat} → {game.meters.heat}{isCritical ? ' ⚠️' : ''}</div>
-                              </div>
-                            </div>
-                          )}
-                          {d.image !== 0 && (
-                            <div className="impact-row image" style={{ borderTop: '1px solid rgba(255,255,255,.05)' }}>
-                              <div className="impact-row-glow" />
-                              <div className="impact-delta">{d.image > 0 ? '+' : ''}{d.image}</div>
-                              <div className="impact-meta">
-                                <div className="impact-mlabel">{isCricket ? '🤝 TEAM TRUST' : '🤝 TRUST'}</div>
-                                <div className="impact-bar-track"><div className="impact-bar-fill" style={{ width: `${Math.max(0, Math.min(100, game.meters.image))}%` }} /></div>
-                                <div className="impact-consequence">{before.image} → {game.meters.image}</div>
-                              </div>
-                            </div>
-                          )}
-                        </>
-                      )}
-                    {/* Pointer to the full meter overview — Live shows the deltas,
-                        Feed has the complete FORM/FAME/TEAM TRUST picture. */}
-                    <button
-                      onClick={() => navigate('feed')}
-                      style={{
-                        width: '100%', marginTop: 2, padding: '8px 0 2px',
-                        background: 'none', border: 'none', cursor: 'pointer',
-                        fontFamily: 'var(--sans)', fontSize: 11.5, fontWeight: 600,
-                        color: 'var(--ink3)', textAlign: 'center',
-                      }}
-                    >
-                      Poore meters Feed pe dekho →
-                    </button>
-                  </div>
+                  {/* Followers change — Creator House shows the one number that matters. No meters. */}
+                  {(() => {
+                    const afterF = fameToFollowers(game.meters.fame)
+                    const delta = afterF - fameToFollowers(before.fame)
+                    if (delta === 0) return null
+                    return (
+                      <div className="impact-card" style={{ marginTop: 0, padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <div>
+                          <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: '.1em', color: 'var(--ink3)' }}>FOLLOWERS</div>
+                          <div style={{ fontSize: 23, fontWeight: 800, color: '#fff', marginTop: 3, fontVariantNumeric: 'tabular-nums' }}>{afterF.toLocaleString()}</div>
+                        </div>
+                        <div style={{ fontSize: 16, fontWeight: 800, color: delta >= 0 ? 'var(--fame)' : 'var(--heat)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                          {delta >= 0 ? '▲' : '▼'} {delta >= 0 ? '+' : ''}{delta.toLocaleString()}
+                        </div>
+                      </div>
+                    )
+                  })()}
 
                   {/* Player post + reactions — shown after post is ready */}
                   {/* Caption starting with "*(" is a meta-note (no public post was made) */}
@@ -1172,7 +1375,16 @@ export default function LiveScreen() {
       {/* Creator House choice / result — shared <ChoiceSheet> shell (parity with cricket):
            peek button → frosted choice cards → Next / Feed. The impact card + posts render
            inline in the scroll above (CH keeps its richer impact detail there). */}
-      {displaySit && !isCricket && (() => {
+      {/* Chat-story: the whole screen is tappable to advance — show a quiet hint, not a button */}
+      {displaySit && !isCricket && !readerDone && !displaySit.reader && (
+        <div style={{ position: 'absolute', left: 0, right: 0, bottom: 'calc(var(--tabbar) + 16px)', zIndex: 10, pointerEvents: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, color: 'var(--ink3)', fontFamily: 'var(--sans)', fontSize: 12.5, fontWeight: 500, opacity: .65 }}>
+          Tap anywhere to continue
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9" /></svg>
+        </div>
+      )}
+      {/* For chat-story (reader) situations the choices render inline as bubbles above;
+          the sheet only handles the result/Next here. Prose situations keep the full sheet. */}
+      {displaySit && !isCricket && readerDone && (chosen !== null || !displaySit.reader) && (() => {
         const isResult = chosen !== null
         const seenChoices = typeof window !== 'undefined' ? parseInt(localStorage.getItem('lore_feed_seen_choices') || '0', 10) : 0
         const newPosts = Math.max(0, game.choices.length - seenChoices)
@@ -1239,6 +1451,51 @@ export default function LiveScreen() {
           </ChoiceSheet>
         )
       })()}
+
+      {/* Creator House "make a post" — composer (Screen A) → live feed reaction (Screen B) */}
+      {compose && (
+        <ComposePost
+          playerName={game.playerName}
+          avatarUrl={game.avatarUrl}
+          imageUrl={compose.imageUrl}
+          ctx={compose.ctx}
+          fallbackCaption={compose.initialCaption}
+          why={compose.why}
+          onShare={async (caption, preReactions) => {
+            const c = compose
+            const followersNow = fameToFollowers(game.meters.fame)
+            const likesTarget = Math.round(followersNow * 0.22) + 4000
+            // Reactions are usually pre-fetched in the composer → instant Share. If not
+            // ready yet, fetch now (authored fallback on failure).
+            let reactions: Reaction[] = (preReactions && preReactions.length) ? (preReactions as Reaction[]) : c.defaultReactions
+            if (!preReactions || !preReactions.length) {
+              try {
+                const res = await fetch('/api/lore-post', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'reactions', caption, ctx: c.ctx }) })
+                if (res.ok) { const d = await res.json(); if (Array.isArray(d.reactions) && d.reactions.length) reactions = d.reactions }
+              } catch { /* keep authored fallback */ }
+            }
+            upsertAiPost(c.key, { caption, reactions, likes: likesTarget, followerDelta: c.followerDelta, dms: c.dms, imageUrl: c.imageUrl, revealed: false })
+            // Land directly on the real feed; the reaction animates there (in the
+            // current feed UI) via the pendingPostReveal sequence.
+            setCompose(null)
+            setPendingPostReveal(c.key)
+            doReset()
+            navigate('feed')
+          }}
+          onBack={() => {
+            const c = compose
+            setCompose(null)
+            // Back out → fall back to the normal inline result (DMs + authored post).
+            c.dms.forEach((d, i) => addTimer(() => {
+              injectCharDM(d.char, d.text)
+              const rc = allChars[d.char]
+              if (rc) { setDmNotif({ name: rc.name, cls: rc.cls, id: rc.id }); setTimeout(() => setDmNotif(null), 3000) }
+            }, 300 + i * 450))
+            addTimer(() => setShowPost(true), 300)
+          }}
+        />
+      )}
+
 
       {/* Coach marks — first Live visit */}
       {activeCoach && (() => {

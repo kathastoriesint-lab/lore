@@ -73,6 +73,10 @@ export interface Choice {
   relationshipDeltas?: Partial<Record<CharId, number>>
   /** Which run-memory slot this choice writes to (match situations only) */
   runWrite?: 'debut' | 'league' | 'clutch' | 'semi' | 'final'
+  /** Post-writer "why" framing — the moment/stakes shown above the composer.
+   *  Supports a {followers} token. postTag is the eyebrow suffix (e.g. "TUMHARA PEHLA MOVE"). */
+  postWhy?: string
+  postTag?: string
 }
 
 export interface ChoiceOutcomeGate {
@@ -116,10 +120,55 @@ export interface ChoiceDM {
   text: string
 }
 
+/**
+ * A streamed story element for the chat-story Live format (Creator House Day 1+).
+ * When a Situation has `reader`, LiveScreen renders these bubbles one tap at a time
+ * instead of the prose `body[]`. Additive: situations without `reader` render as prose.
+ */
+export interface ReaderBlock {
+  t: 'nar' | 'img' | 'cue'
+  /** Narrator line or character cue text (supports {name}/{crush}/… tokens). */
+  text?: string
+  /** Emphasized narrator line (the stakes beat before the choice). */
+  big?: boolean
+  /** Image source (scene art or character portrait), served from /public. */
+  src?: string
+  /** Image height in px. */
+  h?: number
+  /** Image background-position, e.g. "center top". */
+  pos?: string
+  /** Cue speaker display name. */
+  who?: string
+  /** Cue speaker avatar src. */
+  avatar?: string
+}
+
 export interface Reaction {
   char: CharId | '__fan'
   name?: string
   text: string
+}
+
+/**
+ * A player post whose caption + reactions were generated live (gpt-4o) when the
+ * player composed and hit "Post". Stored per choice (key: `${sit.id}-${letter}`)
+ * so the feed renders the same AI text on every replay/reload instead of the
+ * authored fallback. The feed streams `reactions` in one at a time on first reveal.
+ */
+export interface AiPost {
+  caption: string
+  reactions: Reaction[]
+  /** Image shown on the feed for this post (carried from the composer). */
+  imageUrl?: string
+  /** Final like count to climb toward during the feed reveal. */
+  likes?: number
+  /** Follower gain to surface as the receipt. */
+  followerDelta?: number
+  /** DMs to fire as notifications during the reveal. */
+  dms?: ChoiceDM[]
+  vibe?: string
+  /** Feed has finished streaming this post (so it renders static afterwards). */
+  revealed?: boolean
 }
 
 export interface Situation {
@@ -129,6 +178,9 @@ export interface Situation {
   tag: string
   title: string
   body: string[]
+  /** Optional chat-story stream. When present, LiveScreen renders these bubbles
+   *  one tap at a time instead of the prose `body[]`. */
+  reader?: ReaderBlock[]
   react?: { char: CharId; text: string } | null
   q: string
   choices: [Choice, Choice]
@@ -142,6 +194,8 @@ export interface Situation {
 export interface DMMessage {
   role: 'me' | 'char'
   text: string
+  /** Optional post quoted in the thread — e.g. the post you commented on. */
+  embed?: { caption: string; imageUrl?: string; handle?: string }
 }
 
 export type Screen =
@@ -187,6 +241,8 @@ export interface GameState {
   charFame?: Record<string, number>
   /** Post IDs the player has liked — prevents re-liking after reload. */
   likedPosts?: string[]
+  /** Live-generated player posts (caption + reactions), keyed by `${sit.id}-${letter}`. */
+  aiPosts?: Record<string, AiPost>
 
   // ── Season 1 progression (cricket world) ──────────────────────────────────
   /** Current Match Week (1-7). Absent on pre-season saves → derived on load. */

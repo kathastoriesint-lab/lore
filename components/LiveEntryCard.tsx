@@ -19,8 +19,27 @@ export default function LiveEntryCard() {
     navigate(game.char ? 'live' : 'narrator')
   }, [navigate, game.char])
 
-  // Nothing left to play (all situations resolved) → no banner.
-  if (!nextSit) return null
+  // The full Season-1 arc (Days 1-10) has been played → clean "season complete"
+  // card; cricket just hides the banner.
+  if (!nextSit) {
+    if (isCricket) return null
+    return (
+      <div className="le-wrap">
+        <div className="le-cta" style={{ cursor: 'default' }}>
+          <div className="le-row">
+            <div className="le-play" style={{ background: 'rgba(255,255,255,.14)' }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div className="le-eye">SEASON 1 COMPLETE</div>
+              <div className="le-ttl">10 din khatam 🎬</div>
+              <div className="le-sub">Tumne poora ghar jee liya. Naya season jald…</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   const eyebrow = isCricket
     ? `SITUATION ${game.situation + 1} · ${nextSit.tag.split('·')[1]?.trim() ?? 'NEXT'}`

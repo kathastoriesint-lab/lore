@@ -282,6 +282,15 @@ export function bondWord(bond: number, rel: Relationship | null): string {
   return 'TIGHT'
 }
 
+/** Romance-ladder tier label for the crush bond (Creator House profile "Bond" stat). */
+export function crushTier(bond: number): string {
+  if (bond < 25) return 'Strangers'
+  if (bond < 45) return 'A Spark'
+  if (bond < 70) return 'The Almost'
+  if (bond < 85) return 'So Close'
+  return 'Something Real'
+}
+
 /** Color for a bond value — uses meter trio only (DESIGN.md). */
 export function bondColor(bond: number): string {
   if (bond >= 65) return '#3DD6C8'   // --trust
