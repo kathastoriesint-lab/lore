@@ -4,6 +4,7 @@ import { useApp } from '@/lib/context'
 import type { CharId, DMMessage } from '@/lib/types'
 import { getCricketChars, getCricketSituations, getCricketTrustGoals, getCricketDMTrustStart, getCHChars, getCHDMTrust, getCHDossiers } from '@/lib/content'
 import { getReplySuggestions } from '@/lib/game'
+import { fmtClock, phaseLabel } from '@/lib/dm-time'
 import { trustMomentFor, trustGateThreshold } from '@/lib/season'
 import { relationshipFor, computeBond, bondColor } from '@/lib/relationships'
 
@@ -362,25 +363,38 @@ export default function DMThreadScreen() {
           const isOut = msg.role === 'me'
           const prevMsg = i > 0 ? messages[i - 1] : null
           const showAvatar = isIn && (!prevMsg || prevMsg.role !== 'char')
+          // New day/phase section divider — "DAY 2 · MORNING" + the event that dropped.
+          const showDivider = msg.day != null && msg.phase != null &&
+            (!prevMsg || prevMsg.day !== msg.day || prevMsg.phase !== msg.phase)
+          const clock = fmtClock(msg.t)
 
           return (
-            <div key={i} style={{ display:'flex', flexDirection:'column' }}>
-              {showAvatar && (
-                <div className="msg-av">
-                  <div className={`av ${char.cls}`} style={{ width:22, height:22, fontSize:10, backgroundImage:`url(/avatars/${charId}.png)`, backgroundSize:'cover', backgroundPosition:'center' }}><span style={{opacity:0}}>{char.init}</span></div>
-                  <div className="lbl">{char.name}</div>
+            <Fragment key={i}>
+              {showDivider && (
+                <div className="dm-daydiv">
+                  <span className="dm-daypill">DAY {msg.day} · {phaseLabel(msg.phase)}</span>
+                  {msg.note && <span className="dm-daynote">{msg.note} just dropped</span>}
                 </div>
               )}
-              {msg.embed && (
-                <div className="dm-embed">
-                  {msg.embed.imageUrl && <div className="dm-embed-img" style={{ backgroundImage: `url(${msg.embed.imageUrl})` }} />}
-                  <div className="dm-embed-cap">{msg.embed.handle ? <b>@{msg.embed.handle} </b> : null}{msg.embed.caption}</div>
+              <div style={{ display:'flex', flexDirection:'column' }}>
+                {showAvatar && (
+                  <div className="msg-av">
+                    <div className={`av ${char.cls}`} style={{ width:22, height:22, fontSize:10, backgroundImage:`url(/avatars/${charId}.png)`, backgroundSize:'cover', backgroundPosition:'center' }}><span style={{opacity:0}}>{char.init}</span></div>
+                    <div className="lbl">{char.name}</div>
+                  </div>
+                )}
+                {msg.embed && (
+                  <div className="dm-embed">
+                    {msg.embed.imageUrl && <div className="dm-embed-img" style={{ backgroundImage: `url(${msg.embed.imageUrl})` }} />}
+                    <div className="dm-embed-cap">{msg.embed.handle ? <b>@{msg.embed.handle} </b> : null}{msg.embed.caption}</div>
+                  </div>
+                )}
+                <div className={`msg${isIn ? ' in' : ''}${isOut ? ' out' : ''}`}>
+                  {msg.text}
                 </div>
-              )}
-              <div className={`msg${isIn ? ' in' : ''}${isOut ? ' out' : ''}`}>
-                {msg.text}
+                {clock && <div className={`dm-time${isOut ? ' out' : ''}`}>{clock}</div>}
               </div>
-            </div>
+            </Fragment>
           )
         })}
 

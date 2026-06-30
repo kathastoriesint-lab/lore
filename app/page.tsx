@@ -8,6 +8,7 @@ import {
   fameToFollowers, DEFAULT_FLAGS, buildCricketQueue, buildCHQueue,
 } from '@/lib/game'
 import { getVisibleSituations } from '@/lib/ch-rules'
+import { stampTime, type DMTimeMeta } from '@/lib/dm-time'
 import { getCricketChars, getCricketDMTrustStart, getCricketSituations, initContent, getCHChars, getCHSituations, getCHDMMock, getCHDMHooks, getCHDMOrder, getCHDMTrust } from '@/lib/content'
 import WorldsScreen from '@/components/screens/WorldsScreen'
 import WorldIntroScreen from '@/components/screens/WorldIntroScreen'
@@ -572,11 +573,11 @@ export default function App() {
   // Trust moment: inject the authored exchange into the thread, apply the
   // trust delta, and consume the interlude's one moment.
   const completeTrustMoment = useCallback((charId: CharId, opener: string, reply: string, response: string, delta: number) => {
-    const msgs: DMMessage[] = [
-      { role: 'char', text: opener },
-      { role: 'me', text: reply },
-      { role: 'char', text: response },
-    ]
+    const tmBase = dmHistory[charId] ?? []
+    const m0: DMMessage = { role: 'char', text: opener, ...stampTime(tmBase) }
+    const m1: DMMessage = { role: 'me', text: reply, ...stampTime([...tmBase, m0]) }
+    const m2: DMMessage = { role: 'char', text: response, ...stampTime([...tmBase, m0, m1]) }
+    const msgs: DMMessage[] = [m0, m1, m2]
     setDmHistory(prev => ({ ...prev, [charId]: [...(prev[charId] ?? []), ...msgs] }))
     setDmLastUpdated(prev => ({ ...prev, [charId]: Date.now() }))
     msgs.forEach(m => { saveDM(charId, m).catch(() => {}) })
@@ -588,7 +589,7 @@ export default function App() {
       return next
     })
     analytics.track('trust_moment_completed', 'cricket', { char_id: charId, delta })
-  }, [adjustIndividualTrust, extrasSnapshot])
+  }, [adjustIndividualTrust, extrasSnapshot, dmHistory])
 
   // gate_crossed — fires once per interlude on the moment the gate flips to met.
   const gateCrossedRef = useRef(false)
@@ -707,8 +708,10 @@ export default function App() {
     const capState = getDmCapState(charId)
     if (capState.lockedUntil > Date.now()) return
 
-    const userMsg: DMMessage = { role: 'me', text }
-    const contextHistory = [...(dmHistory[charId] ?? []), userMsg]
+    const baseHist = dmHistory[charId] ?? []
+    const userMsg: DMMessage = { role: 'me', text, ...stampTime(baseHist) }
+    const contextHistory = [...baseHist, userMsg]
+    let running: DMMessage[] = contextHistory  // local history so each AI bubble gets a later in-story time
     setDmHistory(prev => ({ ...prev, [charId]: [...(prev[charId] ?? []), userMsg] }))
     setDmLastUpdated(prev => ({ ...prev, [charId]: Date.now() }))
     saveDM(charId, userMsg).catch(() => {})
@@ -756,7 +759,8 @@ export default function App() {
     const parts = bubbles.length > 0 ? bubbles : [reply]
     for (let i = 0; i < parts.length; i++) {
       if (i > 0) await new Promise(res => setTimeout(res, Math.min(1100, 350 + parts[i].length * 18)))
-      const charMsg: DMMessage = { role: 'char', text: parts[i] }
+      const charMsg: DMMessage = { role: 'char', text: parts[i], ...stampTime(running) }
+      running = [...running, charMsg]
       setDmHistory(prev => ({ ...prev, [charId]: [...(prev[charId] ?? []), charMsg] }))
       setDmLastUpdated(prev => ({ ...prev, [charId]: Date.now() }))
       saveDM(charId, charMsg).catch(() => {})
@@ -805,19 +809,25 @@ export default function App() {
     if (charName) showToast(`Liked ${charName}'s post ❤️`)
   }, [likedPosts, adjustIndividualTrust, game.world, showToast])
 
-  // Inject a DM message from a character without AI round-trip (used after Live choices)
-  const injectCharDM = useCallback((charId: CharId, text: string, embed?: DMMessage['embed']) => {
-    const charMsg: DMMessage = { role: 'char', text, ...(embed ? { embed } : {}) }
-    setDmHistory(prev => ({ ...prev, [charId]: [...(prev[charId] ?? []), charMsg] }))
+  // Inject a DM message from a character without AI round-trip (used after Live choices).
+  // `meta` carries the story beat's day/phase/event so the thread can show a
+  // "DAY 2 · MORNING" divider + an in-story timestamp on the message.
+  const injectCharDM = useCallback((charId: CharId, text: string, embed?: DMMessage['embed'], meta?: DMTimeMeta) => {
+    let created: DMMessage | undefined
+    setDmHistory(prev => {
+      const hist = prev[charId] ?? []
+      created = { role: 'char', text, ...(embed ? { embed } : {}), ...stampTime(hist, meta) }
+      return { ...prev, [charId]: [...hist, created] }
+    })
     setDmLastUpdated(prev => ({ ...prev, [charId]: Date.now() }))
-    saveDM(charId, charMsg).catch(() => {})
+    if (created) saveDM(charId, created).catch(() => {})
     setDmBadgeCount(prev => prev + 1) // T4: badge notification
-  }, [game.world])
+  }, [])
 
   // Inject a DM AND raise the app-wide notification banner. Used by the feed
   // reveal so a "the world reacts" DM surfaces as a notification on any screen.
-  const notifyDM = useCallback((charId: CharId, text: string, embed?: DMMessage['embed']) => {
-    injectCharDM(charId, text, embed)
+  const notifyDM = useCallback((charId: CharId, text: string, embed?: DMMessage['embed'], meta?: DMTimeMeta) => {
+    injectCharDM(charId, text, embed, meta)
     const c = getCHChars()[charId]
     // The arrival sheet "types in" this text; it stays until the player taps Reply
     // or dismisses ("read later") — no auto-timeout, the DM demands a beat.

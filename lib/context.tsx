@@ -1,6 +1,7 @@
 'use client'
 import { createContext, useContext } from 'react'
 import type { AiPost, CharId, DMMessage, GameState, Screen } from './types'
+import type { DMTimeMeta } from './dm-time'
 
 export interface ImpactNotif {
   action: string           // "Liked Ria's post"
@@ -49,7 +50,7 @@ export interface AppCtx {
   /** Transient DM notification banner (app-wide), shown when the world DMs you. */
   dmNotif: { id: string; name: string; cls: string } | null
   /** Inject a character DM AND raise the app-wide notification banner. */
-  notifyDM: (charId: CharId, text: string, embed?: DMMessage['embed']) => void
+  notifyDM: (charId: CharId, text: string, embed?: DMMessage['embed'], meta?: DMTimeMeta) => void
   /** Transient "+N followers" receipt pill shown on the feed during a reveal. */
   followerReceipt: { delta: number } | null
   showFollowerReceipt: (delta: number) => void
@@ -57,7 +58,7 @@ export interface AppCtx {
   hudReaction: { base: number; gain: number; key: string } | null
   setHudReaction: (r: { base: number; gain: number; key: string } | null) => void
   applyFeedDeltas: (deltas: { fame: number; heat: number; image: number }, charId?: string, charName?: string) => void
-  injectCharDM: (charId: CharId, text: string, embed?: DMMessage['embed']) => void
+  injectCharDM: (charId: CharId, text: string, embed?: DMMessage['embed'], meta?: DMTimeMeta) => void
   setViewingChar: (id: CharId | null) => void
   advanceSituation: () => void
   navigate: (s: Screen, opts?: { replace?: boolean }) => void

@@ -196,6 +196,13 @@ export interface DMMessage {
   text: string
   /** Optional post quoted in the thread — e.g. the post you commented on. */
   embed?: { caption: string; imageUrl?: string; handle?: string }
+  /** Narrative timing (WhatsApp-style thread) — all optional, see lib/dm-time.ts.
+      day = story day, phase = MORNING/AFTERNOON/EVENING/NIGHT, t = in-story
+      minute-of-day for the per-message clock, note = event line for the divider. */
+  day?: number
+  phase?: string
+  t?: number
+  note?: string
 }
 
 export type Screen =

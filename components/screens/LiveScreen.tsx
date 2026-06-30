@@ -8,6 +8,7 @@ import { resolveCricketEnding } from '@/lib/cricket-rules'
 import { getWeek, weekForSituationId, SEASON_WEEKS } from '@/lib/season'
 import { getStats, clamp, resolveEnding, resolveTokens, fameToFollowers, chCharForGender } from '@/lib/game'
 import { sentimentDelta } from '@/lib/relationships'
+import { phaseFromTag } from '@/lib/dm-time'
 import MeterHUD from '@/components/MeterHUD'
 import GoalCard from '@/components/GoalCard'
 import ChoiceSheet from '@/components/ChoiceSheet'
@@ -504,11 +505,14 @@ export default function LiveScreen() {
       // arrive as app-wide notifications. A choice with no DM just cuts to the feed.
       // Swap kabir<->ananya for female players so a crush/ally DM lands in the right thread.
       const primary = dmsToInject[0] ? (chCharForGender(dmsToInject[0].char, game.playerGender) as CharId) : undefined
+      // Narrative timing for the thread: tag each injected DM with the beat's
+      // day + phase + title so the DM screen shows a "DAY N · PHASE" divider.
+      const dmMeta = sit ? { day: sit.day, phase: phaseFromTag(sit.tag), note: r(sit.title) } : undefined
       dmsToInject.forEach((d, i) => {
         const cid = chCharForGender(d.char, game.playerGender) as CharId
         addTimer(() => {
-          if (cid === primary) injectCharDM(cid, r(d.text))
-          else notifyDM(cid, r(d.text))
+          if (cid === primary) injectCharDM(cid, r(d.text), undefined, dmMeta)
+          else notifyDM(cid, r(d.text), undefined, dmMeta)
         }, 150 + i * 220)
       })
       addTimer(() => { doReset(); if (primary) openDMThread(primary); else navigate('feed') }, 520)
