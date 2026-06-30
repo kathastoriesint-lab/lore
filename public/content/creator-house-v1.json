@@ -108,7 +108,7 @@
             },
             {
               "char": "ananya",
-              "text": "Quiet one... interesting. 🥺 Main baat karungi."
+              "text": "Quiet one... interesting. 🥺 Main baat {x|karunga/karungi}."
             },
             {
               "char": "__fan",
@@ -160,7 +160,7 @@
           "t": "cue",
           "who": "Ananya",
           "avatar": "/avatars/ananya.png",
-          "text": "Umm… haan. Haan, main isko jaanti hun."
+          "text": "Umm… haan. Haan, main isko {x|jaanta/jaanti} hun."
         },
         {
           "t": "nar",
@@ -198,7 +198,7 @@
             "heat": -2,
             "image": -1
           },
-          "caption": "Day 1, first collab, aur already trending? @kabirlol ke saath 🔥 #CreatorHouse",
+          "caption": "Day 1, first collab, aur already trending? @{allyHandle} ke saath 🔥 #CreatorHouse",
           "reactions": [
             {
               "char": "ria",
@@ -259,7 +259,7 @@
             "heat": 1,
             "image": 1
           },
-          "caption": "Day 1 vibes with @kabirlol — good energy only ✨ #CreatorHouse",
+          "caption": "Day 1 vibes with @{allyHandle} — good energy only ✨ #CreatorHouse",
           "reactions": [
             {
               "char": "ria",
@@ -401,11 +401,11 @@
           "dm": [
             {
               "char": "ananya",
-              "text": "Tum ruk gaye. Zoya ko chhod ke… mujhse baat karne. 🙂"
+              "text": "Tum ruk {p|gaye/gayi}. Zoya ko chhod ke… mujhse baat karne. 🙂"
             },
             {
               "char": "ananya",
-              "text": "Pata hai, 3 saal main sochti rahi — agar us raat kuch alag hota toh?"
+              "text": "Pata hai, 3 saal main {x|sochta/sochti} {x|raha/rahi} — agar us raat kuch alag hota toh?"
             },
             {
               "char": "ananya",
@@ -454,15 +454,11 @@
             },
             {
               "char": "ananya",
-              "text": "Tum sach mein badal gaye ho. Woh ladka jise main jaanti thi, woh yeh nahi karta. Shayad maine 3 saal pehle sahi kiya — jo bhi tha humare beech, usse pursue nahi kiya."
+              "text": "Tum sach mein badal {p|gaye/gayi} ho. Woh {p|ladka/ladki} jise main {x|jaanta/jaanti} {x|tha/thi}, woh yeh nahi {p|karta/karti}. Shayad maine 3 saal pehle sahi kiya — jo bhi tha humare beech, usse pursue nahi kiya."
             }
           ]
         }
       ],
-      "feedReaction": {
-        "A": null,
-        "B": null
-      },
       "reader": [
         {
           "t": "nar",
@@ -633,21 +629,7 @@
           "relationshipDeltas": {
             "ria": 5,
             "kabir": -4
-          },
-          "dm": [
-            {
-              "char": "ria",
-              "text": "Smart. Mujhe laga tum samjhoge. 🤍"
-            },
-            {
-              "char": "ria",
-              "text": "Ab se — tum mere camp mein ho. Main apne logo ka khayaal rakhti hoon."
-            },
-            {
-              "char": "ria",
-              "text": "Aur {ally}? Usse thodi doori. Trust me, woh tumhe sirf apni story ke liye use kar raha tha."
-            }
-          ]
+          }
         },
         {
           "t": "Decline karo — {ally} ke saath raho",
@@ -682,10 +664,7 @@
           "char": "ria",
           "caption": "Some people understand the game faster than others. 🤍 #CreatorHouse"
         },
-        "B": {
-          "char": "kabir",
-          "caption": "Not everyone sells out for power. Real ones stay real. 💪 #CreatorHouse"
-        }
+        "B": null
       },
       "reader": [
         {
@@ -785,10 +764,6 @@
           ]
         }
       ],
-      "feedReaction": {
-        "A": null,
-        "B": null
-      },
       "reader": [
         {
           "t": "nar",
@@ -852,7 +827,7 @@
             },
             {
               "char": "ananya",
-              "text": "Pata hai, 3 saal main sochti rahi — agar us raat kuch alag hota toh?"
+              "text": "Pata hai, 3 saal main {x|sochta/sochti} {x|raha/rahi} — agar us raat kuch alag hota toh?"
             },
             {
               "char": "ananya",
@@ -874,11 +849,11 @@
           "dm": [
             {
               "char": "ananya",
-              "text": "Theek hai. Tum thak gaye honge. Jao so jao. 🙂"
+              "text": "Theek hai. Tum thak {p|gaye/gayi} honge. Jao so jao. 🙂"
             },
             {
               "char": "ananya",
-              "text": "…main bhi yahi expect kar rahi thi shayad."
+              "text": "…main bhi yahi expect kar {x|raha/rahi} {x|tha/thi} shayad."
             },
             {
               "char": "ananya",
@@ -887,13 +862,6 @@
           ]
         }
       ],
-      "feedReaction": {
-        "A": {
-          "char": "ananya",
-          "caption": "Sometimes you just need someone to actually listen. You know who you are. 🌙"
-        },
-        "B": null
-      },
       "reader": [
         {
           "t": "nar",
@@ -992,10 +960,6 @@
           ]
         }
       ],
-      "feedReaction": {
-        "A": null,
-        "B": null
-      },
       "reader": [
         {
           "t": "nar",
@@ -1266,21 +1230,7 @@
           "relationshipDeltas": {
             "kabir": 6,
             "ria": -2
-          },
-          "dm": [
-            {
-              "char": "kabir",
-              "text": "Tu sach mein khada rahega? Publicly? 😭"
-            },
-            {
-              "char": "kabir",
-              "text": "Bhai… is ghar mein koi aisa nahi karta."
-            },
-            {
-              "char": "kabir",
-              "text": "Jo bhi ho kal — main ye nahi bhoolunga. Ride or die."
-            }
-          ]
+          }
         },
         {
           "t": "Pyaar se mana karo — private mein support",
@@ -1590,7 +1540,7 @@
           "relationshipDeltas": {
             "kabir": 5
           },
-          "caption": "@kabirlol ne meri mimicry ki aur honestly… accurate hai 😭 Love this idiot. #CreatorHouse",
+          "caption": "@{allyHandle} ne meri mimicry ki aur honestly… accurate hai 😭 Love this idiot. #CreatorHouse",
           "reactions": [
             {
               "char": "kabir",
@@ -1636,7 +1586,8 @@
         "A": {
           "char": "kabir",
           "caption": "Is ghar mein ek banda jo actually mazaak le sakta hai. Rare species. 😭🔥"
-        }
+        },
+        "B": null
       },
       "reader": [
         {
@@ -1692,21 +1643,7 @@
           },
           "relationshipDeltas": {
             "ria": 4
-          },
-          "dm": [
-            {
-              "char": "ria",
-              "text": "Smart. Long game samajhne wale jeet-te hain. 🤍"
-            },
-            {
-              "char": "ria",
-              "text": "Main apne logo ko upar le jaati hoon. Tum ab unme se ho."
-            },
-            {
-              "char": "ria",
-              "text": "Yeh sirf shuruaat hai. Trust me."
-            }
-          ]
+          }
         },
         {
           "t": "Direct jaao — khud negotiate karo",
@@ -1718,21 +1655,7 @@
           },
           "relationshipDeltas": {
             "ria": -3
-          },
-          "dm": [
-            {
-              "char": "ria",
-              "text": "Toh tum direct chale gaye. Interesting. 🤍"
-            },
-            {
-              "char": "ria",
-              "text": "Bold. Ya stupid. Time batayega."
-            },
-            {
-              "char": "ria",
-              "text": "Par yaad rakhna — is industry mein main bahut purani hoon. Tum nahi."
-            }
-          ]
+          }
         }
       ],
       "feedReaction": {
@@ -1844,13 +1767,6 @@
           ]
         }
       ],
-      "feedReaction": {
-        "A": {
-          "char": "kabir",
-          "caption": "Is ghar mein kuch aisa hua aaj. Main sunaunga. 😭 #Day5"
-        },
-        "B": null
-      },
       "reader": [
         {
           "t": "nar",
@@ -1935,7 +1851,7 @@
           "dm": [
             {
               "char": "ananya",
-              "text": "Samajh gayi. Numbers. Theek hai. 🙂"
+              "text": "Samajh {x|gaya/gayi}. Numbers. Theek hai. 🙂"
             },
             {
               "char": "ananya",
@@ -1943,18 +1859,11 @@
             },
             {
               "char": "ananya",
-              "text": "Koi baat nahi. Main akele bhi bana leti hoon. Hamesha banaya hai."
+              "text": "Koi baat nahi. Main akele bhi bana {x|leta/leti} hoon. Hamesha banaya hai."
             }
           ]
         }
       ],
-      "feedReaction": {
-        "A": {
-          "char": "ananya",
-          "caption": "Found the person in this house who actually gets it. You know who you are. 🌙 #CreatorHouse"
-        },
-        "B": null
-      },
       "reader": [
         {
           "t": "nar",
@@ -2054,13 +1963,6 @@
           ]
         }
       ],
-      "feedReaction": {
-        "A": {
-          "char": "kabir",
-          "caption": "Is ghar mein jo log apna sach bolte hain unke saath rehna chahiye. Woh rare hain. 😭🔥"
-        },
-        "B": null
-      },
       "reader": [
         {
           "t": "nar",
@@ -2159,13 +2061,6 @@
           ]
         }
       ],
-      "feedReaction": {
-        "A": {
-          "char": "ria",
-          "caption": "Some mornings you just need someone to actually be there. 🌅 #Day6"
-        },
-        "B": null
-      },
       "reader": [
         {
           "t": "nar",
@@ -2360,22 +2255,15 @@
             },
             {
               "char": "ananya",
-              "text": "Koi baat nahi. Shayad main expect bhi zyada kar rahi thi."
+              "text": "Koi baat nahi. Shayad main expect bhi zyada kar {x|raha/rahi} {x|tha/thi}."
             },
             {
               "char": "ananya",
-              "text": "Game khelo. Main samajh sakti hoon. Bas… thoda dukh hua."
+              "text": "Game khelo. Main samajh {x|sakta/sakti} hoon. Bas… thoda dukh hua."
             }
           ]
         }
       ],
-      "feedReaction": {
-        "A": {
-          "char": "ananya",
-          "caption": "Is ghar mein ek aisa insaan mil gaya. You know who you are. 🌙 #Day6"
-        },
-        "B": null
-      },
       "reader": [
         {
           "t": "nar",
@@ -2474,13 +2362,6 @@
           ]
         }
       ],
-      "feedReaction": {
-        "A": {
-          "char": "kabir",
-          "caption": "Is ghar mein kuch log hote hain jo actually show up. Rare. 🔥 #Day7"
-        },
-        "B": null
-      },
       "reader": [
         {
           "t": "nar",
@@ -2538,21 +2419,7 @@
             "ria": 4,
             "zoya": -3,
             "kabir": 2
-          },
-          "dm": [
-            {
-              "char": "ria",
-              "text": "Tumne sahi chuna. 🤍"
-            },
-            {
-              "char": "ria",
-              "text": "Ab hum sach mein ek team hain. Main yaad rakhti hoon."
-            },
-            {
-              "char": "ria",
-              "text": "{ally} bach gaya, tumhare through. Woh bhi yaad rakhega."
-            }
-          ]
+          }
         },
         {
           "t": "Ria ki baat na maano — apni call lo",
@@ -2565,21 +2432,7 @@
           "relationshipDeltas": {
             "ria": -4,
             "kabir": 3
-          },
-          "dm": [
-            {
-              "char": "kabir",
-              "text": "Tune Ria ki baat nahi maani… mere liye? 😭"
-            },
-            {
-              "char": "kabir",
-              "text": "Bhai main ye zindagi bhar yaad rakhunga."
-            },
-            {
-              "char": "kabir",
-              "text": "Ria ab tere peeche aayegi. Par main tere saath hoon. Pakka."
-            }
-          ]
+          }
         }
       ],
       "feedReaction": {
@@ -2754,7 +2607,7 @@
           "reactions": [
             {
               "char": "ananya",
-              "text": "Tum public me mere saath khade ho gaye. 🥺 Main ye nahi bhoolungi."
+              "text": "Tum public me mere saath khade ho {p|gaye/gayi}. 🥺 Main ye nahi {x|bhoolunga/bhoolungi}."
             },
             {
               "char": "__fan",
@@ -2796,7 +2649,8 @@
         "A": {
           "char": "ananya",
           "caption": "Is ghar mein sirf ek insaan asli nikla. Tum jaante ho kaun. 🌙 #Day8"
-        }
+        },
+        "B": null
       },
       "reader": [
         {
@@ -2896,16 +2750,6 @@
           ]
         }
       ],
-      "feedReaction": {
-        "A": {
-          "char": "ria",
-          "caption": "10 din. Aur ek {p|banda/bandi} jo actually game played — aur human bhi {p|raha/rahi}. 🤍 #Day9"
-        },
-        "B": {
-          "char": "kabir",
-          "caption": "Kal finale hai. Aur main genuinely excited hoon is ke liye. 🔥 #Day9"
-        }
-      },
       "reader": [
         {
           "t": "nar",
@@ -2991,28 +2835,11 @@
             "ananya": -5,
             "kabir": -4,
             "ria": 3
-          },
-          "dm": [
-            {
-              "char": "ria",
-              "text": "Tumne slot le liya. Finale-level move. 👑"
-            },
-            {
-              "char": "ria",
-              "text": "Yahi farak hai players aur dosto mein."
-            },
-            {
-              "char": "ria",
-              "text": "Kal sab dekhenge tum sach mein kaun ho."
-            }
-          ]
+          }
         }
       ],
       "feedReaction": {
-        "A": {
-          "char": "kabir",
-          "caption": "Is ghar mein ek {p|banda/bandi} {p|tha/thi} jo apne values pe {p|tikka/tikki} {p|raha/rahi}. You know who. 🔥 #Day9"
-        },
+        "A": null,
         "B": {
           "char": "ria",
           "caption": "Finale decisions reveal character. Always. 👑 #CreatorHouse #Day9"
@@ -3181,7 +3008,7 @@
           "reactions": [
             {
               "char": "ananya",
-              "text": "Tumne sab ke saamne bola. 🥺 Main ye kabhi nahi bhoolungi."
+              "text": "Tumne sab ke saamne bola. 🥺 Main ye kabhi nahi {x|bhoolunga/bhoolungi}."
             },
             {
               "char": "__fan",

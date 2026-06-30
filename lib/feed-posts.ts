@@ -4,7 +4,7 @@
 import type { CharId, Character, Choice, ChoicePost, GameState, Meters, Reaction, Situation } from './types'
 import { getVisibleSituations } from './ch-rules'
 import { getCricketChars, getCHChars, getCricketSituations } from './content'
-import { applyDeltas } from './game'
+import { applyDeltas, chCharForGender } from './game'
 
 // Character post-card colours (must echo .c-{id}{--cc} in globals.css).
 export const CHAR_COLORS_HEX: Record<string, string> = {
@@ -68,7 +68,8 @@ export function derivePosts(game: GameState): FeedPost[] {
 
     const reaction = isCricket ? null : sit.feedReaction?.[letter]
     if (reaction) {
-      const char = allChars[reaction.char as CharId]
+      // Render the gender-correct creator (crush/ally swap for female players).
+      const char = allChars[chCharForGender(reaction.char, game.playerGender) as CharId]
       if (char) posts.push({ type: 'npc', postId: `react-${sit.id}-${letter}`, sit, stepIndex: i, postOffset: 2, choice: letter, reaction, char })
     }
 
@@ -84,7 +85,7 @@ export function derivePosts(game: GameState): FeedPost[] {
             return { id: '__account', cls: '', init: authoredPost.avatarText ?? (authoredPost.name ?? handle)[0]?.toUpperCase() ?? 'U', handle, color: '#003087', isPlayer: false }
           }
           if (authoredPost.source === 'character' && authoredPost.char) {
-            const c = allChars[authoredPost.char]
+            const c = allChars[chCharForGender(authoredPost.char, game.playerGender) as CharId]
             if (!c) return null
             return { id: c.id, cls: c.cls, init: c.init, handle: c.handle, avatarUrl: `/avatars/${c.id}.png`, color: CHAR_COLORS_HEX[c.id] ?? '#1a1a2e', isPlayer: false, likeTarget: c.id as CharId }
           }

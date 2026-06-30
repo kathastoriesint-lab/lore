@@ -6,7 +6,7 @@ import { getVisibleSituations } from '@/lib/ch-rules'
 import { getCricketChars, getCricketSituations, getCricketEndingData, getCricketDMTrustStart, getCHChars } from '@/lib/content'
 import { resolveCricketEnding } from '@/lib/cricket-rules'
 import { getWeek, weekForSituationId, SEASON_WEEKS } from '@/lib/season'
-import { getStats, clamp, resolveEnding, resolveTokens, fameToFollowers } from '@/lib/game'
+import { getStats, clamp, resolveEnding, resolveTokens, fameToFollowers, chCharForGender } from '@/lib/game'
 import { sentimentDelta } from '@/lib/relationships'
 import MeterHUD from '@/components/MeterHUD'
 import GoalCard from '@/components/GoalCard'
@@ -252,8 +252,14 @@ export default function LiveScreen() {
     setRevealed([]); setReaderBusy(false); setReaderShowTap(false); setReaderComplete(false)
 
     const resolve = (t?: string) => resolveTokens(t ?? '', game.playerName, game.playerGender)
+    // Swap the cue avatar to the gender-correct creator (crush/ally flip for female players),
+    // so the face matches the resolved {crush}/{ally} name.
+    const swapAv = (av?: string) => {
+      const m = av?.match(/\/avatars\/(\w+)\.png/)
+      return m ? `/avatars/${chCharForGender(m[1], game.playerGender)}.png` : av
+    }
     const stream = blocks.map(blk => blk.t === 'cue'
-      ? { t: 'msg' as const, who: resolve(blk.who), av: blk.avatar, text: resolve(blk.text) }
+      ? { t: 'msg' as const, who: resolve(blk.who), av: swapAv(blk.avatar), text: resolve(blk.text) }
       : blk.t === 'img'
         ? { t: 'img' as const, src: blk.src, cap: blk.text ? resolve(blk.text) : '', h: blk.h, pos: blk.pos }
         : { t: 'nar' as const, text: resolve(blk.text), big: blk.big })
@@ -496,11 +502,15 @@ export default function LiveScreen() {
       // feed. If you engaged a character (the choice's primary DM, e.g. "talk to
       // Ananya"), you're taken straight into their thread; other characters' reactions
       // arrive as app-wide notifications. A choice with no DM just cuts to the feed.
-      const primary = dmsToInject[0]?.char
-      dmsToInject.forEach((d, i) => addTimer(() => {
-        if (d.char === primary) injectCharDM(d.char, r(d.text))
-        else notifyDM(d.char, r(d.text))
-      }, 150 + i * 220))
+      // Swap kabir<->ananya for female players so a crush/ally DM lands in the right thread.
+      const primary = dmsToInject[0] ? (chCharForGender(dmsToInject[0].char, game.playerGender) as CharId) : undefined
+      dmsToInject.forEach((d, i) => {
+        const cid = chCharForGender(d.char, game.playerGender) as CharId
+        addTimer(() => {
+          if (cid === primary) injectCharDM(cid, r(d.text))
+          else notifyDM(cid, r(d.text))
+        }, 150 + i * 220)
+      })
       addTimer(() => { doReset(); if (primary) openDMThread(primary); else navigate('feed') }, 520)
       return
     }
@@ -784,7 +794,7 @@ export default function LiveScreen() {
             of {queue.length}
           </div>
           <div style={{ fontFamily: 'var(--serif)', fontWeight: 500, fontSize: 20, color: 'rgba(255,255,255,.6)', marginTop: 6, animation: 'fadeIn .3s ease .2s both', opacity: 0 }}>
-            {nextSitForBeat.title}
+            {r(nextSitForBeat.title)}
           </div>
         </div>
       )}

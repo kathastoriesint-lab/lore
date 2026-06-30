@@ -42,6 +42,16 @@ export default function DMThreadScreen() {
   const [, tick] = useState(0)
   const hasStarted = messages.length > 0
 
+  // WhatsApp-style arrival: messages that landed since you last opened this thread
+  // drip in one at a time (typing → bubble), instead of appearing all at once.
+  // Already-seen messages show instantly; live chat replies are untouched.
+  const SEEN_KEY = 'lore_dm_seen_v1'
+  const getSeen = (cid: string) => { try { return (JSON.parse(localStorage.getItem(SEEN_KEY) || '{}'))[cid] ?? 0 } catch { return 0 } }
+  const setSeen = (cid: string, n: number) => { try { const s = JSON.parse(localStorage.getItem(SEEN_KEY) || '{}'); s[cid] = n; localStorage.setItem(SEEN_KEY, JSON.stringify(s)) } catch {} }
+  const [revealCount, setRevealCount] = useState(0)
+  const [dripActive, setDripActive] = useState(false)
+  const dripTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
   // Creator House: establish who this person is to YOU at the top of the thread —
   // crisp + helpful (the dossier is the deep bible; this is the living relationship).
   const chContext = useMemo(() => {
@@ -125,11 +135,33 @@ export default function DMThreadScreen() {
     return () => clearInterval(t)
   }, [isLocked])
 
-  // Scroll to bottom on new messages
+  // Scroll to bottom on new / dripping messages
   useEffect(() => {
     const el = chatRef.current
     if (el) requestAnimationFrame(() => { el.scrollTop = el.scrollHeight })
-  }, [messages.length, typing])
+  }, [messages.length, typing, revealCount, dripActive])
+
+  // Keep all messages visible — except while a drip is animating new arrivals.
+  useEffect(() => { if (!dripActive) setRevealCount(messages.length) }, [messages.length, dripActive])
+
+  // On opening a thread: drip in any messages that arrived since you last saw it.
+  useEffect(() => {
+    if (!charId) return
+    const total = (dmHistory[charId] ?? []).length
+    const seen = getSeen(charId)
+    if (total <= seen) { if (total !== seen) setSeen(charId, total); return }
+    setDripActive(true)
+    setRevealCount(seen)
+    let n = seen
+    const step = () => {
+      n += 1; setRevealCount(n); setSeen(charId, n)
+      if (n >= total) { setDripActive(false); dripTimerRef.current = null; return }
+      dripTimerRef.current = setTimeout(step, 850)
+    }
+    dripTimerRef.current = setTimeout(step, 650)
+    return () => { if (dripTimerRef.current) { clearTimeout(dripTimerRef.current); dripTimerRef.current = null } setDripActive(false) }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [charId])
 
   // Smart Reply is OPT-IN: people type their own replies by default. Tapping the
   // lightbulb fetches one contextual suggestion for whatever was just said.
@@ -325,7 +357,7 @@ export default function DMThreadScreen() {
             Message bhejo — {char.name.split(' ')[0]} se baat yahin banti ya bigadti hai.
           </div>
         )}
-        {messages.map((msg, i) => {
+        {messages.slice(0, revealCount).map((msg, i) => {
           const isIn = msg.role === 'char'
           const isOut = msg.role === 'me'
           const prevMsg = i > 0 ? messages[i - 1] : null
@@ -352,8 +384,8 @@ export default function DMThreadScreen() {
           )
         })}
 
-        {/* Typing indicator while waiting for AI reply */}
-        {typing && (
+        {/* Typing indicator — for AI replies AND while new messages drip in */}
+        {(typing || (dripActive && revealCount < messages.length)) && (
           <div style={{ display:'flex', flexDirection:'column' }}>
             <div className="msg-av">
               <div className={`av ${char.cls}`} style={{ width:22, height:22, fontSize:10 }}>{char.init}</div>

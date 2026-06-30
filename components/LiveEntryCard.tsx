@@ -44,6 +44,7 @@ export default function LiveEntryCard() {
   const eyebrow = isCricket
     ? `SITUATION ${game.situation + 1} · ${nextSit.tag.split('·')[1]?.trim() ?? 'NEXT'}`
     : `NEXT CHOICE · DAY ${nextSit.day}`
+  const title = resolveTokens(nextSit.title ?? '', game.playerName, game.playerGender)
   const sub = resolveTokens(nextSit.body[0] ?? '', game.playerName, game.playerGender)
     .replace(/<[^>]+>/g, '').slice(0, 76)
 
@@ -57,7 +58,7 @@ export default function LiveEntryCard() {
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div className="le-eye">{eyebrow}</div>
-            <div className="le-ttl">{nextSit.title}</div>
+            <div className="le-ttl">{title}</div>
             <div className="le-sub">{sub}…</div>
           </div>
           <svg className="le-chev" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M9 6l6 6-6 6" /></svg>

@@ -137,12 +137,20 @@ const CRICKET_IDS = new Set(['hardik','rohit','surya','bumrah','tilak','coach','
 export function relationshipFor(charId: string, gender: 'male' | 'female'): Relationship | null {
   if (CRICKET_IDS.has(charId)) return CRICKET_REL[charId] ?? null
 
-  // Creator House: crush = opposite gender, ally = same gender. kabir/ananya swap.
+  // Creator House: crush = opposite-gender creator, ally = same-gender. The character
+  // keeps its OWN tagline/about (Kabir is always the chaos guy, Ananya the genuine one),
+  // but the LABEL + bond LADDER follow the ROLE — so a female player's Kabir-crush gets the
+  // romance ladder and Ananya-ally gets the bro ladder.
   if (charId === 'kabir' || charId === 'ananya') {
     const rel = { ...CREATOR_REL[charId]! }
     const isCrush = gender === 'male' ? charId === 'ananya' : charId === 'kabir'
-    if (isCrush) { rel.label = 'YOUR CRUSH'; rel.labelColor = '#3DD6C8' }
-    else         { rel.label = 'YOUR ALLY';  rel.labelColor = '#3DD6C8' }
+    if (isCrush) {
+      rel.label = 'YOUR CRUSH'; rel.labelColor = '#3DD6C8'
+      rel.spectrumLeft = 'Strangers'; rel.spectrumRight = 'Something Real'
+    } else {
+      rel.label = 'YOUR ALLY'; rel.labelColor = '#3DD6C8'
+      rel.spectrumLeft = 'Distant'; rel.spectrumRight = 'Ride or Die'
+    }
     return rel
   }
   return CREATOR_REL[charId] ?? null
@@ -258,7 +266,7 @@ function collectMoment(
     sitId: sit.id,
     day: sit.day,
     tag: sit.tag,
-    title: sit.title,
+    title: r(sit.title),
     text,
     delta: sentimentDelta(text),
   })

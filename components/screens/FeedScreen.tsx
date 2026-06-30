@@ -62,15 +62,9 @@ const Heart = ({ filled }: { filled: boolean }) => (
   </svg>
 )
 
-// Comment + paper-plane icons used across the feed action row.
+// Comment icon used across the feed action row.
 const CommentIcon = ({ active }: { active?: boolean }) => (
   <svg viewBox="0 0 24 24" fill="none" stroke={active ? 'var(--accent)' : '#fff'} strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-)
-const RepostIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
-)
-const SendIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
 )
 
 // Compact counts for the feed action row (2.1M, 324.2K, 2.7K) — matches the mock.
@@ -79,25 +73,22 @@ const compactCount = (n: number) =>
   : n >= 1000 ? (n / 1000).toFixed(1).replace(/\.0$/, '') + 'K'
   : String(n)
 const likeNum = (s: string) => parseInt(s.replace(/[^0-9]/g, ''), 10) || 0
-// Plausible comment + repost counts derived from a like number, so every post
-// carries the full ♡ · 💬 · ↻ · ✈ chain even when only likes were authored.
+// Plausible comment count derived from a like number, so every post shows a
+// comment tally even when only likes were authored.
 const sideCounts = (likes: number) => ({
   comments: compactCount(Math.max(3, Math.round(likes * 0.004))),
-  reposts: compactCount(Math.max(1, Math.round(likes * 0.009))),
 })
 
-// Unified action row — each icon carries its count inline (♡ · 💬 · ↻ · ✈).
+// Unified action row — like + comment, each with its count inline (♡ · 💬).
 // `like`/`comment` are the post's own (interactive) nodes; counts are strings.
-function ActionRow({ like, comment, likes, comments, reposts, tail }: {
+function ActionRow({ like, comment, likes, comments, tail }: {
   like: ReactNode; comment: ReactNode
-  likes: string; comments: string; reposts: string; tail?: ReactNode
+  likes: string; comments: string; tail?: ReactNode
 }) {
   return (
     <div className="post-actions pa-counts">
       <div className="pa-item">{like}<span>{likes}</span></div>
       <div className="pa-item">{comment}<span>{comments}</span></div>
-      <div className="pa-item"><RepostIcon /><span>{reposts}</span></div>
-      <div className="pa-item" style={{ cursor: 'default' }}><SendIcon /></div>
       {tail}
     </div>
   )
@@ -167,7 +158,6 @@ function SeedPost({ id, charId, onViewChar, bg, caption, fullCaption, likes, tim
         }
         likes={compactCount(likeNum(likes))}
         comments={sideCounts(likeNum(likes)).comments}
-        reposts={sideCounts(likeNum(likes)).reposts}
       />
       {isOpen && !commented && (
         <CommentComposer
@@ -266,7 +256,6 @@ function CricketSeedFeed({ likedPosts, commentedPosts, onLike, onComment, commen
           }
           likes={compactCount(likeNum(likes))}
           comments={sideCounts(likeNum(likes)).comments}
-          reposts={sideCounts(likeNum(likes)).reposts}
         />
         {commentOpen === id && comments.length > 0 && !commented && (
           <div className="comment-sheet">
@@ -322,7 +311,7 @@ function CricketSeedFeed({ likedPosts, commentedPosts, onLike, onComment, commen
                   ? <button onClick={() => onComment(commentOpen === 'paltan-seed' ? null : 'paltan-seed')}><CommentIcon active={commentOpen==='paltan-seed'} /></button>
                   : <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.3)" strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
               }
-              likes={compactCount(94102)} comments={sideCounts(94102).comments} reposts={sideCounts(94102).reposts}
+              likes={compactCount(94102)} comments={sideCounts(94102).comments}
             />
             {commentOpen === 'paltan-seed' && !hwCommented && (
               <div className="comment-sheet">
@@ -374,7 +363,7 @@ function CricketSeedFeed({ likedPosts, commentedPosts, onLike, onComment, commen
                 </button>
               }
               comment={<CommentIcon />}
-              likes={compactCount(29441)} comments={sideCounts(29441).comments} reposts={sideCounts(29441).reposts}
+              likes={compactCount(29441)} comments={sideCounts(29441).comments}
             />
             <div className="caption"><b>cricketroom_india</b> Trust takes time. Hype doesn't.</div>
             <div className="ts" style={{ padding:'2px 14px 12px' }}>45 MINUTES AGO</div>
@@ -408,7 +397,7 @@ function CricketSeedFeed({ likedPosts, commentedPosts, onLike, onComment, commen
                 </button>
               }
               comment={<CommentIcon />}
-              likes={compactCount(182204)} comments={sideCounts(182204).comments} reposts={sideCounts(182204).reposts}
+              likes={compactCount(182204)} comments={sideCounts(182204).comments}
             />
             <div className="caption"><b>futurexi</b> This is only the beginning. 🏏</div>
             <div className="ts" style={{ padding:'2px 14px 12px' }}>2 HOURS AGO</div>
@@ -620,7 +609,7 @@ export default function FeedScreen() {
               <ActionRow
                 like={<svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>}
                 comment={<CommentIcon />}
-                likes={compactCount(likeNum(feedLikes(i, isCricket)))} comments={sideCounts(likeNum(feedLikes(i, isCricket))).comments} reposts={sideCounts(likeNum(feedLikes(i, isCricket))).reposts}
+                likes={compactCount(likeNum(feedLikes(i, isCricket)))} comments={sideCounts(likeNum(feedLikes(i, isCricket))).comments}
               />
               <div className="caption"><b>{alert.handle}</b> {resolveTokens(alert.caption, game.playerName, game.playerGender)}</div>
               <div className="ts" style={{ padding:'2px 14px 12px' }}>{timeLabel.toUpperCase()}</div>
@@ -683,8 +672,6 @@ export default function FeedScreen() {
                     <CommentIcon />
                     <span>{shownReactions.length}</span>
                   </div>
-                  <div className="pa-item"><RepostIcon /><span>{sideCounts(likesVal).reposts}</span></div>
-                  <div className="pa-item" style={{ cursor: 'default' }}><SendIcon /></div>
                   {isRevealing && climbing && <span className="feed-livetag" style={{ marginLeft: 'auto' }}>▲ live</span>}
                 </div>
                 <div className="caption"><b>{pc.handle}</b> {resolveTokens(post.caption, game.playerName, game.playerGender)}</div>
@@ -743,7 +730,7 @@ export default function FeedScreen() {
                     ? <button onClick={() => setCommentPost(commentPost === post.postId ? null : post.postId)}><CommentIcon active={commentPost===post.postId} /></button>
                     : <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.3)" strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                 }
-                likes={compactCount(likeNum(feedLikes(i, isCricket)))} comments={sideCounts(likeNum(feedLikes(i, isCricket))).comments} reposts={sideCounts(likeNum(feedLikes(i, isCricket))).reposts}
+                likes={compactCount(likeNum(feedLikes(i, isCricket)))} comments={sideCounts(likeNum(feedLikes(i, isCricket))).comments}
               />
               <div className="caption"><b>{reactChar.handle}</b> {resolveTokens(post.reaction.caption, game.playerName, game.playerGender)}</div>
               {commentPost === post.postId && !commented && (
@@ -823,7 +810,7 @@ export default function FeedScreen() {
                     ? <button onClick={() => setCommentPost(commentPost === 'housewatch' ? null : 'housewatch')}><CommentIcon active={commentPost==='housewatch'} /></button>
                     : <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.3)" strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                 }
-                likes={compactCount(94102)} comments={sideCounts(94102).comments} reposts={sideCounts(94102).reposts}
+                likes={compactCount(94102)} comments={sideCounts(94102).comments}
               />
               {commentPost === 'housewatch' && !hwCommented && (
                 <div className="comment-sheet">

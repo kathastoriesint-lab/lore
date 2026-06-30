@@ -3,17 +3,16 @@ import { useEffect, useState } from 'react'
 import { useApp } from '@/lib/context'
 import type { CharId } from '@/lib/types'
 
-// Short personas that shape each creator's DM reaction. (Enrich later from content.)
-const CH_PERSONAS: Record<string, string> = {
+// Personas that shape each creator's DM reaction. The crush + ally are ROLE-based
+// (the same dynamic whether the crush is Ananya or Kabir) and resolved per player
+// gender below — so a female player's Kabir-crush speaks with the crush voice.
+const CHAR_PERSONAS: Record<string, string> = {
   ria: "the house's polished queen bee — image-obsessed, cutting, never rattled",
   zoya: 'a sharp schemer who reads everyone and plays mind-games — sweet, then savage',
-  kabir: 'the loud, loyal hype-man — warm, all heart, your closest ally',
-  ananya: 'your ex from three years ago — guarded, real, quietly watching you',
   dev: 'the quiet observer — dry humor, allergic to drama',
-  meher: 'a bubbly lifestyle creator who loves the spotlight',
-  rishi: 'a chill fitness creator, blunt and competitive',
-  adi: 'a chaotic prankster who lives for reactions',
 }
+const CRUSH_PERSONA = 'the one you share a history with from a few years ago — guarded, real, an unspoken almost-something, quietly watching you'
+const ALLY_PERSONA  = 'your loud, loyal ride-or-die — warm, all heart, hypes you up and films the chaos'
 
 interface Props {
   character: { id: string; name: string; handle: string }
@@ -25,11 +24,17 @@ interface Props {
 // character's DM, sentiment-matched (negative always; positive once per character),
 // with the post embedded in the thread.
 export default function CommentComposer({ character, post, onDone }: Props) {
-  const { notifyDM } = useApp()
+  const { notifyDM, game } = useApp()
   const [suggestions, setSuggestions] = useState<string[]>([])
   const [draft, setDraft] = useState('')
   const [sent, setSent] = useState(false)
-  const persona = CH_PERSONAS[character.id] || 'a Creator House contestant'
+  const persona = (() => {
+    if (character.id === 'kabir' || character.id === 'ananya') {
+      const isCrush = game.playerGender === 'male' ? character.id === 'ananya' : character.id === 'kabir'
+      return isCrush ? CRUSH_PERSONA : ALLY_PERSONA
+    }
+    return CHAR_PERSONAS[character.id] || 'a Creator House contestant'
+  })()
 
   useEffect(() => {
     let alive = true

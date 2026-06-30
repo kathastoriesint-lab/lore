@@ -416,15 +416,38 @@ export function charMeters(_charId: CharId): Meters {
 }
 
 // ── Token resolution ──────────────────────────────────────────────────────────
+/**
+ * Creator House: the CRUSH is the opposite-gender creator, the ALLY the same-gender one.
+ * Content authors the crush as 'ananya' and the ally as 'kabir' (the male-player default);
+ * for a FEMALE player the two creators swap. This resolves a content char id to the
+ * DISPLAY char id (name, avatar, relationship) that should actually be shown.
+ * The single source of truth for the kabir<->ananya swap — use everywhere a CH char is rendered.
+ */
+export function chCharForGender(charId: string, gender: 'male' | 'female'): string {
+  if (gender !== 'female') return charId
+  if (charId === 'kabir') return 'ananya'
+  if (charId === 'ananya') return 'kabir'
+  return charId
+}
+
+/** The crush / ally creator id for a Creator House player (gender-aware). */
+export const crushId = (gender: 'male' | 'female'): 'ananya' | 'kabir' => (gender === 'female' ? 'kabir' : 'ananya')
+export const allyId  = (gender: 'male' | 'female'): 'ananya' | 'kabir' => (gender === 'female' ? 'ananya' : 'kabir')
+
 export function resolveTokens(text: string, playerName: string, playerGender: 'male' | 'female', friendName = 'Maddy'): string {
   const male = playerGender === 'male'
   const crush = male ? 'Ananya' : 'Kabir'
   const ally  = male ? 'Kabir'  : 'Ananya'
+  // Handles follow the role, so an @-mention of the ally/crush is the right creator per gender.
+  const crushHandle = male ? 'ananya.creates' : 'kabirlol'
+  const allyHandle  = male ? 'kabirlol' : 'ananya.creates'
   return text
     .replaceAll('{name}', playerName || 'Tum')
     .replaceAll('{friend}', friendName)
     .replaceAll('{crush}', crush)
     .replaceAll('{ally}', ally)
+    .replaceAll('{crushHandle}', crushHandle)
+    .replaceAll('{allyHandle}', allyHandle)
     // Gendered word forms, always written {token|male-form/female-form}:
     //   {p|…}  → player & same-gender refs (the ally is always the player's gender)
     //   {x|…}  → crush & opposite-gender refs (the crush is always the opposite gender)

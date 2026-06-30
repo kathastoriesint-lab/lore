@@ -309,7 +309,7 @@ export default function App() {
       localStorage.removeItem('lore_pending_world')
       localStorage.setItem('lore_feed_seen', '1')
       localStorage.removeItem('lore_dm_openers_v1')
-      localStorage.removeItem('lore_dm_cap')
+      localStorage.removeItem('lore_dm_cap'); localStorage.removeItem('lore_dm_seen_v1')
       const cricketState: GameState = {
         playerName: name, playerGender: gender, avatarUrl,
         world: 'cricket', char: 'player',
@@ -351,7 +351,7 @@ export default function App() {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('lore_feed_seen')
       localStorage.removeItem('lore_dm_openers_v1') // fresh run re-seeds openers
-      localStorage.removeItem('lore_dm_cap')        // fresh run clears DM throttle
+      localStorage.removeItem('lore_dm_cap'); localStorage.removeItem('lore_dm_seen_v1')        // fresh run clears DM throttle
     }
     // Land on the Feed (the world hub) — Live is entered from the Feed/Messages
     // banner, not as the first screen.
@@ -376,7 +376,7 @@ export default function App() {
     if (typeof window !== 'undefined') {
       localStorage.setItem('lore_feed_seen', '1')
       localStorage.removeItem('lore_dm_openers_v1') // fresh run re-seeds openers
-      localStorage.removeItem('lore_dm_cap')        // fresh run clears DM throttle
+      localStorage.removeItem('lore_dm_cap'); localStorage.removeItem('lore_dm_seen_v1')        // fresh run clears DM throttle
     }
     navigate('feed')
   }, [game.playerName, game.playerGender, saveAndSet, navigate])
@@ -903,7 +903,7 @@ export default function App() {
   const resetGame = useCallback(async () => {
     await resetGameState()
     if (typeof window !== 'undefined') {
-      localStorage.removeItem('lore_dm_cap')
+      localStorage.removeItem('lore_dm_cap'); localStorage.removeItem('lore_dm_seen_v1')
       localStorage.removeItem('lore_feed_seen')
       localStorage.removeItem('lore_dm_openers_v1')
     }
