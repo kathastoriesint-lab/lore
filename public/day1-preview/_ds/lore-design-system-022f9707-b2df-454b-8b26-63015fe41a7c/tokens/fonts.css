@@ -1,0 +1,8 @@
+/* ============================================================
+   Lore — Fonts
+   Fraunces (display serif) + Poppins (UI sans), loaded from Google Fonts.
+   These two faces ARE the brand. The source app loads the same CDN faces.
+   If you need an offline build, self-host these and replace the @import.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Poppins:wght@400;500;600;700;800&display=swap');

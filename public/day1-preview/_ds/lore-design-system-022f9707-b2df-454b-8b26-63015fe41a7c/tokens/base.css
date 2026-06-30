@@ -1,0 +1,65 @@
+/* ============================================================
+   Lore — Base / reset
+   Minimal foundation. Component styling lives inline against tokens
+   (DESIGN.md rule: no hardcoded hex in components — variables only).
+   ============================================================ */
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  margin: 0;
+  padding: 0;
+}
+
+html, body { height: 100%; }
+
+html { font-family: var(--sans); }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
+}
+
+a { color: inherit; }
+
+::selection { background: var(--accent-ring); color: #fff; }
+
+/* ── Shared keyframes the brand reuses ── */
+
+/* Live pulse — the LIVE dot's expanding ring */
+@keyframes lore-pulse { 0% { transform: scale(.6); opacity: .6 } 100% { transform: scale(2.6); opacity: 0 } }
+
+/* Meter value flash when a number changes */
+@keyframes lore-meter-flash { 0% { color: #fff; transform: scale(1.4) } 100% { transform: scale(1) } }
+
+/* Logo ring rotation */
+@keyframes lore-spin { to { transform: rotate(360deg) } }
+
+/* Card / sheet slide-up arrival */
+@keyframes lore-slide-up { from { opacity: 0; transform: translateY(24px) } to { opacity: 1; transform: none } }
+
+/* Delta chip flying up out of a meter */
+@keyframes lore-chip-rise { 0% { opacity: 0; transform: translateY(6px) } 15% { opacity: 1; transform: translateY(0) } 75% { opacity: 1 } 100% { opacity: 0; transform: translateY(-10px) } }
+
+/* ── Reusable utility: film grain overlay ──
+   Put on a positioned element to add the signature texture. */
+.lore-grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--grain);
+  background-size: 160px 160px;
+  opacity: .4;
+  pointer-events: none;
+}

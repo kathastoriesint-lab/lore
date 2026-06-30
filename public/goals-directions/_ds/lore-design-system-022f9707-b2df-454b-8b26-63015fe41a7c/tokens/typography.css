@@ -1,0 +1,50 @@
+/* ============================================================
+   Lore — Typography
+   Two typefaces, no exceptions. system-ui is a fallback, never the render.
+   Fraunces  → display, titles, choice questions, dramatic / emotional text
+   Poppins   → all body, UI labels, buttons, numbers, data
+   ============================================================ */
+
+:root {
+  /* ── Families ── */
+  --serif: "Fraunces", Georgia, "Times New Roman", serif; /* @kind font */
+  --sans:  "Poppins", system-ui, -apple-system, sans-serif; /* @kind font */
+
+  --font-display: var(--serif); /* @kind font */
+  --font-ui:      var(--sans); /* @kind font */
+
+  /* ── Weights ── */
+  --fw-display:    600;  /* @kind font */
+  --fw-display-md: 500;  /* @kind font */
+  --fw-regular:    400;  /* @kind font */
+  --fw-medium:     500;  /* @kind font */
+  --fw-semibold:   600;  /* @kind font */
+  --fw-bold:       700;  /* @kind font */
+  --fw-heavy:      800;  /* @kind font */
+
+  /* ── Type scale (px) ──
+     Mobile-native rhythm. Display sizes are Fraunces; the rest Poppins. */
+  --fs-display-xl: 44px;  /* world intro / ending hero serif */
+  --fs-display-lg: 34px;  /* screen-title serif */
+  --fs-display-md: 26px;  /* card / world name serif */
+  --fs-display-sm: 22px;  /* situation title serif */
+  --fs-title:      17px;  /* section / app-bar titles (sans, bold) */
+  --fs-body:       15px;  /* narrator body, inputs */
+  --fs-base:       14px;  /* default UI text, captions, messages */
+  --fs-sm:         13px;  /* secondary lines */
+  --fs-xs:         12px;  /* meta, sub-labels */
+  --fs-2xs:        11px;  /* timestamps, tab labels */
+  --fs-3xs:        10px;  /* tiny meta */
+  --fs-eyebrow:    9px;   /* meter labels, status eyebrows (UPPERCASE + tracking) */
+
+  /* ── Line heights ── */
+  --lh-tight:   1.05;  /* @kind font */
+  --lh-snug:    1.2;   /* @kind font */
+  --lh-body:    1.5;   /* @kind font */
+  --lh-prose:   1.6;   /* @kind font */
+
+  /* ── Letter spacing ── */
+  --ls-display: -0.01em;  /* @kind font */
+  --ls-eyebrow: 0.08em;   /* @kind font */
+  --ls-wide:    0.12em;   /* @kind font */
+}

@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/lore-design-system-022f9707-b2df-454b-8b26-63015fe41a7c/tokens/fonts.css">
+<link rel="stylesheet" href="_ds/lore-design-system-022f9707-b2df-454b-8b26-63015fe41a7c/tokens/colors.css">
+<link rel="stylesheet" href="_ds/lore-design-system-022f9707-b2df-454b-8b26-63015fe41a7c/tokens/typography.css">
+<link rel="stylesheet" href="_ds/lore-design-system-022f9707-b2df-454b-8b26-63015fe41a7c/tokens/spacing.css">
+<style>
+body{margin:0;background:#e8e8ec;font-family:var(--sans);}
+*{box-sizing:border-box;}
+.col{display:flex;flex-direction:column;gap:16px;width:390px;}
+/* labels on the gray canvas */
+.flabel{cursor:grab;}
+.fhead{display:flex;align-items:center;gap:9px;}
+.fnum{font:800 13px var(--sans);color:#9a9aa2;letter-spacing:.04em;}
+.ftag{font:800 9.5px var(--sans);letter-spacing:.14em;color:#fff;background:var(--accent);border-radius:30px;padding:4px 10px;text-transform:uppercase;}
+.fname{font-family:var(--serif);font-weight:600;font-size:25px;color:#16161c;margin-top:8px;line-height:1.05;}
+.fdesc{font:500 12.5px/1.55 var(--sans);color:#4a4a54;margin-top:7px;}
+.cap{font:800 8.5px var(--sans);letter-spacing:.15em;text-transform:uppercase;color:#8a8a93;margin:6px 2px -4px;}
+.trade{display:flex;gap:9px;align-items:flex-start;font:500 12px/1.5 var(--sans);color:var(--ink2);background:#16161b;border:1px solid #26262e;border-radius:13px;padding:12px 13px;}
+.trade svg{flex:none;margin-top:1px;color:var(--accent);}
+.trade b{color:#fff;font-weight:700;}
+/* phone frame */
+.ph{position:relative;width:390px;background:var(--bg);border-radius:36px;overflow:hidden;border:1px solid #25252d;box-shadow:0 26px 64px rgba(0,0,0,.4);}
+.sb{display:flex;align-items:center;justify-content:space-between;padding:12px 24px 2px;}
+.sbt{font:700 13px var(--sans);color:#fff;letter-spacing:.02em;}
+.sbi{display:flex;gap:6px;align-items:center;color:#fff;}
+.grain{position:absolute;inset:0;background:var(--grain);background-size:120px;opacity:.16;mix-blend-mode:overlay;pointer-events:none;}
+.feedpeek{padding:13px 16px 16px;border-top:1px solid var(--line);opacity:.45;}
+.fprow{display:flex;align-items:center;gap:10px;}
+.fpav{width:32px;height:32px;border-radius:50%;background-size:cover;background-position:center;flex:none;}
+.fpname{font:700 12.5px var(--sans);color:#fff;}
+.fpsub{font:500 10px var(--sans);color:var(--ink3);margin-top:1px;}
+.fpimg{height:74px;border-radius:12px;margin-top:11px;background-size:cover;background-position:center;border:1px solid var(--line);}
+.appbar{display:flex;align-items:center;justify-content:space-between;padding:8px 18px 12px;}
+.applogo{font-family:var(--serif);font-weight:600;font-size:18px;color:#fff;}
+.live{display:inline-flex;align-items:center;gap:6px;font:800 9px var(--sans);letter-spacing:.1em;color:#fff;}
+.livedot{position:relative;width:7px;height:7px;}
+.livedot b{position:absolute;inset:0;border-radius:50%;background:var(--accent);}
+.livedot i{position:absolute;inset:0;border-radius:50%;background:var(--accent);animation:lp 1.7s ease-out infinite;}
+@keyframes lp{0%{transform:scale(1);opacity:.6}70%{transform:scale(2.6);opacity:0}100%{opacity:0}}
+@keyframes glow{0%,100%{filter:drop-shadow(0 0 0px rgba(255,176,32,0))}50%{filter:drop-shadow(0 0 14px rgba(255,176,32,.55))}}
+@keyframes pop{0%{transform:scale(.6);opacity:0}60%{transform:scale(1.12)}100%{transform:scale(1);opacity:1}}
+.heart{color:var(--romance);}
+/* shared meter atoms */
+.bar{height:6px;border-radius:6px;background:rgba(255,255,255,.08);overflow:hidden;}
+.bar i{display:block;height:100%;border-radius:6px;}
+.amberfill{background:linear-gradient(90deg,#FFB020,#ff7a3a);}
+.pinkfill{background:linear-gradient(90deg,#ff6aa6,#ff2d78);}
+.chip{display:inline-flex;align-items:center;gap:5px;font:800 10px var(--sans);border-radius:30px;padding:4px 9px;}
+.upchip{color:#0b0b0e;background:var(--fame);animation:pop .5s var(--ease-pop,cubic-bezier(.34,1.56,.64,1)) both;}
+.pinkchip{color:#fff;background:var(--accent);}
+:root{--romance:#FF6AA6;}
+
+/* ============ A · THE CLIMB ============ */
+.a-hud{padding:14px 18px 16px;background:linear-gradient(180deg,rgba(255,176,32,.07),transparent 70%);}
+.a-top{display:flex;align-items:center;gap:11px;}
+.a-av{width:40px;height:40px;border-radius:50%;background:linear-gradient(140deg,#ff3aa0,#d11668);display:flex;align-items:center;justify-content:center;font:800 16px var(--sans);color:#fff;flex:none;}
+.a-handle{font:700 14px var(--sans);color:#fff;}
+.a-meta{font:500 10.5px var(--sans);color:var(--ink3);margin-top:1px;}
+.a-crushpill{margin-left:auto;display:flex;align-items:center;gap:7px;background:rgba(255,106,166,.12);border:1px solid rgba(255,106,166,.28);border-radius:30px;padding:5px 10px 5px 7px;}
+.a-crushav{width:22px;height:22px;border-radius:50%;background-size:cover;background-position:center;}
+.a-crushtier{font:800 11px var(--sans);color:var(--romance);}
+.a-crushlbl{font:600 8px var(--sans);letter-spacing:.08em;color:var(--ink3);text-transform:uppercase;}
+.a-bignum{font:800 52px var(--sans);color:var(--fame);letter-spacing:-.02em;line-height:1;margin-top:16px;animation:glow 3.4s ease-in-out infinite;}
+.a-goalrow{display:flex;align-items:baseline;justify-content:space-between;margin-top:8px;}
+.a-goallbl{font:700 10px var(--sans);letter-spacing:.04em;color:var(--ink2);}
+.a-goalto{font:800 10px var(--sans);color:var(--fame);}
+.a-bar{margin-top:9px;height:8px;}
+.a-sub{font:600 10.5px var(--sans);color:var(--ink3);margin-top:9px;}
+.a-sub b{color:#fff;font-weight:800;}
+.a-obj{margin:0 14px 14px;display:flex;align-items:center;gap:12px;border-radius:16px;padding:13px 15px;background:linear-gradient(110deg,rgba(255,45,120,.16),rgba(255,45,120,.04));border:1px solid rgba(255,45,120,.32);}
+.a-objicon{width:38px;height:38px;border-radius:11px;background:rgba(255,45,120,.16);display:flex;align-items:center;justify-content:center;flex:none;}
+.a-objttl{font:700 13.5px var(--sans);color:#fff;line-height:1.25;}
+.a-objsub{font:500 10.5px var(--sans);color:var(--ink2);margin-top:2px;}
+.a-deadline{font:800 8.5px var(--sans);letter-spacing:.1em;color:var(--accent);background:var(--accent-wash);border:1px solid var(--accent-ring);border-radius:30px;padding:4px 8px;flex:none;text-transform:uppercase;}
+/* A receipt */
+.a-rc{position:relative;border-radius:24px;overflow:hidden;background:radial-gradient(120% 90% at 50% 0%,rgba(255,176,32,.14),var(--surf) 64%);border:1px solid #2a2a30;padding:24px 20px 20px;}
+.a-rceye{font:800 9px var(--sans);letter-spacing:.15em;color:var(--ink3);text-transform:uppercase;text-align:center;}
+.a-rcnum{font:800 46px var(--sans);color:var(--fame);text-align:center;letter-spacing:-.02em;line-height:1;margin-top:8px;}
+.a-rcchip{display:flex;justify-content:center;margin-top:11px;}
+.a-rcrow{display:flex;align-items:center;gap:11px;padding:12px 0;border-top:1px solid var(--line);}
+.a-rcrow:first-of-type{margin-top:16px;}
+.a-rcav{width:30px;height:30px;border-radius:9px;background-size:cover;background-position:center;flex:none;}
+.a-rcic{width:30px;height:30px;border-radius:9px;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;flex:none;}
+.a-rcname{font:700 12px var(--sans);color:#fff;}
+.a-rcwhy{font:500 11px var(--sans);color:var(--ink3);margin-top:1px;}
+.a-rctag{margin-left:auto;font:800 11px var(--sans);}
+
+/* ============ B · SPLIT SPINE ============ */
+.b-hud{padding:14px;}
+.b-pillars{display:flex;align-items:stretch;gap:0;position:relative;}
+.b-pill{flex:1;border-radius:16px;padding:14px 13px;}
+.b-pl{background:linear-gradient(165deg,rgba(255,176,32,.13),rgba(255,176,32,.02));border:1px solid rgba(255,176,32,.26);}
+.b-pr{background:linear-gradient(165deg,rgba(255,106,166,.13),rgba(255,106,166,.02));border:1px solid rgba(255,106,166,.26);}
+.b-vs{width:34px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex:none;z-index:2;}
+.b-vsline{width:1px;flex:1;background:linear-gradient(180deg,transparent,#3a3a42,transparent);}
+.b-vsdot{width:26px;height:26px;border-radius:50%;background:var(--surf2);border:1px solid #34343c;display:flex;align-items:center;justify-content:center;font:800 8px var(--sans);color:var(--ink2);margin:5px 0;flex:none;}
+.b-peye{display:flex;align-items:center;gap:6px;font:800 8.5px var(--sans);letter-spacing:.1em;text-transform:uppercase;}
+.b-pamber{color:var(--fame);}.b-ppink{color:var(--romance);}
+.b-pnum{font:800 27px var(--sans);color:var(--fame);letter-spacing:-.01em;margin-top:9px;line-height:1;}
+.b-ptier{font-family:var(--serif);font-weight:600;font-size:22px;color:#fff;margin-top:8px;line-height:1;}
+.b-pmeta{font:600 9px var(--sans);color:var(--ink3);margin-top:7px;}
+.b-track{display:flex;gap:4px;margin-top:10px;}
+.b-track i{flex:1;height:4px;border-radius:3px;background:rgba(255,255,255,.1);}
+.b-track i.on{background:linear-gradient(90deg,var(--romance),var(--accent));}
+.b-pbar{margin-top:10px;height:5px;}
+.b-obj{margin:13px 14px 14px;border-radius:16px;overflow:hidden;border:1px solid rgba(255,45,120,.3);background:var(--surf);}
+.b-objtop{display:flex;align-items:center;gap:9px;padding:11px 14px;background:linear-gradient(100deg,rgba(255,45,120,.18),rgba(255,45,120,.05));}
+.b-objeye{font:800 8.5px var(--sans);letter-spacing:.13em;color:var(--accent);text-transform:uppercase;}
+.b-timer{margin-left:auto;display:flex;align-items:center;gap:5px;font:800 12px var(--sans);color:#fff;font-variant-numeric:tabular-nums;}
+.b-objbody{padding:11px 14px 13px;}
+.b-objttl{font:700 13.5px var(--sans);color:#fff;line-height:1.3;}
+.b-objsub{font:500 10.5px var(--sans);color:var(--ink2);margin-top:4px;}
+/* B receipt */
+.b-rc{border-radius:24px;overflow:hidden;background:var(--surf);border:1px solid #2a2a30;}
+.b-rceye{font:800 9px var(--sans);letter-spacing:.15em;color:var(--ink3);text-transform:uppercase;padding:16px 18px 0;}
+.b-rcsplit{display:flex;gap:11px;padding:13px 18px 4px;}
+.b-rchalf{flex:1;border-radius:14px;padding:13px;text-align:center;}
+.b-rcl{background:rgba(255,176,32,.08);border:1px solid rgba(255,176,32,.2);}
+.b-rcr{background:rgba(255,106,166,.08);border:1px solid rgba(255,106,166,.2);}
+.b-rchlbl{font:700 8px var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);}
+.b-rchnum{font:800 24px var(--sans);margin-top:5px;line-height:1;}
+.b-rchsub{font:600 9px var(--sans);margin-top:6px;}
+.b-rcnote{display:flex;gap:8px;align-items:flex-start;margin:8px 18px 18px;padding:11px 13px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid var(--line);font:500 11px/1.45 var(--sans);color:var(--ink2);}
+.b-rcnote b{color:#fff;font-weight:700;}
+
+/* ============ C · QUEST LOG ============ */
+.c-ribbon{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line);background:var(--surf2);}
+.c-rav{width:26px;height:26px;border-radius:50%;background:linear-gradient(140deg,#ff3aa0,#d11668);display:flex;align-items:center;justify-content:center;font:800 11px var(--sans);color:#fff;flex:none;}
+.c-rnum{font:800 14px var(--sans);color:var(--fame);}
+.c-rlbl{font:600 8px var(--sans);letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);}
+.c-rdiv{width:1px;height:24px;background:var(--line);}
+.c-rheart{display:flex;align-items:center;gap:6px;}
+.c-rtier{font:800 12px var(--sans);color:var(--romance);}
+.c-quest{margin:14px;border-radius:18px;overflow:hidden;border:1px solid rgba(255,45,120,.34);background:radial-gradient(120% 80% at 0% 0%,rgba(255,45,120,.12),var(--surf) 60%);box-shadow:0 0 30px rgba(255,45,120,.08);}
+.c-qtop{display:flex;align-items:center;gap:8px;padding:13px 15px 0;}
+.c-qeye{font:800 9px var(--sans);letter-spacing:.14em;color:var(--accent);text-transform:uppercase;}
+.c-qtimer{margin-left:auto;display:flex;align-items:center;gap:6px;background:var(--accent-wash);border:1px solid var(--accent-ring);border-radius:30px;padding:4px 9px;font:800 10px var(--sans);color:var(--accent);font-variant-numeric:tabular-nums;}
+.c-qttl{font-family:var(--serif);font-weight:600;font-size:22px;color:#fff;padding:9px 15px 0;line-height:1.1;}
+.c-qsub{font:500 11.5px/1.45 var(--sans);color:var(--ink2);padding:7px 15px 0;}
+.c-qally{display:flex;align-items:center;gap:8px;padding:14px 15px 6px;}
+.c-allyav{position:relative;width:42px;height:42px;border-radius:50%;background-size:cover;background-position:center;border:2px solid #2a2a32;flex:none;filter:grayscale(.5) brightness(.8);}
+.c-allyav.lead{border-color:var(--accent);filter:none;box-shadow:0 0 12px rgba(255,45,120,.4);}
+.c-allylbl{font:700 9px var(--sans);color:var(--ink3);}
+.c-qfoot{display:flex;align-items:center;gap:7px;padding:6px 15px 14px;font:600 10px var(--sans);color:var(--ink3);}
+.c-tier{margin:0 14px 14px;border-radius:16px;background:var(--surf);border:1px solid var(--line);padding:13px 15px;}
+.c-tiereye{display:flex;align-items:center;justify-content:space-between;}
+.c-tierl{font:800 8.5px var(--sans);letter-spacing:.12em;color:var(--romance);text-transform:uppercase;}
+.c-tiernext{font:600 9px var(--sans);color:var(--ink3);}
+.c-tiertrack{display:flex;align-items:center;margin-top:12px;}
+.c-node{width:13px;height:13px;border-radius:50%;background:var(--surf2);border:2px solid #34343c;flex:none;position:relative;z-index:2;}
+.c-node.done{background:var(--romance);border-color:var(--romance);}
+.c-node.cur{background:var(--accent);border-color:var(--accent);box-shadow:0 0 0 4px rgba(255,45,120,.18);}
+.c-seg{flex:1;height:2px;background:#2a2a32;}
+.c-seg.done{background:var(--romance);}
+.c-tierlabels{display:flex;justify-content:space-between;margin-top:9px;}
+.c-tierlabels span{font:600 7.5px var(--sans);color:var(--ink3);text-align:center;width:18%;}
+.c-tierlabels span.cur{color:#fff;font-weight:800;}
+/* C receipt */
+.c-rc{border-radius:24px;overflow:hidden;background:var(--surf);border:1px solid #2a2a30;}
+.c-rctop{padding:20px 18px;text-align:center;background:radial-gradient(110% 90% at 50% 0%,rgba(255,45,120,.16),transparent 70%);}
+.c-rcbadge{width:54px;height:54px;border-radius:50%;background:linear-gradient(140deg,#ff2d78,#b51552);display:flex;align-items:center;justify-content:center;margin:0 auto;box-shadow:0 8px 24px rgba(255,45,120,.4);animation:pop .5s var(--ease-pop,cubic-bezier(.34,1.56,.64,1)) both;}
+.c-rceye{font:800 9px var(--sans);letter-spacing:.15em;color:var(--accent);text-transform:uppercase;margin-top:12px;}
+.c-rcttl{font-family:var(--serif);font-weight:600;font-size:20px;color:#fff;margin-top:5px;}
+.c-rcally{display:flex;align-items:center;justify-content:center;gap:9px;margin-top:11px;}
+.c-rcallyav{width:30px;height:30px;border-radius:50%;background-size:cover;background-position:center;border:2px solid var(--accent);}
+.c-rcallytxt{font:700 12px var(--sans);color:#fff;}
+.c-rcsec{display:flex;padding:0 18px 16px;gap:11px;}
+.c-rcstat{flex:1;border-radius:13px;background:rgba(255,255,255,.03);border:1px solid var(--line);padding:12px;text-align:center;}
+.c-rcsnum{font:800 17px var(--sans);}
+.c-rcslbl{font:600 8.5px var(--sans);letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);margin-top:3px;}
+
+/* ============ D · STORY LEDGER ============ */
+.d-hud{padding:18px 20px 16px;}
+.d-eyebrow{font:800 8.5px var(--sans);letter-spacing:.18em;text-transform:uppercase;color:var(--ink3);}
+.d-foll{display:flex;align-items:baseline;gap:9px;margin-top:9px;}
+.d-follnum{font-family:var(--serif);font-weight:600;font-size:38px;color:#fff;letter-spacing:-.01em;line-height:1;}
+.d-follto{font:600 11px var(--sans);color:var(--ink3);}
+.d-follbar{height:2px;background:rgba(255,255,255,.1);margin-top:13px;position:relative;}
+.d-follbar i{display:block;height:100%;background:var(--fame);}
+.d-follbar b{position:absolute;top:-2px;height:6px;width:6px;border-radius:50%;background:var(--fame);box-shadow:0 0 8px var(--fame);}
+.d-rule{height:1px;background:var(--line);margin:17px 0;}
+.d-crush{display:flex;align-items:center;gap:12px;}
+.d-crushav{width:38px;height:38px;border-radius:50%;background-size:cover;background-position:center;flex:none;}
+.d-crushname{font:600 10px var(--sans);color:var(--ink3);letter-spacing:.02em;}
+.d-crushtier{font-family:var(--serif);font-weight:600;font-size:21px;color:#fff;margin-top:2px;line-height:1;}
+.d-ladder{display:flex;gap:5px;margin-top:8px;}
+.d-ladder i{width:17px;height:3px;border-radius:2px;background:rgba(255,255,255,.12);}
+.d-ladder i.on{background:var(--romance);}
+.d-tiermeta{margin-left:auto;text-align:right;flex:none;}
+.d-tierx{font:800 13px var(--serif);color:var(--romance);}
+.d-tiernext{font:600 8.5px var(--sans);color:var(--ink3);margin-top:2px;}
+.d-obj{margin:0 16px 16px;border-top:1px solid var(--line);padding-top:15px;}
+.d-objeye{display:flex;align-items:center;gap:8px;font:800 8.5px var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--accent);}
+.d-objttl{font-family:var(--serif);font-weight:600;font-size:19px;color:#fff;margin-top:9px;line-height:1.2;}
+.d-objsub{font:500 11.5px/1.5 var(--sans);color:var(--ink2);margin-top:7px;}
+.d-objday{display:inline-block;margin-top:11px;font:700 9px var(--sans);letter-spacing:.08em;color:var(--ink3);border:1px solid var(--line);border-radius:30px;padding:5px 11px;text-transform:uppercase;}
+/* D receipt */
+.d-rc{border-radius:22px;overflow:hidden;background:var(--surf);border:1px solid #2a2a30;padding:22px 20px;}
+.d-rceye{font:800 8.5px var(--sans);letter-spacing:.16em;text-transform:uppercase;color:var(--ink3);}
+.d-rcttl{font-family:var(--serif);font-weight:600;font-size:23px;color:#fff;margin-top:7px;}
+.d-rcline{display:flex;align-items:center;gap:13px;padding:15px 0;border-bottom:1px solid var(--line);}
+.d-rcline:last-child{border-bottom:none;padding-bottom:2px;}
+.d-rcdot{font-size:18px;flex:none;width:24px;text-align:center;}
+.d-rclbl{font:600 10px var(--sans);letter-spacing:.04em;color:var(--ink3);text-transform:uppercase;}
+.d-rcval{font-family:var(--serif);font-weight:500;font-size:17px;color:#fff;margin-top:2px;}
+.d-rcval em{font-style:normal;color:var(--fame);}
+.d-rcval i{font-style:normal;color:var(--romance);}
+.d-arrow{color:var(--ink3);font-weight:400;}
+</style>
+</helmet>
+
+<!-- ================= TITLE ================= -->
+<div style="position:absolute;left:80px;top:44px;width:1040px;">
+  <div style="font:800 10px var(--sans);letter-spacing:.18em;text-transform:uppercase;color:var(--accent);">Creator House · goals &amp; objectives system</div>
+  <div style="font-family:var(--serif);font-weight:600;font-size:34px;color:#16161c;line-height:1.1;margin-top:9px;">Two north-stars, one loud objective — four ways</div>
+  <div style="font:500 14px/1.6 var(--sans);color:#44444e;margin-top:11px;max-width:880px;">Replacing the three abstract meters with a motivation model players can read at a glance: a climbing <b>Followers</b> number (→ 100K, “win the house”), a named <b>relationship status</b> with Ananya you advance through tiers, and one urgent, time-boxed <b>objective</b>. Each direction shows the persistent HUD in Feed-top context, the contextual objective card, the tier treatment, and the choice receipt. Same content throughout: <b>@nabh · 68,200 → 100,000 · Day 1 of 10</b>, crush <b>Ananya · Spark</b>, active goal <b>“lock an ally before Day 3 eviction.”</b></div>
+  <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">
+    <div style="display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #dcdce2;border-radius:30px;padding:7px 13px;"><span style="width:10px;height:10px;border-radius:50%;background:#FFB020;"></span><span style="font:800 11px var(--sans);color:#16161c;">Followers</span><span style="font:600 11px var(--sans);color:#8a8a93;">climbing number → 100K</span></div>
+    <div style="display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #dcdce2;border-radius:30px;padding:7px 13px;"><span style="width:10px;height:10px;border-radius:50%;background:#FF6AA6;"></span><span style="font:800 11px var(--sans);color:#16161c;">Ananya</span><span style="font:600 11px var(--sans);color:#8a8a93;">named tier · not a bar</span></div>
+    <div style="display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #dcdce2;border-radius:30px;padding:7px 13px;"><span style="width:10px;height:10px;border-radius:50%;background:#FF2D78;"></span><span style="font:800 11px var(--sans);color:#16161c;">Objective</span><span style="font:600 11px var(--sans);color:#8a8a93;">urgent · deadlined</span></div>
+  </div>
+</div>
+
+<!-- ================= A · THE CLIMB ================= -->
+<div class="col" style="position:absolute;left:80px;top:300px;">
+  <div class="flabel" data-drags-parent="1">
+    <div class="fhead"><span class="fnum">01</span><span class="ftag">Number-hero</span></div>
+    <div class="fname">The Climb</div>
+    <div class="fdesc">Followers is the giant. The whole screen orbits one number you watch rise; the crush rides along as a companion pill, the objective is a banner under it.</div>
+  </div>
+  <div class="cap">Feed-top · HUD + objective</div>
+  <div class="ph">
+    <div class="sb"><span class="sbt">9:41</span><span class="sbi"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="3" width="3" height="8" rx="1"/><rect x="4.5" y="1.5" width="3" height="9.5" rx="1"/><rect x="9" y="0" width="3" height="11" rx="1" opacity=".4"/><rect x="13.5" y="0" width="3" height="11" rx="1" opacity=".4"/></svg></span></div>
+    <div class="appbar"><span class="applogo">Creator House</span><span class="live"><span class="livedot"><b></b><i></i></span>LIVE · DAY 1/10</span></div>
+    <div class="a-hud">
+      <div class="a-top">
+        <div class="a-av">N</div>
+        <div><div class="a-handle">@nabh</div><div class="a-meta">main character run</div></div>
+        <div class="a-crushpill"><div class="a-crushav" style="background-image:url(assets/avatars/ananya.png)"></div><div><div class="a-crushtier">♥ Spark</div><div class="a-crushlbl">Ananya</div></div></div>
+      </div>
+      <div class="a-bignum">68,200</div>
+      <div class="a-goalrow"><span class="a-goallbl">Followers</span><span class="a-goalto">/ 100,000</span></div>
+      <div class="bar a-bar"><i class="amberfill" style="width:68%"></i></div>
+      <div class="a-sub"><b>31,800</b> aur — phir tum house ke main character.</div>
+    </div>
+    <div class="a-obj">
+      <div class="a-objicon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#FF2D78" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+      <div style="flex:1;min-width:0;"><div class="a-objttl">Ek ally lock karo</div><div class="a-objsub">Day 3 eviction se pehle — ya house tumhe vote out karega.</div></div>
+      <span class="a-deadline">Ends Day 3</span>
+    </div>
+    <div class="feedpeek">
+      <div class="fprow"><div class="fpav" style="background-image:url(assets/avatars/ria.png)"></div><div><div class="fpname">riaofficial</div><div class="fpsub">Creator House · 2h</div></div></div>
+      <div class="fpimg" style="background-image:url(assets/scene-terrace-night.png)"></div>
+    </div>
+    <div class="grain"></div>
+  </div>
+  <div class="cap">Choice receipt · the payoff</div>
+  <div class="a-rc">
+    <div class="a-rceye">Tumne Kabir ko sabke saamne back kiya</div>
+    <div class="a-rcnum">80,600</div>
+    <div class="a-rcchip"><span class="chip upchip">▲ +12,400 followers</span></div>
+    <div class="a-rcrow"><div class="a-rcav" style="background-image:url(assets/avatars/ananya.png)"></div><div><div class="a-rcname">Ananya noticed you</div><div class="a-rcwhy">Spark · thoda aur kareeb</div></div><span class="a-rctag heart">♥ +1</span></div>
+    <div class="a-rcrow"><div class="a-rcic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3DD6C8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div><div><div class="a-rcname">Ally locked: Kabir</div><div class="a-rcwhy">Day 3 objective · poora hua</div></div><span class="a-rctag" style="color:var(--trust)">✓ 1/1</span></div>
+  </div>
+  <div class="trade"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg><span><b>Trade-off:</b> maximally motivating for the climb — but romance reads as a sidekick, easy to ignore.</span></div>
+</div>
+
+<!-- ================= B · SPLIT SPINE ================= -->
+<div class="col" style="position:absolute;left:590px;top:300px;">
+  <div class="flabel" data-drags-parent="1">
+    <div class="fhead"><span class="fnum">02</span><span class="ftag">Dual-pillar</span></div>
+    <div class="fname">Split Spine</div>
+    <div class="fdesc">Two co-equal pillars — Followers vs Ananya — held apart by a visible spine. The central dilemma (going viral can cost intimacy) is the hero idea.</div>
+  </div>
+  <div class="cap">Feed-top · HUD + objective</div>
+  <div class="ph">
+    <div class="sb"><span class="sbt">9:41</span><span class="sbi"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="3" width="3" height="8" rx="1"/><rect x="4.5" y="1.5" width="3" height="9.5" rx="1"/><rect x="9" y="0" width="3" height="11" rx="1" opacity=".4"/><rect x="13.5" y="0" width="3" height="11" rx="1" opacity=".4"/></svg></span></div>
+    <div class="appbar"><span class="applogo">Creator House</span><span class="live"><span class="livedot"><b></b><i></i></span>LIVE · DAY 1/10</span></div>
+    <div class="b-hud">
+      <div class="b-pillars">
+        <div class="b-pill b-pl">
+          <div class="b-peye b-pamber"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.9 7.1.6-5.4 4.7 1.6 7-6.2-3.7-6.2 3.7 1.6-7L2 9.5l7.1-.6z"/></svg>Followers</div>
+          <div class="b-pnum">68,200</div>
+          <div class="bar b-pbar"><i class="amberfill" style="width:68%"></i></div>
+          <div class="b-pmeta">31,800 to 100K</div>
+        </div>
+        <div class="b-vs"><div class="b-vsline"></div><div class="b-vsdot">VS</div><div class="b-vsline"></div></div>
+        <div class="b-pill b-pr">
+          <div class="b-peye b-ppink">♥ Ananya</div>
+          <div class="b-ptier">Spark</div>
+          <div class="b-track"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></div>
+          <div class="b-pmeta">next · Kuch toh hai</div>
+        </div>
+      </div>
+    </div>
+    <div class="b-obj">
+      <div class="b-objtop"><span class="b-objeye">⚡ Current objective</span><span class="b-timer"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>2d 06h</span></div>
+      <div class="b-objbody"><div class="b-objttl">Lock an ally before the house votes</div><div class="b-objsub">Day 3 eviction. Akela pakda gaya toh bahar.</div></div>
+    </div>
+    <div class="feedpeek">
+      <div class="fprow"><div class="fpav" style="background-image:url(assets/avatars/kabir.png)"></div><div><div class="fpname">kabir.exe</div><div class="fpsub">Creator House · 8h</div></div></div>
+    </div>
+    <div class="grain"></div>
+  </div>
+  <div class="cap">Choice receipt · the payoff</div>
+  <div class="b-rc">
+    <div class="b-rceye">Tumne Kabir ko sabke saamne back kiya</div>
+    <div class="b-rcsplit">
+      <div class="b-rchalf b-rcl"><div class="b-rchlbl">Followers</div><div class="b-rchnum" style="color:var(--fame)">80,600</div><div class="b-rchsub" style="color:var(--fame)">▲ +12,400</div></div>
+      <div class="b-rchalf b-rcr"><div class="b-rchlbl">Ananya</div><div class="b-rchnum" style="font-family:var(--serif);font-size:19px;color:#fff">Spark</div><div class="b-rchsub" style="color:var(--romance)">♥ noticed you</div></div>
+    </div>
+    <div class="b-rcnote"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FF6AA6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:1px;"><path d="M7 11V7a5 5 0 0 1 10 0v4"/><rect x="3" y="11" width="18" height="11" rx="2"/></svg><span>Is baar <b>dono saath badhe</b> — spotlight mila aur Ananya ne dekha. Par har move aisa nahi hota: viral jaana usse door bhi kar sakta hai.</span></div>
+  </div>
+  <div class="trade"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg><span><b>Trade-off:</b> clearest about the central dilemma — but two co-equal heroes can split attention, and the urgent objective sits third.</span></div>
+</div>
+
+<!-- ================= C · QUEST LOG ================= -->
+<div class="col" style="position:absolute;left:1100px;top:300px;">
+  <div class="flabel" data-drags-parent="1">
+    <div class="fhead"><span class="fnum">03</span><span class="ftag">Objective-first</span></div>
+    <div class="fname">Quest Log</div>
+    <div class="fdesc">The urgent objective is the hero — a live quest with a ticking timer and allies to lock. North-stars ride a slim ribbon; the tier is a node track.</div>
+  </div>
+  <div class="cap">Feed-top · HUD + objective</div>
+  <div class="ph">
+    <div class="sb"><span class="sbt">9:41</span><span class="sbi"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="3" width="3" height="8" rx="1"/><rect x="4.5" y="1.5" width="3" height="9.5" rx="1"/><rect x="9" y="0" width="3" height="11" rx="1" opacity=".4"/><rect x="13.5" y="0" width="3" height="11" rx="1" opacity=".4"/></svg></span></div>
+    <div class="c-ribbon">
+      <div class="c-rav">N</div>
+      <div><div class="c-rnum">68,200</div><div class="c-rlbl">Followers · /100K</div></div>
+      <div class="c-rdiv"></div>
+      <div class="c-rheart"><div class="a-crushav" style="background-image:url(assets/avatars/ananya.png);width:20px;height:20px;border-radius:50%;background-size:cover"></div><div><div class="c-rtier">Spark</div><div class="c-rlbl">Ananya</div></div></div>
+      <span class="live" style="margin-left:auto;"><span class="livedot"><b></b><i></i></span>D1</span>
+    </div>
+    <div class="c-quest">
+      <div class="c-qtop"><span class="c-qeye">⚡ Current objective</span><span class="c-qtimer"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>2d 06h 14m</span></div>
+      <div class="c-qttl">Lock one ally before eviction</div>
+      <div class="c-qsub">Day 3 the house votes. Akele pakde gaye toh tum bahar. Kisi ko apni side karo.</div>
+      <div class="c-qally">
+        <div class="c-allyav lead" style="background-image:url(assets/avatars/kabir.png)"></div>
+        <div class="c-allyav" style="background-image:url(assets/avatars/ria.png)"></div>
+        <div class="c-allyav" style="background-image:url(assets/avatars/zoya.png)"></div>
+        <div class="c-allyav" style="background-image:url(assets/avatars/dev.png)"></div>
+        <div class="c-allylbl">Kabir<br>warming up</div>
+      </div>
+      <div class="c-qfoot"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>0 of 1 ally locked · har choice isko aage badhati hai</div>
+    </div>
+    <div class="c-tier">
+      <div class="c-tiereye"><span class="c-tierl">♥ Ananya · relationship</span><span class="c-tiernext">next: Kuch toh hai</span></div>
+      <div class="c-tiertrack"><span class="c-node done"></span><span class="c-seg done"></span><span class="c-node cur"></span><span class="c-seg"></span><span class="c-node"></span><span class="c-seg"></span><span class="c-node"></span><span class="c-seg"></span><span class="c-node"></span></div>
+      <div class="c-tierlabels"><span>Ajnabi</span><span class="cur">Spark</span><span>Kuch toh hai</span><span>Something real</span><span>Hers</span></div>
+    </div>
+    <div class="grain"></div>
+  </div>
+  <div class="cap">Choice receipt · the payoff</div>
+  <div class="c-rc">
+    <div class="c-rctop">
+      <div class="c-rcbadge"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div>
+      <div class="c-rceye">Objective progress</div>
+      <div class="c-rcttl">Kabir is now your ally</div>
+      <div class="c-rcally"><div class="c-rcallyav" style="background-image:url(assets/avatars/kabir.png)"></div><span class="c-rcallytxt">1 of 1 locked · Day 3 safe</span></div>
+    </div>
+    <div class="c-rcsec">
+      <div class="c-rcstat"><div class="c-rcsnum" style="color:var(--fame)">+12,400</div><div class="c-rcslbl">Followers → 80,600</div></div>
+      <div class="c-rcstat"><div class="c-rcsnum heart">♥ +1</div><div class="c-rcslbl">Ananya · Spark</div></div>
+    </div>
+  </div>
+  <div class="trade"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg><span><b>Trade-off:</b> best session focus + urgency, most “game.” But the long-term north-stars recede, and it leans furthest from the premium/editorial vibe.</span></div>
+</div>
+
+<!-- ================= D · STORY LEDGER ================= -->
+<div class="col" style="position:absolute;left:1610px;top:300px;">
+  <div class="flabel" data-drags-parent="1">
+    <div class="fhead"><span class="fnum">04</span><span class="ftag">Editorial</span></div>
+    <div class="fname">Story Ledger</div>
+    <div class="fdesc">Restrained and cinematic. Followers ticks quietly in serif, the tier reads as an elegant named status, the objective is “tonight’s chapter.” Most premium, least gamified.</div>
+  </div>
+  <div class="cap">Feed-top · HUD + objective</div>
+  <div class="ph">
+    <div class="sb"><span class="sbt">9:41</span><span class="sbi"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="3" width="3" height="8" rx="1"/><rect x="4.5" y="1.5" width="3" height="9.5" rx="1"/><rect x="9" y="0" width="3" height="11" rx="1" opacity=".4"/><rect x="13.5" y="0" width="3" height="11" rx="1" opacity=".4"/></svg></span></div>
+    <div class="d-hud">
+      <div style="display:flex;align-items:center;justify-content:space-between;"><span class="d-eyebrow">Creator House · Day 1 of 10</span><span class="live"><span class="livedot"><b></b><i></i></span>LIVE</span></div>
+      <div class="d-foll"><span class="d-follnum">68,200</span><span class="d-follto">of 100,000 followers</span></div>
+      <div class="d-follbar"><i style="width:68%"></i><b style="left:68%"></b></div>
+      <div class="d-rule"></div>
+      <div class="d-crush">
+        <div class="d-crushav" style="background-image:url(assets/avatars/ananya.png)"></div>
+        <div style="flex:1;min-width:0;"><div class="d-crushname">Ananya · ananya.creates</div><div class="d-crushtier">Spark</div><div class="d-ladder"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></div></div>
+        <div class="d-tiermeta"><div class="d-tierx">2 / 5</div><div class="d-tiernext">→ Kuch toh hai</div></div>
+      </div>
+    </div>
+    <div class="d-obj">
+      <div class="d-objeye"><span class="livedot"><b></b><i></i></span>Aaj ka chapter</div>
+      <div class="d-objttl">Eviction se pehle, ek saath khada karo</div>
+      <div class="d-objsub">Day 3 ko ghar vote karega. Tumhare paas koi ally nahi — abhi tak. Akela mat raho.</div>
+      <span class="d-objday">Resolves by Day 3</span>
+    </div>
+    <div class="feedpeek" style="opacity:.4;">
+      <div class="fprow"><div class="fpav" style="background-image:url(assets/avatars/zoya.png)"></div><div><div class="fpname">zoya.creates</div><div class="fpsub">Creator House · 1h</div></div></div>
+    </div>
+    <div class="grain"></div>
+  </div>
+  <div class="cap">Choice receipt · the payoff</div>
+  <div class="d-rc">
+    <div class="d-rceye">Tumne Kabir ko sabke saamne back kiya</div>
+    <div class="d-rcttl">Kya badla</div>
+    <div style="margin-top:14px;">
+      <div class="d-rcline"><span class="d-rcdot" style="color:var(--fame)">↑</span><div><div class="d-rclbl">Followers</div><div class="d-rcval">68,200 <span class="d-arrow">→</span> <em>80,600</em></div></div></div>
+      <div class="d-rcline"><span class="d-rcdot heart">♥</span><div><div class="d-rclbl">Ananya</div><div class="d-rcval">tumhe <i>notice</i> kiya · Spark</div></div></div>
+      <div class="d-rcline"><span class="d-rcdot" style="color:var(--trust)">✓</span><div><div class="d-rclbl">Ghar</div><div class="d-rcval">Kabir ab tumhare saath</div></div></div>
+    </div>
+  </div>
+  <div class="trade"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg><span><b>Trade-off:</b> most premium and on-brand, ages well. But the lowest urgency — the deadline whispers where some players need it to shout.</span></div>
+</div>
+
+</x-dc>
+</body>
+</html>

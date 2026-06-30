@@ -1,0 +1,60 @@
+/* ============================================================
+   Lore — Colors
+   The ENTIRE product runs on 11 base tokens. No other colours exist.
+   Neutral by default; colour is earned by meaning, never decoration.
+   ============================================================ */
+
+:root {
+  /* ── Surfaces (near-black, layered) ── */
+  --bg:    #08080F;  /* App background — the void everything floats on */
+  --surf:  #121214;  /* Cards, posts, surfaces */
+  --surf2: #0f0f12;  /* Deeper surfaces — pickers, sheets, modals */
+  --line:  #1e1e24;  /* Dividers, hairline borders */
+
+  /* ── Ink (text) ── */
+  --ink:   #FFFFFF;  /* Primary text */
+  --ink2:  #a8a8b3;  /* Secondary text */
+  --ink3:  #5e5e6e;  /* Tertiary / disabled / timestamps */
+
+  /* ── Brand + meters (the only saturated hues) ── */
+  --accent: #FF2D78; /* THE interactive colour — CTAs, active tab, LIVE, "your move" */
+  --fame:   #FFB020; /* Meter · Fame ⭐ — warm gold (visibility / followers) */
+  --heat:   #FF5C3A; /* Meter · Heat 🔥 — hot red-orange (relationships / danger) */
+  --trust:  #3DD6C8; /* Meter · Trust/Image 🤝 — teal (public perception) */
+
+  /* ── Semantic aliases (use these in product code) ── */
+  --surface-app:    var(--bg);
+  --surface-card:   var(--surf);
+  --surface-raised: var(--surf2);
+  --border-hairline: var(--line);
+
+  --text-primary:   var(--ink);
+  --text-secondary: var(--ink2);
+  --text-tertiary:  var(--ink3);
+
+  --action:         var(--accent);
+  --action-on:      #ffffff;        /* text/icon on an accent fill */
+  --live:           var(--accent);
+  --danger:         var(--heat);
+
+  /* Meter semantic names */
+  --meter-fame:  var(--fame);
+  --meter-heat:  var(--heat);
+  --meter-trust: var(--trust);
+
+  /* ── Accent washes (derived, for glows + scrims — never new hex) ── */
+  --accent-glow:   rgba(255,45,120,.35);  /* CTA drop-shadow */
+  --accent-wash:   rgba(255,45,120,.08);  /* hook blocks, tinted callouts */
+  --accent-ring:   rgba(255,45,120,.20);  /* focus ring / soft border */
+  --scrim-strong:  rgba(8,8,15,.96);      /* sticky bars over content */
+  --scrim-blur:    rgba(8,8,15,.82);      /* lighter app-bar scrim */
+
+  /* ── World accent families ──
+     Each world gets ONE accent family; characters use tints within it. */
+  --world-creator-house: #FF2D78;  /* pink/rose — base --accent */
+  --world-creator-from:  #ff2d78;
+  --world-creator-to:    #7a1140;
+  --world-cricket:       #003087;  /* MI navy */
+  --world-cricket-from:  #003087;
+  --world-cricket-to:    #001540;
+}

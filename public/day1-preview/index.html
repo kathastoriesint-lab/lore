@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/lore-design-system-022f9707-b2df-454b-8b26-63015fe41a7c/tokens/fonts.css">
+<link rel="stylesheet" href="_ds/lore-design-system-022f9707-b2df-454b-8b26-63015fe41a7c/tokens/colors.css">
+<link rel="stylesheet" href="_ds/lore-design-system-022f9707-b2df-454b-8b26-63015fe41a7c/tokens/typography.css">
+<link rel="stylesheet" href="_ds/lore-design-system-022f9707-b2df-454b-8b26-63015fe41a7c/tokens/spacing.css">
+<link rel="stylesheet" href="_ds/lore-design-system-022f9707-b2df-454b-8b26-63015fe41a7c/tokens/base.css">
+<script src="day1-content.js"></script>
+<style>
+:root{--bond:#ff6aa6;--bond2:#ff2d78;}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--bg);}
+.stage{min-height:100dvh;display:flex;align-items:flex-start;justify-content:center;background:radial-gradient(120% 80% at 50% 0%,#17131b,#0a0a0e 72%);padding:12px;font-family:var(--sans);}
+.phone{position:relative;width:390px;height:844px;border-radius:46px;overflow:hidden;background:var(--bg);box-shadow:0 40px 110px -30px #000,0 0 0 10px #131217,0 0 0 11px #2c2932;display:flex;flex-direction:column;transform-origin:top center;}
+.scr{flex:1;min-height:0;display:flex;flex-direction:column;}
+.feed::-webkit-scrollbar,.scroll::-webkit-scrollbar,.dmscroll::-webkit-scrollbar{display:none;}
+/* appbar */
+.appbar{display:flex;align-items:center;gap:12px;padding:14px 16px 0;flex:none;}
+.exit{display:flex;align-items:center;gap:3px;color:var(--ink2);font:600 15px var(--sans);background:none;border:none;cursor:pointer;}
+.htitle{font-family:var(--serif);font-weight:600;font-size:20px;color:#fff;white-space:nowrap;}
+.pico{margin-left:auto;width:30px;height:30px;display:flex;align-items:center;justify-content:center;color:#fff;background:none;border:none;cursor:pointer;}
+.liveline{display:flex;align-items:center;gap:8px;padding:7px 18px 10px;flex:none;}
+.rdot{position:relative;width:9px;height:9px;flex:none;}
+.rdot b{position:absolute;inset:0;border-radius:50%;background:#ff3b3b;}
+.rdot i{position:absolute;inset:0;border-radius:50%;background:#ff3b3b;animation:lp 1.7s ease-out infinite;}
+.liveline span{font:600 12.5px var(--sans);color:var(--ink2);white-space:nowrap;}
+.liveline em{color:#fff;font-weight:700;font-style:normal;}
+/* HUD — two hero metrics */
+.hud{padding:10px 16px 11px;border-top:1px solid var(--line);flex:none;}
+.hudrow{display:flex;align-items:center;gap:12px;}
+.nav{width:44px;height:44px;border-radius:50%;background:linear-gradient(140deg,#ff3aa0,#d11668);display:flex;align-items:center;justify-content:center;font:800 18px var(--sans);color:#fff;flex:none;}
+.hudid{min-width:0;}
+.nhandle{font:700 16px var(--sans);color:#fff;}
+.nsub{font:500 11.5px var(--sans);color:var(--ink3);margin-top:1px;white-space:nowrap;}
+.nfoll{text-align:right;margin-left:auto;}
+.nfoll b{font:800 23px var(--sans);color:var(--fame);letter-spacing:-.01em;}
+.nfoll span{display:block;font:600 10px var(--sans);color:var(--ink3);margin-top:-1px;text-transform:uppercase;letter-spacing:.08em;}
+.riserow{display:flex;align-items:center;gap:9px;margin-top:10px;}
+.risebar{flex:1;height:3px;border-radius:3px;background:rgba(255,255,255,.09);overflow:hidden;}
+.risebar i{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,#FFB020,#ff7a3a);transition:width .9s cubic-bezier(.32,.72,0,1);}
+.risecap{font:700 9px var(--sans);letter-spacing:.06em;color:var(--ink3);white-space:nowrap;text-transform:uppercase;}
+.bondrow{display:flex;align-items:center;gap:11px;margin-top:13px;padding:10px 12px;border-radius:14px;background:linear-gradient(120deg,rgba(255,106,166,.12),rgba(255,45,120,.05));border:1px solid rgba(255,106,166,.22);}
+.bondrow.off{opacity:.5;background:rgba(255,255,255,.03);border-color:var(--line);}
+.bondheart{font-size:21px;line-height:1;color:var(--bond);flex:none;filter:drop-shadow(0 0 8px rgba(255,106,166,.5));}
+.bondrow.off .bondheart{color:var(--ink3);filter:none;}
+.bondmid{flex:1;min-width:0;}
+.bondtop{display:flex;align-items:baseline;justify-content:space-between;gap:8px;}
+.bondlbl{font:800 9.5px var(--sans);letter-spacing:.1em;color:var(--bond);}
+.bondrow.off .bondlbl{color:var(--ink3);}
+.bondtier{font:700 12.5px var(--sans);color:#fff;white-space:nowrap;}
+.bondrow.off .bondtier{color:var(--ink2);font-weight:600;}
+.bondpips{display:flex;gap:5px;margin-top:7px;}
+.bondpips i{flex:1;height:4px;border-radius:3px;background:rgba(255,255,255,.1);transition:background .5s;}
+.bondpips i.on{background:linear-gradient(90deg,var(--bond),var(--bond2));}
+.houseread{display:flex;align-items:center;gap:8px;margin-top:11px;font:600 11px var(--sans);color:var(--ink3);}
+.houseread em{font-style:normal;font-weight:800;}
+/* ── Followers-only feed header (relationship status lives in the Ananya DM) ── */
+.frow{display:flex;align-items:center;gap:12px;}
+.fmid{min-width:0;}
+.ffnum{font:800 23px var(--sans);color:var(--fame);line-height:1;font-variant-numeric:tabular-nums;}
+.fflbl{font:700 9px var(--sans);letter-spacing:.08em;color:var(--ink3);margin-top:5px;text-transform:uppercase;}
+.fgain{display:flex;align-items:center;gap:3px;font:800 12px var(--sans);color:var(--fame);padding:5px 10px;border-radius:20px;background:rgba(255,176,32,.1);border:1px solid rgba(255,176,32,.32);white-space:nowrap;flex:none;}
+.ffeed{margin-left:auto;display:flex;align-items:center;gap:6px;font:800 10px var(--sans);letter-spacing:.12em;color:#fff;flex:none;}
+.fdot{width:7px;height:7px;border-radius:50%;background:var(--accent);}
+.gprog{height:3px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden;margin-top:10px;}
+.gprog>i{display:block;height:100%;background:linear-gradient(90deg,#FFB020,#ff7a3a);}
+/* ── Compose screen (write your entry post) ── */
+.composewrap{display:flex;flex-direction:column;height:100%;}
+.composehead{flex:none;padding:18px 18px 14px;border-bottom:1px solid var(--line);}
+.ceye{font:800 9px var(--sans);letter-spacing:.14em;color:var(--accent);}
+.ctitle{font-family:var(--serif);font-weight:600;font-size:23px;color:#fff;margin-top:7px;line-height:1.1;}
+.csub{font:500 12px var(--sans);color:var(--ink2);margin-top:6px;line-height:1.4;}
+.composebody{flex:1;overflow-y:auto;padding:16px 14px;}
+.composecard{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--surf);}
+.composecard .phead{display:flex;align-items:center;gap:10px;padding:12px 13px;}
+.composecard .pav.me{width:34px;height:34px;font-size:13px;}
+.composeimg{width:100%;height:240px;background:#000 center/cover;position:relative;}
+.composeta{display:block;width:100%;border:none;border-top:1px solid var(--line);background:transparent;padding:14px 13px;color:#fff;font:500 14px var(--sans);line-height:1.5;resize:none;outline:none;}
+.composeta::placeholder{color:var(--ink3);}
+.composemeta{font:600 10px var(--sans);color:var(--ink3);margin:12px 4px 0;text-transform:uppercase;letter-spacing:.05em;}
+.heatc{color:var(--heat);}.imgc{color:var(--trust);}
+.hrdot{color:var(--ink3);}
+.hrnote{margin-left:auto;font:700 8.5px var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);opacity:.7;}
+/* feed posts */
+.feed{flex:1;min-height:0;overflow-y:auto;}
+.post{border-bottom:1px solid var(--line);}
+.post.mine{background:linear-gradient(180deg,rgba(255,45,120,.06),transparent 40%);}
+.phead{display:flex;align-items:center;gap:10px;padding:12px 14px;}
+.pav{width:34px;height:34px;border-radius:50%;background-size:cover;background-position:center;flex:none;background-color:#222;}
+.pav.me{background:linear-gradient(140deg,#ff3aa0,#d11668);display:flex;align-items:center;justify-content:center;font:800 14px var(--sans);color:#fff;}
+.fanav{width:34px;height:34px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font:800 13px var(--sans);color:#fff;background:linear-gradient(140deg,#3a3a44,#22222a);}
+.pname{font:700 13px var(--sans);color:#fff;display:flex;align-items:center;gap:6px;}
+.psub{font:500 10px var(--sans);color:var(--ink3);margin-top:1px;}
+.newpill{font:800 8px var(--sans);letter-spacing:.08em;color:var(--accent);background:var(--accent-wash);border:1px solid var(--accent-ring);border-radius:5px;padding:2px 6px;}
+.pmore{margin-left:auto;color:var(--ink2);font:800 17px var(--sans);}
+.pimg{width:100%;height:300px;background:#000 center/cover;position:relative;flex:none;}
+.grain{position:absolute;inset:0;background:var(--grain);background-size:160px 160px;opacity:.22;mix-blend-mode:overlay;pointer-events:none;}
+.pacts{display:flex;align-items:center;gap:18px;padding:12px 15px 8px;color:#fff;}
+.plikes{font:700 14px var(--sans);color:#fff;padding:0 15px;}
+.pcap{font:500 13.5px/1.5 var(--sans);color:#fff;padding:6px 15px 0;}
+.pcap b{font-weight:700;}
+.ptime{font:600 10px var(--sans);letter-spacing:.06em;color:var(--ink3);padding:8px 15px 14px;text-transform:uppercase;}
+.reactrow{display:flex;gap:10px;padding:11px 15px;border-bottom:1px solid var(--line);align-items:flex-start;background:rgba(255,255,255,.015);}
+.reactrow:last-child{border-bottom:none;}
+.reactrow .pav,.reactrow .fanav{width:28px;height:28px;font-size:11px;}
+.reactbub{font:500 12.5px/1.4 var(--sans);color:#dcdce4;}
+.reactname{font:700 12px var(--sans);color:#fff;}
+/* live banner */
+.evwrap{flex:none;padding:10px 12px;background:var(--scrim-strong);backdrop-filter:blur(12px);border-top:1px solid var(--line);}
+.evcta{position:relative;border-radius:18px;overflow:hidden;background:linear-gradient(110deg,#ff2d78,#b51552);box-shadow:0 10px 26px -6px rgba(255,45,120,.5);cursor:pointer;border:none;width:100%;padding:0;text-align:left;display:block;}
+.evcta.done{background:var(--surf);box-shadow:none;border:1px solid var(--line);cursor:default;}
+.evbg{position:absolute;inset:0;background:#000 center/cover;opacity:.28;}
+.evrow{position:relative;display:flex;align-items:center;gap:13px;padding:13px 15px;}
+.evplay{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;position:relative;flex:none;}
+.evplay span{position:absolute;inset:0;border-radius:50%;border:2px solid rgba(255,255,255,.7);animation:lp 1.7s ease-out infinite;}
+.evclock{width:44px;height:44px;border-radius:50%;background:var(--surf2);display:flex;align-items:center;justify-content:center;flex:none;color:var(--ink2);}
+.eveye{font:800 9px var(--sans);letter-spacing:.13em;color:rgba(255,255,255,.92);}
+.eveye.dim{color:var(--ink3);}
+.evttl{font-family:var(--serif);font-weight:600;font-size:19px;color:#fff;line-height:1.1;margin-top:3px;}
+.evttl.dim{color:var(--ink);}
+.evsub{font:500 11px var(--sans);color:rgba(255,255,255,.82);margin-top:2px;}
+.evsub.dim{color:var(--ink2);}
+.evtime{margin-left:auto;font:800 12px var(--sans);color:var(--ink2);flex:none;}
+/* tab bar */
+.tabbar{flex:none;height:60px;display:flex;background:var(--scrim-strong);backdrop-filter:blur(14px);border-top:1px solid var(--line);}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--ink3);background:none;border:none;cursor:pointer;position:relative;}
+.tab.on{color:var(--accent);}
+.tab em{font:700 9px var(--sans);font-style:normal;}
+.tdot{position:absolute;top:11px;right:50%;margin-right:-15px;width:7px;height:7px;border-radius:50%;background:var(--accent);border:1.5px solid #0b0b12;}
+/* drop — cinematic reader */
+.dbar{flex:none;display:flex;align-items:center;gap:10px;padding:14px 12px 12px;border-bottom:1px solid var(--line);background:var(--surf2);}
+.iconbtn{width:36px;height:36px;display:flex;align-items:center;justify-content:center;color:var(--ink2);background:none;border:none;cursor:pointer;flex:none;}
+.dtitle{flex:1;text-align:center;min-width:0;}
+.dtitle b{font-family:var(--serif);font-weight:600;font-size:16px;color:#fff;display:block;line-height:1.1;}
+.dtitle span{font:700 8px var(--sans);letter-spacing:.13em;color:var(--ink3);display:inline-flex;align-items:center;gap:5px;}
+.dprog{font:800 9px var(--sans);color:var(--ink2);border:1px solid var(--line);border-radius:30px;padding:4px 9px;flex:none;white-space:nowrap;}
+.livedot{position:relative;width:6px;height:6px;display:inline-block;}
+.livedot b{position:absolute;inset:0;border-radius:50%;background:var(--accent);}
+.livedot i{position:absolute;inset:0;border-radius:50%;background:var(--accent);animation:lp 1.7s ease-out infinite;}
+.scroll{flex:1;min-height:0;overflow-y:auto;padding:22px 18px 30px;display:flex;flex-direction:column;gap:17px;}
+.eyebrow{font:800 9px var(--sans);letter-spacing:.16em;color:var(--accent);}
+.nar{font-family:var(--serif);font-weight:500;font-size:17.5px;line-height:1.62;color:#cfcfd9;}
+.nar.big{color:#fff;font-weight:600;font-size:20px;line-height:1.45;}
+.rimg{width:100%;flex:none;border-radius:16px;position:relative;overflow:hidden;border:1px solid var(--line);background:#000 center/cover;box-shadow:0 18px 40px -16px rgba(0,0,0,.8);}
+.rimg .sh{position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(8,8,15,.6));}
+.cue{display:flex;gap:10px;align-items:flex-end;}
+.cav{width:34px;height:34px;border-radius:50%;background-size:cover;background-position:center;flex:none;}
+.cuename{font:700 11px var(--sans);color:rgba(255,255,255,.78);margin-bottom:5px;}
+.cuebub{background:rgba(255,45,120,.14);border:1px solid rgba(255,45,120,.3);border-radius:4px 16px 16px 16px;padding:11px 14px;font:500 15px/1.42 var(--sans);color:#fff;backdrop-filter:blur(4px);}
+.actstage{position:relative;margin:6px -18px -30px;padding:24px 18px 30px;border-radius:24px 24px 0 0;overflow:hidden;}
+.actstage>.bgimg{position:absolute;inset:0;background:#000 center/cover;opacity:.36;}
+.actstage>.bgsh{position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,8,15,.7),rgba(8,8,15,.94));}
+.actstage>.grain{opacity:.18;}
+.actinner{position:relative;display:flex;flex-direction:column;gap:13px;}
+.actdiv{display:flex;align-items:center;gap:11px;}
+.actdiv i{flex:1;height:1px;background:rgba(255,45,120,.3);}
+.actdiv span{font:800 9px var(--sans);letter-spacing:.16em;color:var(--accent);}
+.q{font-family:var(--serif);font-weight:600;font-size:21px;color:#fff;line-height:1.3;}
+.cho{display:block;width:100%;text-align:left;background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.16);color:#fff;border-radius:16px;padding:14px 16px;cursor:pointer;font:inherit;transition:transform .12s,border-color .2s,opacity .2s,background .2s;backdrop-filter:blur(8px);}
+.cho:active{transform:scale(.985);}
+.cho b{font:600 16px var(--sans);display:block;line-height:1.25;}
+.cho span{font:500 12px/1.4 var(--sans);color:rgba(255,255,255,.62);margin-top:4px;display:block;}
+.cho.sel{border-color:var(--accent);background:rgba(255,45,120,.14);box-shadow:0 10px 30px -8px rgba(255,45,120,.5);}
+.cho.dim{opacity:.34;}
+.cta{display:block;width:100%;height:52px;border:none;border-radius:15px;background:var(--accent);color:#fff;font:700 15px var(--sans);box-shadow:0 10px 26px rgba(255,45,120,.35);cursor:pointer;}
+.cta.row{display:flex;align-items:center;justify-content:center;gap:8px;}
+.cta:active{transform:scale(.98);}
+/* outcome — cinematic, feeling-led, inline ripple */
+.ocine{flex:1;min-height:0;overflow-y:auto;position:relative;display:flex;flex-direction:column;}
+.ocine::-webkit-scrollbar{display:none;}
+.obg{position:absolute;inset:0;background:#000 center/cover;opacity:.22;}
+.obgsh{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,8,14,.82),rgba(8,8,15,.97) 60%);}
+.oinner{position:relative;padding:46px 22px 26px;display:flex;flex-direction:column;}
+.obadge{font:800 9px var(--sans);letter-spacing:.16em;color:var(--accent);display:flex;align-items:center;gap:6px;}
+.obondhero{margin-top:18px;display:flex;flex-direction:column;align-items:center;text-align:center;padding:22px 16px;border-radius:22px;background:radial-gradient(120% 120% at 50% 0%,rgba(255,106,166,.18),rgba(255,45,120,.04) 70%);border:1px solid rgba(255,106,166,.28);}
+.obondhero.flat{background:rgba(255,255,255,.03);border-color:var(--line);}
+.bigheart{font-size:46px;line-height:1;color:var(--bond);filter:drop-shadow(0 0 22px rgba(255,106,166,.65));animation:beat 1.6s ease-in-out infinite;}
+.obondhero.flat .bigheart{color:var(--ink3);filter:none;animation:none;}
+.bonddelta{margin-top:12px;font:800 10px var(--sans);letter-spacing:.12em;color:var(--bond);text-transform:uppercase;}
+.obondhero.flat .bonddelta{color:var(--ink3);}
+.bondname{font-family:var(--serif);font-weight:600;font-size:24px;color:#fff;margin-top:5px;}
+.bondpips.big{margin-top:13px;gap:7px;width:160px;}
+.bondpips.big i{height:5px;}
+.obondnote{font:500 12.5px/1.5 var(--sans);color:var(--ink2);margin-top:13px;max-width:280px;}
+.obondnote b{color:var(--bond);font-weight:700;}
+.ottl{font-family:var(--serif);font-weight:600;font-size:23px;color:#fff;margin-top:22px;line-height:1.15;}
+.odesc{font:500 13px/1.55 var(--sans);color:var(--ink2);margin-top:7px;}
+.ofollowline{display:flex;align-items:center;gap:10px;margin-top:18px;padding:14px 16px;border-radius:14px;background:var(--surf);border:1px solid var(--line);}
+.ofl-num{font:800 26px var(--sans);color:var(--fame);letter-spacing:-.01em;}
+.ofl-lbl{font:700 9px var(--sans);letter-spacing:.1em;color:var(--ink3);text-transform:uppercase;margin-top:2px;}
+.ofl-gain{margin-left:auto;font:800 14px var(--sans);color:var(--fame);display:flex;align-items:center;gap:4px;}
+.osupport{display:flex;gap:8px;margin-top:12px;}
+.ochip{flex:1;border-radius:12px;border:1px solid var(--line);background:var(--surf);padding:10px 12px;}
+.ochip .ocv{font:800 14px var(--sans);}
+.ochip .ocl{font:600 9px var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-top:1px;}
+.ochip .ocw{font:500 10.5px/1.35 var(--sans);color:var(--ink3);margin-top:5px;}
+.odoor{margin-top:13px;display:flex;gap:8px;align-items:flex-start;padding:11px 13px;border-radius:12px;background:rgba(255,176,32,.08);border:1px solid rgba(255,176,32,.2);font:600 11.5px/1.4 var(--sans);color:#f4c97a;}
+/* inline ripple */
+.ripple{margin-top:22px;border-top:1px dashed var(--line);padding-top:18px;}
+.riphead{font:800 9px var(--sans);letter-spacing:.14em;color:var(--ink3);text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:7px;}
+.riphead .rdot{width:7px;height:7px;}
+.ripost{border-radius:16px;overflow:hidden;border:1px solid var(--line);background:var(--surf);animation:rise .5s cubic-bezier(.32,.72,0,1) both;}
+.ripost .rpimg{height:150px;background:#000 center/cover;position:relative;}
+.rpbody{padding:11px 13px;}
+.rpacts{display:flex;align-items:center;gap:6px;color:var(--accent);font:700 12px var(--sans);}
+.rpcap{font:500 12.5px/1.45 var(--sans);color:#fff;margin-top:7px;}
+.rpcap b{font-weight:700;}
+.ripeek{margin-top:11px;display:flex;gap:10px;align-items:flex-end;animation:rise .5s cubic-bezier(.32,.72,0,1) both;animation-delay:.25s;}
+.ripeek .cav{width:30px;height:30px;}
+.peekbub{background:var(--surf);border:1px solid var(--line);border-radius:4px 14px 14px 14px;padding:10px 13px;max-width:240px;}
+.peekname{font:700 10px var(--sans);color:var(--bond);margin-bottom:4px;}
+.peektext{font:500 13px/1.4 var(--sans);color:#e6e6ee;}
+.typing{display:inline-flex;gap:3px;margin-top:7px;padding:7px 11px;border-radius:12px;background:var(--surf);border:1px solid var(--line);}
+.typing i{width:5px;height:5px;border-radius:50%;background:var(--ink3);animation:bob 1s infinite;}
+.typing i:nth-child(2){animation-delay:.15s;}.typing i:nth-child(3){animation-delay:.3s;}
+.octa{position:sticky;bottom:0;padding:14px 22px calc(14px + env(safe-area-inset-bottom));background:linear-gradient(180deg,transparent,var(--bg) 36%);}
+/* dm */
+.dmhead{flex:none;display:flex;align-items:center;gap:10px;padding:13px 14px;border-bottom:1px solid var(--line);background:var(--surf2);}
+.bondribbon{flex:none;margin:12px 14px 2px;background:linear-gradient(120deg,rgba(255,106,166,.12),rgba(255,45,120,.04));border:1px solid rgba(255,106,166,.22);border-radius:13px;padding:11px 13px;}
+.bondribbon.ctx{background:var(--surf);border-color:var(--line);}
+.brtop{display:flex;justify-content:space-between;font:800 9px var(--sans);letter-spacing:.1em;color:var(--bond);}
+.bondribbon.ctx .brtop{color:var(--ink3);}
+.brnote{font:600 10.5px/1.4 var(--sans);color:var(--ink3);margin-top:8px;}
+.dmscroll{flex:1;min-height:0;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;}
+.dbub{max-width:80%;align-self:flex-start;background:var(--surf);border:1px solid var(--line);color:var(--ink);border-radius:16px 16px 16px 5px;padding:11px 13px;font:500 13.5px/1.42 var(--sans);}
+.dbub.me{align-self:flex-end;background:linear-gradient(135deg,#ff2d78,#c41060);border:none;color:#fff;border-radius:16px 16px 5px 16px;}
+.dmempty{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px 36px;gap:5px;}
+.dmemptyicon{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--ink3);background:var(--surf);border:1px solid var(--line);margin-bottom:8px;}
+.dmemptyttl{font-family:var(--serif);font-weight:600;font-size:19px;color:#fff;}
+.dmemptysub{font:500 13px/1.55 var(--sans);color:var(--ink3);max-width:250px;}
+.quickbar{flex:none;padding:11px 14px 16px;border-top:1px solid var(--line);background:var(--surf2);}
+.quick{display:flex;flex-direction:column;gap:8px;}
+.qchip{background:var(--surf);border:1px solid var(--line);border-radius:14px;padding:11px 14px;font:600 13px var(--sans);color:var(--ink);cursor:pointer;text-align:left;}
+.qchip:active{transform:scale(.99);}
+.talkover{font:600 12px var(--sans);color:var(--ink2);text-align:center;padding:6px 0 2px;}
+.capline{font:600 10px var(--sans);color:var(--ink3);text-align:center;margin-top:10px;}
+/* profile */
+.profhead{padding:24px 18px 8px;display:flex;flex-direction:column;align-items:center;gap:7px;}
+.pav.big{width:80px;height:80px;font-size:32px;}
+.statrow{display:flex;gap:12px;padding:8px 18px 0;}
+.stat{flex:1;background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:15px;text-align:center;}
+.statnum{font:800 22px var(--sans);}
+.statcap{font:600 10px var(--sans);color:var(--ink3);margin-top:5px;}
+.goalcard{margin:16px 18px;background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:18px;}
+.gtop{display:flex;justify-content:space-between;font:800 9px var(--sans);letter-spacing:.12em;color:var(--ink3);}
+.gttl{font-family:var(--serif);font-weight:600;font-size:19px;color:#fff;margin-top:7px;}
+.gsub{font:600 11px var(--sans);color:var(--ink3);margin-top:9px;}
+.tbar{height:8px;border-radius:4px;background:rgba(255,255,255,.08);overflow:hidden;margin-top:12px;}
+.tbar i{display:block;height:100%;border-radius:4px;transition:width .9s cubic-bezier(.32,.72,0,1);}
+@keyframes lp{0%{transform:scale(1);opacity:.6}70%{transform:scale(2.4);opacity:0}100%{opacity:0}}
+@keyframes beat{0%,100%{transform:scale(1)}14%{transform:scale(1.16)}28%{transform:scale(1)}42%{transform:scale(1.1)}}
+@keyframes rise{from{transform:translateY(12px)}to{transform:none}}
+@keyframes bob{0%,100%{transform:translateY(0);opacity:.4}50%{transform:translateY(-3px);opacity:1}}
+/* ===== Option B · chat reader ===== */
+.chatwrap{flex:1;min-height:0;display:flex;flex-direction:column;background:linear-gradient(180deg,#0c0c12,#0a0a0e);}
+.chatscroll{flex:1;min-height:0;overflow-y:auto;padding:18px 14px 10px;display:flex;flex-direction:column;gap:12px;cursor:pointer;}
+.chatscroll::-webkit-scrollbar{display:none;}
+.ceye{align-self:center;font:800 9px var(--sans);letter-spacing:.16em;color:var(--accent);margin-bottom:4px;}
+.cnar{align-self:center;text-align:center;max-width:86%;font-family:var(--serif);font-style:italic;font-weight:500;font-size:14.5px;line-height:1.5;color:var(--ink2);padding:1px 4px;animation:rise .34s cubic-bezier(.32,.72,0,1) both;}
+.cmsg{display:flex;gap:9px;align-items:flex-end;max-width:88%;align-self:flex-start;animation:rise .34s cubic-bezier(.32,.72,0,1) both;}
+.cmsg .cav{width:30px;height:30px;flex:none;}
+.cmeta{min-width:0;}
+.cwho{font:700 10.5px var(--sans);color:var(--ink2);margin:0 0 4px 3px;}
+.cbub{background:var(--surf);border:1px solid var(--line);border-radius:5px 16px 16px 16px;padding:11px 14px;font:500 14.5px/1.42 var(--sans);color:#eaeaf0;}
+.cmsg.crush .cbub{background:rgba(255,106,166,.13);border-color:rgba(255,106,166,.32);}
+.cmsg.crush .cwho{color:var(--bond);}
+.cimg{align-self:flex-start;width:74%;flex:none;border-radius:16px;overflow:hidden;border:1px solid var(--line);position:relative;animation:rise .34s both;}
+.cimg .ci{height:168px;background:#000 center/cover;}
+.cme{align-self:flex-end;background:linear-gradient(135deg,#ff2d78,#c41060);color:#fff;border:none;border-radius:16px 16px 5px 16px;padding:11px 14px;font:600 14.5px/1.42 var(--sans);max-width:82%;animation:rise .3s both;}
+.taphint{align-self:center;margin:2px 0;font:700 9.5px var(--sans);letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);display:inline-flex;align-items:center;gap:6px;}
+.taphint svg{animation:bob 1.4s infinite;}
+.typing.left{align-self:flex-start;}
+.replytray{flex:none;border-top:1px solid var(--line);background:var(--surf2);padding:12px 14px calc(15px + env(safe-area-inset-bottom));}
+.replyhead{font:800 9px var(--sans);letter-spacing:.16em;color:var(--accent);text-align:center;margin-bottom:11px;display:flex;align-items:center;gap:10px;justify-content:center;}
+.replyhead i{height:1px;flex:1;background:rgba(255,45,120,.3);max-width:54px;}
+.replyopt{display:block;width:100%;text-align:left;background:var(--surf);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:8px;cursor:pointer;color:#fff;font:inherit;transition:transform .12s,border-color .2s,background .2s;}
+.replyopt:active{transform:scale(.99);}
+.replyopt b{font:600 14.5px var(--sans);display:block;line-height:1.2;}
+.replyopt span{font:500 11.5px/1.35 var(--sans);color:var(--ink3);margin-top:3px;display:block;}
+.tapnext{flex:none;border-top:1px solid var(--line);background:var(--surf2);padding:13px;display:flex;justify-content:center;}
+.tapbtn{background:var(--surf);border:1px solid var(--line);border-radius:30px;padding:10px 20px;font:700 11.5px var(--sans);letter-spacing:.04em;color:var(--ink2);cursor:pointer;display:flex;align-items:center;gap:8px;}
+/* ===== Option B · receipt outcome ===== */
+.receipt{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;background:var(--bg);}
+.receipt::-webkit-scrollbar{display:none;}
+.rcphead{padding:30px 22px 18px;border-bottom:1px solid var(--line);}
+.rcptitle{font-family:var(--serif);font-weight:600;font-size:25px;color:#fff;margin-top:10px;line-height:1.12;}
+.rcpdesc{font:500 13px/1.55 var(--sans);color:var(--ink2);margin-top:7px;}
+.rcpbody{padding:18px 18px 6px;display:flex;flex-direction:column;}
+.rcphero{border-radius:16px;background:linear-gradient(135deg,rgba(255,176,32,.14),rgba(255,122,58,.05));border:1px solid rgba(255,176,32,.28);padding:18px;text-align:center;}
+.rcphlbl{font:800 9px var(--sans);letter-spacing:.14em;color:var(--ink3);text-transform:uppercase;}
+.rcphnum{font:800 40px var(--sans);color:var(--fame);letter-spacing:-.02em;margin-top:3px;line-height:1;}
+.rcphgain{font:800 14px var(--sans);color:var(--fame);margin-top:6px;display:inline-flex;align-items:center;gap:4px;}
+.rcpbond{display:flex;gap:12px;align-items:center;margin-top:14px;padding:14px;border-radius:16px;background:linear-gradient(120deg,rgba(255,106,166,.13),rgba(255,45,120,.04));border:1px solid rgba(255,106,166,.28);}
+.rcpbond.flat{background:rgba(255,255,255,.03);border-color:var(--line);}
+.rcpbheart{font-size:25px;color:var(--bond);flex:none;filter:drop-shadow(0 0 10px rgba(255,106,166,.5));}
+.rcpbond.flat .rcpbheart{color:var(--ink3);filter:none;}
+.rcpbtop{display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
+.rcpblbl{font:800 9.5px var(--sans);letter-spacing:.1em;color:var(--bond);}
+.rcpbond.flat .rcpblbl{color:var(--ink3);}
+.rcpbdelta{font:800 10px var(--sans);letter-spacing:.06em;color:var(--bond);white-space:nowrap;}
+.rcpbond.flat .rcpbdelta{color:var(--ink3);}
+.rcpbtier{font:700 15px var(--sans);color:#fff;margin-top:3px;}
+.rcpbond .bondpips{margin-top:9px;}
+.rcpbnote{font:500 12px/1.5 var(--sans);color:var(--ink3);margin-top:11px;padding:0 2px;}
+.rcpsub{font:800 9px var(--sans);letter-spacing:.16em;color:var(--ink3);margin:19px 2px 2px;text-transform:uppercase;}
+.rcprow{display:flex;gap:11px;align-items:flex-start;padding:12px 2px;border-bottom:1px solid var(--line);}
+.rcpicon{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex:none;background:rgba(255,255,255,.05);}
+.rcpmid{flex:1;min-width:0;}
+.rcprname{font:800 11px var(--sans);letter-spacing:.04em;}
+.rcprwhy{font:500 12px/1.4 var(--sans);color:var(--ink3);margin-top:2px;}
+.rcprval{margin-left:auto;font:800 16px var(--sans);}
+</style>
+</helmet>
+<div class="stage"><div class="phone">
+
+<!-- ===================== FEED ===================== -->
+<sc-if value="{{ isFeed }}" hint-placeholder-val="{{ true }}">
+<div class="scr">
+  <div class="appbar">
+    <button class="exit"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>Exit</button>
+    <div class="htitle">Creator House</div>
+    <button class="pico" onClick="{{ goProfile }}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></button>
+  </div>
+  <div class="liveline"><span class="rdot"><b></b><i></i></span><span><em>LIVE</em> — Day 1 of 10 · 6 creators just arrived</span></div>
+  <div class="hud">
+    <div class="frow">
+      <div class="nav">N</div>
+      <div class="fmid">
+        <div class="ffnum">{{ followersFull }}</div>
+        <div class="fflbl">Followers → 100K</div>
+      </div>
+      <sc-if value="{{ hasGain }}" hint-placeholder-val="{{ true }}"><div class="fgain">▲ {{ followerGain }}</div></sc-if>
+      <div class="ffeed"><span class="fdot"></span>FEED</div>
+    </div>
+    <div class="gprog"><i style="width:{{ risePct }}"></i></div>
+  </div>
+  <div class="feed">
+    <sc-for list="{{ myPosts }}" as="p" hint-placeholder-count="0">
+      <div class="{{ p.postCls }}">
+        <div class="phead">
+          <sc-if value="{{ p.mine }}" hint-placeholder-val="{{ true }}"><div class="pav me">N</div></sc-if>
+          <sc-if value="{{ p.notMine }}" hint-placeholder-val="{{ false }}"><div class="pav" style="{{ p.avStyle }}"></div></sc-if>
+          <div><div class="pname">{{ p.who }} <sc-if value="{{ p.isNew }}" hint-placeholder-val="{{ false }}"><span class="newpill">NEW</span></sc-if></div><div class="psub">{{ p.sub }}</div></div><div class="pmore">···</div>
+        </div>
+        <div class="pimg" style="{{ p.imgStyle }}"><div class="grain"></div></div>
+        <div class="pacts">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--accent)" stroke="var(--accent)" stroke-width="1.6"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1L12 21l7.7-7.6 1.1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-11.5 7.8L4 20.5l1.2-4.3A8.4 8.4 0 1 1 21 11.5z"/></svg>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/></svg>
+        </div>
+        <div class="plikes">{{ p.likesText }} likes</div>
+        <div class="pcap"><b>{{ p.who }}</b> {{ p.cap }}</div>
+        <div class="ptime">JUST NOW</div>
+        <sc-for list="{{ p.reactions }}" as="r" hint-placeholder-count="0">
+          <div class="reactrow">
+            <sc-if value="{{ r.isFan }}" hint-placeholder-val="{{ false }}"><div class="fanav">{{ r.mono }}</div></sc-if>
+            <sc-if value="{{ r.hasAv }}" hint-placeholder-val="{{ true }}"><div class="pav" style="{{ r.avStyle }}"></div></sc-if>
+            <div><span class="reactname">{{ r.who }}</span> <span class="reactbub">{{ r.text }}</span></div>
+          </div>
+        </sc-for>
+      </div>
+    </sc-for>
+    <sc-for list="{{ seeds }}" as="s" hint-placeholder-count="2">
+      <div class="post">
+        <div class="phead"><div class="pav" style="{{ s.avStyle }}"></div><div><div class="pname">{{ s.who }}</div><div class="psub">{{ s.sub }}</div></div><div class="pmore">···</div></div>
+        <div class="pimg" style="{{ s.imgStyle }}"><div class="grain"></div></div>
+        <div class="pacts">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1L12 21l7.7-7.6 1.1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-11.5 7.8L4 20.5l1.2-4.3A8.4 8.4 0 1 1 21 11.5z"/></svg>
+        </div>
+        <div class="plikes">{{ s.likes }} likes</div>
+        <div class="pcap"><b>{{ s.who }}</b> {{ s.cap }}</div>
+        <div class="ptime">{{ s.time }}</div>
+      </div>
+    </sc-for>
+  </div>
+</div>
+</sc-if>
+
+<!-- ===================== DROP (chat reader · Wrtn/Kavana-style) ===================== -->
+<sc-if value="{{ isDrop }}" hint-placeholder-val="{{ false }}">
+<div class="scr">
+  <div class="dbar">
+    <button class="iconbtn" onClick="{{ goFeed }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
+    <div class="dtitle"><b>{{ dropTitle }}</b><span><span class="livedot"><b></b><i></i></span> DAY 1 · LIVE</span></div>
+    <div class="dprog">{{ dropProg }}</div>
+  </div>
+  <div class="chatwrap">
+    <div class="chatscroll" id="chatScroll" onClick="{{ tapAdvance }}">
+      <div class="ceye">{{ dropEyebrow }}</div>
+      <sc-for list="{{ chatBlocks }}" as="b" hint-placeholder-count="3">
+        <sc-if value="{{ b.isNar }}" hint-placeholder-val="{{ true }}"><div class="cnar">{{ b.text }}</div></sc-if>
+        <sc-if value="{{ b.isImg }}" hint-placeholder-val="{{ false }}"><div class="cimg"><div class="ci" style="{{ b.ciStyle }}"></div><div class="grain"></div></div></sc-if>
+        <sc-if value="{{ b.isCue }}" hint-placeholder-val="{{ false }}"><div class="{{ b.cmsgCls }}"><div class="cav" style="{{ b.avStyle }}"></div><div class="cmeta"><div class="cwho">{{ b.who }}</div><div class="cbub">{{ b.text }}</div></div></div></sc-if>
+      </sc-for>
+      <sc-if value="{{ cueTyping }}" hint-placeholder-val="{{ false }}"><div class="cmsg"><div class="cav" style="{{ cueTypingAv }}"></div><div class="cmeta"><div class="typing left" style="margin:0;"><i></i><i></i><i></i></div></div></div></sc-if>
+      <sc-if value="{{ chatSent }}" hint-placeholder-val="{{ false }}"><div class="cme">{{ chatSentText }}</div></sc-if>
+      <sc-if value="{{ chatTyping }}" hint-placeholder-val="{{ false }}"><div class="typing left"><i></i><i></i><i></i></div></sc-if>
+    </div>
+    <sc-if value="{{ chatTapNext }}" hint-placeholder-val="{{ true }}">
+      <div class="tapnext"><button class="tapbtn" onClick="{{ tapAdvance }}">Tap to continue <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button></div>
+    </sc-if>
+    <sc-if value="{{ chatReplyTray }}" hint-placeholder-val="{{ false }}">
+      <div class="replytray">
+        <div class="replyhead"><i></i> YOUR MOVE <i></i></div>
+        <div style="font-family:var(--serif);font-weight:600;font-size:15px;color:#fff;text-align:center;margin-bottom:12px;">{{ dropQ }}</div>
+        <sc-for list="{{ chatChoices }}" as="c" hint-placeholder-count="2">
+          <button class="replyopt" onClick="{{ c.choose }}"><b>{{ c.title }}</b><span>{{ c.sub }}</span></button>
+        </sc-for>
+      </div>
+    </sc-if>
+  </div>
+</div>
+</sc-if>
+
+<!-- ===================== COMPOSE (write your own entry post) ===================== -->
+<sc-if value="{{ isCompose }}" hint-placeholder-val="{{ false }}">
+<div class="composewrap" id="composeScroll">
+  <div class="composehead">
+    <div class="ceye">⚡ YOUR ENTRY · DAY 1</div>
+    <div class="ctitle">Apni pehli post likho</div>
+    <div class="csub">Poora ghar dekh raha hai. Yeh post tay karegi tum kaun ho.</div>
+  </div>
+  <div class="composebody">
+    <div class="composecard">
+      <div class="phead"><div class="pav me">N</div><div><div class="pname">@nabh</div><div class="psub">Creator House · abhi post hoga</div></div></div>
+      <div class="composeimg" style="background-image:url(assets/seed-villa.png)"><div class="grain"></div></div>
+      <textarea id="composeTa" class="composeta" rows="3" placeholder="Apni entry caption likho…"></textarea>
+    </div>
+    <div class="composemeta">Public · 6 creators + tumhare followers ise dekhenge</div>
+  </div>
+  <div class="octa"><button class="cta row" onClick="{{ postCompose }}">Post it 🔥 <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/></svg></button></div>
+</div>
+</sc-if>
+
+<!-- ===================== OUTCOME (stat receipt · jump to feed) ===================== -->
+<sc-if value="{{ isOutcome }}" hint-placeholder-val="{{ false }}">
+<div class="receipt" id="ocine">
+  <div class="rcphead">
+    <div class="obadge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> POSTED</div>
+    <div class="rcptitle">{{ oTitle }}</div>
+    <div class="rcpdesc">{{ oDesc }}</div>
+  </div>
+  <div class="rcpbody">
+    <div class="rcphero">
+      <div class="rcphlbl">Followers</div>
+      <div class="rcphnum">{{ oFollowers }}</div>
+      <div class="rcphgain"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l8 10h-5v6h-6v-6H4z"/></svg> {{ oGain }}</div>
+    </div>
+    <div class="{{ oBondFlatCls }}">
+      <div class="rcpbheart">{{ bondGlyph }}</div>
+      <div style="flex:1;min-width:0;">
+        <div class="rcpbtop"><span class="rcpblbl">♥ ANANYA</span><span class="rcpbdelta">{{ oBondDelta }}</span></div>
+        <div class="rcpbtier">{{ oBondTier }}</div>
+        <div class="bondpips"><sc-for list="{{ oBondPips }}" as="p" hint-placeholder-count="3"><i class="{{ p.cls }}"></i></sc-for></div>
+      </div>
+    </div>
+    <div class="rcpbnote">{{ oBondNote }}</div>
+    <sc-if value="{{ oHasGate }}" hint-placeholder-val="{{ false }}"><div class="rcpbnote" style="color:var(--bond);font-weight:600;">{{ oBondGate }}</div></sc-if>
+    <sc-if value="{{ oHasDoor }}" hint-placeholder-val="{{ false }}"><div class="odoor" style="margin-top:14px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:1px;"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0"/></svg><span>{{ oDoor }}</span></div></sc-if>
+  </div>
+  <div class="octa"><button class="cta row" onClick="{{ goFeedPosted }}">See what they're saying <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>
+</div>
+</sc-if>
+
+<!-- ===================== DM ===================== -->
+<sc-if value="{{ isDM }}" hint-placeholder-val="{{ false }}">
+<div class="scr">
+  <sc-if value="{{ hasActiveDM }}" hint-placeholder-val="{{ false }}">
+    <div class="dmhead">
+      <button class="iconbtn" onClick="{{ goFeed }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
+      <div class="pav" style="{{ dmAv }}"></div>
+      <div><div class="pname">{{ dmHandle }}</div><div class="psub" style="color:var(--trust);">online</div></div>
+    </div>
+    <div class="{{ dmRibbonCls }}">
+      <div class="brtop"><span>{{ dmRibbonTitle }}</span><span>{{ dmRibbonRight }}</span></div>
+      <div class="brnote">{{ dmRibbonNote }}</div>
+    </div>
+    <div class="dmscroll" id="dmScroll">
+      <sc-for list="{{ dmOpeners }}" as="t" hint-placeholder-count="2"><div class="dbub">{{ t }}</div></sc-for>
+      <sc-for list="{{ dmThread }}" as="m" hint-placeholder-count="0">
+        <sc-if value="{{ m.me }}" hint-placeholder-val="{{ false }}"><div class="dbub me">{{ m.text }}</div></sc-if>
+        <sc-if value="{{ m.notMe }}" hint-placeholder-val="{{ false }}"><div class="dbub">{{ m.text }}</div></sc-if>
+      </sc-for>
+    </div>
+    <div class="quickbar">
+      <sc-if value="{{ canReply }}" hint-placeholder-val="{{ true }}">
+        <div class="quick">
+          <button class="qchip" onClick="{{ replyA }}">{{ replyAText }}</button>
+          <button class="qchip" onClick="{{ replyB }}">{{ replyBText }}</button>
+        </div>
+      </sc-if>
+      <sc-if value="{{ talkOver }}" hint-placeholder-val="{{ false }}"><div class="talkover">Aaj ke liye baat khatam 🌙 Kal aana — depth aur badhegi.</div></sc-if>
+      <div class="capline">{{ talkLeftText }} · resets at midnight</div>
+    </div>
+  </sc-if>
+  <sc-if value="{{ noActiveDM }}" hint-placeholder-val="{{ true }}">
+    <div class="appbar"><div class="htitle">Messages</div></div>
+    <div class="dmempty">
+      <div class="dmemptyicon"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+      <div class="dmemptyttl">Abhi inbox khali hai</div>
+      <div class="dmemptysub">Apni Day 1 jee — housemates khud DM karenge. Niche se shuru karo.</div>
+    </div>
+  </sc-if>
+</div>
+</sc-if>
+
+<!-- ===================== PROFILE ===================== -->
+<sc-if value="{{ isProfile }}" hint-placeholder-val="{{ false }}">
+<div class="scr">
+  <div class="feed">
+    <div class="profhead"><div class="pav me big">N</div><div class="pname" style="font-size:18px;">@nabh</div><div class="psub">Creator House · Day 1 of 10</div></div>
+    <div class="statrow">
+      <div class="stat"><div class="statnum" style="color:var(--fame);">{{ followersK }}</div><div class="statcap">Followers</div></div>
+      <div class="stat"><div class="statnum" style="color:var(--bond);font-size:14px;line-height:1.25;">{{ pBondTier }}</div><div class="statcap">Bond · Ananya</div></div>
+    </div>
+    <div class="goalcard">
+      <div class="gtop"><span>SEASON 1 GOAL</span><span style="color:var(--fame);">DAY 1 / 10</span></div>
+      <div class="gttl">Become the main character</div>
+      <div class="tbar"><i style="width:{{ pRisePct }};background:linear-gradient(90deg,#FFB020,#FF2D78);"></i></div>
+      <div class="gsub">{{ pFollowers }} / 100,000 followers</div>
+    </div>
+    <div class="goalcard">
+      <div class="gtop"><span style="color:var(--bond);">THE SPINE</span><span style="color:var(--bond);">ROMANCE</span></div>
+      <div class="gttl">Wahi shakl, 3 saal baad</div>
+      <div class="tbar"><i style="width:{{ pBondPct }};background:linear-gradient(90deg,#ff6aa6,#ff2d78);"></i></div>
+      <div class="gsub">{{ pBondTier }} — +3 “Something real” tak pahunchao</div>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<!-- ===================== ENTRY BANNER (feed + messages) ===================== -->
+<sc-if value="{{ showBanner }}" hint-placeholder-val="{{ true }}">
+<div class="evwrap">
+  <sc-if value="{{ bannerActive }}" hint-placeholder-val="{{ true }}">
+    <button class="evcta" onClick="{{ openDrop }}">
+      <div class="evbg" style="{{ bannerImgStyle }}"></div><div class="grain"></div>
+      <div class="evrow">
+        <div class="evplay"><span></span><svg width="17" height="17" viewBox="0 0 24 24" fill="#fff"><polygon points="7,4 20,12 7,20"/></svg></div>
+        <div style="flex:1;min-width:0;"><div class="eveye">{{ bannerEyebrow }}</div><div class="evttl">{{ bannerLabel }}</div><div class="evsub">{{ bannerSub }}</div></div>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex:none;"><path d="M9 6l6 6-6 6"/></svg>
+      </div>
+    </button>
+  </sc-if>
+  <sc-if value="{{ bannerDone }}" hint-placeholder-val="{{ false }}">
+    <div class="evcta done">
+      <div class="evrow">
+        <div class="evclock"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+        <div style="flex:1;min-width:0;"><div class="eveye dim">DAY 1 · DONE</div><div class="evttl dim">Next drop tonight</div><div class="evsub dim">Ghar so raha hai. Tumhari Day 1 trend kar rahi hai.</div></div>
+        <div class="evtime">08:12:44</div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</sc-if>
+
+<!-- ===================== TAB BAR ===================== -->
+<sc-if value="{{ showTabs }}" hint-placeholder-val="{{ true }}">
+<div class="tabbar">
+  <button class="{{ tabFeedCls }}" onClick="{{ goFeed }}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg><em>Feed</em></button>
+  <button class="{{ tabMsgCls }}" onClick="{{ goDM }}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><em>Messages</em><sc-if value="{{ dmDot }}" hint-placeholder-val="{{ false }}"><span class="tdot"></span></sc-if></button>
+  <button class="{{ tabProfileCls }}" onClick="{{ goProfile }}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><em>Profile</em></button>
+</div>
+</sc-if>
+
+</div></div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:414,&quot;height&quot;:860}}">
+class Component extends DCLogic {
+  state = {
+    screen: 'feed', beatIdx: 0, selected: null,
+    followers: 52800, followersDisplay: 52800,
+    fame: 20, heat: 50, image: 30, bond: 0,
+    myPosts: [], curDM: null, dmThread: [], talkLeft: 3, dmDot: false,
+    likes: 0, lastO: null, revealed: 0, chatSent: false, chatTyping: false, typingFor: null, composeCap: ''
+  };
+  componentDidMount() {
+    this._fit = () => { const ph = document.querySelector('.phone'); if (ph) ph.style.transform = 'scale(' + Math.min(1, (window.innerHeight - 16) / 844) + ')'; };
+    this._fit(); window.addEventListener('resize', this._fit);
+  }
+  componentWillUnmount() { window.removeEventListener('resize', this._fit); cancelAnimationFrame(this._raf); clearInterval(this._iv); clearTimeout(this._ftO); clearTimeout(this._typeT); }
+  D() { return window.LORE_DAY1; }
+  fmt(n) { return Math.round(n).toLocaleString('en-US'); }
+  fmtK(n) { return (n / 1000).toFixed(1) + 'K'; }
+  curBeat() { return this.D().beats[this.state.beatIdx]; }
+  chosen() { const b = this.curBeat(); if (!b) return null; const c = b.choices.find(x => x.key === this.state.selected); return c ? c.o : null; }
+  bannerSub() { return { 'D1-1': 'Villa ka gate khulta hai. Sab dekh rahe hain.', 'D1-2': 'Kitchen mein wahi shakl — 3 saal baad.', 'D1-3': 'Chhat ya chai? Pehla private moment.' }[this.curBeat() ? this.curBeat().id : '']; }
+  scrollTop(id) { requestAnimationFrame(() => { const s = document.getElementById(id); if (s) s.scrollTop = 0; }); }
+  openDrop() { if (this.state.beatIdx >= 3) return; this.setState({ screen: 'drop', selected: null, revealed: 1, chatSent: false, chatTyping: false, typingFor: null }); this.scrollTop('chatScroll'); }
+  total() { const b = this.curBeat(); return b ? b.reader.length : 0; }
+  chatBottom() { requestAnimationFrame(() => { const el = document.getElementById('chatScroll'); if (el) el.scrollTop = el.scrollHeight; }); }
+  tapAdvance() {
+    const s = this.state; if (s.chatSent || s.typingFor != null) return;
+    const t = this.total(); if (s.revealed >= t) return;
+    const b = this.curBeat(); const next = b.reader[s.revealed];
+    if (next && next.t === 'cue') {
+      this.setState({ typingFor: s.revealed }); this.chatBottom();
+      clearTimeout(this._typeT);
+      this._typeT = setTimeout(() => { this.setState((st) => ({ revealed: Math.min(t, st.revealed + 1), typingFor: null })); this.chatBottom(); }, 800);
+    } else {
+      this.setState((st) => ({ revealed: Math.min(t, st.revealed + 1) })); this.chatBottom();
+    }
+  }
+  chatChoose(k) {
+    if (this.state.chatSent) return;
+    this.setState({ selected: k, chatSent: true }); this.chatBottom();
+    setTimeout(() => { this.setState({ chatTyping: true }); this.chatBottom(); }, 450);
+    setTimeout(() => {
+      const o = this.chosen();
+      if (o && o.compose) { this.setState({ screen: 'compose' }); setTimeout(() => { const ta = document.getElementById('composeTa'); if (ta) { ta.value = o.post.cap; } }, 60); this.scrollTop('composeScroll'); }
+      else if (o && o.directFeed) this.resolveToFeed();
+      else this.goOutcome();
+    }, 1350);
+  }
+  resolveToFeed(caption) {
+    const o = this.chosen(); if (!o) return;
+    const s = this.state;
+    const nf = s.followers + o.gainF;
+    const isMine = !o.post.author || o.post.author === 'me';
+    const cap = (isMine && caption != null && caption.trim()) ? caption.trim() : o.post.cap;
+    const post = { mine: isMine, who: isMine ? '@nabh' : o.post.who, avStyle: isMine ? '' : this.bg(o.post.avatar), sub: 'Creator House · just now', imgStyle: this.bg(o.post.img), cap: cap, likes: o.post.likes, reactions: o.reactions };
+    this.setState((st) => ({ screen: 'feed', myPosts: [post, ...st.myPosts], beatIdx: st.beatIdx + 1, curDM: o.dm, dmThread: [], talkLeft: 3, dmDot: true, lastO: o, followers: nf, fame: this.clamp(st.fame + o.dF), heat: this.clamp(st.heat + o.dH), image: this.clamp(st.image + o.dI), bond: st.bond + o.dBond }));
+    this.animateFollowers(s.followersDisplay, nf);
+    this.startLikes(o.post.likes);
+  }
+  postCompose() { const ta = document.getElementById('composeTa'); this.resolveToFeed(ta ? ta.value : null); }
+  goFeed() { this.setState({ screen: 'feed' }); }
+  goDM() { this.setState({ screen: 'dm', dmDot: false }); requestAnimationFrame(() => { const s = document.getElementById('dmScroll'); if (s) s.scrollTop = s.scrollHeight; }); }
+  goProfile() { this.setState({ screen: 'profile' }); }
+  choose(k) { this.setState({ selected: k }); requestAnimationFrame(() => { const s = document.getElementById('dropScroll'); if (s) s.scrollTo({ top: s.scrollHeight, behavior: 'smooth' }); }); }
+  animateFollowers(from, to) {
+    cancelAnimationFrame(this._raf); clearTimeout(this._ftO);
+    const start = performance.now(), dur = 1200, e = (t) => 1 - Math.pow(1 - t, 3);
+    const tick = (now) => { const t = Math.min(1, (now - start) / dur); this.setState({ followersDisplay: from + (to - from) * e(t) }); if (t < 1) this._raf = requestAnimationFrame(tick); };
+    this._raf = requestAnimationFrame(tick);
+    this._ftO = setTimeout(() => this.setState({ followersDisplay: to }), dur + 90);
+  }
+  startLikes(target) { clearInterval(this._iv); let v = 0; this.setState({ likes: 0 }); this._iv = setInterval(() => { v += Math.ceil(target / 26); if (v >= target) { v = target; clearInterval(this._iv); } this.setState({ likes: v }); }, 45); }
+  clamp(n) { return Math.max(0, Math.min(100, n)); }
+  goOutcome() {
+    const o = this.chosen(); if (!o) return;
+    const s = this.state;
+    const nf = s.followers + o.gainF;
+    this.setState({ screen: 'outcome', lastO: o, followers: nf, fame: this.clamp(s.fame + o.dF), heat: this.clamp(s.heat + o.dH), image: this.clamp(s.image + o.dI), bond: s.bond + o.dBond });
+    this.animateFollowers(s.followersDisplay, nf);
+    this.startLikes(o.post.likes);
+    this.scrollTop('ocine');
+  }
+  goFeedPosted() {
+    const o = this.state.lastO; if (!o) return;
+    const post = { sub: 'Creator House · just now', imgStyle: this.bg(o.post.img), cap: o.post.cap, likes: o.post.likes, reactions: o.reactions };
+    this.setState((st) => ({ screen: 'feed', myPosts: [post, ...st.myPosts], beatIdx: st.beatIdx + 1, curDM: o.dm, dmThread: [], talkLeft: 3, dmDot: true }));
+  }
+  reply(i) {
+    if (this.state.talkLeft <= 0) return;
+    const r = this.state.curDM.replies[i];
+    this.setState((st) => ({ dmThread: [...st.dmThread, { me: true, text: r.me }, { me: false, text: r.they }], talkLeft: st.talkLeft - 1 }));
+    requestAnimationFrame(() => { const s = document.getElementById('dmScroll'); if (s) s.scrollTop = s.scrollHeight; });
+  }
+  bg(src) { return 'background-image:url(' + src + ')'; }
+  mapReact(r) { const av = !!r.avatar; return { who: r.who, text: r.text, hasAv: av, isFan: !av, mono: (r.who[0] || '?').toUpperCase(), avStyle: av ? this.bg(r.avatar) : '' }; }
+  renderVals() {
+    const s = this.state, D = this.D(), b = this.curBeat(), o = this.chosen();
+    const bondOpened = s.beatIdx >= 1 || s.bond !== 0;
+    const bondClamp = Math.max(0, Math.min(3, s.bond));
+    const pips = (extra) => [0, 1, 2].map(i => ({ cls: 'pip' + (i < bondClamp ? ' on' : '') }));
+    const lastO = s.lastO;
+    const dmCrush = s.curDM && s.curDM.who === D.crush.name;
+    const readerBlocks = b ? b.reader.map((x, i) => ({
+      isNar: x.t === 'nar', isImg: x.t === 'img', isCue: x.t === 'cue',
+      narCls: 'nar' + (x.big ? ' big' : ''), text: x.text,
+      imgStyle: x.t === 'img' ? ('height:' + x.h + 'px;background-image:url(' + x.src + ');background-position:' + (x.pos || 'center') + ';background-size:cover') : '',
+      who: x.who, avStyle: x.avatar ? this.bg(x.avatar) : '', last: i === b.reader.length - 1
+    })) : [];
+    const lastImg = b ? [...b.reader].reverse().find(x => x.t === 'img') : null;
+    const bannerImgSrc = b ? (b.id === 'D1-2' ? 'assets/avatars/ananya.png' : b.id === 'D1-3' ? 'assets/scene-terrace-night.png' : 'assets/seed-villa.png') : 'assets/seed-villa.png';
+    const choices = b ? b.choices.map(c => ({ key: c.key, title: c.title, sub: c.sub, cls: 'cho' + (s.selected === c.key ? ' sel' : (s.selected ? ' dim' : '')), choose: () => this.choose(c.key) })) : [];
+    const total = b ? b.reader.length : 0;
+    const revealedN = Math.min(total, s.revealed);
+    const chatBlocks = b ? b.reader.slice(0, revealedN).map(x => ({
+      isNar: x.t === 'nar', isImg: x.t === 'img', isCue: x.t === 'cue', text: x.text, who: x.who,
+      avStyle: x.avatar ? this.bg(x.avatar) : '',
+      ciStyle: x.t === 'img' ? (this.bg(x.src) + ';background-size:cover;background-position:' + (x.pos || 'center')) : '',
+      cmsgCls: 'cmsg' + (x.who === D.crush.name ? ' crush' : '')
+    })) : [];
+    const chosenChoice = b && s.selected ? b.choices.find(c => c.key === s.selected) : null;
+    return {
+      isFeed: s.screen === 'feed', isDrop: s.screen === 'drop', isOutcome: s.screen === 'outcome', isDM: s.screen === 'dm', isProfile: s.screen === 'profile', isCompose: s.screen === 'compose',
+      composeCap: s.composeCap, postCompose: () => this.postCompose(),
+      showTabs: s.screen === 'feed' || s.screen === 'dm' || s.screen === 'profile',
+      showBanner: s.screen === 'feed' || s.screen === 'dm',
+      hasActiveDM: !!s.curDM, noActiveDM: !s.curDM,
+      tabFeedCls: 'tab' + (s.screen === 'feed' ? ' on' : ''), tabMsgCls: 'tab' + (s.screen === 'dm' ? ' on' : ''), tabProfileCls: 'tab' + (s.screen === 'profile' ? ' on' : ''),
+      followersK: this.fmtK(s.followersDisplay), followersFull: this.fmt(s.followersDisplay), heat: s.heat, image: s.image,
+      followerGain: '+' + this.fmt(Math.max(0, s.followers - D.start.followers)), hasGain: (s.followers - D.start.followers) > 0,
+      risePct: this.clamp(s.followers / 100000 * 100) + '%', riseCap: this.fmt(s.followers) + ' / 100K',
+      bondRowCls: 'bondrow' + (bondOpened ? '' : ' off'), bondGlyph: bondOpened ? '\u2665' : '\u2661',
+      bondTierText: bondOpened ? D.bondTier(s.bond) : 'Reunion baaki', bondPips: pips(),
+      myPosts: s.myPosts.map((p, i) => ({ isNew: i === 0, mine: p.mine !== false, notMine: p.mine === false, who: p.who || '@nabh', avStyle: p.avStyle || '', postCls: p.mine === false ? 'post' : 'post mine', sub: p.sub, imgStyle: p.imgStyle, likesText: i === 0 ? this.fmt(s.likes) : this.fmt(p.likes), cap: p.cap, reactions: p.reactions.map(r => this.mapReact(r)) })),
+      seeds: D.seeds.map(x => ({ who: x.who, sub: x.sub, avStyle: this.bg(x.avatar), imgStyle: 'height:' + x.h + 'px;' + this.bg(x.img) + ';background-size:cover;background-position:center', likes: x.likes, cap: x.cap, time: x.time })),
+      bannerActive: s.beatIdx < 3, bannerDone: s.beatIdx >= 3,
+      bannerImg: bannerImgSrc, bannerImgStyle: this.bg(bannerImgSrc),
+      bannerEyebrow: b ? b.eyebrow : '', bannerLabel: b ? b.label : '', bannerSub: this.bannerSub(),
+      dmDot: s.dmDot,
+      openDrop: () => this.openDrop(), goFeed: () => this.goFeed(), goDM: () => this.goDM(), goProfile: () => this.goProfile(),
+      // drop
+      dropTitle: b ? b.label : '', dropEyebrow: b ? b.eyebrow : '', dropProg: b ? (b.n + ' / 3') : '', dropQ: b ? b.q : '',
+      readerBlocks, choices, hasSelected: !!s.selected, goOutcome: () => this.goOutcome(),
+      chatBlocks, cueTyping: s.typingFor != null, cueTypingAv: (s.typingFor != null && b && b.reader[s.typingFor] && b.reader[s.typingFor].avatar) ? this.bg(b.reader[s.typingFor].avatar) : '',
+      chatTapNext: s.revealed < total && !s.chatSent && s.typingFor == null, chatReplyTray: s.revealed >= total && !s.chatSent && s.typingFor == null,
+      chatSent: s.chatSent, chatTyping: s.chatTyping, chatSentText: chosenChoice ? chosenChoice.title : '',
+      chatChoices: b ? b.choices.map(c => ({ title: c.title, sub: c.sub, choose: () => this.chatChoose(c.key) })) : [],
+      tapAdvance: () => this.tapAdvance(),
+      actBg: lastImg ? this.bg(lastImg.src) : this.bg('assets/seed-villa.png'),
+      // outcome
+      oTitle: lastO ? lastO.title : '', oDesc: lastO ? lastO.desc : '',
+      oGain: lastO ? ('+' + this.fmt(lastO.gainF)) : '', oFollowers: this.fmt(s.followersDisplay),
+      oBondHeroCls: 'obondhero' + (lastO && lastO.dBond > 0 ? '' : ' flat'),
+      oBondFlatCls: 'rcpbond' + (lastO && lastO.dBond > 0 ? '' : ' flat'),
+      oBondDelta: lastO ? (lastO.dBond > 0 ? 'BOND +' + lastO.dBond + ' · ANANYA' : 'BOND HELD · ANANYA') : '',
+      oBondTier: bondOpened ? D.bondTier(s.bond) : 'The Almost', oBondPips: pips(),
+      oBondNote: lastO ? lastO.bondNote : '', oBondGate: lastO ? lastO.bondGate : '', oHasGate: !!(lastO && lastO.bondGate),
+      oHeatV: lastO ? (lastO.dH >= 0 ? '+' + lastO.dH : '' + lastO.dH) : '', oImageV: lastO ? (lastO.dI >= 0 ? '+' + lastO.dI : '' + lastO.dI) : '',
+      oWhyH: lastO ? lastO.whyH : '', oWhyI: lastO ? lastO.whyI : '',
+      oDoor: lastO ? lastO.door : '', oHasDoor: !!(lastO && lastO.door),
+      oBg: lastO ? this.bg(lastO.post.img) : '',
+      ripImg: lastO ? ('height:150px;' + this.bg(lastO.post.img) + ';background-size:cover;background-position:center') : '',
+      ripCap: lastO ? lastO.post.cap : '', ripLikes: this.fmt(s.likes),
+      peekName: lastO ? lastO.dm.who : '', peekAv: lastO ? this.bg(lastO.dm.avatar) : '', peekText: lastO ? lastO.dm.openers[0] : '',
+      goFeedPosted: () => this.goFeedPosted(),
+      // dm
+      dmName: s.curDM ? s.curDM.who : '', dmHandle: s.curDM ? s.curDM.handle : '', dmAv: s.curDM ? this.bg(s.curDM.avatar) : '',
+      dmIsCrush: dmCrush, dmRibbonCls: 'bondribbon' + (dmCrush ? '' : ' ctx'),
+      dmRibbonTitle: dmCrush ? '♥ ANANYA · RELATIONSHIP' : ('THREAD · ' + (s.curDM ? s.curDM.who.toUpperCase() : '')),
+      dmRibbonRight: dmCrush ? (D.bondTier(s.bond) + ' · ' + Math.max(0, Math.min(3, s.bond)) + '/3') : 'DAY 1 · LIVE',
+      dmRibbonNote: dmCrush ? '\uD83D\uDD12 +3 \u201CSomething real\u201D tak pahuncho — phir woh kehdega jo 3 saal pehle nahi kaha.' : 'Har reply trust-scored hai. Aaj 3 messages.',
+      dmOpeners: s.curDM ? s.curDM.openers : [],
+      dmThread: s.dmThread.map(x => ({ me: x.me, notMe: !x.me, text: x.text })),
+      canReply: s.talkLeft > 0, talkOver: s.talkLeft <= 0,
+      replyAText: s.curDM ? s.curDM.replies[0].me : '', replyBText: s.curDM ? s.curDM.replies[1].me : '',
+      replyA: () => this.reply(0), replyB: () => this.reply(1), talkLeftText: s.talkLeft + ' messages left today',
+      // profile
+      pFollowers: this.fmt(s.followers), pBondTier: bondOpened ? D.bondTier(s.bond) : 'The Almost', pRisePct: this.clamp(s.followers / 100000 * 100) + '%', pBondPct: (Math.max(0, Math.min(3, s.bond)) / 3 * 100) + '%'
+    };
+  }
+}
+</script>
+</body>
+</html>
