@@ -9,7 +9,8 @@
 
 import type { CharId, GameState, Situation } from './types'
 import { getCHSituations } from './content'
-import { allyLoyalty } from './game'
+import { allyLoyalty, allyId } from './game'
+import { computeBond } from './relationships'
 
 export interface HouseVote { voter: CharId; target: CharId; line: string }
 
@@ -34,17 +35,26 @@ export const EVICTION_TRIGGERS: Record<string, string> = {
   'D7-2': 'EV-D7',
 }
 
-// ── Eviction-night TENSION: TRUST drives follower pressure (psychological only) ──
-// TRUST (the `image` meter — "logon ka bharosa") is who has your back at a vote.
-// The player is NEVER actually evicted — your followers always keep you — but the
-// threat is real on screen. TRUST decides how close it gets:
-//   trust >= threshold → SAFE: a housemate goes, your name never comes up.
-//   floor <= trust < threshold → ON THE BLOCK: your name comes up, you survive.
-//   trust < floor → FOLLOWER PRESSURE peaks: your name leads the vote, your followers
-//                   save you anyway — but the house noticed. (Never a real loss.)
+// ── Eviction-night TENSION: your ALLY BOND drives follower pressure (psychological) ──
+// The image/TRUST meter is gone. Who has your back at a vote is now your ALLY — so the
+// pressure reads off your ally bond (0–100, the same "Bond" shown on the Profile). The
+// player is NEVER actually evicted — your followers always keep you — but the threat is
+// real on screen. The ally bond decides how close it gets:
+//   bond >= threshold → SAFE: a housemate goes, your name never comes up.
+//   floor <= bond < threshold → ON THE BLOCK: your name comes up, you survive.
+//   bond < floor → FOLLOWER PRESSURE peaks: your name leads the vote, followers save you
+//                  anyway — but the house noticed. (Never a real loss.)
+// Thresholds retuned to the bond scale (base ~50): by Day 7 you must have actively built
+// the ally bond to sit safe.
 export const EVICTION_SAFETY: Record<string, { day: number; threshold: number; floor: number }> = {
-  'EV-D3': { day: 3, threshold: 28, floor: 16 },  // lenient — TRUST starts at 30
-  'EV-D7': { day: 7, threshold: 40, floor: 26 },  // by now you should have built it
+  'EV-D3': { day: 3, threshold: 45, floor: 30 },  // lenient — ally bond starts ~50
+  'EV-D7': { day: 7, threshold: 60, floor: 45 },  // by now you should have built it
+}
+
+/** Eviction-night pressure signal (0–100): the strength of your ALLY bond — they're
+ *  who defends you at the vote. Replaces the old TRUST/image meter. */
+export function evictionTrust(game: GameState): number {
+  return computeBond(allyId(game.playerGender), 'creator-house', game.choices, game.playerName, game.playerGender, game.dmTrust ?? {}).bond
 }
 
 export type RiskStatus = 'safe' | 'risk' | 'critical'
@@ -86,8 +96,8 @@ export function buildEviction(id: string, game: GameState): EvictionNight | null
   const base = buildBaseEviction(id, game)
   if (!base) return null
 
-  // Option B: the player's TRUST decides their own fate at the vote.
-  const status = playerStatusAt(id, game.meters.image)
+  // The player's ALLY BOND decides their own fate at the vote.
+  const status = playerStatusAt(id, evictionTrust(game))
   if (status === 'safe') return base
 
   const ally: CharId = game.playerGender === 'male' ? 'kabir' : 'ananya'

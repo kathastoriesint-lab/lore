@@ -128,18 +128,22 @@ export default function DMInboxScreen() {
           const lastOpened = openedMap[charId] ?? 0
           const isUnread = hasMessages && lastUpdated > lastOpened
           const lastMsg = hasMessages ? history[history.length - 1].text : null
-          const preview = lastMsg
-            ? (lastMsg.length > 42 ? lastMsg.slice(0, 42) + '…' : lastMsg)
-            : CHAR_SUBTEXT[charId] ?? char.role.split(' · ')[0]
+          const isMission = game.activeMission?.char === charId
+          const preview = isMission
+            ? '📌 Story mission — baat shuru karo'
+            : lastMsg
+              ? (lastMsg.length > 42 ? lastMsg.slice(0, 42) + '…' : lastMsg)
+              : CHAR_SUBTEXT[charId] ?? char.role.split(' · ')[0]
 
           return (
-            <button key={charId} className="dm-row" onClick={() => handleOpen(charId)}>
+            <button key={charId} className="dm-row" onClick={() => handleOpen(charId)}
+              style={isMission ? { background: 'color-mix(in srgb, var(--accent) 7%, transparent)', borderLeft: '3px solid var(--accent)' } : undefined}>
               <div className={`av ${char.cls}`} style={{ width:48, height:48, fontSize:18, backgroundImage:`url(/avatars/${charId}.png)`, backgroundSize:'cover', backgroundPosition:'center' }}>
                 <span style={{ opacity:0 }}>{char.init}</span>
               </div>
               <div className="info">
                 <div className="nm">{char.name}</div>
-                <div className="prev" style={{ color: isUnread ? 'var(--ink)' : undefined, fontWeight: isUnread ? 600 : undefined }}>
+                <div className="prev" style={{ color: isMission ? 'var(--accent)' : isUnread ? 'var(--ink)' : undefined, fontWeight: (isMission || isUnread) ? 600 : undefined }}>
                   {preview}
                 </div>
               </div>

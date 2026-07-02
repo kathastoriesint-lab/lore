@@ -1,6 +1,6 @@
 'use client'
 import { createClient } from './supabase'
-import type { CharId, GameState, GameFlags, RunMemory, Meters, DMMessage, Situation } from './types'
+import type { CharId, GameState, GameFlags, RunMemory, Meters, CHMeters, CricketMeters, World, DMMessage, Situation } from './types'
 import { getCricketDMHooks, getCricketSituations, getCHDMHooks, getCHDMMock, getCHSituations } from './content'
 
 // Lazy init — avoids module-level instantiation during SSR/prerender
@@ -9,8 +9,25 @@ const supabase = () => { if (!_supabase) _supabase = createClient(); return _sup
 /** Shared browser Supabase client — reuse this everywhere (one GoTrue instance). */
 export const getClient = () => supabase()
 
-const DEFAULT_METERS: Meters = { fame: 20, heat: 50, image: 30 }
-const CRICKET_START_METERS: Meters = { fame: 40, heat: 25, image: 20 } // Form 40 · Fame 25 · Team Trust 20
+const DEFAULT_METERS: CHMeters = { fame: 20 }
+const CRICKET_START_METERS: CricketMeters = { form: 40, fame: 25 } // Form 40 · Fame 25 (Captain's Trust lives in dmTrust.hardik)
+
+/** Narrow the meters union to cricket at a site already gated by world==='cricket'. */
+export const asCricket = (m: Meters): CricketMeters => m as CricketMeters
+
+/** Load-time backward-compat: reshape any stored meters blob to the per-world shape.
+ *  Handles new {form,fame} rows, refactor-era {form,fame,trust} rows, old generic
+ *  {fame,heat,image} rows, and missing keys — never NaN. */
+export function migrateMeters(raw: unknown, world: World): Meters {
+  const r = (raw ?? {}) as Record<string, unknown>
+  const num = (v: unknown, d: number) => { const n = Number(v); return Number.isFinite(n) ? n : d }
+  if (world === 'cricket') {
+    if (r.form !== undefined) return { form: num(r.form, 40), fame: num(r.fame, 25) } // drops any pooled trust key
+    if (r.image !== undefined) return { form: num(r.fame, 40), fame: num(r.heat, 25) } // old generic (pooled trust dies)
+    return { form: 40, fame: 25 }
+  }
+  return { fame: num(r.fame, 20) } // creator-house: fame only (works for both old & new rows)
+}
 
 export const DEFAULT_FLAGS: GameFlags = {
   mentorTrust: 0, hypeRisk: 0, roleAcceptance: 0, homeGrounding: 0,
@@ -29,7 +46,7 @@ export const CRICKET_STARTING_METERS = CRICKET_START_METERS
 
 // ── Situation queue builders ───────────────────────────────────────────────────
 export function buildCricketQueue(): string[] {
-  return getCricketSituations().filter(s => s.id !== 'CR-S28').map(s => s.id)
+  return getCricketSituations().map(s => s.id)
 }
 
 export function buildCHQueue(meters: Meters, choices: ('A'|'B')[]): string[] {
@@ -39,18 +56,16 @@ export function buildCHQueue(meters: Meters, choices: ('A'|'B')[]): string[] {
   return getCHSituations().map(s => s.id)
 }
 
-/** Apply flag deltas from a choice, clamping to 0–5. */
+/** Apply flag deltas from a choice, clamping each flag to 0–5. Key-generic so
+ *  new story-marker flags (cricket v2) work without touching this function. */
 export function applyFlagDeltas(flags: GameFlags, deltas?: Partial<GameFlags>): GameFlags {
   if (!deltas) return flags
   const clamp5 = (n: number) => Math.max(0, Math.min(5, n))
-  return {
-    mentorTrust:    clamp5(flags.mentorTrust    + (deltas.mentorTrust    ?? 0)),
-    hypeRisk:       clamp5(flags.hypeRisk       + (deltas.hypeRisk       ?? 0)),
-    roleAcceptance: clamp5(flags.roleAcceptance + (deltas.roleAcceptance ?? 0)),
-    homeGrounding:  clamp5(flags.homeGrounding  + (deltas.homeGrounding  ?? 0)),
-    allyLoyalty:    clamp5(flags.allyLoyalty    + (deltas.allyLoyalty    ?? 0)),
-    rivalryScore:   clamp5(flags.rivalryScore   + (deltas.rivalryScore   ?? 0)),
+  const out = { ...flags }
+  for (const k of Object.keys(deltas) as (keyof GameFlags)[]) {
+    out[k] = clamp5((flags[k] ?? 0) + (deltas[k] ?? 0))
   }
+  return out
 }
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
@@ -72,13 +87,33 @@ export async function loadGameState(): Promise<GameState> {
   const { data } = await supabase().from('game_state').select('*').maybeSingle()
   if (!data) return DEFAULT_STATE
   const { weekForSituationId } = await import('./season')
-  // Guard against old meter format (trust/heat keys from v1)
-  const rawMeters = data.meters ?? DEFAULT_METERS
-  const meters: Meters = rawMeters?.image !== undefined ? rawMeters as Meters : DEFAULT_METERS
+  // Read world FIRST — it decides the meter shape. migrateMeters reshapes any stored
+  // blob (new per-world, or old generic {fame,heat,image}) so all existing rows load
+  // with progress intact, independent of whether the SQL migration has run.
+  const world = (data.world ?? 'creator-house') as World
+  const meters: Meters = migrateMeters(data.meters, world)
   // Extra fields stored in game_data JSONB column (nullable — old saves won't have it)
   const extra = (data.game_data as Record<string, unknown> | null) ?? {}
-  const world = (data.world ?? 'creator-house') as import('./types').World
   const choices = (data.choices ?? []) as ('A'|'B')[]
+  // Stale cricket saves (old CR-S* season): the beats no longer exist and pooled
+  // trust was goal currency, so the run resets cleanly — identity (name/gender/
+  // avatar) is preserved; old dmTrust is NOT hydrated (it would pre-solve the
+  // Captain's Trust goal). CH saves are untouched.
+  const staleCricket = world === 'cricket'
+    && Array.isArray(extra.situationQueue)
+    && (extra.situationQueue as string[]).some(id => typeof id === 'string' && id.startsWith('CR-S'))
+  if (staleCricket) {
+    return {
+      ...DEFAULT_STATE,
+      playerName: data.player_name ?? '',
+      playerGender: (data.player_gender ?? 'male') as 'male' | 'female',
+      avatarUrl: data.avatar_url ?? undefined,
+      world: 'cricket',
+      char: 'player',
+      meters: { ...CRICKET_START_METERS },
+      situationQueue: buildCricketQueue(),
+    }
+  }
   const situationQueue = Array.isArray(extra.situationQueue)
     ? (extra.situationQueue as string[])
     : (world === 'cricket' ? buildCricketQueue() : buildCHQueue(meters, choices))
@@ -108,10 +143,13 @@ export async function loadGameState(): Promise<GameState> {
       : (world === 'cricket' && Array.isArray(situationQueue) && situationQueue.length > 0
           ? weekForSituationId(situationQueue[Math.min(data.situation ?? 0, situationQueue.length - 1)])
           : undefined),
-    lockExpiresAt: typeof extra.lockExpiresAt === 'number' ? extra.lockExpiresAt : null,
-    clockOverrideMs: typeof extra.clockOverrideMs === 'number' ? extra.clockOverrideMs : null,
     interlude: (extra.interlude as GameState['interlude']) ?? undefined,
-    failedWeeks: Array.isArray(extra.failedWeeks) ? (extra.failedWeeks as number[]) : undefined,
+    pendingSelection: typeof extra.pendingSelection === 'string' ? extra.pendingSelection : null,
+    selections: (extra.selections as GameState['selections']) ?? undefined,
+    benchedWeeks: Array.isArray(extra.benchedWeeks) ? (extra.benchedWeeks as number[]) : undefined,
+    gateResults: (extra.gateResults as GameState['gateResults']) ?? undefined,
+    variantSeen: (extra.variantSeen as GameState['variantSeen']) ?? undefined,
+    activeMission: (extra.activeMission as GameState['activeMission']) ?? null,
     pendingEviction: typeof extra.pendingEviction === 'string' ? extra.pendingEviction : null,
     evictionsSeen: Array.isArray(extra.evictionsSeen) ? (extra.evictionsSeen as string[]) : undefined,
     evicted: Array.isArray(extra.evicted) ? (extra.evicted as string[]) : undefined,
@@ -143,12 +181,15 @@ export async function saveGameState(state: GameState, deviceId?: string) {
       charFame: state.charFame ?? {},
       likedPosts: state.likedPosts ?? [],
       aiPosts: state.aiPosts ?? {},
-      // Season 1 progression
+      // Season progression (cricket)
       week: state.week ?? null,
-      lockExpiresAt: state.lockExpiresAt ?? null,
-      clockOverrideMs: state.clockOverrideMs ?? null,
       interlude: state.interlude ?? null,
-      failedWeeks: state.failedWeeks ?? [],
+      pendingSelection: state.pendingSelection ?? null,
+      selections: state.selections ?? {},
+      benchedWeeks: state.benchedWeeks ?? [],
+      gateResults: state.gateResults ?? {},
+      variantSeen: state.variantSeen ?? {},
+      activeMission: state.activeMission ?? null,
       // Creator House evictions
       pendingEviction: state.pendingEviction ?? null,
       evictionsSeen: state.evictionsSeen ?? [],
@@ -275,7 +316,7 @@ export async function getReplySuggestions(
   charId: CharId,
   history: DMMessage[],
   playerName: string,
-  ctx?: { meters?: Meters; trustWithChar?: number; teamTrust?: number; nextSituation?: string; choicesMade?: number; playerGender?: 'male' | 'female' }
+  ctx?: { meters?: Meters; trustWithChar?: number; nextSituation?: string; choicesMade?: number; playerGender?: 'male' | 'female' }
 ): Promise<string[]> {
   const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!
 
@@ -305,7 +346,6 @@ export async function getReplySuggestions(
         player_name: playerName,
         player_meters: ctx?.meters ?? null,
         trust_with_char: ctx?.trustWithChar ?? null,
-        team_trust: ctx?.teamTrust ?? null,
         next_situation: ctx?.nextSituation ?? null,
         choices_made: ctx?.choicesMade ?? null,
         player_gender: ctx?.playerGender ?? 'male',
@@ -327,7 +367,7 @@ export async function getAIReply(
   charId: CharId,
   history: DMMessage[],
   playerName: string,
-  gameState?: { char: string | null; meters: Meters; choices: string[]; situation: number; world?: string; flags?: GameFlags; story?: string; trustWithChar?: number; trustBand?: 'low' | 'normal' | 'high'; trustGuidance?: string; teamTrust?: number; playerGender?: 'male' | 'female' }
+  gameState?: { char: string | null; meters: Meters; choices: string[]; situation: number; world?: string; flags?: GameFlags; story?: string; trustWithChar?: number; trustBand?: 'low' | 'normal' | 'high'; trustGuidance?: string; playerGender?: 'male' | 'female' }
 ): Promise<string> {
   const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!
 
@@ -360,7 +400,6 @@ export async function getAIReply(
         trust_with_char: gameState?.trustWithChar ?? null,
         trust_band: gameState?.trustBand ?? null,
         trust_guidance: gameState?.trustGuidance ?? null,
-        team_trust: gameState?.teamTrust ?? null,
         current_day: gameState ? (gameState.world === 'cricket' ? gameState.situation + 1 : Math.ceil((gameState.situation + 1) / 3)) : 1,
       }),
     })
@@ -402,12 +441,14 @@ function pickMock(charId: CharId): string {
 // ── Meter helpers ─────────────────────────────────────────────────────────────
 export function clamp(n: number) { return Math.max(0, Math.min(100, Math.round(n))) }
 
-export function applyDeltas(meters: Meters, deltas: Meters): Meters {
-  return {
-    fame:  clamp(meters.fame  + deltas.fame),
-    heat:  clamp(meters.heat  + deltas.heat),
-    image: clamp(meters.image + deltas.image),
+// Key-aware: clamps only the meter keys that actually exist on `meters`, so one
+// helper serves both { fame } (Creator House) and { form, fame, trust } (cricket).
+export function applyDeltas<M extends Meters>(meters: M, deltas: Partial<Record<keyof M, number>>): M {
+  const out = { ...meters }
+  for (const k of Object.keys(meters) as (keyof M)[]) {
+    out[k] = clamp((meters[k] as number) + ((deltas[k] as number) ?? 0)) as M[keyof M]
   }
+  return out
 }
 
 // charMeters not needed in v2 (fixed POV), kept for compat
@@ -467,16 +508,14 @@ export function allyLoyalty(choices: ('A' | 'B')[], situations: import('./types'
 }
 
 // ── Ending resolution ─────────────────────────────────────────────────────────
-// Creator House ships TWO reachable endings (CEO review, 2026-06): the old 4-ending
-// model collapsed to 94.6% "Heart" with Brand + Dark Horse mathematically impossible.
-// Fame and Heat are the two "who you become" axes; whichever ends higher decides.
-// (Image/Trust no longer maps to an ending — it drives eviction-night pressure.)
-//   fame > heat → The Main Character (celebrity)
-//   else        → The Heart (the most-talked-about, the emotional core)
-// Both are genuinely reachable: a fame-leaning playstyle lands Main, a heat-leaning
-// one lands Heart. The tie defaults to Heart.
-export function resolveEnding(m: Meters): 'heart' | 'main' {
-  return m.fame > m.heat ? 'main' : 'heart'
+// Creator House ships TWO reachable endings, now decided by the player's TWO VISIBLE
+// goals (heat is gone): followers (fame) vs the crush BOND — the same bond shown on
+// the Profile's "Bond" stat / crushTier. Whichever is ahead decides who you became.
+//   fame >= crushBond → The Main Character (the celebrity — you chased the spotlight)
+//   else              → The Heart (you chose something real over the numbers)
+// Both are 0–100; the tie defaults to Main Character.
+export function resolveEnding(fame: number, crushBond: number): 'heart' | 'main' {
+  return fame >= crushBond ? 'main' : 'heart'
 }
 
 // ── Fame → followers ──────────────────────────────────────────────────────────

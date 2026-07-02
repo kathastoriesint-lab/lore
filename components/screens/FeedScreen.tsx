@@ -1,7 +1,7 @@
 'use client'
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { useApp } from '@/lib/context'
-import type { CharId, Choice, ChoicePost, Meters, Reaction, Character } from '@/lib/types'
+import type { CharId, Choice, ChoicePost, Meters, CricketMeters, Reaction, Character } from '@/lib/types'
 import type { PostCommentOption } from '@/lib/data'
 import { getCricketChars, getCHChars, getCHPostComments } from '@/lib/content'
 import { applyDeltas, resolveTokens, fameToFollowers } from '@/lib/game'
@@ -43,12 +43,6 @@ const postAgeLabel = (stepIndex: number, completedChoices: number, offsetMinutes
 const postContextLabel = (label: string | undefined, fallback: string, time: string) => {
   const clean = label?.replace(/\s*·\s*(just now|\d+\s*(?:m|h|d)|\d+\s*(?:min|mins|minutes?)\s+ago)$/i, '').trim()
   return `${clean || fallback} · ${time}`
-}
-
-const resolveChoiceOutcome = (choice: Choice, meters: Meters) => {
-  const gate = choice.outcomeGate
-  if (!gate) return null
-  return meters[gate.metric] > gate.threshold ? gate.pass : gate.fail
 }
 
 const asArray = <T,>(value: T | T[] | null | undefined): T[] => {
@@ -186,29 +180,29 @@ interface CricketSeedProps {
 
 const CRICKET_COMMENTS: Record<string, PostCommentOption[]> = {
   hardik: [
-    { text: 'Captain energy 🔥 Paltan ready hai', deltas:{ fame:3, heat:2, image:3 }, toast:'Hardik saw this. Trust +3' },
-    { text: 'What role should I focus on?', deltas:{ fame:2, heat:0, image:4 }, toast:'Good question. Trust +4' },
-    { text: 'I\'m ready for any situation', deltas:{ fame:2, heat:1, image:3 }, toast:'Hardik approves. Trust +3' },
+    { text: 'Captain energy 🔥 Paltan ready hai', deltas:{ form:3, fame:2, trust:3 }, toast:'Hardik saw this. Trust +3' },
+    { text: 'What role should I focus on?', deltas:{ form:2, fame:0, trust:4 }, toast:'Good question. Trust +4' },
+    { text: 'I\'m ready for any situation', deltas:{ form:2, fame:1, trust:3 }, toast:'Hardik approves. Trust +3' },
   ],
   rohit: [
-    { text: 'Tempo advice please Ro bhai 🙏', deltas:{ fame:3, heat:0, image:4 }, toast:'Rohit noticed. Form +3' },
-    { text: 'Shot tha 🔥', deltas:{ fame:4, heat:1, image:2 }, toast:'Rohit smiles. Form +4' },
-    { text: 'This is everything 💙', deltas:{ fame:3, heat:0, image:3 }, toast:'Rohit approves. Form +3' },
+    { text: 'Tempo advice please Ro bhai 🙏', deltas:{ form:3, fame:0, trust:4 }, toast:'Rohit noticed. Form +3' },
+    { text: 'Shot tha 🔥', deltas:{ form:4, fame:1, trust:2 }, toast:'Rohit smiles. Form +4' },
+    { text: 'This is everything 💙', deltas:{ form:3, fame:0, trust:3 }, toast:'Rohit approves. Form +3' },
   ],
   surya: [
-    { text: 'Legend 😄 Field dekh phir pagal ban', deltas:{ fame:4, heat:2, image:2 }, toast:'Surya liked this 🔥' },
-    { text: 'Teach me the angles please 🙏', deltas:{ fame:3, heat:1, image:3 }, toast:'Surya says come to nets. Form +3' },
-    { text: 'Champion energy 💙', deltas:{ fame:4, heat:2, image:1 }, toast:'Surya energy unlocked. Fame +4' },
+    { text: 'Legend 😄 Field dekh phir pagal ban', deltas:{ form:4, fame:2, trust:2 }, toast:'Surya liked this 🔥' },
+    { text: 'Teach me the angles please 🙏', deltas:{ form:3, fame:1, trust:3 }, toast:'Surya says come to nets. Form +3' },
+    { text: 'Champion energy 💙', deltas:{ form:4, fame:2, trust:1 }, toast:'Surya energy unlocked. Fame +4' },
   ],
   bumrah: [
-    { text: 'Learning from the best 🏏', deltas:{ fame:2, heat:0, image:4 }, toast:'Bumrah noted this. Trust +4' },
-    { text: 'Still learning slower ball timing', deltas:{ fame:3, heat:0, image:5 }, toast:'Bumrah respects honesty. Form +3' },
-    { text: 'Nets tomorrow?', deltas:{ fame:2, heat:0, image:4 }, toast:'Bumrah approves. Form +3' },
+    { text: 'Learning from the best 🏏', deltas:{ form:2, fame:0, trust:4 }, toast:'Bumrah noted this. Trust +4' },
+    { text: 'Still learning slower ball timing', deltas:{ form:3, fame:0, trust:5 }, toast:'Bumrah respects honesty. Form +3' },
+    { text: 'Nets tomorrow?', deltas:{ form:2, fame:0, trust:4 }, toast:'Bumrah approves. Form +3' },
   ],
   tilak: [
-    { text: 'Role model hai bhai 💙', deltas:{ fame:3, heat:1, image:3 }, toast:'Tilak trusts you more. Trust +3' },
-    { text: 'Sikhta rehta hoon', deltas:{ fame:2, heat:0, image:4 }, toast:'Tilak respects this. Trust +4' },
-    { text: 'Same energy 🔥', deltas:{ fame:3, heat:2, image:2 }, toast:'Young table approved. Trust +2' },
+    { text: 'Role model hai bhai 💙', deltas:{ form:3, fame:1, trust:3 }, toast:'Tilak trusts you more. Trust +3' },
+    { text: 'Sikhta rehta hoon', deltas:{ form:2, fame:0, trust:4 }, toast:'Tilak respects this. Trust +4' },
+    { text: 'Same energy 🔥', deltas:{ form:3, fame:2, trust:2 }, toast:'Young table approved. Trust +2' },
   ],
 }
 
@@ -317,9 +311,9 @@ function CricketSeedFeed({ likedPosts, commentedPosts, onLike, onComment, commen
               <div className="comment-sheet">
                 <div className="comment-sheet-label">Comment as {playingCharName}</div>
                 {[
-                  { text:'Paltan tum sahi ho 💙 Dekho mujhe', deltas:{fame:5,heat:2,image:2}, toast:'Paltan noticed you. Fame +5' },
-                  { text:'Nervous thoda, excited zyada 🏏', deltas:{fame:3,heat:1,image:3}, toast:'Relatable energy. Fame +3' },
-                  { text:'Abhi sirf kaam. Baaki sab baad mein 💙', deltas:{fame:2,heat:0,image:4}, toast:'Trust move. Image +4' },
+                  { text:'Paltan tum sahi ho 💙 Dekho mujhe', deltas:{ form:5, fame:2, trust:2 }, toast:'Paltan noticed you. Fame +5' },
+                  { text:'Nervous thoda, excited zyada 🏏', deltas:{ form:3, fame:1, trust:3 }, toast:'Relatable energy. Fame +3' },
+                  { text:'Abhi sirf kaam. Baaki sab baad mein 💙', deltas:{ form:2, fame:0, trust:4 }, toast:'Trust move. Image +4' },
                 ] .map((opt, i) => (
                   <button key={i} className="comment-option" onClick={() => onHandleComment('paltan', 'paltan-seed', opt)}>{opt.text}</button>
                 ))}
@@ -485,7 +479,7 @@ export default function FeedScreen() {
     setCommentPost(null)
     setCommentedPosts(prev => { const n = new Set(prev); n.add(postId); return n })
     const charName = allChars[postKey]?.name
-    applyFeedDeltas(opt.deltas, postKey, charName)
+    applyFeedDeltas(opt.deltas, postKey, charName, opt.relationshipDeltas)
   }, [applyFeedDeltas])
 
   // Mark a post commented + close the sheet (AI comment path; the DM trigger lives
@@ -687,6 +681,15 @@ export default function FeedScreen() {
                         </div>
                       )
                     })}
+                  </div>
+                )}
+                {/* Authored comment hooks — your reply moves real bonds (story reads it back) */}
+                {!pc.isPlayer && (post.comments?.length ?? 0) > 0 && !commentedPosts.has(post.postId) && (
+                  <div style={{ padding: '2px 14px 6px', display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    <div style={{ fontSize: 9.5, fontWeight: 800, letterSpacing: '.08em', color: 'var(--ink3)' }}>REPLY KARO — sab dekh rahe hain</div>
+                    {post.comments!.map((opt, j) => (
+                      <button key={j} className="comment-option" onClick={() => handleComment(pc.id, post.postId, opt)}>{opt.text}</button>
+                    ))}
                   </div>
                 )}
                 <div className="ts" style={{ padding:'2px 14px 12px' }}>{timeLabelUpper}</div>

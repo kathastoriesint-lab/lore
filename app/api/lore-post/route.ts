@@ -25,7 +25,8 @@ interface Ctx {
   beatTitle?: string      // e.g. "Pehla Kadam"
   sceneSummary?: string   // 1-2 lines: what just happened in the story
   choiceText?: string     // the choice the player made
-  characters?: Character[] // housemates who might react
+  characters?: Character[] // housemates/teammates who might react
+  world?: string // 'cricket' | 'creator-house' — steers voice + hashtags + fan handles
 }
 
 const VIBE_GUIDE: Record<Vibe, string> = {
@@ -61,10 +62,17 @@ async function callOpenAI(system: string, user: string, maxTokens: number, model
 }
 
 function captionPrompt(ctx: Ctx, vibe: Vibe) {
+  const cricket = ctx.world === 'cricket'
+  const identity = cricket
+    ? `a 16-year-old batting prodigy who just joined Mumbai Indians (IPL)`
+    : `a creator on the Indian reality show "Creator House"`
+  const hashtags = cricket
+    ? `#MI, #Paltan, #IPL are fair game`
+    : `#Day${ctx.day || 1}, #CreatorHouse are fair game`
   const system =
-    `You are the social-media voice of ${ctx.playerName || 'the player'}, a creator on the Indian reality show "Creator House". ` +
+    `You are the social-media voice of ${ctx.playerName || 'the player'}, ${identity}. ` +
     `Write ONE short Instagram caption in Gen-Z Hinglish (Roman script, the way young Indians actually post). ` +
-    `Max ~120 characters. At most one emoji and one or two hashtags (#Day${ctx.day || 1}, #CreatorHouse are fair game). ` +
+    `Max ~120 characters. At most one emoji and one or two hashtags (${hashtags}). ` +
     `No quotation marks around the caption. Output strict JSON: {"caption": string}.`
   const user =
     `Scene: ${ctx.sceneSummary || 'Day 1 in the Creator House.'}\n` +
@@ -75,13 +83,18 @@ function captionPrompt(ctx: Ctx, vibe: Vibe) {
 }
 
 function reactionsPrompt(ctx: Ctx, caption: string) {
+  const cricket = ctx.world === 'cricket'
   const chars = ctx.characters && ctx.characters.length
     ? ctx.characters
-    : [{ id: 'ria', name: 'Ria' }, { id: 'ananya', name: 'Ananya' }, { id: 'kabir', name: 'Kabir' }]
+    : cricket
+      ? [{ id: 'hardik', name: 'Hardik' }, { id: 'surya', name: 'Surya' }, { id: 'tilak', name: 'Tilak' }]
+      : [{ id: 'ria', name: 'Ria' }, { id: 'ananya', name: 'Ananya' }, { id: 'kabir', name: 'Kabir' }]
   const charLines = chars.map(c => `- id:"${c.id}" name:"${c.name}"${c.persona ? ` — ${c.persona}` : ''}`).join('\n')
-  const system =
-    `You write the live comment section reacting to a reality-show contestant's Instagram post. ` +
-    `Voices: the housemates listed below (use their exact id), and fans (use id "__fan" with a believable handle as "name", e.g. housewatch_india, creator.tea, desi_reelszone). ` +
+  const system = (cricket
+    ? `You write the live comment section reacting to a young IPL cricketer's Instagram post. ` +
+      `Voices: the teammates listed below (use their exact id), and fans (use id "__fan" with a believable handle as "name", e.g. paltanpulse, cricketroom_india, futurexi). `
+    : `You write the live comment section reacting to a reality-show contestant's Instagram post. ` +
+      `Voices: the housemates listed below (use their exact id), and fans (use id "__fan" with a believable handle as "name", e.g. housewatch_india, creator.tea, desi_reelszone). `) +
     `Gen-Z Hinglish, Roman script, short (a few words each), realistic — some hyped, some shady, reactions should fit what the player just posted/did. ` +
     `Return 4 to 6 comments. Output strict JSON: {"reactions":[{"char":string,"name":string,"text":string}]}. ` +
     `For housemates set char to their id and name to their name; for fans set char to "__fan" and name to the handle.`

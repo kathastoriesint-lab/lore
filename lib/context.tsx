@@ -57,7 +57,7 @@ export interface AppCtx {
   /** Drives the HUD follower count-up + delta chip during an in-feed reaction. */
   hudReaction: { base: number; gain: number; key: string } | null
   setHudReaction: (r: { base: number; gain: number; key: string } | null) => void
-  applyFeedDeltas: (deltas: { fame: number; heat: number; image: number }, charId?: string, charName?: string) => void
+  applyFeedDeltas: (deltas: Partial<{ form: number; fame: number; trust: number }>, charId?: string, charName?: string, relationshipDeltas?: Partial<Record<string, number>>) => void
   injectCharDM: (charId: CharId, text: string, embed?: DMMessage['embed'], meta?: DMTimeMeta) => void
   setViewingChar: (id: CharId | null) => void
   advanceSituation: () => void
@@ -72,10 +72,8 @@ export interface AppCtx {
   sendDM: (charId: CharId, text: string) => Promise<void>
   openDMThread: (charId: CharId) => void
   resetGame: () => Promise<void>
-  /** Close the current interlude and open the next week (success/fail variant). */
-  resolveInterlude: (variant: 'success' | 'fail') => void
-  /** Week 7 hard gate: expiry below gate restarts a fresh interlude (clock + caps). */
-  restartInterlude: () => void
+  /** Resolve the pending squad selection: persist the verdict + advance the week. */
+  resolveSelection: () => void
   /** Apply a nets Form gain and consume one of the interlude's net sessions. */
   completeNetSession: (formGain: number) => void
   /** Play out an authored trust moment in a DM thread (once per interlude). */

@@ -218,7 +218,7 @@ export function computeBond(
       if (fr && fr.char === charId) latestPost = r(fr.caption)
     }
   } else {
-    let meters = { fame: 20, heat: 50, image: 30 }
+    let meters: import('./types').CHMeters = { fame: 20 }
     for (let i = 0; i < choices.length; i++) {
       const letter = choices[i]
       const sits = getVisibleSituations(meters, choices.slice(0, i) as ('A'|'B')[])

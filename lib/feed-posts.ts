@@ -1,8 +1,10 @@
 // Shared derivation of a player's run → feed posts + key-decision timeline.
 // Single source of truth for FeedScreen and the world profile (both replay
 // game.choices step-by-step to reconstruct what the player posted and decided).
-import type { CharId, Character, Choice, ChoicePost, GameState, Meters, Reaction, Situation } from './types'
+import type { CharId, Character, Choice, ChoicePost, GameState, Meters, CricketMeters, Reaction, Situation } from './types'
 import { getVisibleSituations } from './ch-rules'
+import { weekForSituationId } from './season'
+import { resolveGateOutcome, resolveSituationForReplay, variantCtxFor } from './variants'
 import { getCricketChars, getCHChars, getCricketSituations } from './content'
 import { applyDeltas, chCharForGender } from './game'
 
@@ -23,12 +25,6 @@ export const feedLikes = (index: number, isCricket: boolean) => {
 const asArray = <T,>(value: T | T[] | null | undefined): T[] =>
   value == null ? [] : Array.isArray(value) ? value : [value]
 
-const resolveChoiceOutcome = (choice: Choice, meters: Meters) => {
-  const gate = choice.outcomeGate
-  if (!gate) return null
-  return meters[gate.metric] > gate.threshold ? gate.pass : gate.fail
-}
-
 export type FeedPost =
   | { type: 'npc'; postId: string; sit: Situation; stepIndex: number; postOffset: number; choice: 'A'|'B'; reaction: { char: string; caption: string }; char: Character }
   | {
@@ -43,6 +39,8 @@ export type FeedPost =
       owner: { id: string; cls: string; init: string; handle: string; avatarUrl?: string; color: string; isPlayer: boolean; likeTarget?: CharId }
       label?: string
       reactions: Reaction[]
+      /** Authored comment options (cricket comment hooks) — replies move bonds. */
+      comments?: import('./data').PostCommentOption[]
     }
 
 // Replay the run → feed posts (newest first). Mirrors the original FeedScreen logic.
@@ -50,7 +48,7 @@ export function derivePosts(game: GameState): FeedPost[] {
   const isCricket = game.world === 'cricket'
   if (game.choices.length === 0) return []
   const allChars: Record<string, Character> = { ...getCHChars(), ...getCricketChars() }
-  const STARTING_METERS = isCricket ? { fame: 40, heat: 25, image: 20 } : { fame: 20, heat: 50, image: 30 }
+  const STARTING_METERS: Meters = isCricket ? { form: 40, fame: 25 } : { fame: 20 }
   let meters: Meters = { ...STARTING_METERS }
   const posts: FeedPost[] = []
   const playerCharObj = (isCricket || game.char === 'player')
@@ -60,9 +58,14 @@ export function derivePosts(game: GameState): FeedPost[] {
 
   for (let i = 0; i < game.choices.length; i++) {
     const letter = game.choices[i]
-    const sit: Situation | undefined = isCricket
+    const rawSit: Situation | undefined = isCricket
       ? cricketSitMap[game.situationQueue[i]]
       : getVisibleSituations(meters, game.choices.slice(0, i) as ('A'|'B')[])[i]
+    // Cricket: re-apply the variant the player actually chose in (persisted in
+    // variantSeen), so the replayed post matches what they saw.
+    const sit = rawSit && isCricket
+      ? resolveSituationForReplay(rawSit, game, variantCtxFor(game, game.dmTrust ?? {}, weekForSituationId(rawSit.id)))
+      : rawSit
     if (!sit) continue
     const ch = sit.choices[letter === 'A' ? 0 : 1]
 
@@ -74,7 +77,7 @@ export function derivePosts(game: GameState): FeedPost[] {
     }
 
     const legacyPost: ChoicePost | null = ch?.caption ? { source: 'player', caption: ch.caption, reactions: ch.reactions ?? [] } : null
-    const outcome = ch ? resolveChoiceOutcome(ch, meters) : null
+    const outcome = ch ? (resolveGateOutcome(ch, meters, game.dmTrust ?? {}, game.gateResults, sit.id)?.outcome ?? null) : null
     const authoredPosts = asArray(outcome?.post !== undefined ? outcome.post : (ch?.post !== undefined ? ch.post : (isCricket ? null : legacyPost)))
       .filter(post => post.display !== 'live-only')
     if (authoredPosts.length > 0 && playerCharObj) {
@@ -95,7 +98,7 @@ export function derivePosts(game: GameState): FeedPost[] {
           // Live-generated player post overrides the authored caption/reactions
           // (same key the compose flow writes: `${sit.id}-${letter}`).
           const ai = owner.isPlayer ? game.aiPosts?.[`${sit.id}-${letter}`] : undefined
-          posts.push({ type: 'authored', postId: `post-${sit.id}-${letter}-${postIndex}`, sit, stepIndex: i, postOffset: postIndex * 2, choice: letter, caption: ai?.caption ?? authoredPost.caption, imageUrl: ai?.imageUrl ?? authoredPost.imageUrl, owner, label: authoredPost.label, reactions: ai?.reactions?.length ? ai.reactions : (authoredPost.reactions ?? []) })
+          posts.push({ type: 'authored', postId: `post-${sit.id}-${letter}-${postIndex}`, sit, stepIndex: i, postOffset: postIndex * 2, choice: letter, caption: ai?.caption ?? authoredPost.caption, imageUrl: ai?.imageUrl ?? authoredPost.imageUrl, owner, label: authoredPost.label, reactions: ai?.reactions?.length ? ai.reactions : (authoredPost.reactions ?? []), comments: authoredPost.comments })
         }
       })
     }
@@ -118,28 +121,32 @@ export interface KeyDecision {
 export function deriveKeyDecisions(game: GameState): KeyDecision[] {
   const isCricket = game.world === 'cricket'
   if (game.choices.length === 0) return []
-  const STARTING_METERS = isCricket ? { fame: 40, heat: 25, image: 20 } : { fame: 20, heat: 50, image: 30 }
+  const STARTING_METERS: Meters = isCricket ? { form: 40, fame: 25 } : { fame: 20 }
   let meters: Meters = { ...STARTING_METERS }
   const cricketSitMap = isCricket ? Object.fromEntries(getCricketSituations().map(s => [s.id, s])) : {}
   // label + colour per meter slot, world-aware
-  const META: Record<keyof Meters, { label: string; color: string }> = isCricket
-    ? { fame: { label: 'Form', color: '#FFB020' }, heat: { label: 'Fame', color: '#FF5C3A' }, image: { label: 'Team trust', color: '#3DD6C8' } }
-    : { fame: { label: 'Fame', color: '#FFB020' }, heat: { label: 'Heat', color: '#FF5C3A' }, image: { label: 'Trust', color: '#3DD6C8' } }
+  const META: Record<string, { label: string; color: string }> = isCricket
+    ? { form: { label: 'Form', color: '#FFB020' }, fame: { label: 'Fame', color: '#FF5C3A' }, trust: { label: 'Team trust', color: '#3DD6C8' } }
+    : { fame: { label: 'Fame', color: '#FFB020' } }
   const out: KeyDecision[] = []
   for (let i = 0; i < game.choices.length; i++) {
     const letter = game.choices[i]
-    const sit: Situation | undefined = isCricket
+    const rawSit: Situation | undefined = isCricket
       ? cricketSitMap[game.situationQueue[i]]
       : getVisibleSituations(meters, game.choices.slice(0, i) as ('A'|'B')[])[i]
+    const sit = rawSit && isCricket
+      ? resolveSituationForReplay(rawSit, game, variantCtxFor(game, game.dmTrust ?? {}, weekForSituationId(rawSit.id)))
+      : rawSit
     if (!sit) continue
     const ch = sit.choices[letter === 'A' ? 0 : 1]
-    const d = ch.deltas
+    const d = ch.deltas as Record<string, number | undefined>
+    const dv = (s: string) => d[s] ?? 0
     // dominant changed meter → colour
-    const slots: (keyof Meters)[] = ['fame', 'heat', 'image']
-    const dominant = slots.slice().sort((a, b) => Math.abs(d[b]) - Math.abs(d[a]))[0]
+    const slots = Object.keys(META)
+    const dominant = slots.slice().sort((a, b) => Math.abs(dv(b)) - Math.abs(dv(a)))[0]
     const outcome = slots
-      .filter(s => d[s] !== 0)
-      .map(s => `${META[s].label} ${d[s] > 0 ? '+' : ''}${d[s]}`)
+      .filter(s => dv(s) !== 0)
+      .map(s => `${META[s].label} ${dv(s) > 0 ? '+' : ''}${dv(s)}`)
       .join(' · ') || 'No meter change'
     const tag = (sit.tag || '').replace(/[⚡✨🔥]/gu, '').replace(/\s+/g, ' ').trim().toUpperCase()
     out.push({

@@ -19,7 +19,13 @@ export interface Character {
   role: string
 }
 
-export interface Meters { fame: number; heat: number; image: number }
+// Per-world meters. Creator House tracks only fame (rendered as follower count);
+// the cricket world (Indian Dressing Room) tracks Form/Fame/Trust. heat/image are
+// gone. `.fame` is the common key, so union call sites that only read fame compile;
+// cricket-only reads (.form) narrow via asCricket() in lib/game.ts.
+export interface CHMeters { fame: number }
+export interface CricketMeters { form: number; fame: number }
+export type Meters = CHMeters | CricketMeters
 
 /** Hidden flags — tracked per world, stored in GameState.flags */
 export interface GameFlags {
@@ -31,6 +37,22 @@ export interface GameFlags {
   // Creator House
   allyLoyalty: number     // 0–3: how loyal player has been to ally
   rivalryScore: number    // 0–3: how escalated the rival relationship is
+  // Cricket v2 story markers (0/1; optional — absence = 0). Written by beats,
+  // feed comments, and DM missions; read back by later beats' variants/lines.
+  pressCocky?: number     // cocky headline at the first presser
+  likedOutrage?: number   // liked the fan-outrage posts while benched
+  clapback?: number       // clapped back at the pile-on
+  ownedIt?: number        // owned the leak in front of the room
+  deflected?: number      // PR-deflected the leak
+  lifelineOwed?: number   // captain staked his name on you
+  tradeNoise?: number     // agent floated a trade rumor
+  briefedPress?: number   // planted your numbers with a journalist
+  ownMethod?: number      // defended your own method in the slump
+  benchImpact?: number    // won the eliminator from the bench (the plan)
+  recalled?: number       // forced the W3 recall from the bench (form grind)
+  talkedRole?: number     // DM mission: messaged Hardik about the role
+  facedRohit?: number     // DM mission: faced Rohit before the 9am meeting
+  clearedNaman?: number   // DM mission: straight talk with Naman
 }
 
 /** Match / innings memory for cricket — written by match situations */
@@ -46,7 +68,8 @@ export interface RunMemory {
 export interface Choice {
   t: string
   s: string
-  deltas: Meters
+  /** Meter deltas — CH authors only { fame }; cricket authors { form?, fame?, trust? }. */
+  deltas: Partial<{ form: number; fame: number; trust: number }>
   /** Legacy player-caption field. Creator House still uses this as fallback. */
   caption?: string
   /** Legacy post/comment reactions. Creator House still uses this as fallback. */
@@ -69,6 +92,10 @@ export interface Choice {
   dm?: ChoiceDM | ChoiceDM[] | null
   /** Flag deltas applied when this choice is made */
   flagDeltas?: Partial<GameFlags>
+  /** DM mission: the story sends YOU to open a senior's thread and talk to them
+   *  in a particular manner (the brief). Completing the exchange sets flags[flag];
+   *  HOW it went is the trust delta the LLM scores. */
+  dmMission?: { char: CharId; brief: string; hint?: string; flag: keyof GameFlags }
   /** Optional per-character relationship deltas. Cricket can also infer these from Team Trust and involved characters. */
   relationshipDeltas?: Partial<Record<CharId, number>>
   /** Which run-memory slot this choice writes to (match situations only) */
@@ -80,8 +107,16 @@ export interface Choice {
 }
 
 export interface ChoiceOutcomeGate {
-  metric: keyof Meters
+  /** 'form'/'fame' read the meters; 'charTrust' reads dmTrust[charId] — the DM
+   *  payoff gates (e.g. Hardik's impact-sub call). Results are PERSISTED in
+   *  GameState.gateResults at choice time, so any input is replay-safe. */
+  metric: 'form' | 'fame' | 'charTrust'
+  /** Required when metric === 'charTrust'. */
+  charId?: string
   threshold: number
+  /** Senior-trust assists lower the bar — DM engagement literally saving your
+   *  knock (e.g. Bumrah ≥ 36 → threshold −4, pass copy quotes his advice). */
+  assists?: { charId: string; min: number; thresholdDelta: number }[]
   pass: ChoiceOutcome
   fail: ChoiceOutcome
 }
@@ -113,6 +148,9 @@ export interface ChoicePost {
   imageUrl?: string
   caption: string
   reactions?: Reaction[]
+  /** Authored comment options on this post (cricket comment hooks) — the player's
+   *  reply moves bonds the story reads back. Rendered by FeedScreen. */
+  comments?: import('./data').PostCommentOption[]
 }
 
 export interface ChoiceDM {
@@ -141,6 +179,42 @@ export interface ReaderBlock {
   who?: string
   /** Cue speaker avatar src. */
   avatar?: string
+  /** Conditional line — rendered only when the condition matches (trust-aware
+   *  tone swaps). Display-only: `when` lines must never carry outcomes. */
+  when?: VariantCond
+}
+
+/** Weekly squad verdict — how the selection ceremony resolved. */
+export type SelectionVerdict = 'started' | 'benched' | 'lifeline'
+
+// ── Beat variants — the story reacting to your state ─────────────────────────
+/** Condition for a variant or a conditional reader line. `benched`/`started`/
+ *  `lifeline` read the persisted selection verdict that opened the beat's week;
+ *  `charTrust` reads live per-senior trust; `flag` reads GameFlags. */
+export interface VariantCond {
+  benched?: boolean
+  /** True for verdict 'started' OR 'lifeline' (you're playing). */
+  started?: boolean
+  /** Exactly the captain's-lifeline verdict. */
+  lifeline?: boolean
+  charTrust?: { charId: string; gte?: number; lt?: number }
+  flag?: { key: keyof GameFlags; gte: number }
+  /** Reads a PERSISTED outcomeGate result of an earlier beat (e.g. the media
+   *  storm keying on whether your debut knock passed). Replay-safe. */
+  gate?: { sitId: string; is: 'pass' | 'fail' }
+}
+
+/** An authored alternate version of a beat. The FIRST matching variant overlays
+ *  its fields onto the base situation. Replay safety: the variant index active
+ *  at choice time is persisted (GameState.variantSeen), so any variant may
+ *  change anything — the feed replay re-applies the same variant by index. */
+export interface SituationVariant {
+  when: VariantCond
+  title?: string
+  tag?: string
+  q?: string
+  reader?: ReaderBlock[]
+  choices?: [Choice, Choice]
 }
 
 export interface Reaction {
@@ -181,6 +255,9 @@ export interface Situation {
   /** Optional chat-story stream. When present, LiveScreen renders these bubbles
    *  one tap at a time instead of the prose `body[]`. */
   reader?: ReaderBlock[]
+  /** State-reactive alternate versions of this beat (selection verdicts, trust
+   *  bands, flags). Resolved by resolveSituationVariant (lib/variants.ts). */
+  variants?: SituationVariant[]
   react?: { char: CharId; text: string } | null
   q: string
   choices: [Choice, Choice]
@@ -213,7 +290,7 @@ export type Screen =
   | 'feed'
   | 'narrator'
   | 'live'
-  | 'lock'
+  | 'selection'
   | 'eviction'
   | 'nets'
   | 'dm-inbox'
@@ -251,14 +328,11 @@ export interface GameState {
   /** Live-generated player posts (caption + reactions), keyed by `${sit.id}-${letter}`. */
   aiPosts?: Record<string, AiPost>
 
-  // ── Season 1 progression (cricket world) ──────────────────────────────────
-  /** Current Match Week (1-7). Absent on pre-season saves → derived on load. */
+  // ── Season progression (cricket world) ────────────────────────────────────
+  /** Current Match Week (1-3). Absent on pre-season saves → derived on load. */
   week?: number
-  /** Lock clock expiry (epoch ms). Non-null = interlude active, Live is locked. */
-  lockExpiresAt?: number | null
-  /** Dev clock override in ms (persisted from ?clock= at lock start). */
-  clockOverrideMs?: number | null
-  /** Per-interlude activity usage. Reset when a new week opens. */
+  /** Per-selection-window activity usage (the optional grind before each squad
+   *  announcement). Reset when a selection window opens. */
   interlude?: {
     netsUsed: number
     trustMomentUsed: boolean
@@ -266,8 +340,20 @@ export interface GameState {
     repliesUsed: number
     chatTrustEarned: Record<string, number>
   }
-  /** Weeks whose fail-variant beat already played (for "recalled to the XI" flavor). */
-  failedWeeks?: number[]
+  /** Selection ceremony id to play before the next beat (free-flow squad gate). */
+  pendingSelection?: string | null
+  /** Persisted squad verdicts by ceremony id — replay-safe ground truth for variants. */
+  selections?: Record<string, SelectionVerdict>
+  /** Weeks whose verdict was 'benched' (convenience for variants + endings). */
+  benchedWeeks?: number[]
+  /** Persisted outcomeGate results by situation id — feed replay reads these
+   *  instead of recomputing (gates may read dmTrust, which isn't replayable). */
+  gateResults?: Record<string, 'pass' | 'fail'>
+  /** Variant index (into sit.variants) active when the player chose, by situation
+   *  id; absent/-1 = base beat. The feed replay re-applies the same variant. */
+  variantSeen?: Record<string, number>
+  /** Active DM mission: the story sent YOU to open this conversation. */
+  activeMission?: { char: CharId; brief: string; hint?: string; flag: keyof GameFlags } | null
 
   // ── Creator House evictions ───────────────────────────────────────────────
   /** Eviction id to play before the next situation (set when its trigger completes). */

@@ -1,10 +1,10 @@
 'use client'
 import { useApp } from '@/lib/context'
 import { getCHSituations } from '@/lib/content'
-import { evictionRisk } from '@/lib/creator-house'
+import { evictionRisk, evictionTrust } from '@/lib/creator-house'
 
 // Creator House eviction risk — the CH equivalent of cricket's focused goal.
-// In CH, TRUST (the "log ka bharosa" meter) decides who survives eviction night.
+// In CH, your ALLY BOND (who has your back at the vote) decides how close eviction gets.
 //   focus (Live)  → the ONE number you optimise: your eviction risk + the safety line.
 //   slim  (Feed)  → a one-liner under the 3-meter overview.
 
@@ -25,7 +25,7 @@ export default function CHStatusCard({ variant = 'focus' }: { variant?: 'focus' 
 
   const sitId = game.situationQueue[game.situation] ?? game.situationQueue[game.situationQueue.length - 1]
   const day = (sitId && idToDay[sitId]) || 1
-  const risk = evictionRisk(game.meters.image, day)
+  const risk = evictionRisk(evictionTrust(game), day)
 
   // After the last eviction (day > 7) it's the finale stretch — no eviction to fear.
   if (!risk) {

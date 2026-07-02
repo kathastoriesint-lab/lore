@@ -7,6 +7,8 @@ export interface ComposeCtx {
   beatTitle: string
   sceneSummary: string
   choiceText: string
+  /** 'cricket' | 'creator-house' — steers the AI caption/reaction voice. */
+  world?: string
   characters: { id: string; name: string; persona?: string }[]
 }
 

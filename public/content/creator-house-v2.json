@@ -1,5 +1,5 @@
 {
-  "version": 6,
+  "version": 7,
   "chars": {
     "ria": {
       "id": "ria",
@@ -69,9 +69,7 @@
           "t": "Loud entry — sabka dhyan kheencho",
           "s": "Confident, noisy, unforgettable.",
           "deltas": {
-            "fame": 2,
-            "heat": -1,
-            "image": 1
+            "fame": 2
           },
           "caption": "Creator House mein aa gaye. Koi quietly nahi aata. 🔥 #Day1",
           "reactions": [
@@ -96,9 +94,7 @@
           "t": "Quiet entry — observe first",
           "s": "Let the house come to you.",
           "deltas": {
-            "fame": -1,
-            "heat": 1,
-            "image": 1
+            "fame": -1
           },
           "caption": "Pehle observe karo, phir move karo. Is ghar mein sab kuch content hai. 👀 #Day1",
           "reactions": [
@@ -194,9 +190,7 @@
           "t": "Haan — Ria parody reel banao",
           "s": "Viral reach + {ally} bond. Ria ka reaction baad mein dekhenge.",
           "deltas": {
-            "fame": 2,
-            "heat": -2,
-            "image": -1
+            "fame": 2
           },
           "caption": "Day 1, first collab, aur already trending? @{allyHandle} ke saath 🔥 #CreatorHouse",
           "reactions": [
@@ -255,9 +249,7 @@
           "t": "Collab karo — par Ria angle skip karo",
           "s": "Bond without burning bridges.",
           "deltas": {
-            "fame": -1,
-            "heat": 1,
-            "image": 1
+            "fame": -1
           },
           "caption": "Day 1 vibes with @{allyHandle} — good energy only ✨ #CreatorHouse",
           "reactions": [
@@ -372,9 +364,7 @@
           "t": "Ananya se baat karo",
           "s": "3 saal ka adhoora jawaab.",
           "deltas": {
-            "fame": -4,
-            "heat": 1,
-            "image": -1
+            "fame": -4
           },
           "relationshipDeltas": {
             "ananya": 25,
@@ -417,9 +407,7 @@
           "t": "Zoya ke saath baitho",
           "s": "Nayi dosti — fans ko interesting lagegi.",
           "deltas": {
-            "fame": 4,
-            "heat": 2,
-            "image": -1
+            "fame": 4
           },
           "relationshipDeltas": {
             "zoya": 25,
@@ -514,9 +502,7 @@
           "t": "Solo jao — apna naam banao",
           "s": "High risk. Ria ko seedha takkar.",
           "deltas": {
-            "fame": 4,
-            "heat": 1,
-            "image": -1
+            "fame": 4
           },
           "relationshipDeltas": {
             "kabir": -2,
@@ -541,9 +527,7 @@
           "t": "{ally} ke saath team banao",
           "s": "Behtar odds. Bond gehra.",
           "deltas": {
-            "fame": 1,
-            "heat": 1,
-            "image": 1
+            "fame": 1
           },
           "relationshipDeltas": {
             "kabir": 4
@@ -622,9 +606,7 @@
           "t": "Alliance accept karo — {ally} ko side karo",
           "s": "Maximum reach. Mehngi loyalty.",
           "deltas": {
-            "fame": 3,
-            "heat": -3,
-            "image": 2
+            "fame": 3
           },
           "relationshipDeltas": {
             "ria": 5,
@@ -635,9 +617,7 @@
           "t": "Decline karo — {ally} ke saath raho",
           "s": "Loyalty over power. Mushkil raasta.",
           "deltas": {
-            "fame": -1,
-            "heat": 2,
-            "image": -1
+            "fame": -1
           },
           "relationshipDeltas": {
             "ria": -3,
@@ -715,9 +695,7 @@
           "t": "Genuinely connect karo — support do",
           "s": "Insaan pehle, game baad mein.",
           "deltas": {
-            "fame": -1,
-            "heat": 2,
-            "image": 1
+            "fame": -1
           },
           "relationshipDeltas": {
             "dev": 5
@@ -741,9 +719,7 @@
           "t": "Polite raho — information store karo",
           "s": "Yeh baad mein kaam aa sakti hai. Ya manipulation hai.",
           "deltas": {
-            "fame": 1,
-            "heat": -1,
-            "image": 2
+            "fame": 1
           },
           "relationshipDeltas": {
             "dev": -1
@@ -813,9 +789,7 @@
           "t": "Ruko — sach mein sunno",
           "s": "Present raho. Yeh real hai.",
           "deltas": {
-            "fame": -1,
-            "heat": 3,
-            "image": 1
+            "fame": -1
           },
           "relationshipDeltas": {
             "ananya": 6
@@ -839,9 +813,7 @@
           "t": "Polite raho — jaldi niklo",
           "s": "Acknowledge karo, par attach mat ho. Yeh game hai.",
           "deltas": {
-            "fame": 1,
-            "heat": 0,
-            "image": 1
+            "fame": 1
           },
           "relationshipDeltas": {
             "ananya": -2
@@ -910,9 +882,7 @@
           "t": "Trust karo — Zoya se door raho",
           "s": "Warning ko serious lo.",
           "deltas": {
-            "fame": -1,
-            "heat": 1,
-            "image": 2
+            "fame": -1
           },
           "relationshipDeltas": {
             "kabir": 3,
@@ -937,9 +907,7 @@
           "t": "Apna judgment use karo — neutral raho",
           "s": "Kisi aur ko apni alliances tay mat karne do.",
           "deltas": {
-            "fame": 1,
-            "heat": 1,
-            "image": 1
+            "fame": 1
           },
           "relationshipDeltas": {
             "kabir": -1
@@ -1009,9 +977,7 @@
           "t": "Gracefully accept karo — chup-chap plan karo",
           "s": "Dard mat dikhao. Aag baad ke liye bachao.",
           "deltas": {
-            "fame": -1,
-            "heat": 1,
-            "image": 3
+            "fame": -1
           },
           "relationshipDeltas": {
             "ria": 2
@@ -1035,9 +1001,7 @@
           "t": "Publicly poocho — yeh fair tha?",
           "s": "Awaaz uthao. Recognition maango.",
           "deltas": {
-            "fame": 4,
-            "heat": 1,
-            "image": -2
+            "fame": 4
           },
           "relationshipDeltas": {
             "ria": -2
@@ -1116,9 +1080,7 @@
           "t": "Khulke {ally} ke saath align karo",
           "s": "Saaf alliance. Sabko pata chal jaye tum kahan ho.",
           "deltas": {
-            "fame": 2,
-            "heat": 1,
-            "image": -2
+            "fame": 2
           },
           "relationshipDeltas": {
             "kabir": 4,
@@ -1143,9 +1105,7 @@
           "t": "Neutral raho — observe karo",
           "s": "Apne patte mat dikhao. Dekho kaun pehle hilta hai.",
           "deltas": {
-            "fame": -1,
-            "heat": 1,
-            "image": 3
+            "fame": -1
           },
           "relationshipDeltas": {},
           "caption": "Is ghar mein sabse dangerous log woh hain jo chup rehte hain. 👀 #CreatorHouse",
@@ -1223,9 +1183,7 @@
           "t": "Haan — publicly {ally} ke saath khade raho",
           "s": "Asli loyalty. Asli risk. Asli dosti.",
           "deltas": {
-            "fame": 1,
-            "heat": 2,
-            "image": -1
+            "fame": 1
           },
           "relationshipDeltas": {
             "kabir": 6,
@@ -1236,9 +1194,7 @@
           "t": "Pyaar se mana karo — private mein support",
           "s": "Wahan raho, par publicly nahi. Dono taraf sambhaalo.",
           "deltas": {
-            "fame": 1,
-            "heat": -1,
-            "image": 2
+            "fame": 1
           },
           "relationshipDeltas": {
             "kabir": -2
@@ -1315,9 +1271,7 @@
           "t": "Clearly Ria ke saath — khulke bol do",
           "s": "Alliance declare karo. Power dynamics accept karo.",
           "deltas": {
-            "fame": 3,
-            "heat": -2,
-            "image": 1
+            "fame": 3
           },
           "relationshipDeltas": {
             "ria": 4,
@@ -1342,9 +1296,7 @@
           "t": "Ambiguous raho — 'main khud ke saath hoon'",
           "s": "Mystery se power. Sabko guessing rakho.",
           "deltas": {
-            "fame": 2,
-            "heat": 2,
-            "image": -1
+            "fame": 2
           },
           "relationshipDeltas": {
             "ria": -1,
@@ -1424,9 +1376,7 @@
           "t": "Camera pe seedha, confidently flip karo",
           "s": "Ise apna moment bana lo.",
           "deltas": {
-            "fame": 5,
-            "heat": -1,
-            "image": -2
+            "fame": 5
           },
           "relationshipDeltas": {
             "ria": -1
@@ -1450,9 +1400,7 @@
           "t": "Muskura do — baad mein address karo",
           "s": "Use woh reaction mat do jo woh chahti hai.",
           "deltas": {
-            "fame": -1,
-            "heat": 1,
-            "image": 3
+            "fame": -1
           },
           "relationshipDeltas": {
             "ria": 2
@@ -1533,9 +1481,7 @@
           "t": "Let it go — publicly hass do",
           "s": "Itne secure raho ki mazaak le sako. Bond mazboot karo.",
           "deltas": {
-            "fame": 1,
-            "heat": 2,
-            "image": 1
+            "fame": 1
           },
           "relationshipDeltas": {
             "kabir": 5
@@ -1559,9 +1505,7 @@
           "t": "Private mein bolo — yeh thik nahi tha",
           "s": "Ek boundary set karo. Sachi dosti honest baat sambhaal leti hai.",
           "deltas": {
-            "fame": 2,
-            "heat": -2,
-            "image": 1
+            "fame": 2
           },
           "relationshipDeltas": {
             "kabir": -1
@@ -1637,9 +1581,7 @@
           "t": "Ria ke through jaao — smooth raho",
           "s": "Kam paisa, par rishta bacha.",
           "deltas": {
-            "fame": 3,
-            "heat": -2,
-            "image": 3
+            "fame": 3
           },
           "relationshipDeltas": {
             "ria": 4
@@ -1649,9 +1591,7 @@
           "t": "Direct jaao — khud negotiate karo",
           "s": "Zyada paisa. Zyada takkar. Poori autonomy.",
           "deltas": {
-            "fame": 5,
-            "heat": 1,
-            "image": -3
+            "fame": 5
           },
           "relationshipDeltas": {
             "ria": -3
@@ -1717,9 +1657,7 @@
           "t": "{ally} se seedha poocho",
           "s": "Agar dhoka diya, toh tumhe abhi jaanna hai.",
           "deltas": {
-            "fame": 2,
-            "heat": -3,
-            "image": -2
+            "fame": 2
           },
           "relationshipDeltas": {
             "kabir": -2,
@@ -1744,9 +1682,7 @@
           "t": "Chup raho — observe karo",
           "s": "Jo tum jaante ho, mat dikhao. Sabki chaal dekho.",
           "deltas": {
-            "fame": -1,
-            "heat": 1,
-            "image": 3
+            "fame": -1
           },
           "relationshipDeltas": {
             "zoya": -1
@@ -1815,9 +1751,7 @@
           "t": "Haan — chemistry matters",
           "s": "Achha content asli connection se banta hai.",
           "deltas": {
-            "fame": 1,
-            "heat": 3,
-            "image": -1
+            "fame": 1
           },
           "relationshipDeltas": {
             "ananya": 6
@@ -1841,9 +1775,7 @@
           "t": "Pyaar se mana karo — numbers matter",
           "s": "Yeh business hai. Narmi se samjhao.",
           "deltas": {
-            "fame": 1,
-            "heat": -2,
-            "image": 2
+            "fame": 1
           },
           "relationshipDeltas": {
             "ananya": -3
@@ -1914,9 +1846,7 @@
           "t": "Honestly jawaab do — apna bhi sach batao",
           "s": "Bond ko aur gehra karo.",
           "deltas": {
-            "fame": -1,
-            "heat": 3,
-            "image": 1
+            "fame": -1
           },
           "relationshipDeltas": {
             "kabir": 6
@@ -1940,9 +1870,7 @@
           "t": "Support karo — apna mat batao",
           "s": "Saath do, par khud ko mat kholo.",
           "deltas": {
-            "fame": 1,
-            "heat": -2,
-            "image": 1
+            "fame": 1
           },
           "relationshipDeltas": {
             "kabir": 1
@@ -2012,9 +1940,7 @@
           "t": "Genuinely connect karo",
           "s": "Yeh real hai. Ise real treat karo.",
           "deltas": {
-            "fame": -1,
-            "heat": 3,
-            "image": 2
+            "fame": -1
           },
           "relationshipDeltas": {
             "ria": 5
@@ -2038,9 +1964,7 @@
           "t": "Sun lo — par guard rakho",
           "s": "Usne kuch real dikhaya. Par woh abhi bhi Ria hai.",
           "deltas": {
-            "fame": -1,
-            "heat": 1,
-            "image": 3
+            "fame": -1
           },
           "relationshipDeltas": {
             "ria": 1
@@ -2110,9 +2034,7 @@
           "t": "Abhi confront karo — saaf karo",
           "s": "Sab table pe rakho. Air clear karo.",
           "deltas": {
-            "fame": 3,
-            "heat": -3,
-            "image": -2
+            "fame": 3
           },
           "relationshipDeltas": {
             "zoya": -3
@@ -2136,9 +2058,7 @@
           "t": "Wait karo — Day 7 ke liye bachao",
           "s": "Yeh leverage hai. Abhi mat use karo.",
           "deltas": {
-            "fame": -1,
-            "heat": 1,
-            "image": 3
+            "fame": -1
           },
           "relationshipDeltas": {},
           "caption": "Is ghar mein timing sab kuch hai. Abhi waqt nahi aaya. 🎯 #Day6",
@@ -2215,9 +2135,7 @@
           "t": "Seedha honest raho — asli version batao",
           "s": "Vulnerability ke badle vulnerability. Asli tum.",
           "deltas": {
-            "fame": -2,
-            "heat": 4,
-            "image": 1
+            "fame": -2
           },
           "relationshipDeltas": {
             "ananya": 7
@@ -2241,9 +2159,7 @@
           "t": "Edited version — real par guarded",
           "s": "Kuch real dikhao. Sab nahi.",
           "deltas": {
-            "fame": 1,
-            "heat": -2,
-            "image": 2
+            "fame": 1
           },
           "relationshipDeltas": {
             "ananya": -2
@@ -2313,9 +2229,7 @@
           "t": "Assure karo — 'I'll fight for you'",
           "s": "Ek waada karo. Aur use nibhao.",
           "deltas": {
-            "fame": -1,
-            "heat": 2,
-            "image": 1
+            "fame": -1
           },
           "relationshipDeltas": {
             "kabir": 4
@@ -2339,9 +2253,7 @@
           "t": "Honest raho — 'main koshish karunga'",
           "s": "Woh waada mat karo jo nibha na sako.",
           "deltas": {
-            "fame": 1,
-            "heat": -1,
-            "image": 2
+            "fame": 1
           },
           "relationshipDeltas": {
             "kabir": 1
@@ -2411,9 +2323,7 @@
           "t": "Zoya ko vote karo — Ria ke saath jaao",
           "s": "{ally} bach jaata hai. Ria khush. Par keemat?",
           "deltas": {
-            "fame": -1,
-            "heat": 3,
-            "image": -1
+            "fame": -1
           },
           "relationshipDeltas": {
             "ria": 4,
@@ -2425,9 +2335,7 @@
           "t": "Ria ki baat na maano — apni call lo",
           "s": "Ria ka trust toot-ta hai. Tum apne tareeke se khelte ho.",
           "deltas": {
-            "fame": 2,
-            "heat": -3,
-            "image": 3
+            "fame": 2
           },
           "relationshipDeltas": {
             "ria": -4,
@@ -2493,9 +2401,7 @@
           "t": "Sabse milo — active raho",
           "s": "Dhool baithne se pehle kamre mein raho.",
           "deltas": {
-            "fame": 2,
-            "heat": 3,
-            "image": 1
+            "fame": 2
           },
           "relationshipDeltas": {},
           "caption": "Jo bhi kal hua — aaj naya din hai. Aur main yahan hoon, har kamre mein. 🔥 #Day8",
@@ -2517,9 +2423,7 @@
           "t": "Akele raho — process karo",
           "s": "Tumhe ek pal chahiye. Le lo.",
           "deltas": {
-            "fame": 3,
-            "heat": -2,
-            "image": 3
+            "fame": 3
           },
           "relationshipDeltas": {},
           "caption": "Kuch din aise hote hain ki bas process karna padta hai. Aaj woh din hai. 🌅 #Day8",
@@ -2596,9 +2500,7 @@
           "t": "Publicly support karo — comment/share",
           "s": "Uske liye dikho. Sabke saamne.",
           "deltas": {
-            "fame": -1,
-            "heat": 4,
-            "image": 2
+            "fame": -1
           },
           "relationshipDeltas": {
             "ananya": 6
@@ -2622,9 +2524,7 @@
           "t": "Private mein appreciate karo",
           "s": "DM karo. Yeh pal sirf tum dono ke beech rakho.",
           "deltas": {
-            "fame": -1,
-            "heat": 2,
-            "image": 3
+            "fame": -1
           },
           "relationshipDeltas": {
             "ananya": 4
@@ -2701,9 +2601,7 @@
           "t": "Warmly accept karo — respect lautao",
           "s": "Do rival jinhone ek doosre ko behtar banaya.",
           "deltas": {
-            "fame": -1,
-            "heat": 3,
-            "image": 3
+            "fame": -1
           },
           "relationshipDeltas": {
             "ria": 5
@@ -2727,9 +2625,7 @@
           "t": "Accept karo — par guard rakho",
           "s": "Maano. Par yeh mat bhoolo woh kaun hai.",
           "deltas": {
-            "fame": 5,
-            "heat": -2,
-            "image": 4
+            "fame": 5
           },
           "relationshipDeltas": {
             "ria": 2
@@ -2799,9 +2695,7 @@
           "t": "Na — {ally}/{crush} ko protect karo",
           "s": "Yeh mauka itna mehnga nahi.",
           "deltas": {
-            "fame": -5,
-            "heat": -2,
-            "image": 6
+            "fame": -5
           },
           "relationshipDeltas": {
             "ananya": 5,
@@ -2827,9 +2721,7 @@
           "t": "Le lo — yeh game hai",
           "s": "Slot bahut bada hai. Call lo.",
           "deltas": {
-            "fame": 8,
-            "heat": -4,
-            "image": -5
+            "fame": 8
           },
           "relationshipDeltas": {
             "ananya": -5,
@@ -2893,9 +2785,7 @@
           "t": "Grateful raho — pal ko jiyo",
           "s": "Present raho. Tum yahan tak aaye.",
           "deltas": {
-            "fame": -1,
-            "heat": 3,
-            "image": 2
+            "fame": -1
           },
           "relationshipDeltas": {},
           "caption": "Finale morning. Is ghar mein aana, yahan tak rehna — yeh enough hai. 🌅 #Day10",
@@ -2917,9 +2807,7 @@
           "t": "Focused raho — game abhi baaki hai",
           "s": "Finale khatam nahi hua. Sharp raho.",
           "deltas": {
-            "fame": 3,
-            "heat": -1,
-            "image": 3
+            "fame": 3
           },
           "relationshipDeltas": {},
           "caption": "Abhi finale hai. Main grateful hoon. Main sharp bhi hoon. Dono saath ho sakte hain. 🎯 #Finale",
@@ -2996,9 +2884,7 @@
           "t": "Authentic jawaab — sab kuch share karo",
           "s": "Raw. Real. Poora sach.",
           "deltas": {
-            "fame": 6,
-            "heat": 4,
-            "image": -3
+            "fame": 6
           },
           "relationshipDeltas": {
             "ananya": 3,
@@ -3023,9 +2909,7 @@
           "t": "Polished jawaab — perfect finale moment",
           "s": "Woh moment do jo woh expect kar rahe hain. Perfectly.",
           "deltas": {
-            "fame": 8,
-            "heat": -3,
-            "image": 4
+            "fame": 8
           },
           "relationshipDeltas": {
             "ria": 3
@@ -3173,27 +3057,21 @@
       {
         "text": "Inspired 🤍 This is everything.",
         "deltas": {
-          "fame": 3,
-          "heat": 0,
-          "image": 5
+          "fame": 3
         },
         "toast": "Ria noticed you. Image +5"
       },
       {
         "text": "Easy to say when you have it all 🙄",
         "deltas": {
-          "fame": 2,
-          "heat": 8,
-          "image": -3
+          "fame": 2
         },
         "toast": "Ria is not pleased. Heat +8"
       },
       {
         "text": "Can you mentor me? 🙏",
         "deltas": {
-          "fame": 5,
-          "heat": 0,
-          "image": 4
+          "fame": 5
         },
         "toast": "Ria appreciated the ask. Image +4"
       }
@@ -3202,27 +3080,21 @@
       {
         "text": "Lol this is so accurate 😭",
         "deltas": {
-          "fame": 4,
-          "heat": 2,
-          "image": 2
+          "fame": 4
         },
         "toast": "Kabir liked this. Heat +2"
       },
       {
         "text": "Off camera you are different too 😅",
         "deltas": {
-          "fame": 3,
-          "heat": 3,
-          "image": 2
+          "fame": 3
         },
         "toast": "Kabir felt seen. Heat +3"
       },
       {
         "text": "Stop trying to be deep 🙄",
         "deltas": {
-          "fame": 1,
-          "heat": 7,
-          "image": -3
+          "fame": 1
         },
         "toast": "Kabir noted this. Heat +7"
       }
@@ -3231,27 +3103,21 @@
       {
         "text": "Bahut zyada soch rahe ho 😌",
         "deltas": {
-          "fame": 2,
-          "heat": -3,
-          "image": 1
+          "fame": 2
         },
         "toast": "Low heat move"
       },
       {
         "text": "👀 accurate tbh",
         "deltas": {
-          "fame": 6,
-          "heat": 8,
-          "image": 0
+          "fame": 6
         },
         "toast": "Engagement up. Heat +8"
       },
       {
         "text": "Wrong 🙅 Stop spreading rumours",
         "deltas": {
-          "fame": 3,
-          "heat": -5,
-          "image": 2
+          "fame": 3
         },
         "toast": "You pushed back"
       }
@@ -3260,27 +3126,21 @@
       {
         "text": "Ro mat 🥺 Tu amazing hai",
         "deltas": {
-          "fame": 2,
-          "heat": 0,
-          "image": 3
+          "fame": 2
         },
         "toast": "Ananya trusts you more. Image +3"
       },
       {
         "text": "2.1M that is insane!! 🔥",
         "deltas": {
-          "fame": 5,
-          "heat": 0,
-          "image": 2
+          "fame": 5
         },
         "toast": "Positive energy. Fame +5"
       },
       {
         "text": "Nice attempt 😐",
         "deltas": {
-          "fame": 0,
-          "heat": 5,
-          "image": -4
+          "fame": 0
         },
         "toast": "Ananya is hurt. Heat +5"
       }
@@ -3289,27 +3149,21 @@
       {
         "text": "Love this energy 🫶",
         "deltas": {
-          "fame": 3,
-          "heat": 1,
-          "image": 3
+          "fame": 3
         },
         "toast": "Zoya is warm. Image +3"
       },
       {
         "text": "Hmm interesting 👀",
         "deltas": {
-          "fame": 2,
-          "heat": 4,
-          "image": 0
+          "fame": 2
         },
         "toast": "Zoya is watching. Heat +4"
       },
       {
         "text": "Main agree nahi karti 🙅",
         "deltas": {
-          "fame": 1,
-          "heat": 6,
-          "image": -2
+          "fame": 1
         },
         "toast": "Zoya disagrees. Heat +6"
       }
@@ -3318,27 +3172,21 @@
       {
         "text": "Numbers never lie 📈 Respect",
         "deltas": {
-          "fame": 4,
-          "heat": 0,
-          "image": 3
+          "fame": 4
         },
         "toast": "Dev respects the grind. Fame +4"
       },
       {
         "text": "Ye sab brand PR hai na? 😅",
         "deltas": {
-          "fame": 2,
-          "heat": 5,
-          "image": -2
+          "fame": 2
         },
         "toast": "Dev is sceptical. Heat +5"
       },
       {
         "text": "Bhai same thoughts 💪",
         "deltas": {
-          "fame": 3,
-          "heat": 2,
-          "image": 2
+          "fame": 3
         },
         "toast": "Dev aligned. Heat +2"
       }

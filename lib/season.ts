@@ -1,134 +1,34 @@
-// Season 1 structure for the cricket world (Indian Dressing Room).
-// Design doc: ~/.gstack/projects/Katha_MVP/nabhgarg-main-design-20260611-230931.md
+// Season structure for the cricket world (Indian Dressing Room) — v2.
 //
-// 29 playable beats (CR-S28 is filtered from the queue) chunked into 7 Match
-// Weeks. Each week (except W1) has an entry GATE checked during the interlude
-// between weeks. Gates 2-6 are soft: if the lock clock expires below the gate,
-// the week opens with the fail-variant beat. Week 7 is the one hard gate.
+// 14 beats (CR2-S1..S14) across 3 Match Weeks. FREE-FLOW: no real-time locks.
+// Each week's last regular beat triggers a SELECTION window (lib/cricket-selection):
+// the player may grind (nets/DMs/feed — capped per window) and then taps into the
+// squad-announcement ceremony. The verdict variant-keys the next beat.
 //
-// Cricket meter slots (storage → display): fame=FORM, heat=FAME, image=TEAM TRUST.
-// "Team Trust" is the pooled dressing-room standing. Per-senior trust (Rohit,
-// Hardik) is separate — built in DMs and used for the charTrust story gates below.
-
-import type { Meters } from './types'
+// Two goals: FORM (meters.form) + CAPTAIN'S TRUST (dmTrust['hardik']).
 
 export const SENIORS = ['rohit', 'hardik', 'bumrah', 'surya'] as const
-
-export type GateRequirement =
-  | { kind: 'meter'; slot: keyof Meters; threshold: number; label: string; surface: 'nets' | 'feed' | 'live' }
-  | { kind: 'charTrust'; charId: string; threshold: number; label: string; surface: 'dms' }
-  | { kind: 'highestSeniorTrust'; threshold: number; label: string; surface: 'dms' }
 
 export interface SeasonWeek {
   week: number
   name: string
   /** Situation ids belonging to this week, in queue order. */
   situationIds: string[]
-  /** Entry gate — requirements to open this week. Empty for W1. */
-  gate: GateRequirement[]
-  /** Hard gate: week does not open below gate; expiry restarts the interlude. */
-  hardGate?: boolean
-  /** Which trust the HUD shows while this week is active. */
-  hudTrustSource: 'team' | { charId: string } | 'highest-senior'
-  /** Diegetic lock-screen copy shown during the interlude BEFORE this week. */
-  lockCopy: string
-  /** Beat shown when the gate was met (success variant). */
-  successBeat: string
-  /** Beat shown when the clock expired below the gate (fail variant). */
-  failBeat: string
 }
 
 export const SEASON_WEEKS: SeasonWeek[] = [
-  {
-    week: 1, name: 'Arrival',
-    situationIds: ['CR-S1', 'CR-S2', 'CR-S3', 'CR-S4'],
-    gate: [],
-    hudTrustSource: 'team',
-    lockCopy: '',
-    successBeat: '',
-    failBeat: '',
-  },
-  {
-    week: 2, name: 'The Nets',
-    situationIds: ['CR-S5', 'CR-S6', 'CR-S7', 'CR-S8'],
-    gate: [{ kind: 'meter', slot: 'fame', threshold: 45, label: 'FORM', surface: 'nets' }],
-    hudTrustSource: 'team',
-    lockCopy: 'Coach finalises the main nets group tomorrow morning.',
-    successBeat: 'Team sheet on the dressing room door: you’re in the MAIN nets group. Bumrah ke saath. Coach ne khud naam likha.',
-    failBeat: 'Team sheet on the door: reserves group. Coach walks past — "Form dikhao, phir baat karenge."',
-  },
-  {
-    week: 3, name: 'The Debut',
-    situationIds: ['CR-S9', 'CR-S10', 'CR-S11', 'CR-S12', 'CR-S13'],
-    gate: [{ kind: 'meter', slot: 'fame', threshold: 52, label: 'FORM', surface: 'nets' }],
-    hudTrustSource: 'team',
-    lockCopy: 'Match vs RR in 2 days. Squad drops tomorrow 9am.',
-    successBeat: 'Squad announcement: YOUR NAME in the XI. Wankhede debut. Phone explodes — {friend} calling, MI admin texting, sab kuch ek saath.',
-    failBeat: '12th man. Drinks duty. Itne kareeb — coach bola "form thodi aur chahiye." The XI walks out without you.',
-  },
-  {
-    week: 4, name: 'Hold Your Spot',
-    situationIds: ['CR-S14', 'CR-S15', 'CR-S16', 'CR-S17'],
-    gate: [{ kind: 'meter', slot: 'fame', threshold: 60, label: 'FORM', surface: 'nets' }],
-    hudTrustSource: 'team',
-    lockCopy: 'Next match vs KKR. Selection meeting tonight.',
-    successBeat: 'Back-to-back selection. Pehli baar koi debate nahi hui — your name went on the sheet first.',
-    failBeat: 'Rotated out. "Workload management," coach says. Everyone knows what it means.',
-  },
-  {
-    week: 5, name: 'Win the Room',
-    situationIds: ['CR-S18', 'CR-S19', 'CR-S20', 'CR-S21'],
-    gate: [{ kind: 'charTrust', charId: 'rohit', threshold: 50, label: "ROHIT'S TRUST", surface: 'dms' }],
-    hudTrustSource: { charId: 'rohit' },
-    lockCopy: 'Away leg begins — flight to Chennai tomorrow.',
-    successBeat: 'Press conference. Journalist tries a trap question about you. Rohit cuts him off: "Woh mera player hai. Next question."',
-    failBeat: 'You board the flight as squad filler. Seniors ki row mein jagah nahi — abhi tak unka bharosa nahi jeeta.',
-  },
-  {
-    week: 6, name: 'Let the Bat Talk',
-    situationIds: ['CR-S22', 'CR-S23', 'CR-S24', 'CR-S25'],
-    // The standout-performance week. Selectors don't want noise — they want runs
-    // on the board. Gated on FORM, not public hype.
-    gate: [{ kind: 'meter', slot: 'fame', threshold: 62, label: 'FORM', surface: 'nets' }],
-    hudTrustSource: { charId: 'hardik' },
-    lockCopy: 'Must-win stretch, playoff race on. The selectors are watching the scorecard — not the headlines.',
-    successBeat: 'A match-defining knock. The dressing room is quiet, then loud. Hardik just nods — that nod means more than any headline.',
-    failBeat: 'Another mixed outing. The team gets through, but your scorecard still isn’t the one selectors circle. Not yet.',
-  },
-  {
-    week: 7, name: 'The Call-Up',
-    situationIds: ['CR-S26', 'CR-S27', 'CR-S29', 'CR-S30'],
-    // India selection is merit + cricket reputation: runs on the board (Form) and
-    // the captain vouching for you (Hardik's Trust). Public Fame is not a selection
-    // criterion — it has its own home as Week 6's gate ("Become the Story").
-    gate: [
-      { kind: 'meter', slot: 'fame', threshold: 64, label: 'FORM', surface: 'nets' },
-      { kind: 'charTrust', charId: 'hardik', threshold: 55, label: "HARDIK'S TRUST", surface: 'dms' },
-    ],
-    hardGate: true,
-    hudTrustSource: { charId: 'hardik' },
-    lockCopy: 'Semi-final week. And the selectors are watching — India squad announcement is coming.',
-    successBeat: 'Unknown number. "Beta, selectors ki meeting khatam hui. Pack your bags — India camp." THE CALL.',
-    failBeat: 'Squad announced. Your name isn’t on it. Selectors ka message saaf hai: numbers complete karo, agli meeting tak.',
-  },
+  { week: 1, name: 'Arrival',       situationIds: ['CR2-S1', 'CR2-S2', 'CR2-S3', 'CR2-S4', 'CR2-S5'] },
+  { week: 2, name: 'The Debut',     situationIds: ['CR2-S6', 'CR2-S7', 'CR2-S8', 'CR2-S9', 'CR2-S10'] },
+  { week: 3, name: 'The Reckoning', situationIds: ['CR2-S11', 'CR2-S12', 'CR2-S13', 'CR2-S14'] },
 ]
 
-// ── Lock clock ────────────────────────────────────────────────────────────────
-// 3h real-time per interlude (one lock per Match Week). The timer is a fallback:
-// completing interlude activities (a nets session + a senior DM) unlocks early —
-// see LockScreen's unlock-by-activity path.
-export const DEFAULT_LOCK_MS = 3 * 60 * 60 * 1000 // 3h real-time per interlude
+// ── DM economy ───────────────────────────────────────────────────────────────
+// DMs are open all season (no interlude gating). Free-chat allowance per senior
+// per real day — keeps threads alive daily without infinite grinding. Mission /
+// story-injected exchanges don't consume it. v1-tunable.
+export const DM_DAILY_BUDGET = 10
 
-/** Parse a ?clock= override like "5m", "30s", "2h" → ms. Returns null if absent/bad. */
-export function parseClockOverride(param: string | null): number | null {
-  if (!param) return null
-  const m = param.match(/^(\d+)(s|m|h)$/)
-  if (!m) return null
-  const n = parseInt(m[1], 10)
-  return m[2] === 's' ? n * 1000 : m[2] === 'm' ? n * 60_000 : n * 3_600_000
-}
-
-// ── Interlude activity caps (per interlude; reset when a week opens) ─────────
+// ── Grind caps (per selection window; reset when a window opens) ─────────────
 export const INTERLUDE_CAPS = {
   netSessions: 3,           // diminishing +4/+2/+1
   netGains: [4, 2, 1] as number[],
@@ -137,16 +37,6 @@ export const INTERLUDE_CAPS = {
   captionPosts: 1,          // spicy +3 Fame / safe +1 Fame
   commentReplies: 3,        // +1 Fame each
 } as const
-
-/** The trust threshold a senior's charTrust gate requires across the season, or
- *  null if that senior never gates a week. Used to show the goal target in their DM. */
-export function trustGateThreshold(charId: string): number | null {
-  for (const w of SEASON_WEEKS) {
-    const req = w.gate.find(r => r.kind === 'charTrust' && r.charId === charId)
-    if (req && req.kind === 'charTrust') return req.threshold
-  }
-  return null
-}
 
 export interface InterludeState {
   netsUsed: number
@@ -308,44 +198,4 @@ export function snapToWeekStart(queue: string[], index: number): { index: number
   const startId = getWeek(week).situationIds[0]
   const startIdx = queue.indexOf(startId)
   return { index: startIdx >= 0 ? startIdx : 0, week }
-}
-
-// ── Gate evaluation ───────────────────────────────────────────────────────────
-export interface GateGap {
-  label: string
-  current: number
-  threshold: number
-  surface: 'nets' | 'dms' | 'feed' | 'live'
-  passed: boolean
-}
-
-export function evaluateGate(
-  gate: GateRequirement[],
-  meters: Meters,
-  dmTrust: Record<string, number>,
-): { passed: boolean; gaps: GateGap[] } {
-  const gaps: GateGap[] = gate.map(req => {
-    let current = 0
-    if (req.kind === 'meter') current = meters[req.slot]
-    else if (req.kind === 'charTrust') current = Math.round(dmTrust[req.charId] ?? 0)
-    else current = Math.round(Math.max(0, ...SENIORS.map(s => dmTrust[s] ?? 0)))
-    return {
-      label: req.label,
-      current,
-      threshold: req.threshold,
-      surface: req.surface,
-      passed: current >= req.threshold,
-    }
-  })
-  return { passed: gaps.every(g => g.passed), gaps }
-}
-
-/** Human pointer for the goal card: where to grind the first unmet requirement. */
-export function surfaceHint(gap: GateGap): string {
-  switch (gap.surface) {
-    case 'nets': return 'Hit the nets to raise your Form'
-    case 'dms':  return 'Earn it in DMs — talk to the seniors'
-    case 'feed': return 'Work the feed — get India talking about you'
-    default:     return 'Keep playing'
-  }
 }

@@ -1,7 +1,8 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
 import { useApp } from '@/lib/context'
-import { fameToFollowers, clamp } from '@/lib/game'
+import { fameToFollowers, clamp, asCricket } from '@/lib/game'
+import { captainTrust } from '@/lib/cricket-selection'
 import { getCHChars, getCHSituations } from '@/lib/content'
 import PlayerAvatar from './PlayerAvatar'
 
@@ -19,7 +20,7 @@ interface Props {
 }
 
 export default function MeterHUD({ right, hideHeader }: Props) {
-  const { game, hudReaction } = useApp()
+  const { game, hudReaction, dmTrust } = useApp()
   const isCricket = game.world === 'cricket'
 
   const fameRef  = useRef<HTMLElement>(null)
@@ -45,10 +46,12 @@ export default function MeterHUD({ right, hideHeader }: Props) {
   }, [hudReaction])
 
   useEffect(() => {
+    if (!isCricket) return  // meter bars are cricket-only; CH shows Followers + Bond
+    const m = asCricket(game.meters)
     const set = () => {
-      if (fameRef.current)  fameRef.current.style.width  = `${clamp(game.meters.fame)}%`
-      if (heatRef.current)  heatRef.current.style.width  = `${clamp(game.meters.heat)}%`
-      if (imageRef.current) imageRef.current.style.width = `${clamp(game.meters.image)}%`
+      if (fameRef.current)  fameRef.current.style.width  = `${clamp(m.form)}%`                    // FORM bar
+      if (heatRef.current)  heatRef.current.style.width  = `${clamp(m.fame)}%`                    // FAME bar
+      if (imageRef.current) imageRef.current.style.width = `${clamp(captainTrust(dmTrust))}%`     // CAPTAIN'S TRUST bar
     }
     if (!mountedRef.current) {
       mountedRef.current = true
@@ -57,7 +60,7 @@ export default function MeterHUD({ right, hideHeader }: Props) {
       if (imageRef.current) imageRef.current.style.width = '0%'
     }
     requestAnimationFrame(() => requestAnimationFrame(set))
-  }, [game.meters.fame, game.meters.heat, game.meters.image])
+  }, [isCricket, game.meters, dmTrust])
 
   const charData = !isCricket && game.char && game.char !== 'player' ? getCHChars()[game.char] : null
   const handle = charData
@@ -70,20 +73,16 @@ export default function MeterHUD({ right, hideHeader }: Props) {
     ? `Mumbai Indians · Season 1`
     : `Creator House · Day ${currentDay} of 10`
 
-  // Cricket: FORM + FAME + TEAM TRUST. "Team Trust" is the pooled dressing-room
-  // standing — distinct from the per-senior trust (Rohit/Hardik) the Live goal card
-  // surfaces for the story gates.
-  const meters = isCricket
+  // Cricket-only bars: the TWO goals (FORM + CAPTAIN'S TRUST) plus FAME as the
+  // secondary social stat. Captain's Trust = dmTrust.hardik — built in DMs.
+  const cmHud = isCricket ? asCricket(game.meters) : null
+  const meters = cmHud
     ? [
-        { label: 'FORM',  val: game.meters.fame,  ref: fameRef,  color: 'var(--fame)',  cls: 'fame' },
-        { label: 'FAME',  val: game.meters.heat,  ref: heatRef,  color: 'var(--heat)',  cls: 'heat' },
-        { label: 'TEAM TRUST', val: game.meters.image, ref: imageRef, color: 'var(--trust)', cls: 'image' },
+        { label: 'FORM',  val: cmHud.form,  ref: fameRef,  color: 'var(--fame)',  cls: 'fame' },
+        { label: 'FAME',  val: cmHud.fame,  ref: heatRef,  color: 'var(--heat)',  cls: 'heat' },
+        { label: "CAPTAIN'S TRUST", val: captainTrust(dmTrust), ref: imageRef, color: 'var(--trust)', cls: 'image' },
       ]
-    : [
-        { label: 'FAME',  val: game.meters.fame,  ref: fameRef,  color: 'var(--fame)',  cls: 'fame' },
-        { label: 'HEAT',  val: game.meters.heat,  ref: heatRef,  color: 'var(--heat)',  cls: 'heat' },
-        { label: 'TRUST', val: game.meters.image, ref: imageRef, color: 'var(--trust)', cls: 'image' },
-      ]
+    : []
 
   return (
     <div style={{
@@ -102,8 +101,8 @@ export default function MeterHUD({ right, hideHeader }: Props) {
             <div style={{ fontSize: 11, color: 'var(--ink3)', marginTop: 1 }}>{worldLine}</div>
           </div>
           <div style={{ textAlign: 'right', flexShrink: 0, position: 'relative' }}>
-            <div key={`fw${isCricket ? game.meters.heat : game.meters.fame}`} style={{ fontWeight: 800, fontSize: 15, color: animF != null ? 'var(--fame)' : '#fff', animation: 'meterFlash .4s ease-out', lineHeight: 1.2, fontVariantNumeric: 'tabular-nums' }}>
-              {animF != null ? Math.round(animF).toLocaleString('en-IN') : followersStr(isCricket ? game.meters.heat : game.meters.fame)}
+            <div key={`fw${isCricket ? asCricket(game.meters).fame : game.meters.fame}`} style={{ fontWeight: 800, fontSize: 15, color: animF != null ? 'var(--fame)' : '#fff', animation: 'meterFlash .4s ease-out', lineHeight: 1.2, fontVariantNumeric: 'tabular-nums' }}>
+              {animF != null ? Math.round(animF).toLocaleString('en-IN') : followersStr(isCricket ? asCricket(game.meters).fame : game.meters.fame)}
             </div>
             <div style={{ fontSize: 10, color: 'var(--ink3)' }}>followers</div>
             {deltaChip != null && <span className={`hud-delta${deltaChip < 0 ? ' drop' : ''}`}>{(deltaChip >= 0 ? '+' : '') + Math.round(deltaChip).toLocaleString('en-IN')}</span>}

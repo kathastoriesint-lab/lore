@@ -1,13 +1,15 @@
 'use client'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useApp } from '@/lib/context'
-import type { CharId, Choice, ChoicePost, Meters, Reaction } from '@/lib/types'
+import type { CharId, Choice, ChoicePost, Meters, CricketMeters, Reaction } from '@/lib/types'
 import { getVisibleSituations } from '@/lib/ch-rules'
 import { getCricketChars, getCricketSituations, getCricketEndingData, getCricketDMTrustStart, getCHChars } from '@/lib/content'
 import { resolveCricketEnding } from '@/lib/cricket-rules'
+import { captainTrust, trustGateThreshold } from '@/lib/cricket-selection'
+import { resolveGateOutcome, resolveSituationVariant, variantCtxFor } from '@/lib/variants'
 import { getWeek, weekForSituationId, SEASON_WEEKS } from '@/lib/season'
-import { getStats, clamp, resolveEnding, resolveTokens, fameToFollowers, chCharForGender } from '@/lib/game'
-import { sentimentDelta } from '@/lib/relationships'
+import { getStats, clamp, resolveEnding, resolveTokens, fameToFollowers, chCharForGender, asCricket, crushId } from '@/lib/game'
+import { sentimentDelta, computeBond } from '@/lib/relationships'
 import { phaseFromTag } from '@/lib/dm-time'
 import MeterHUD from '@/components/MeterHUD'
 import GoalCard from '@/components/GoalCard'
@@ -47,9 +49,9 @@ const StatusBar = () => (
   </div>
 )
 
-// Two reachable endings (CEO review 2026-06): Fame-led → Main Character, Heat-led → The Heart.
+// Two reachable endings (2026-07): Followers-led → Main Character, crush-Bond-led → The Heart.
 const FINALE_DATA = {
-  heart: { arc: 'The Heart', sub: 'Tum sabse zyada baat hue — viral, talked-about, unmissable. Is ghar ka dil tum the.', color: '#FF5C3A' },
+  heart: { arc: 'The Heart', sub: 'Numbers ka peecha kiya sabne. Tumne kuch real chuna — aur woh bond aakhir tak saath raha.', color: '#FF5C3A' },
   main:  { arc: 'The Main Character', sub: 'Har scene tumhara. Har headline tumhara. Yahi hai Creator House.', color: '#FFB020' },
 }
 
@@ -76,11 +78,13 @@ const LIVE_LIKES = [94102, 128441, 76220, 183004, 52018, 211908]
 // into the DM with a seed that references the scene — so "build trust" becomes a
 // concrete conversation, not a meter grind. Anchored to specific situations (the
 // stage BEFORE the gate, where that senior's trust is the visible goal):
-//   CR-S15 (Review Room, Stage 4) → Rohit, gating "Win the Room"
-//   CR-S24 (Press Room, Stage 6)  → Hardik, gating "The Call-Up"
+//   CR2-S4 (Hardik Ka Sawaal, W1) → Hardik, before the debut-XI selection
+//   CR2-S8 (Toofan, W2)           → Rohit, the storm needs a mentor
+//   CR2-S12 (Do Naam, W3)         → Hardik, before the eliminator XI
 const TRUST_NUDGE_ANCHORS: Record<string, CharId> = {
-  'CR-S15': 'rohit',
-  'CR-S24': 'hardik',
+  'CR2-S4': 'hardik',
+  'CR2-S8': 'rohit',
+  'CR2-S12': 'hardik',
 }
 const TRUST_NUDGES: Partial<Record<CharId, {
   title: string
@@ -99,11 +103,7 @@ const TRUST_NUDGES: Partial<Record<CharId, {
   },
 }
 
-const resolveChoiceOutcome = (choice: Choice, meters: Meters) => {
-  const gate = choice.outcomeGate
-  if (!gate) return null
-  return meters[gate.metric] > gate.threshold ? gate.pass : gate.fail
-}
+
 
 export default function LiveScreen() {
   const { navigate, game, screen, makeChoice, advanceSituation, injectCharDM, openDMThread, dmTrust, dmBadgeCount, startGame, upsertAiPost, setPendingPostReveal, notifyDM } = useApp()
@@ -163,10 +163,15 @@ export default function LiveScreen() {
     ? Object.fromEntries(getCricketSituations().map(s => [s.id, s]))
     : Object.fromEntries(getVisibleSituations(game.meters, game.choices).map(s => [s.id, s]))
 
-  // Resolve current and adjacent situations by ID from the queue
+  // Resolve current and adjacent situations by ID from the queue. Cricket beats
+  // resolve their VARIANT here (selection verdict / trust band / flags / gate
+  // results) — the single source LiveScreen, makeChoice, and replay agree on.
   const situation = game.situation
   const queue = game.situationQueue
-  const sit = queue[situation] ? allSituations[queue[situation]] ?? null : null
+  const rawSit = queue[situation] ? allSituations[queue[situation]] ?? null : null
+  const sit = rawSit && isCricket
+    ? resolveSituationVariant(rawSit, variantCtxFor(game, dmTrust, weekForSituationId(rawSit.id)))
+    : rawSit
   const isFinale = situation >= queue.length
 
   // Day-lock disabled for user testing (restore check for prod)
@@ -214,7 +219,6 @@ export default function LiveScreen() {
   const [showBeat, setShowBeat] = useState(false)
   const [outcomeFlash, setOutcomeFlash] = useState<{ title: string; note: string; passed: boolean } | null>(null)
   // DM notification banner — shows after injectCharDM fires
-  const [dmNotif, setDmNotif] = useState<{ name: string; cls: string; id: string } | null>(null)
   // Story-pause trust nudge — shows once per stage when a senior's trust gates progress
   const [trustNudge, setTrustNudge] = useState<{ charId: CharId; cur: number; need: number } | null>(null)
   // Creator House "make a post": when a choice publishes a player post, the compose
@@ -247,7 +251,6 @@ export default function LiveScreen() {
   // resets if the player un-chooses). Messages auto-arrive and type themselves; a tap
   // fast-forwards the in-progress line or advances narration. Mirrors the handoff exactly.
   useEffect(() => {
-    if (isCricket) return
     const blocks = displaySit?.reader
     if (!blocks || chosen !== null) return
     setRevealed([]); setReaderBusy(false); setReaderShowTap(false); setReaderComplete(false)
@@ -341,11 +344,6 @@ export default function LiveScreen() {
   // lock screen — but never mid-outcome (chosen !== null keeps the player on the
   // final beat's result until they move on themselves). Gated on screen === 'live'
   // because Slots keep all screens mounted.
-  useEffect(() => {
-    if (screen === 'live' && isCricket && game.lockExpiresAt && chosen === null && !inFlowRef.current) {
-      navigate('lock', { replace: true })
-    }
-  }, [screen, isCricket, game.lockExpiresAt, chosen, navigate])
 
   // Creator House: a pending eviction routes to the ceremony before the next beat.
   // Same guard as the cricket lock — never interrupt a mid-choice outcome.
@@ -441,7 +439,7 @@ export default function LiveScreen() {
     const ch = sit.choices[idx]
     inFlowRef.current = true  // freeze situation-change effect during animation
     sitSnapshotRef.current = sit  // freeze displayed content to this situation
-    const outcome = resolveChoiceOutcome(ch, preChoiceMeters)
+    const outcome = resolveGateOutcome(ch, preChoiceMeters, dmTrust, game.gateResults, sit?.id)?.outcome ?? null
     if (outcome) {
       const passed = outcome === ch.outcomeGate?.pass
       setOutcomeFlash({
@@ -457,15 +455,16 @@ export default function LiveScreen() {
 
     addTimer(() => { scrollRef.current?.scrollTo({ top: 400, behavior: 'smooth' }) }, 200)
 
-    // Creator House: if this choice publishes a player post, open the compose sheet
-    // (gpt-4o caption → Post → stream on the feed) instead of the inline preview.
-    if (!isCricket) {
+    // If this choice publishes a player post, open the compose sheet (gpt-4o
+    // caption → Post → stream on the feed) — the insta-post moment, both worlds.
+    // Cricket legacy prose beats (no postWhy) keep their static result sheet.
+    if (!isCricket || ch.postWhy) {
       const legacyPost: ChoicePost | null = ch.caption ? { source: 'player', caption: ch.caption, reactions: ch.reactions ?? [] } : null
       const composeSource = outcome?.post !== undefined ? outcome.post : (ch.post !== undefined ? ch.post : legacyPost)
       const playerSpec = asArray(composeSource).find(p => p && p.source === 'player' && !!p.caption)
       if (playerSpec) {
         const letter = idx === 0 ? 'A' : 'B'
-        const fDelta = fameToFollowers(clamp(preChoiceMeters.fame + ch.deltas.fame)) - fameToFollowers(clamp(preChoiceMeters.fame))
+        const fDelta = fameToFollowers(clamp(preChoiceMeters.fame + (ch.deltas.fame ?? 0))) - fameToFollowers(clamp(preChoiceMeters.fame))
         const audienceStr = fameToFollowers(clamp(preChoiceMeters.fame)).toLocaleString('en-IN')
         const whyLine = (ch.postWhy ? r(ch.postWhy) : 'Tumhara move, ab public. Pura ghar, aur tumhare {followers} followers, dekh rahe hain.').replace(/\{followers\}/g, audienceStr)
         setCompose({
@@ -483,7 +482,8 @@ export default function LiveScreen() {
             beatTitle: sit.title,
             sceneSummary: r(sit.title),
             choiceText: r(ch.t),
-            characters: Object.values(getCHChars()).map(c => ({ id: c.id, name: c.name })),
+            world: game.world,
+            characters: Object.values(isCricket ? getCricketChars() : getCHChars()).map(c => ({ id: c.id, name: c.name })),
           },
           defaultReactions: (playerSpec.reactions ?? []).map(rx => ({ ...rx, text: r(rx.text) })),
           dms: asArray(outcome?.dm !== undefined ? outcome.dm : ch.dm).map(d => ({ char: d.char, text: r(d.text) })),
@@ -519,17 +519,14 @@ export default function LiveScreen() {
       return
     }
 
-    // Cricket: inject DMs (with the Live notif banner) + show the result sheet.
-    dmsToInject.forEach((dmToInject, dmIndex) => {
-      addTimer(() => {
-        injectCharDM(dmToInject.char, r(dmToInject.text))
-        const reactChar = allChars[dmToInject.char]
-        if (reactChar) {
-          setDmNotif({ name: reactChar.name, cls: reactChar.cls, id: reactChar.id })
-          setTimeout(() => setDmNotif(null), 3000)
-        }
-      }, 900 + dmIndex * 450)
-    })
+    // Cricket: inject DMs through the same timestamped path as CH (WhatsApp-style
+    // arrival with day/phase dividers), then show the result sheet.
+    {
+      const dmMeta = sit ? { day: sit.day, phase: phaseFromTag(sit.tag), note: r(sit.title) } : undefined
+      dmsToInject.forEach((dmToInject, dmIndex) => {
+        addTimer(() => { notifyDM(dmToInject.char, r(dmToInject.text), undefined, dmMeta) }, 900 + dmIndex * 450)
+      })
+    }
     addTimer(() => { setShowPost(true) }, 600)
 
     // Story-pause trust beat: if this situation is a relationship anchor and the
@@ -537,11 +534,7 @@ export default function LiveScreen() {
     // after the result settles so it reads as the scene's consequence.
     const anchorChar = TRUST_NUDGE_ANCHORS[sit.id]
     if (isCricket && anchorChar && TRUST_NUDGES[anchorChar]) {
-      const goalWeekNum = weekForSituationId(sit.id) + 1
-      const req = goalWeekNum <= SEASON_WEEKS.length
-        ? getWeek(goalWeekNum).gate.find(g => g.kind === 'charTrust' && g.charId === anchorChar) as { threshold: number } | undefined
-        : undefined
-      const need = req?.threshold ?? 55
+      const need = trustGateThreshold(anchorChar, weekForSituationId(sit.id)) ?? 55
       const cur = Math.round(dmTrust[anchorChar] ?? getCricketDMTrustStart()[anchorChar] ?? 50)
       const seenKey = `lore_trust_nudge_${sit.id}`
       let seen = false; try { seen = !!localStorage.getItem(seenKey) } catch {}
@@ -564,7 +557,9 @@ export default function LiveScreen() {
 
   // Finale arc — world-aware
   const endingKey = isFinale
-    ? isCricket ? resolveCricketEnding(game.meters) : resolveEnding(game.meters)
+    ? isCricket
+      ? resolveCricketEnding(asCricket(game.meters).form, captainTrust(dmTrust), (game.benchedWeeks ?? []).length)
+      : resolveEnding(game.meters.fame, computeBond(crushId(game.playerGender), 'creator-house', game.choices, game.playerName, game.playerGender, dmTrust).bond)
     : null
   const finaleArc = endingKey
     ? (isCricket ? getCricketEndingData()[endingKey] : FINALE_DATA[endingKey as keyof typeof FINALE_DATA])
@@ -594,7 +589,7 @@ export default function LiveScreen() {
     const legacyPost: ChoicePost | null = ch.caption
       ? { source: 'player', caption: ch.caption, reactions: ch.reactions ?? [] }
       : null
-    const outcome = resolveChoiceOutcome(ch, before)
+    const outcome = resolveGateOutcome(ch, before, dmTrust, game.gateResults, displaySit?.id)?.outcome ?? null
     const postSource = outcome?.post !== undefined ? outcome.post : (ch.post !== undefined ? ch.post : legacyPost)
     const postSpecs = asArray(postSource).filter(post => post.display !== 'feed-only')
     const resolvePostOwner = (postSpec: ChoicePost) => {
@@ -682,13 +677,17 @@ export default function LiveScreen() {
     })
   }
 
-  // Compact 3-meter impact card for the cricket result sheet (FORM/FAME/TEAM TRUST).
-  const cricketImpactCard = (d: Meters) => {
-    const before = { fame: Math.max(0, game.meters.fame - d.fame), heat: Math.max(0, game.meters.heat - d.heat), image: Math.max(0, game.meters.image - d.image) }
+  // Compact impact card for the cricket result sheet: FORM + FAME, plus a
+  // CAPTAIN row whenever the choice moved Hardik's trust (the second goal).
+  const cricketImpactCard = (d: Partial<{ form: number; fame: number; trust: number }>, hardikDelta = 0) => {
+    const m = asCricket(game.meters)
+    const dForm = d.form ?? 0, dFame = d.fame ?? 0
+    const before = { form: Math.max(0, m.form - dForm), fame: Math.max(0, m.fame - dFame) }
+    const cap = captainTrust(dmTrust)
     const rows = [
-      { icon: '🏏', label: 'FORM', color: '#FFB020', delta: d.fame, to: game.meters.fame, from: before.fame },
-      { icon: '⭐', label: 'FAME', color: '#FF5C3A', delta: d.heat, to: game.meters.heat, from: before.heat },
-      { icon: '🤝', label: 'TEAM TRUST', color: '#3DD6C8', delta: d.image, to: game.meters.image, from: before.image },
+      { icon: '🏏', label: 'FORM', color: '#FFB020', delta: dForm, to: m.form, from: before.form },
+      { icon: '⭐', label: 'FAME', color: '#FF5C3A', delta: dFame, to: m.fame, from: before.fame },
+      ...(hardikDelta !== 0 ? [{ icon: '🧢', label: "CAPTAIN'S TRUST", color: '#3DD6C8', delta: hardikDelta, to: cap, from: Math.max(0, cap - hardikDelta) }] : []),
     ]
     return (
       <div style={{ marginTop: 14, background: 'var(--surf)', border: '1px solid var(--line)', borderRadius: 14, overflow: 'hidden' }}>
@@ -713,26 +712,6 @@ export default function LiveScreen() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', position: 'relative' }}>
       <StatusBar />
-
-      {/* DM notification banner — slides in from top after a character DMs */}
-      {isCricket && dmNotif && (
-        <div style={{
-          position: 'absolute', top: 44, left: 12, right: 12, zIndex: 50,
-          background: 'rgba(18,18,20,.97)', backdropFilter: 'blur(16px)',
-          border: '1px solid rgba(255,255,255,.1)', borderRadius: 16,
-          padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 10,
-          animation: 'slideUp .35s cubic-bezier(.32,.72,0,1) both',
-          boxShadow: '0 8px 30px rgba(0,0,0,.5)',
-          cursor: 'pointer',
-        }} onClick={() => navigate('dm-inbox')}>
-          <div className={`av ${dmNotif.cls}`} style={{ width: 34, height: 34, fontSize: 13, flexShrink: 0, backgroundImage: `url(/avatars/${dmNotif.id}.png)`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontWeight: 700, fontSize: 13 }}>{dmNotif.name}</div>
-            <div style={{ fontSize: 12, color: 'var(--ink2)', marginTop: 1 }}>ne message kiya 💬</div>
-          </div>
-          <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--accent)', flexShrink: 0 }} />
-        </div>
-      )}
 
       {/* Story-pause trust nudge — sends the player into a senior's DM */}
       {trustNudge && TRUST_NUDGES[trustNudge.charId] && (() => {
@@ -865,6 +844,49 @@ export default function LiveScreen() {
           eviction read lives on Feed, keeping the story screen clean. */}
       {isCricket && <GoalCard variant="focus" />}
 
+      {/* Selection gate — the free-flow squad moment. The next beat waits behind
+          the team sheet; the player can detour to build their case first. */}
+      {isCricket && game.pendingSelection && chosen === null && !inFlowRef.current && (
+        <div style={{
+          position: 'absolute', inset: 0, zIndex: 50, background: 'var(--bg)',
+          display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '32px 24px',
+        }}>
+          <div style={{
+            position: 'absolute', top: '14%', left: '50%', transform: 'translateX(-50%)',
+            width: 280, height: 280, borderRadius: '50%',
+            background: 'radial-gradient(ellipse, rgba(255,176,32,.12) 0%, transparent 70%)', pointerEvents: 'none',
+          }} />
+          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.16em', color: '#FFB020', textAlign: 'center' }}>
+            TEAM SHEET DROPS NOW
+          </div>
+          <div style={{ fontFamily: 'var(--serif)', fontSize: 26, fontWeight: 600, lineHeight: 1.35, textAlign: 'center', margin: '14px 0 20px' }}>
+            Squad announcement ready hai.<br />Case aur strong karna hai — ya sunna hai?
+          </div>
+          <GoalCard variant="full" />
+          <button onClick={() => navigate('selection')} style={{
+            width: '100%', marginTop: 18, padding: '16px 0', borderRadius: 16, border: 'none',
+            background: 'var(--accent)', color: '#fff', fontWeight: 800, fontSize: 15,
+            fontFamily: 'var(--sans)', cursor: 'pointer', boxShadow: '0 8px 28px rgba(255,45,120,.35)',
+          }}>Squad announcement →</button>
+          <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
+            {[
+              { label: '🏏 Nets', hint: '+Form', to: 'nets' as const, disabled: (game.interlude?.netsUsed ?? 0) >= 3 },
+              { label: '💬 DMs', hint: '+Captain', to: 'dm-inbox' as const, disabled: false },
+              { label: '📱 Feed', hint: '+Fame', to: 'feed' as const, disabled: false },
+            ].map(d => (
+              <button key={d.label} onClick={() => !d.disabled && navigate(d.to)} disabled={d.disabled} style={{
+                flex: 1, padding: '12px 0', borderRadius: 12, border: '1px solid var(--line)',
+                background: 'var(--surf)', color: d.disabled ? 'var(--ink3)' : 'var(--ink)',
+                fontWeight: 700, fontSize: 12.5, fontFamily: 'var(--sans)', cursor: d.disabled ? 'default' : 'pointer',
+                opacity: d.disabled ? 0.5 : 1,
+              }}>
+                {d.label}<span style={{ display: 'block', fontSize: 9.5, fontWeight: 600, color: 'var(--ink3)', marginTop: 2 }}>{d.disabled ? 'capped' : d.hint}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Day-lock overlay — sits above scroll, MeterHUD, sticky buttons, and tab bar */}
       {isDayLocked && sit && (
         <div style={{
@@ -971,7 +993,7 @@ export default function LiveScreen() {
       {/* Main scroll */}
       <div className="live-scroll" ref={scrollRef}
         onClick={() => {
-          if (isCricket || !displaySit?.reader || chosen !== null || readerComplete) return
+          if (!displaySit?.reader || chosen !== null || readerComplete) return
           if (readerBusy) readerCtlRef.current?.finishTyping()
           else if (readerShowTap) readerCtlRef.current?.revealNext()
         }}
@@ -1010,31 +1032,16 @@ export default function LiveScreen() {
             <div style={{ fontSize: 15, color: 'var(--ink2)', lineHeight: 1.55 }}>{finaleArc.sub}</div>
             <div style={{ display: 'flex', gap: 12, marginTop: 8, flexWrap: 'wrap' }}>
               <div style={{ padding: '10px 16px', background: `color-mix(in srgb, ${finaleArc.color} 20%, transparent)`, border: `1px solid color-mix(in srgb, ${finaleArc.color} 40%, transparent)`, borderRadius: 12, fontSize: 12, fontWeight: 700, color: finaleArc.color }}>
-                {isCricket ? '🏏 Form' : '⭐ Fame'} {game.meters.fame}
+                🏏 Form {asCricket(game.meters).form}
               </div>
               <div style={{ padding: '10px 16px', background: 'color-mix(in srgb, #FF5C3A 20%, transparent)', border: '1px solid color-mix(in srgb, #FF5C3A 40%, transparent)', borderRadius: 12, fontSize: 12, fontWeight: 700, color: '#FF5C3A' }}>
-                {isCricket ? '⭐ Fame' : '🔥 Heat'} {game.meters.heat}
+                ⭐ Fame {asCricket(game.meters).fame}
               </div>
               <div style={{ padding: '10px 16px', background: 'color-mix(in srgb, #3DD6C8 20%, transparent)', border: '1px solid color-mix(in srgb, #3DD6C8 40%, transparent)', borderRadius: 12, fontSize: 12, fontWeight: 700, color: '#3DD6C8' }}>
-                🤝 {isCricket ? 'Team Trust' : 'Trust'} {game.meters.image}
+                🧢 Captain&apos;s Trust {captainTrust(dmTrust)}
               </div>
             </div>
 
-            {/* Creator House recap — why this ending + the run you just played. */}
-            {!isCricket && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 2 }}>
-                <div style={{ fontSize: 13, color: 'var(--ink2)', lineHeight: 1.5 }}>
-                  {endingKey === 'main'
-                    ? 'Fame sabse upar raha — duniya ne tumhe Main Character maana.'
-                    : 'Heat sabse upar raha — poora ghar sabse zyada tumhaari baat karta raha.'}
-                </div>
-                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', fontSize: 11.5, color: 'var(--ink3)' }}>
-                  <span style={{ background: 'var(--surf)', border: '1px solid var(--line)', borderRadius: 99, padding: '5px 11px' }}>10 din complete</span>
-                  <span style={{ background: 'var(--surf)', border: '1px solid var(--line)', borderRadius: 99, padding: '5px 11px' }}>{game.choices.length} choices</span>
-                  <span style={{ background: 'var(--surf)', border: '1px solid var(--line)', borderRadius: 99, padding: '5px 11px' }}>2 eviction nights survive ki</span>
-                </div>
-              </div>
-            )}
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 16 }}>
               <button
@@ -1111,7 +1118,7 @@ export default function LiveScreen() {
 
             {/* Choice cards (design handoff) — "Tum kya karte ho" + stacked cards with a
                 chevron button. Shown once the scene is fully revealed (tap-gated). */}
-            {!isCricket && displaySit.reader && readerDone && chosen === null && (
+            {displaySit.reader && readerDone && chosen === null && (
               <div style={{ marginTop: 18, display: 'flex', flexDirection: 'column', gap: 11 }}>
                 <div className="cin-chlabel">Tum kya karte ho</div>
                 <div className="cin-choices">
@@ -1181,13 +1188,9 @@ export default function LiveScreen() {
             {!isCricket && showImpact && chosen !== null && displaySit!.choices[chosen] && (() => {
               const ch = displaySit!.choices[chosen]
               const d = ch.deltas
-              const isCritical = game.meters.heat > 75
-              // B3: before values (current = after delta was applied)
-              const before = {
-                fame:  Math.max(0, game.meters.fame  - d.fame),
-                heat:  Math.max(0, game.meters.heat  - d.heat),
-                image: Math.max(0, game.meters.image - d.image),
-              }
+              const isCritical = false  // CH has no heat meter anymore
+              // Before value — Creator House only tracks fame (shown as followers).
+              const before = { fame: Math.max(0, game.meters.fame - (d.fame ?? 0)) }
               // Inline char color — must match .c-{id}{--cc} in globals.css (DESIGN.md compliant)
               const CHAR_COLORS: Record<string, string> = {
                 ria:'#c41060', kabir:'#8a1840', dev:'#7a1535', ananya:'#b03060', zoya:'#a02858',
@@ -1198,7 +1201,7 @@ export default function LiveScreen() {
               const legacyPost: ChoicePost | null = ch.caption
                 ? { source: 'player', caption: ch.caption, reactions: ch.reactions ?? [] }
                 : null
-              const outcome = resolveChoiceOutcome(ch, before)
+              const outcome = resolveGateOutcome(ch, before, dmTrust, game.gateResults, displaySit?.id)?.outcome ?? null
               const postSource = outcome?.post !== undefined ? outcome.post : (ch.post !== undefined ? ch.post : legacyPost)
               const postSpecs = asArray(postSource)
                 .filter(post => post.display !== 'feed-only')
@@ -1248,12 +1251,9 @@ export default function LiveScreen() {
                 }
               }
 
-              // Compact delta summary for collapsed state
-              const deltaSummary = [
-                d.fame  !== 0 ? `${d.fame > 0 ? '+' : ''}${d.fame}${isCricket ? '🏏' : '⭐'}` : null,
-                d.heat  !== 0 ? `${d.heat > 0 ? '+' : ''}${d.heat}🔥` : null,
-                d.image !== 0 ? `${d.image > 0 ? '+' : ''}${d.image}🤝` : null,
-              ].filter(Boolean).join('  ')
+              // Compact delta summary for collapsed state (CH: followers/fame only)
+              const dF = d.fame ?? 0
+              const deltaSummary = dF !== 0 ? `${dF > 0 ? '+' : ''}${dF}⭐` : ''
 
               return (
                 <div style={{ marginTop: 16 }}>
@@ -1429,7 +1429,7 @@ export default function LiveScreen() {
 
       {/* Cricket choice / result sheet — shared <ChoiceSheet> shell. The result content
            (compact impact card + IG post + Next/Feed) is passed as children. */}
-      {displaySit && isCricket && (() => {
+      {displaySit && isCricket && (chosen !== null || !displaySit.reader) && (() => {
         const isResult = chosen !== null
         const ch = isResult ? displaySit.choices[chosen as 0 | 1] : null
         // "N new" on the Feed button = posts played since the Feed was last opened.
@@ -1447,8 +1447,8 @@ export default function LiveScreen() {
           >
             {ch && (
               <div style={{ padding: '2px 16px 18px' }}>
-                {cricketImpactCard(ch.deltas)}
-                {showPost && postCards(ch, { fame: Math.max(0, game.meters.fame - ch.deltas.fame), heat: Math.max(0, game.meters.heat - ch.deltas.heat), image: Math.max(0, game.meters.image - ch.deltas.image) })}
+                {cricketImpactCard(ch.deltas, ch.relationshipDeltas?.hardik ?? 0)}
+                {showPost && (() => { const m = asCricket(game.meters); return postCards(ch, { form: Math.max(0, m.form - (ch.deltas.form ?? 0)), fame: Math.max(0, m.fame - (ch.deltas.fame ?? 0)) }) })()}
                 {showPost ? (
                   <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
                     <button className="lo-press" onClick={resetAfterChoice} style={{ flex: 2, height: 56, border: 'none', borderRadius: 16, cursor: 'pointer', fontFamily: 'var(--sans)', fontSize: 16, fontWeight: 700, color: '#fff', background: 'var(--accent)', boxShadow: '0 8px 24px rgba(255,45,120,.35)' }}>{isFinale ? 'Continue →' : 'Next →'}</button>
@@ -1500,11 +1500,7 @@ export default function LiveScreen() {
             const c = compose
             setCompose(null)
             // Back out → fall back to the normal inline result (DMs + authored post).
-            c.dms.forEach((d, i) => addTimer(() => {
-              injectCharDM(d.char, d.text)
-              const rc = allChars[d.char]
-              if (rc) { setDmNotif({ name: rc.name, cls: rc.cls, id: rc.id }); setTimeout(() => setDmNotif(null), 3000) }
-            }, 300 + i * 450))
+            c.dms.forEach((d, i) => addTimer(() => { notifyDM(d.char, d.text) }, 300 + i * 450))
             addTimer(() => setShowPost(true), 300)
           }}
         />

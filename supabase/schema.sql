@@ -9,7 +9,7 @@ create table if not exists public.game_state (
   player_gender text,
   situation     int not null default 0,
   choices       jsonb not null default '[]',
-  meters        jsonb not null default '{"fame":20,"heat":50,"image":30}',
+  meters        jsonb not null default '{"fame":20}',
   narrator_done boolean not null default false,
   day_unlock_time jsonb not null default '{}',
   updated_at    timestamptz not null default now()
@@ -23,7 +23,7 @@ alter table public.game_state add column if not exists day_unlock_time jsonb not
 alter table public.game_state add column if not exists game_data jsonb not null default '{}';
 alter table public.game_state add column if not exists world text not null default 'creator-house';
 alter table public.game_state add column if not exists avatar_url text;
--- Fix old meter format (trust→heat, heat→image) for any existing rows
+-- Fix ancient meter format (trust→heat, heat→image) for any pre-v1 rows.
 update public.game_state
   set meters = jsonb_build_object(
     'fame',  coalesce((meters->>'fame')::int, 20),
@@ -31,6 +31,34 @@ update public.game_state
     'image', coalesce((meters->>'heat')::int, 30)
   )
   where meters ? 'trust';
+
+-- 2026-07 meters split: heat/image removed. Per-world reshape of existing rows.
+-- Idempotent (guarded on `meters ? 'image'` — new-shape rows lack it). The app's
+-- load-time migrateMeters() also handles this, so rows load correctly even if this
+-- SQL hasn't run yet. Run in the Supabase SQL editor when ready.
+-- Creator House: keep only fame.
+update public.game_state
+  set meters = jsonb_build_object('fame', coalesce((meters->>'fame')::int, 20))
+  where world = 'creator-house' and meters ? 'image';
+-- Cricket: old.fame→form, old.heat→fame, old.image→trust (single expression = atomic, no collision).
+update public.game_state
+  set meters = jsonb_build_object(
+    'form',  coalesce((meters->>'fame')::int, 40),
+    'fame',  coalesce((meters->>'heat')::int, 25),
+    'trust', coalesce((meters->>'image')::int, 20)
+  )
+  where world = 'cricket' and meters ? 'image';
+
+-- 2026-07 cricket v2: pooled Team Trust removed (Captain's Trust = dmTrust.hardik
+-- in game_data). Strip the trust key from cricket meter blobs. Idempotent; runs
+-- after the blocks above (converges from any starting shape). App-side
+-- migrateMeters() already drops the key on load, so this is hygiene, not rescue.
+update public.game_state
+  set meters = jsonb_build_object(
+    'form', coalesce((meters->>'form')::int, 40),
+    'fame', coalesce((meters->>'fame')::int, 25)
+  )
+  where world = 'cricket' and meters ? 'trust';
 
 -- DM conversation history
 create table if not exists public.dm_messages (

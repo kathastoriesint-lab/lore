@@ -3,9 +3,10 @@ import { Fragment, type CSSProperties, useCallback, useEffect, useMemo, useRef, 
 import { useApp } from '@/lib/context'
 import type { CharId, DMMessage } from '@/lib/types'
 import { getCricketChars, getCricketSituations, getCricketTrustGoals, getCricketDMTrustStart, getCHChars, getCHDMTrust, getCHDossiers } from '@/lib/content'
-import { getReplySuggestions } from '@/lib/game'
+import { getReplySuggestions, asCricket } from '@/lib/game'
 import { fmtClock, phaseLabel } from '@/lib/dm-time'
-import { trustMomentFor, trustGateThreshold } from '@/lib/season'
+import { trustMomentFor } from '@/lib/season'
+import { trustGateThreshold } from '@/lib/cricket-selection'
 import { relationshipFor, computeBond, bondColor } from '@/lib/relationships'
 
 const dmCapFor = (cid?: string | null) => (cid === 'ananya' ? 7 : 20)
@@ -86,7 +87,7 @@ export default function DMThreadScreen() {
   const trustGoal = (() => {
     if (game.world !== 'cricket' || !charId) return null
     const goal = getCricketTrustGoals()[charId]
-    const need = trustGateThreshold(charId)
+    const need = trustGateThreshold(charId, game.week ?? 1)
     if (!goal || need == null) return null
     return { ...goal, need, met: trustVal >= need }
   })()
@@ -106,7 +107,7 @@ export default function DMThreadScreen() {
 
   // Active trust moment (one per interlude) — also collapses Smart Reply so the
   // thread isn't buried under two suggestion cards at once.
-  const trustMoment = (game.world === 'cricket' && game.lockExpiresAt
+  const trustMoment = (game.world === 'cricket' && game.pendingSelection
     && !game.interlude?.trustMomentUsed && charId) ? trustMomentFor(charId) : null
 
   // Cap / lock state — re-reads localStorage on every render (tick keeps it live)
@@ -184,7 +185,6 @@ export default function DMThreadScreen() {
     getReplySuggestions(charId, messages, game.playerName || 'Yaar', {
       meters: game.meters,
       trustWithChar: trustVal,
-      teamTrust: game.world === 'cricket' ? game.meters.image : undefined,
       nextSituation,
       choicesMade: game.choices.length,
       playerGender: game.playerGender,
@@ -305,6 +305,30 @@ export default function DMThreadScreen() {
 
       {/* Messages rendered directly from context — no local copy */}
       <div className="chat" ref={chatRef}>
+
+        {/* DM MISSION — the story sent you here. Brief = the manner that matters. */}
+        {game.activeMission?.char === charId && (
+          <div style={{
+            margin: '4px 4px 14px', padding: '13px 15px', borderRadius: 14,
+            background: 'color-mix(in srgb, var(--accent) 10%, var(--surf))',
+            border: '1px solid color-mix(in srgb, var(--accent) 40%, transparent)',
+          }}>
+            <div style={{ fontSize: 9, fontWeight: 900, letterSpacing: '.12em', color: 'var(--accent)', marginBottom: 7 }}>
+              STORY MISSION · TUMHE BAAT SHURU KARNI HAI
+            </div>
+            <div style={{ fontSize: 13, color: 'var(--ink)', fontWeight: 600, lineHeight: 1.5 }}>
+              {game.activeMission.brief}
+            </div>
+            {game.activeMission.hint && (
+              <div style={{ fontSize: 11.5, color: 'var(--ink2)', marginTop: 7, lineHeight: 1.45 }}>
+                💡 {game.activeMission.hint}
+              </div>
+            )}
+            <div style={{ fontSize: 10, color: 'var(--ink3)', marginTop: 8 }}>
+              Jo bhi likhoge, waise hi judge hoga — tone matters.
+            </div>
+          </div>
+        )}
 
         {/* Cricket gate-senior goal — what this trust unlocks + how to win it */}
         {trustGoal && (
@@ -504,7 +528,9 @@ export default function DMThreadScreen() {
         <>
           {msgsLeft <= 5 && msgsLeft > 0 && (
             <div style={{ textAlign: 'center', fontSize: 11, color: 'var(--ink3)', padding: '4px 0 2px' }}>
-              {msgsLeft} message{msgsLeft !== 1 ? 's' : ''} left before {char.name} goes offline for 6h
+              {game.world === 'cricket'
+                ? `${msgsLeft} free message${msgsLeft !== 1 ? 's' : ''} left today`
+                : `${msgsLeft} message${msgsLeft !== 1 ? 's' : ''} left before ${char.name} goes offline`}
             </div>
           )}
         <div className="input-bar">

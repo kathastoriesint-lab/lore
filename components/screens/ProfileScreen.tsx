@@ -3,18 +3,18 @@ import type { CSSProperties } from 'react'
 import { useApp } from '@/lib/context'
 import { getCHChars } from '@/lib/content'
 import { derivePosts, deriveKeyDecisions, feedLikes } from '@/lib/feed-posts'
-import { getWeek, evaluateGate, weekForSituationId, SEASON_WEEKS } from '@/lib/season'
-import { resolveTokens, fameToFollowers } from '@/lib/game'
+import { weekForSituationId } from '@/lib/season'
+import { resolveTokens, fameToFollowers, asCricket } from '@/lib/game'
+import { ruleFor, captainTrust, captainTier } from '@/lib/cricket-selection'
 import { computeBond, crushTier } from '@/lib/relationships'
 
 // World profile — per-world identity for the in-world Profile tab. Shared layout,
 // world-specific accent / meters / role / copy (cricket fully designed; Creator House
 // mirrors it). The cross-world Global profile is a separate screen.
 
-// Short name for what clearing the next cricket stage unlocks (mirrors GoalCard).
+// Short name for each week's squad selection (mirrors GoalCard).
 const UNLOCK_SHORT: Record<number, string> = {
-  2: 'Main nets group', 3: 'Wankhede debut', 4: 'Apni jagah pakki',
-  5: 'Seniors ka bharosa', 6: 'India tumhari baat kare', 7: 'India ka call-up',
+  1: 'Debut XI', 2: 'Apni jagah pakki', 3: 'Eliminator XI + India verdict',
 }
 
 export default function ProfileScreen() {
@@ -31,17 +31,17 @@ export default function ProfileScreen() {
   const eyebrowColor = isCricket ? '#FFB020' : '#fff'
   const role = isCricket ? 'Rookie batsman · 16 saal' : (chChar ? chChar.role : 'Housemate')
 
-  const meters = isCricket
+  // Cricket: the TWO goals (Form + Captain's Trust) + Fame as the social stat.
+  // Creator House shows Followers + crush Bond in its own redesigned section.
+  const cm = isCricket ? asCricket(game.meters) : null
+  const capTrust = captainTrust(dmTrust)
+  const meters = cm
     ? [
-        { icon: '🏏', label: 'FORM', color: '#FFB020', val: game.meters.fame, note: 'Nets mein consistency. Selectors notice kar rahe hain.' },
-        { icon: '⭐', label: 'FAME', color: '#FF5C3A', val: game.meters.heat, note: 'Debut buzz — followers roz badh rahe hain.' },
-        { icon: '🤝', label: 'TEAM TRUST', color: '#3DD6C8', val: game.meters.image, note: 'Dressing room abhi judge kar raha hai. Earn it.' },
+        { icon: '🏏', label: 'FORM', color: '#FFB020', val: cm.form, note: 'Runs on the board. Selection ki pehli line yahi hai.' },
+        { icon: '🧢', label: "CAPTAIN'S TRUST", color: '#3DD6C8', val: capTrust, note: `Hardik ka bharosa — ${captainTier(capTrust)}. DMs mein banta hai.` },
+        { icon: '⭐', label: 'FAME', color: '#FF5C3A', val: cm.fame, note: 'Public attention. Selection isse nahi hoti — par sab dekhte hain.' },
       ]
-    : [
-        { icon: '⭐', label: 'FAME', color: '#FFB020', val: game.meters.fame, note: 'Ghar ke bahar log baat kar rahe hain.' },
-        { icon: '🔥', label: 'HEAT', color: '#FF5C3A', val: game.meters.heat, note: 'Drama level. Zyada heat = zyada nazar.' },
-        { icon: '🤝', label: 'TRUST', color: '#3DD6C8', val: game.meters.image, note: 'Housemates ka bharosa — alliances yahin bante hain.' },
-      ]
+    : []
 
   const queueLen = game.situationQueue.length || 30
   const pos = Math.min(game.situation + 1, queueLen)
@@ -52,15 +52,13 @@ export default function ProfileScreen() {
   if (isCricket) {
     const curSitId = game.situationQueue[game.situation]
     const curWeekNum = curSitId ? weekForSituationId(curSitId) : (game.week ?? 1)
-    const goalWeekNum = curWeekNum + 1
-    if (goalWeekNum <= SEASON_WEEKS.length) {
-      const { gaps } = evaluateGate(getWeek(goalWeekNum).gate, game.meters, dmTrust)
-      const unmet = gaps.find(g => !g.passed)
-      const unlock = UNLOCK_SHORT[goalWeekNum] ?? getWeek(goalWeekNum).name
-      nextTarget = unmet
-        ? `Agla target: ${unlock} · ${Math.max(0, unmet.threshold - unmet.current)} ${/trust/i.test(unmet.label) ? 'trust' : unmet.label.toLowerCase()} aur chahiye`
-        : `Agla target: ${unlock} · ready ✓`
-    }
+    const rule = ruleFor(curWeekNum)
+    const unlock = UNLOCK_SHORT[curWeekNum] ?? `Week ${curWeekNum} XI`
+    const formGap = Math.max(0, rule.start.form - (cm?.form ?? 40))
+    const capGap = Math.max(0, rule.start.captain - capTrust)
+    nextTarget = formGap === 0 && capGap === 0
+      ? `Agla target: ${unlock} · ready ✓`
+      : `Agla target: ${unlock} · ${formGap > 0 ? `${formGap} form` : ''}${formGap > 0 && capGap > 0 ? ' + ' : ''}${capGap > 0 ? `${capGap} captain trust` : ''} aur chahiye`
   }
 
   const decisions = deriveKeyDecisions(game).slice(0, 4)
@@ -121,7 +119,7 @@ export default function ProfileScreen() {
           </div>
         </div>
 
-        {/* ── Meters ── */}
+        {/* ── Meters (cricket branch only) ── */}
         <div style={{ padding: '22px 16px 0' }}>
           <div style={sectionLabel}>YOUR METERS</div>
           <div style={{ background: 'var(--surf)', border: '1px solid var(--line)', borderRadius: 16, overflow: 'hidden' }}>

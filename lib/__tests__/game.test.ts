@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import {
-  clamp, applyDeltas, fameToFollowers, resolveEnding, resolveTokens, charMeters,
+  clamp, applyDeltas, fameToFollowers, resolveEnding, resolveTokens, charMeters, migrateMeters,
 } from '../game'
 
 describe('clamp', () => {
@@ -17,17 +17,16 @@ describe('clamp', () => {
 })
 
 describe('applyDeltas', () => {
-  it('applies positive deltas', () => {
-    const result = applyDeltas({ fame: 20, heat: 50, image: 30 }, { fame: 5, heat: -3, image: 2 })
-    expect(result.fame).toBe(25)
-    expect(result.heat).toBe(47)
-    expect(result.image).toBe(32)
+  it('applies the CH fame delta (fame-only shape)', () => {
+    expect(applyDeltas({ fame: 20 }, { fame: 5 })).toEqual({ fame: 25 })
   })
-  it('clamps at 0 and 100', () => {
-    const result = applyDeltas({ fame: 2, heat: 98, image: 50 }, { fame: -10, heat: 10, image: 0 })
-    expect(result.fame).toBe(0)
-    expect(result.heat).toBe(100)
-    expect(result.image).toBe(50)
+  it('applies cricket deltas per key (form/fame/trust)', () => {
+    expect(applyDeltas({ form: 40, fame: 25, trust: 20 }, { form: 5, fame: -3, trust: 2 }))
+      .toEqual({ form: 45, fame: 22, trust: 22 })
+  })
+  it('clamps at 0 and 100 and ignores absent keys', () => {
+    expect(applyDeltas({ form: 2, fame: 98, trust: 50 }, { form: -10, fame: 10 }))
+      .toEqual({ form: 0, fame: 100, trust: 50 })
   })
 })
 
@@ -45,18 +44,30 @@ describe('fameToFollowers', () => {
 })
 
 describe('resolveEnding', () => {
-  // Two-ending model (CEO review 2026-06): fame > heat → main, else heart.
-  it('returns main when fame > heat', () => {
-    expect(resolveEnding({ fame: 80, heat: 40, image: 40 })).toBe('main')
+  // Two-ending model (2026-07): followers(fame) vs crush bond; fame >= bond → main.
+  it('returns main when followers lead the crush bond', () => {
+    expect(resolveEnding(80, 40)).toBe('main')
   })
-  it('returns heart when heat >= fame', () => {
-    expect(resolveEnding({ fame: 40, heat: 80, image: 40 })).toBe('heart')
+  it('returns heart when the crush bond leads', () => {
+    expect(resolveEnding(40, 80)).toBe('heart')
   })
-  it('ties to heart when fame === heat', () => {
-    expect(resolveEnding({ fame: 50, heat: 50, image: 50 })).toBe('heart')
+  it('ties to main when followers === bond', () => {
+    expect(resolveEnding(50, 50)).toBe('main')
   })
-  it('image (trust) no longer affects the ending — it drives eviction pressure', () => {
-    expect(resolveEnding({ fame: 70, heat: 40, image: 99 })).toBe('main')
+})
+
+describe('migrateMeters', () => {
+  it('maps an old cricket {fame,heat,image} row to {form,fame} (pooled trust dies)', () => {
+    expect(migrateMeters({ fame: 40, heat: 25, image: 20 }, 'cricket')).toEqual({ form: 40, fame: 25 })
+  })
+  it('keeps only fame for a creator-house row', () => {
+    expect(migrateMeters({ fame: 20, heat: 50, image: 30 }, 'creator-house')).toEqual({ fame: 20 })
+  })
+  it('strips the trust key from a refactor-era cricket row', () => {
+    expect(migrateMeters({ form: 55, fame: 30, trust: 44 }, 'cricket')).toEqual({ form: 55, fame: 30 })
+  })
+  it('passes a v2 cricket row through unchanged', () => {
+    expect(migrateMeters({ form: 55, fame: 30 }, 'cricket')).toEqual({ form: 55, fame: 30 })
   })
 })
 
@@ -80,8 +91,7 @@ describe('resolveTokens', () => {
 })
 
 describe('charMeters', () => {
-  it('returns default meters for any charId', () => {
-    const m = charMeters('ria')
-    expect(m).toEqual({ fame: 20, heat: 50, image: 30 })
+  it('returns default CH meters (fame only) for any charId', () => {
+    expect(charMeters('ria')).toEqual({ fame: 20 })
   })
 })

@@ -2,13 +2,14 @@
 import { useMemo, useState } from 'react'
 import { useApp } from '@/lib/context'
 import { NET_SESSIONS, INTERLUDE_CAPS } from '@/lib/season'
+import { asCricket } from '@/lib/game'
 import { analytics } from '@/lib/analytics'
 
 // Interlude Form grind: 30-second one-choice scenes against the diminishing
 // schedule (+4/+2/+1). The risky option reads your current Form through its
 // threshold — the same drill plays out differently at Form 30 vs Form 55.
 export default function NetsScreen() {
-  const { game, navigate, completeNetSession } = useApp()
+  const { game, goBack, completeNetSession } = useApp()
   const [phase, setPhase] = useState<'scene' | 'outcome'>('scene')
   // title snapshotted at choice time — `session` advances to the next drill the
   // moment netsUsed increments, so the outcome must not read it live.
@@ -28,7 +29,7 @@ export default function NetsScreen() {
     let note: string
     let passed: boolean | null = null
     if (risky) {
-      passed = game.meters.fame > session.risky.threshold
+      passed = asCricket(game.meters).form > session.risky.threshold
       gain = Math.max(1, baseGain + (passed ? 1 : -1))
       note = passed ? session.risky.pass : session.risky.fail
     } else {
@@ -60,7 +61,7 @@ export default function NetsScreen() {
           </div>
         </div>
         <div style={{ paddingBottom: 48 }}>
-          <button onClick={() => navigate('lock')} style={{
+          <button onClick={() => goBack()} style={{
             width: '100%', padding: '15px 0', borderRadius: 14, border: '1px solid rgba(255,255,255,.15)',
             background: 'rgba(255,255,255,.06)', color: 'var(--ink)', fontWeight: 700, fontSize: 14,
             fontFamily: 'var(--sans)', cursor: 'pointer',
@@ -96,7 +97,7 @@ export default function NetsScreen() {
               FORM +{outcome.gain}
             </span>
             <span style={{ fontSize: 11, color: 'var(--ink3)' }}>
-              → {game.meters.fame}
+              → {asCricket(game.meters).form}
             </span>
           </div>
         </div>
@@ -108,7 +109,7 @@ export default function NetsScreen() {
               fontFamily: 'var(--sans)', cursor: 'pointer',
             }}>One more session ({INTERLUDE_CAPS.netSessions - used} left) →</button>
           )}
-          <button onClick={() => navigate('lock')} style={{
+          <button onClick={() => goBack()} style={{
             width: '100%', padding: '13px 0', borderRadius: 14, border: '1px solid rgba(255,255,255,.12)',
             background: 'transparent', color: 'var(--ink3)', fontWeight: 600, fontSize: 13,
             fontFamily: 'var(--sans)', cursor: 'pointer',
@@ -127,7 +128,7 @@ export default function NetsScreen() {
             NETS · SESSION {used + 1} OF {INTERLUDE_CAPS.netSessions}
           </div>
           <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.08em', color: 'var(--ink3)' }}>
-            FORM {game.meters.fame}
+            FORM {asCricket(game.meters).form}
           </div>
         </div>
         <div style={{ fontFamily: 'var(--serif)', fontSize: 23, fontWeight: 600, marginTop: 10, lineHeight: 1.3 }}>
@@ -150,7 +151,7 @@ export default function NetsScreen() {
             color: 'var(--ink)', fontWeight: 600, fontSize: 14, fontFamily: 'var(--sans)',
             cursor: 'pointer', lineHeight: 1.4,
           }}>{session.risky.label}</button>
-          <button onClick={() => navigate('lock')} style={{
+          <button onClick={() => goBack()} style={{
             background: 'none', border: 'none', color: 'var(--ink3)', fontSize: 12,
             fontWeight: 600, padding: '12px 0', minHeight: 44, cursor: 'pointer', fontFamily: 'var(--sans)',
           }}>← Not now</button>

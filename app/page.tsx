@@ -5,7 +5,7 @@ import { AppContext, ImpactNotif, RelationshipAlert } from '@/lib/context'
 import {
   applyDeltas, applyFlagDeltas, charMeters, ensureSession, getAIReply, scoreTrustDelta,
   loadDMs, loadGameState, recordChoice, resetGameState, saveDM, saveGameState,
-  fameToFollowers, DEFAULT_FLAGS, buildCricketQueue, buildCHQueue,
+  fameToFollowers, DEFAULT_FLAGS, buildCricketQueue, buildCHQueue, asCricket, chCharForGender,
 } from '@/lib/game'
 import { getVisibleSituations } from '@/lib/ch-rules'
 import { stampTime, type DMTimeMeta } from '@/lib/dm-time'
@@ -25,19 +25,17 @@ import OnboardingScreen from '@/components/screens/OnboardingScreen'
 import LoginScreen from '@/components/screens/LoginScreen'
 import CricketIntroScreen from '@/components/screens/CricketIntroScreen'
 import CricketCarouselScreen from '@/components/screens/CricketCarouselScreen'
-import LockScreen from '@/components/screens/LockScreen'
+import SelectionScreen from '@/components/screens/SelectionScreen'
 import NetsScreen from '@/components/screens/NetsScreen'
 import EvictionScreen from '@/components/screens/EvictionScreen'
 import FeedbackButton from '@/components/FeedbackButton'
 import DMArrivalSheet from '@/components/DMArrivalSheet'
 import ErrorBoundary from '@/components/ErrorBoundary'
 import { analytics, getDeviceId } from '@/lib/analytics'
-import {
-  isWeekEnd, weekForSituationId, evaluateGate, getWeek, SEASON_WEEKS,
-  DEFAULT_LOCK_MS, FRESH_INTERLUDE, parseClockOverride,
-} from '@/lib/season'
+import { isWeekEnd, weekForSituationId, FRESH_INTERLUDE, SEASON_WEEKS, DM_DAILY_BUDGET } from '@/lib/season'
+import { SELECTION_TRIGGERS, resolveSelectionVerdict, isRecall, captainTrust, selectionWeek } from '@/lib/cricket-selection'
+import { resolveVariantIndex, applyVariant, variantCtxFor, resolveGateOutcome } from '@/lib/variants'
 import { EVICTION_TRIGGERS, buildEviction } from '@/lib/creator-house'
-import { scheduleLockNotification, cancelLockNotification } from '@/lib/native-notify'
 import { recordWorldEntered, bumpChoices, touchDayStreak } from '@/lib/profile-stats'
 
 const clampTrust = (n: number) => Math.max(0, Math.min(100, Math.round(n)))
@@ -48,11 +46,9 @@ const trustBandFor = (trust: number): 'low' | 'normal' | 'high' => {
   return 'high'
 }
 
-const trustGuidanceFor = (trust: number, teamTrust?: number) => {
+const trustGuidanceFor = (trust: number) => {
   const band = trustBandFor(trust)
-  const teamLine = typeof teamTrust === 'number'
-    ? ` Team Trust is ${teamTrust}/100; use it as the dressing-room climate, but keep this character's personal trust primary.`
-    : ''
+  const teamLine = ''
   if (band === 'low') {
     return `Trust band: LOW (<30). This overrides the character's usual warmth, nicknames, emoji habits, and teaching style. Output shape: under 22 words, one blunt line plus one terse question/challenge. No lists, tactical field/bowler details, multi-step advice, detailed coaching, private history, personal warmth, emojis, or "I noticed" language. If asked for advice, give only a surface-level instruction and imply they must earn deeper mentorship.${teamLine}`
   }
@@ -116,7 +112,7 @@ export default function App() {
     playerName: '', playerGender: 'male' as const,
     world: 'creator-house' as const, char: null,
     situation: 0, situationQueue: [], choices: [],
-    meters: { fame: 20, heat: 50, image: 30 },
+    meters: { fame: 20 },
     flags: DEFAULT_FLAGS, runMemory: {},
     narrator_done: false, dayUnlockTime: {},
   })
@@ -191,10 +187,6 @@ export default function App() {
         analytics.init(session?.user?.id ?? null)
         analytics.track('session_started', null, { authed: !!session })
         const s = await loadGameState()
-        // Dev clock override (?clock=5m) — persisted into game state at next save
-        // so weekend test devices don't need it on every URL.
-        const clockParam = parseClockOverride(new URLSearchParams(location.search).get('clock'))
-        if (clockParam) s.clockOverrideMs = clockParam
         hydrateProgress(s)
         // Route signal: session ordinal lets us slice "second session, which
         // screen did they open first" — the Sims-vs-companion-vs-story decider.
@@ -315,7 +307,7 @@ export default function App() {
         playerName: name, playerGender: gender, avatarUrl,
         world: 'cricket', char: 'player',
         situation: 0, situationQueue: buildCricketQueue(), choices: [],
-        meters: { fame: 40, heat: 25, image: 20 },
+        meters: { form: 40, fame: 25 },
         flags: DEFAULT_FLAGS, runMemory: {},
         narrator_done: true, dayUnlockTime: {},
       }
@@ -340,8 +332,8 @@ export default function App() {
       // char:'player' is the self-sentinel (same as cricket). We land straight on Live —
       // the separate narrator/cast screen is gone; the cast is met via the feed.
       world: 'creator-house', char: 'player',
-      situation: 0, situationQueue: buildCHQueue({ fame: 20, heat: 50, image: 30 }, []), choices: [],
-      meters: { fame: 20, heat: 50, image: 30 },
+      situation: 0, situationQueue: buildCHQueue({ fame: 20 }, []), choices: [],
+      meters: { fame: 20 },
       flags: DEFAULT_FLAGS, runMemory: {},
       narrator_done: true, dayUnlockTime: {},
     }
@@ -365,7 +357,7 @@ export default function App() {
       playerName: game.playerName, playerGender: game.playerGender,
       world: 'cricket', char: 'player',
       situation: 0, situationQueue: buildCricketQueue(), choices: [],
-      meters: { fame: 40, heat: 25, image: 20 },
+      meters: { form: 40, fame: 25 },
       flags: DEFAULT_FLAGS, runMemory: {},
       narrator_done: true, dayUnlockTime: {},
     }
@@ -398,9 +390,10 @@ export default function App() {
 
   const applyChoiceRelationshipEffects = useCallback((sit: { react?: { char: CharId } | null }, ch: NonNullable<Situation['choices'][number]>, previousMeters: GameState['meters'], nextMeters: GameState['meters']) => {
     if (game.world !== 'cricket') {
-      // Creator House: apply the authored per-character bond deltas directly
-      // (e.g. talk to Ananya → Ananya bond up, Zoya tone sours).
-      Object.entries(ch.relationshipDeltas ?? {}).forEach(([id, delta]) => adjustIndividualTrust(id as CharId, delta ?? 0))
+      // Creator House: apply the authored per-character bond deltas directly.
+      // Gender-swap the id (kabir<->ananya) so a FEMALE player's crush/ally bonds
+      // are credited to the character actually shown — same swap as DM/feed delivery.
+      Object.entries(ch.relationshipDeltas ?? {}).forEach(([id, delta]) => adjustIndividualTrust(chCharForGender(id, game.playerGender) as CharId, delta ?? 0))
       return
     }
     const deltas: Partial<Record<CharId, number>> = {}
@@ -415,29 +408,15 @@ export default function App() {
     asArray(ch.post).forEach(post => { if (post.source === 'character' && post.char) touched.add(post.char) })
     Object.keys(ch.relationshipDeltas ?? {}).forEach(id => touched.add(id as CharId))
 
-    const teamDelta = nextMeters.image - previousMeters.image
-    const formDelta = nextMeters.fame - previousMeters.fame
-    const fameDelta = nextMeters.heat - previousMeters.heat
-    const leadership: CharId[] = ['hardik', 'rohit', 'mahela']
+    // Pooled Team Trust is gone — per-senior trust now moves ONLY through
+    // authored relationshipDeltas (the story deciding who warms/cools) plus a
+    // small technical-respect echo when a form-building choice touches a senior.
+    const nm = asCricket(nextMeters), pm = asCricket(previousMeters)  // cricket-only past this point
+    const formDelta = nm.form - pm.form
     const technical: CharId[] = ['rohit', 'bumrah', 'coach', 'mahela']
-    const fameSensitive: CharId[] = ['hardik', 'rohit', 'mahela', 'bumrah']
-
-    if (teamDelta !== 0) {
-      const touchedDelta = teamDelta > 0
-        ? Math.min(3, Math.ceil(teamDelta / 2))
-        : Math.max(-3, Math.floor(teamDelta / 2))
-      touched.forEach(id => add(id, touchedDelta))
-      if (Math.abs(teamDelta) >= 2) leadership.forEach(id => add(id, teamDelta > 0 ? 1 : -1))
-    }
 
     if (formDelta >= 2) {
       technical.forEach(id => { if (touched.has(id)) add(id, 1) })
-    }
-    if (fameDelta >= 2 && teamDelta < 0) {
-      fameSensitive.forEach(id => add(id, -1))
-    }
-    if (fameDelta <= -1 && teamDelta > 0) {
-      leadership.forEach(id => add(id, 1))
     }
 
     Object.entries(ch.relationshipDeltas ?? {}).forEach(([id, delta]) => {
@@ -466,18 +445,23 @@ export default function App() {
       }
       const next = { ...prev, situation: nextIdx, situationQueue: queue, dayUnlockTime: newUnlockTime }
 
-      // Season 1: finishing the last beat of a Match Week starts the interlude.
-      // Live locks behind the match calendar; Nets/DMs/Feed open as the grind.
-      if (prev.world === 'cricket' && nextIdx < queue.length && isWeekEnd(queue, prev.situation)) {
-        const finishedWeek = weekForSituationId(queue[prev.situation])
-        next.week = finishedWeek
-        next.lockExpiresAt = Date.now() + (prev.clockOverrideMs ?? DEFAULT_LOCK_MS)
-        next.interlude = { ...FRESH_INTERLUDE, chatTrustEarned: {} }
-        analytics.track('interlude_started', 'cricket', {
-          week_finished: finishedWeek,
-          next_week: finishedWeek + 1,
-          meters: prev.meters,
-        })
+      // Cricket: finishing a selection-trigger beat opens the SELECTION WINDOW
+      // (free-flow — no lock). The next beat is gated behind the squad-announcement
+      // ceremony; nets/DMs/feed stay open as the optional case-building grind.
+      if (prev.world === 'cricket') {
+        const finishedId = queue[prev.situation]
+        const selId = SELECTION_TRIGGERS[finishedId]
+        if (selId && !(prev.selections ?? {})[selId]) {
+          next.week = weekForSituationId(finishedId)
+          next.pendingSelection = selId
+          next.interlude = { ...FRESH_INTERLUDE, chatTrustEarned: {} }
+          analytics.track('selection_window_started', 'cricket', {
+            selection: selId,
+            week: next.week,
+            form: (prev.meters as { form?: number }).form,
+            captain_trust: captainTrust(dmTrustRef.current),
+          })
+        }
       }
 
       // Creator House: finishing an eviction-trigger situation fires Eviction Night
@@ -523,34 +507,28 @@ export default function App() {
     })
   }, [extrasSnapshot])
 
-  // Close the interlude: open the next week with the success or fail variant.
-  const resolveInterlude = useCallback((variant: 'success' | 'fail') => {
+  // Resolve the pending squad selection: compute + PERSIST the verdict (the
+  // replay-safe ground truth beat variants key on), advance the week, clear the
+  // window. Called by SelectionScreen's final CTA.
+  const resolveSelection = useCallback(() => {
     setGame(prev => {
-      const newWeek = Math.min((prev.week ?? 1) + 1, SEASON_WEEKS.length)
+      const selId = prev.pendingSelection
+      if (!selId) return prev
+      const week = selectionWeek(selId)
+      const form = Math.round((prev.meters as { form?: number }).form ?? 40)
+      const captain = captainTrust(dmTrustRef.current)
+      const benched = prev.benchedWeeks ?? []
+      const verdict = resolveSelectionVerdict(week, form, captain, benched)
+      const recall = isRecall(week, form, captain, benched)
       const next: GameState = {
         ...prev,
-        week: newWeek,
-        lockExpiresAt: null,
-        interlude: { ...FRESH_INTERLUDE, chatTrustEarned: {} },
-        failedWeeks: variant === 'fail'
-          ? [...(prev.failedWeeks ?? []), newWeek]
-          : (prev.failedWeeks ?? []),
+        week: Math.min(week + 1, SEASON_WEEKS.length),
+        pendingSelection: null,
+        selections: { ...(prev.selections ?? {}), [selId]: verdict },
+        benchedWeeks: verdict === 'benched' ? [...benched, week] : benched,
+        flags: recall ? { ...prev.flags, recalled: 1 } : prev.flags,
       }
-      analytics.track('week_unlocked', 'cricket', { week: newWeek, variant, meters: prev.meters })
-      saveGameState({ ...next, ...extrasSnapshot() })
-      return next
-    })
-  }, [extrasSnapshot])
-
-  // Week 7 hard gate: expiry below the gate starts a fresh interlude —
-  // clock and all activity caps reset, so the player always has a path forward.
-  const restartInterlude = useCallback(() => {
-    setGame(prev => {
-      const next: GameState = {
-        ...prev,
-        lockExpiresAt: Date.now() + (prev.clockOverrideMs ?? DEFAULT_LOCK_MS),
-        interlude: { ...FRESH_INTERLUDE, chatTrustEarned: {} },
-      }
+      analytics.track('selection_verdict', 'cricket', { selection: selId, week, verdict, recall, form, captain_trust: captain })
       saveGameState({ ...next, ...extrasSnapshot() })
       return next
     })
@@ -562,7 +540,7 @@ export default function App() {
       const interlude = prev.interlude ?? { ...FRESH_INTERLUDE, chatTrustEarned: {} }
       const next: GameState = {
         ...prev,
-        meters: { ...prev.meters, fame: Math.max(0, Math.min(100, prev.meters.fame + formGain)) },
+        meters: { ...asCricket(prev.meters), form: Math.max(0, Math.min(100, asCricket(prev.meters).form + formGain)) },
         interlude: { ...interlude, netsUsed: interlude.netsUsed + 1 },
       }
       saveGameState({ ...next, ...extrasSnapshot() })
@@ -591,18 +569,6 @@ export default function App() {
     analytics.track('trust_moment_completed', 'cricket', { char_id: charId, delta })
   }, [adjustIndividualTrust, extrasSnapshot, dmHistory])
 
-  // gate_crossed — fires once per interlude on the moment the gate flips to met.
-  const gateCrossedRef = useRef(false)
-  useEffect(() => {
-    if (game.world !== 'cricket' || !game.lockExpiresAt) { gateCrossedRef.current = false; return }
-    const nextWeek = getWeek(Math.min((game.week ?? 1) + 1, SEASON_WEEKS.length))
-    if (nextWeek.gate.length === 0) return
-    const { passed } = evaluateGate(nextWeek.gate, game.meters, dmTrust)
-    if (passed && !gateCrossedRef.current) {
-      gateCrossedRef.current = true
-      analytics.track('gate_crossed', 'cricket', { week: nextWeek.week, meters: game.meters })
-    }
-  }, [game.world, game.lockExpiresAt, game.week, game.meters, dmTrust])
 
   const makeChoice = useCallback(async (idx: number) => {
     // Look up current situation by ID from the queue (world-aware, index-shift-safe)
@@ -610,28 +576,46 @@ export default function App() {
     const sitMap = game.world === 'cricket'
       ? Object.fromEntries(getCricketSituations().map(s => [s.id, s]))
       : Object.fromEntries(getVisibleSituations(game.meters, game.choices).map(s => [s.id, s]))
-    const sit = sitMap[currentId]
+    const rawSit = sitMap[currentId]
+    // Cricket: resolve the SAME variant LiveScreen rendered (deltas must match
+    // what was shown) and PERSIST it + the gate result for replay safety.
+    const variantIdx = rawSit && game.world === 'cricket'
+      ? resolveVariantIndex(rawSit, variantCtxFor(game, dmTrustRef.current, weekForSituationId(rawSit.id)))
+      : -1
+    const sit = rawSit && game.world === 'cricket' ? applyVariant(rawSit, variantIdx) : rawSit
     const ch = sit?.choices?.[idx]
     if (!ch) return
+    const gateRes = resolveGateOutcome(ch, game.meters, dmTrustRef.current)
     bumpChoices() // lifetime choice counter for the global profile
     const letter = idx === 0 ? 'A' : 'B'
     const newMeters = applyDeltas(game.meters, ch.deltas)
     const newFlags = applyFlagDeltas(game.flags, ch.flagDeltas)
     const newChoices = [...game.choices, letter] as ('A'|'B')[]
     // Write run memory if this is a match situation
-    const newRunMemory = ch.runWrite
-      ? { ...game.runMemory, [`${ch.runWrite}Runs`]: newMeters.fame, [`${ch.runWrite}Balls`]: undefined }
+    // A failed charTrust gate means you never got to bat (e.g. the impact-sub
+    // call didn't come) — no runs to remember.
+    const neverBatted = gateRes?.result === 'fail' && ch.outcomeGate?.metric === 'charTrust'
+    const newRunMemory = ch.runWrite && !neverBatted
+      ? { ...game.runMemory, [`${ch.runWrite}Runs`]: asCricket(newMeters).form, [`${ch.runWrite}Balls`]: undefined }
       : game.runMemory
-    setGame(prev => ({ ...prev, meters: newMeters, flags: newFlags, choices: newChoices, runMemory: newRunMemory }))
+    setGame(prev => ({
+      ...prev, meters: newMeters, flags: newFlags, choices: newChoices, runMemory: newRunMemory,
+      ...(prev.world === 'cricket' ? {
+        gateResults: gateRes ? { ...(prev.gateResults ?? {}), [currentId]: gateRes.result } : prev.gateResults,
+        variantSeen: { ...(prev.variantSeen ?? {}), [currentId]: variantIdx },
+        // DM mission: the story sends YOU to open this senior's thread.
+        ...(ch.dmMission ? { activeMission: ch.dmMission } : {}),
+      } : {}),
+    }))
     applyChoiceRelationshipEffects(sit, ch, game.meters, newMeters)
     analytics.track('choice_made', game.world, {
       situation_id: currentId,
       choice: letter,
       situation_index: game.situation,
       day: sit.day,
-      fame_after: newMeters.fame,
-      heat_after: newMeters.heat,
-      image_after: newMeters.image,
+      ...(game.world === 'cricket'
+        ? { form_after: asCricket(newMeters).form, fame_after: asCricket(newMeters).fame, captain_trust_after: captainTrust(dmTrustRef.current) }
+        : { fame_after: newMeters.fame }),
     })
     await recordChoice(game.situation, letter)
   }, [applyChoiceRelationshipEffects, game])
@@ -652,8 +636,11 @@ export default function App() {
         const onlyInMemory = inMemory.filter(m => !dbKeys.has(`${m.role}:${m.text}`))
         // The DB doesn't store post embeds — re-attach them from the in-memory copy.
         const dbWithEmbeds = msgs.map(m => {
-          const mem = inMemory.find(im => im.role === m.role && im.text === m.text && im.embed)
-          return mem ? { ...m, embed: mem.embed } : m
+          const mem = inMemory.find(im => im.role === m.role && im.text === m.text)
+          // Re-attach what the DB doesn't store: post embeds AND the narrative
+          // timestamps (day/phase/t/note) — else same-session threads lose their
+          // WhatsApp dividers the moment the DB merge runs.
+          return mem ? { ...m, ...(mem.embed ? { embed: mem.embed } : {}), day: mem.day, phase: mem.phase, t: mem.t, note: mem.note } : m
         })
         const merged = [...dbWithEmbeds, ...onlyInMemory]
         if (merged.length > 0) setDmLastUpdated(times => ({ ...times, [charId]: times[charId] ?? Date.now() }))
@@ -662,17 +649,23 @@ export default function App() {
     }
   }, [game.world, navigate])
 
-  // ── DM cap helpers (localStorage-backed, 20 msgs → 6h lock) ─────────────
-  // Per-character DM cap. Ananya (the crush) opens up: a short, precious window of ~7
-  // messages, then a 30-min cooldown. Everyone else keeps the default 20 / 6h.
-  const dmCapFor = (cid: string) => (cid === 'ananya' ? 7 : 20)
+  // ── DM economy (localStorage-backed) ─────────────────────────────────────
+  // Cricket: DMs are always open with a per-day free-chat budget per senior
+  // (DM_DAILY_BUDGET; mission exchanges don't consume it). CH keeps the crush's
+  // short precious window (7 msgs / 30-min cooldown).
+  const dmCapFor = (cid: string) => (gameRef.current.world === 'cricket' ? DM_DAILY_BUDGET : cid === 'ananya' ? 7 : 20)
   const dmLockMsFor = (cid: string) => (cid === 'ananya' ? 30 * 60 * 1000 : 6 * 60 * 60 * 1000)
+  // Day key so cricket budgets reset daily (count is stored per day).
+  const dmDayKey = () => new Date().toISOString().slice(0, 10)
 
   const getDmCapState = useCallback((cid: string) => {
     try {
       const raw = localStorage.getItem('lore_dm_cap')
       const all = raw ? JSON.parse(raw) : {}
-      return (all[cid] ?? { count: 0, lockedUntil: 0 }) as { count: number; lockedUntil: number }
+      const st = (all[cid] ?? { count: 0, lockedUntil: 0 }) as { count: number; lockedUntil: number; day?: string }
+      // Cricket budgets are per-day: a stale day key resets the count.
+      if (gameRef.current.world === 'cricket' && st.day !== dmDayKey()) return { count: 0, lockedUntil: 0 }
+      return st
     } catch { return { count: 0, lockedUntil: 0 } }
   }, [])
 
@@ -680,7 +673,8 @@ export default function App() {
     try {
       const raw = localStorage.getItem('lore_dm_cap')
       const all = raw ? JSON.parse(raw) : {}
-      localStorage.setItem('lore_dm_cap', JSON.stringify({ ...all, [cid]: next }))
+      const stamped = gameRef.current.world === 'cricket' ? { ...next, day: dmDayKey() } : next
+      localStorage.setItem('lore_dm_cap', JSON.stringify({ ...all, [cid]: stamped }))
     } catch {}
   }, [])
 
@@ -704,9 +698,14 @@ export default function App() {
 
   const sendDM = useCallback(async (charId: CharId, text: string) => {
     // DMs are live in both cricket and Creator House.
-    // Cap check — block if locked
+    // Budget/cap check. A story MISSION for this senior always goes through.
+    const missionActive = gameRef.current.activeMission?.char === charId
     const capState = getDmCapState(charId)
-    if (capState.lockedUntil > Date.now()) return
+    if (!missionActive) {
+      if (gameRef.current.world === 'cricket') {
+        if (capState.count >= dmCapFor(charId)) return   // daily budget spent
+      } else if (capState.lockedUntil > Date.now()) return
+    }
 
     const baseHist = dmHistory[charId] ?? []
     const userMsg: DMMessage = { role: 'me', text, ...stampTime(baseHist) }
@@ -716,12 +715,16 @@ export default function App() {
     setDmLastUpdated(prev => ({ ...prev, [charId]: Date.now() }))
     saveDM(charId, userMsg).catch(() => {})
 
-    // Increment cap count; lock if limit hit
-    const newCount = capState.count + 1
-    if (newCount >= dmCapFor(charId)) {
-      setDmCapState(charId, { count: newCount, lockedUntil: Date.now() + dmLockMsFor(charId) })
-    } else {
-      setDmCapState(charId, { count: newCount, lockedUntil: 0 })
+    // Consume budget (missions are free). Cricket: daily count; CH: cooldown lock.
+    if (!missionActive) {
+      const newCount = capState.count + 1
+      if (gameRef.current.world === 'cricket') {
+        setDmCapState(charId, { count: newCount, lockedUntil: 0 })
+      } else if (newCount >= dmCapFor(charId)) {
+        setDmCapState(charId, { count: newCount, lockedUntil: Date.now() + dmLockMsFor(charId) })
+      } else {
+        setDmCapState(charId, { count: newCount, lockedUntil: 0 })
+      }
     }
 
     const playerName = game.playerName || 'Yaar'
@@ -737,8 +740,7 @@ export default function App() {
       story: buildStorySummary() ?? undefined,
       trustWithChar: currentTrust,
       trustBand,
-      trustGuidance: trustGuidanceFor(currentTrust, game.world === 'cricket' ? game.meters.image : undefined),
-      teamTrust: game.world === 'cricket' ? game.meters.image : undefined,
+      trustGuidance: trustGuidanceFor(currentTrust),
       playerGender: game.playerGender,
     })
     const CRICKET_MOCK_FALLBACK: Partial<Record<string, string[]>> = {
@@ -770,13 +772,24 @@ export default function App() {
       message_length: text.length,
       trust_before: currentTrust,
       trust_band: trustBand,
+      mission: missionActive ? gameRef.current.activeMission?.flag : undefined,
     })
+    if (missionActive && gameRef.current.activeMission) {
+      const flag = gameRef.current.activeMission.flag
+      setGame(prev => {
+        const next = { ...prev, flags: { ...prev.flags, [flag]: 1 }, activeMission: null }
+        saveGameState({ ...next, ...extrasSnapshot() })
+        return next
+      })
+      showToast('Baat ho gayi ✓')
+      analytics.track('dm_mission_completed', 'cricket', { char_id: charId, flag })
+    }
     scoreTrustDelta(charId, text, parts.join(' '), currentTrust).then(delta => {
       if (delta === 0) return
-      // Interlude cap: casual chat earns at most +2 trust per character per
-      // interlude (negative deltas always apply — you can still blow it).
+      // Selection-window cap: casual chat earns at most +2 trust per character
+      // per window (negative deltas always apply — you can still blow it).
       let applied = delta
-      if (gameRef.current.lockExpiresAt && delta > 0) {
+      if (gameRef.current.pendingSelection && delta > 0) {
         const interlude = gameRef.current.interlude ?? { ...FRESH_INTERLUDE, chatTrustEarned: {} }
         const earned = interlude.chatTrustEarned[charId] ?? 0
         applied = Math.min(delta, Math.max(0, 2 - earned))
@@ -828,7 +841,7 @@ export default function App() {
   // reveal so a "the world reacts" DM surfaces as a notification on any screen.
   const notifyDM = useCallback((charId: CharId, text: string, embed?: DMMessage['embed'], meta?: DMTimeMeta) => {
     injectCharDM(charId, text, embed, meta)
-    const c = getCHChars()[charId]
+    const c = ({ ...getCHChars(), ...getCricketChars() })[charId]
     // The arrival sheet "types in" this text; it stays until the player taps Reply
     // or dismisses ("read later") — no auto-timeout, the DM demands a beat.
     setDmNotif({ id: charId, name: c?.name ?? 'Someone', cls: c?.cls ?? '', text })
@@ -880,17 +893,19 @@ export default function App() {
     // character is triggered — a story choice, or you commenting on their post.
   }, [game.world, game.char, game.choices.length, injectCharDM])
 
-  const applyFeedDeltas = useCallback((deltas: { fame: number; heat: number; image: number }, charId?: string, charName?: string) => {
+  const applyFeedDeltas = useCallback((deltas: Partial<{ form: number; fame: number; trust: number }>, charId?: string, charName?: string, relationshipDeltas?: Partial<Record<string, number>>) => {
     const isCricket = game.world === 'cricket'
-    const nextMeters = {
-      fame:  Math.max(0, Math.min(100, game.meters.fame + deltas.fame)),
-      heat:  Math.max(0, Math.min(100, game.meters.heat + deltas.heat)),
-      image: Math.max(0, Math.min(100, game.meters.image + deltas.image)),
-    }
-    const publicFame = isCricket ? nextMeters.heat : nextMeters.fame
-    const publicFameDelta = isCricket ? deltas.heat : deltas.fame
-    const teamTrustDelta = isCricket ? deltas.image : deltas.heat
-    const teamTrustVal = isCricket ? nextMeters.image : nextMeters.heat
+    // Meters take only the keys they carry ({form,fame} cricket / {fame} CH);
+    // a `trust` delta now means PER-CHARACTER trust with the post's author —
+    // feed engagement building a real bond, not a pooled number.
+    const nextMeters = applyDeltas(game.meters, deltas as Partial<Record<'fame', number>>)
+    const publicFame = nextMeters.fame            // followers axis (both worlds read .fame)
+    const publicFameDelta = deltas.fame ?? 0
+    const charTrustDelta = isCricket && charId ? (deltas.trust ?? 0) : 0
+    if (charTrustDelta !== 0 && charId) adjustIndividualTrust(charId as CharId, charTrustDelta)
+    // Comment-hook bonds: replies can move OTHER characters too (e.g. backing
+    // Naman also warms Hardik) — feed talk the story reads back.
+    Object.entries(relationshipDeltas ?? {}).forEach(([id, d]) => { if (d) adjustIndividualTrust(id as CharId, d) })
     const tasksTotal = game.situationQueue.length || (isCricket ? buildCricketQueue().length : getCHSituations().length)
     saveAndSet({ ...game, meters: nextMeters })
     showImpact({
@@ -898,12 +913,12 @@ export default function App() {
       followerDelta: Math.round(publicFameDelta * 180),
       followerTotal: fameToFollowers(publicFame),
       charId, charName,
-      trustDelta: teamTrustDelta,
-      trustVal: teamTrustVal,
+      trustDelta: charTrustDelta,
+      trustVal: charId ? clampTrust((dmTrustRef.current[charId] ?? 30) + charTrustDelta) : 0,
       tasksLeft: Math.max(0, tasksTotal - game.situation - 1),
       tasksTotal,
     })
-  }, [game, saveAndSet, showImpact])
+  }, [game, saveAndSet, showImpact, adjustIndividualTrust])
 
   const setViewingChar = useCallback((id: CharId | null) => {
     setViewingCharId(id)
@@ -917,7 +932,7 @@ export default function App() {
       localStorage.removeItem('lore_feed_seen')
       localStorage.removeItem('lore_dm_openers_v1')
     }
-    setGame({ playerName: '', playerGender: 'male' as const, world: 'creator-house', char: null, situation: 0, situationQueue: [], choices: [], meters: { fame: 20, heat: 50, image: 30 }, flags: DEFAULT_FLAGS, runMemory: {}, narrator_done: false, dayUnlockTime: {} })
+    setGame({ playerName: '', playerGender: 'male' as const, world: 'creator-house', char: null, situation: 0, situationQueue: [], choices: [], meters: { fame: 20 }, flags: DEFAULT_FLAGS, runMemory: {}, narrator_done: false, dayUnlockTime: {} })
     setDmHistory({})
     setDmLastUpdated({})
     setDmTrust({})
@@ -925,12 +940,6 @@ export default function App() {
     navigate('worlds', { replace: true })
   }, [navigate])
 
-  // Native only (no-op on web): nudge the player back when the 3h lock expires.
-  useEffect(() => {
-    if (game.world !== 'cricket') return
-    if (game.lockExpiresAt && game.lockExpiresAt > Date.now()) scheduleLockNotification(game.lockExpiresAt)
-    else cancelLockNotification()
-  }, [game.world, game.lockExpiresAt])
 
   const prev = navHistory[navHistory.length - 2] ?? null
 
@@ -950,7 +959,7 @@ export default function App() {
       advanceSituation, navigate, goBack, showToast, setChar, startGame, startCricketGame,
       makeChoice, sendDM, openDMThread, resetGame, likePost, applyFeedDeltas, injectCharDM, setViewingChar,
       pendingPostReveal, setPendingPostReveal, upsertAiPost, dmNotif, notifyDM, followerReceipt, showFollowerReceipt, hudReaction, setHudReaction,
-      resolveInterlude, restartInterlude, completeNetSession, completeTrustMoment, resolveEviction,
+      resolveSelection, completeNetSession, completeTrustMoment, resolveEviction,
     }}>
       <div className="stage">
         <div className="phone">
@@ -965,7 +974,7 @@ export default function App() {
             <Slot id="feed"        cur={screen} prev={prev}><FeedScreen /></Slot>
             <Slot id="narrator"    cur={screen} prev={prev}><NarratorScreen /></Slot>
             <Slot id="live"        cur={screen} prev={prev}><LiveScreen /></Slot>
-            <Slot id="lock"        cur={screen} prev={prev}><LockScreen /></Slot>
+            <Slot id="selection"   cur={screen} prev={prev}><SelectionScreen /></Slot>
             <Slot id="nets"        cur={screen} prev={prev}><NetsScreen /></Slot>
             <Slot id="eviction"    cur={screen} prev={prev}><EvictionScreen /></Slot>
             <Slot id="dm-inbox"    cur={screen} prev={prev}><DMInboxScreen /></Slot>
