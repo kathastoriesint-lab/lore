@@ -26,10 +26,19 @@ Copy-paste directly. Placeholders in **CAPS** need your real value.
 ## "Finish setting up your app" tasks
 
 ### App access
-- The app has login-gated content (phone OTP sign-in).
-- Choose **"All or some functionality is restricted"** and provide reviewer instructions +
-  a test account. Because login is phone-OTP, give Google a phone number + how to receive the
-  OTP, OR add a demo bypass. **TODO: confirm how a reviewer logs in without your phone.**
+- The app has login-gated content (phone OTP sign-in). A **reviewer demo login is built in**
+  (skips MSG91 — no real SMS needed).
+- Choose **"All or some functionality is restricted"** and paste these reviewer instructions:
+
+  ```
+  This app normally signs in with a phone OTP. For review, use the built-in demo login:
+  1. On the login screen, enter phone number: 9000000000
+  2. Tap Continue.
+  3. Enter the code: 0000
+  You'll be taken into the app with full access to both story worlds. (Alternatively, tap
+  "Or login using another method" → "Continue as guest" for the same full access.)
+  ```
+  No test account / credentials needed — the demo login and guest mode both give full access.
 
 ### Ads
 - **No**, the app does not contain ads.
@@ -129,7 +138,7 @@ Your story is waiting. Step in.
 | Asset | Requirement | What to use |
 |---|---|---|
 | App icon | 512×512 PNG, 32-bit | Export from `assets/` icon source |
-| Feature graphic | 1024×500 PNG/JPG (**required**) | **TODO: needs to be created — you don't have one at this size** |
+| Feature graphic | 1024×500 PNG/JPG (**required**) | ✅ **DONE** — `store-assets/feature-graphic-1024x500.png` (also in ~/Downloads) |
 | Phone screenshots | 2–8 images, 16:9 or 9:16, min 320px | `deployed-screenshots/` — they're 860×1864, perfect |
 
 **Recommended screenshot picks** (from `deployed-screenshots/`):
@@ -142,8 +151,8 @@ Your story is waiting. Step in.
 7. `13-creator-house-story.png`
 8. `10-global-profile.png` — progression
 
-> **Missing:** a 1024×500 **feature graphic** is required and you don't have one yet. That's
-> the one net-new art asset you need before the store listing can be submitted.
+> ✅ **Feature graphic done:** `store-assets/feature-graphic-1024x500.png` — LORE wordmark over
+> both worlds (cricket celebration + villa). Regenerate anytime from `public/feature-graphic.html`.
 
 ---
 

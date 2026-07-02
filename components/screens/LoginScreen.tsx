@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect, useRef, type CSSProperties, type FormEvent, type KeyboardEvent } from 'react'
 import { useApp } from '@/lib/context'
-import { completeMsg91Login, sendEmailOtp, verifyEmailOtp } from '@/lib/auth'
+import { completeMsg91Login, completeDemoLogin, DEMO_PHONE_DIGITS, DEMO_OTP, sendEmailOtp, verifyEmailOtp } from '@/lib/auth'
 
 // Phone login via the MSG91 OTP Widget (sends + verifies the OTP, returns a JWT
 // that completeMsg91Login exchanges for a Supabase session) OR email login via
@@ -131,8 +131,11 @@ export default function LoginScreen() {
   }
 
   // ── Phone (MSG91) ──
+  const isDemoPhone = digits === DEMO_PHONE_DIGITS
   function send() {
     if (!phoneValid || busy) return
+    // Play-review demo number: skip MSG91, go straight to the code step.
+    if (isDemoPhone) { setErr(null); setStep('otp'); clearOtp(); startResend(); setTimeout(() => otpRefs.current[0]?.focus(), 60); return }
     if (!ready.current || !window.sendOtp) { setErr('Still loading — try again in a second.'); return }
     setBusy(true); setErr(null)
     window.sendOtp(
@@ -144,6 +147,15 @@ export default function LoginScreen() {
   function verify(codeArg?: string) {
     const c = (codeArg ?? otpValue()).replace(/\D/g, '')
     if (c.length < OTP_LENGTH || busy) return
+    // Play-review demo login: fixed code → enter the app as a guest (the anon
+    // session already backs saves; the boot gate treats guests as "not logged
+    // in", so we navigate in rather than reload — same as "Continue as guest").
+    if (isDemoPhone) {
+      if (c !== DEMO_OTP) { setErr('That code didn’t work — re-check or resend.'); return }
+      setBusy(true); setErr(null)
+      completeDemoLogin().then(() => { setBusy(false); navigate(game.playerName ? 'worlds' : 'onboarding') })
+      return
+    }
     if (!window.verifyOtp) { setErr('Verification not ready — resend the code.'); return }
     setBusy(true); setErr(null)
     window.verifyOtp(

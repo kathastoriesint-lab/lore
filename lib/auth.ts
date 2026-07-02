@@ -31,6 +31,18 @@ export async function getAuthInfo(): Promise<AuthInfo> {
 }
 
 // Exchange the MSG91 widget's verified-OTP JWT for a real Supabase session.
+// Reviewer / demo login — a fixed number + code for Google Play review (a
+// reviewer can't receive the OTP sent to the owner's phone). It skips MSG91
+// entirely and simply establishes the normal anonymous guest session: full
+// game access, NO real phone linked, no elevated privileges. Safe to ship.
+export const DEMO_PHONE_DIGITS = '9000000000'
+export const DEMO_OTP = '0000'
+
+export async function completeDemoLogin(): Promise<{ ok: true } | { error: string }> {
+  const session = await ensureSession()
+  return session ? { ok: true } : { error: 'Could not start a session.' }
+}
+
 export async function completeMsg91Login(msg91Token: string): Promise<{ ok: true } | { error: string }> {
   try {
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL!
