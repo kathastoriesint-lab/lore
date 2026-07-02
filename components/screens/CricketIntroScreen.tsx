@@ -74,15 +74,17 @@ export default function CricketIntroScreen() {
         {/* The two goals + the weekly heartbeat */}
         <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
           {[
-            { label: '🏏 FORM', color: 'var(--fame)',  desc: 'Runs on the board' },
-            { label: "🧢 CAPTAIN'S TRUST", color: 'var(--trust)', desc: 'Hardik ka bharosa — DMs mein banta hai' },
-            { label: '📋 TEAM SHEET', color: 'var(--heat)', desc: 'Har week selection — dono chahiye' },
+            { label: '🏏 FORM', color: 'var(--fame)',  desc: 'Runs on the board — pehla goal' },
+            { label: "🧢 CAPTAIN'S TRUST", color: 'var(--trust)', desc: 'Hardik ka bharosa, DMs mein banta hai — doosra goal' },
           ].map(m => (
             <div key={m.label} style={{ flex: 1, background: 'rgba(255,255,255,.05)', borderRadius: 10, padding: '8px 10px' }}>
               <div style={{ fontSize: 9, fontWeight: 800, color: m.color, letterSpacing: '.06em' }}>{m.label}</div>
               <div style={{ fontSize: 10, color: 'var(--ink3)', marginTop: 3 }}>{m.desc}</div>
             </div>
           ))}
+        </div>
+        <div style={{ fontSize: 11, color: 'var(--ink3)', marginTop: 10, lineHeight: 1.5 }}>
+          📋 Har hafte team sheet lagti hai — dono goals decide karte hain naam aayega ya nahi.
         </div>
 
         {/* CTAs */}

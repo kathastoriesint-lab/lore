@@ -130,6 +130,11 @@ export const CRICKET_SITUATIONS: Situation[] = [
         "text": "Drawing room. TV ka volume itna loud hai ki auctioneer ka har naam seedha seene mein lagta hai. Tumhare saamne teen cheezein: adhi khaali water bottle, Coach Sir ka purana notebook, aur tumhara phone — screen down, disturbingly silent."
       },
       {
+        "t": "img",
+        "src": "/generated/cricket-posts/cr-s1-player.png",
+        "h": 210
+      },
+      {
         "t": "nar",
         "text": "Phir screen pe tumhara naam. Base price ₹30 lakh. Do second ki khamoshi — jo do saal jaisi lagti hai. Phir Mumbai Indians ka paddle uthta hai. Ek aur team counter karti hai. MI phir uthata hai."
       },
@@ -220,7 +225,8 @@ export const CRICKET_SITUATIONS: Situation[] = [
               "char": "coach",
               "text": "Photo theek hai. Ab comments mat padhna. Kal subah shadow practice."
             }
-          ]
+          ],
+          "imageUrl": "/generated/cricket-posts/cr-s1-mipaltan.png"
         }
       }
     ],
@@ -250,6 +256,11 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         "t": "nar",
         "text": "Wankhede nets. Pehla serious rotation. Tum pads baandh rahe ho jab Mahela clipboard se bina nazar uthaye bolta hai: \"Kid — next net. Jasprit, one over.\""
+      },
+      {
+        "t": "img",
+        "src": "/generated/cricket-posts/cr-s2-player.png",
+        "h": 210
       },
       {
         "t": "nar",
@@ -352,7 +363,8 @@ export const CRICKET_SITUATIONS: Situation[] = [
               "name": "paltanpulse",
               "text": "Charging Bumrah in your FIRST net session. This kid fears nothing and possibly should 😭"
             }
-          ]
+          ],
+          "imageUrl": "/generated/cricket-posts/cr-s8-mipaltan.png"
         }
       }
     ],
@@ -478,7 +490,8 @@ export const CRICKET_SITUATIONS: Situation[] = [
                 "name": "cricketroom_india",
                 "text": "Confidence sells, but the middle order slot is decided on a whiteboard, not a soundbite."
               }
-            ]
+            ],
+            "imageUrl": "/generated/cricket-posts/cr-s24-mipaltan.png"
           },
           {
             "source": "character",
@@ -520,7 +533,8 @@ export const CRICKET_SITUATIONS: Situation[] = [
                 },
                 "toast": "Screenshot already circulate ho raha hai. Naman −3, Fame +2"
               }
-            ]
+            ],
+            "imageUrl": "/generated/cricket-posts/cr-s4-player.png"
           }
         ]
       }
@@ -551,6 +565,11 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         "t": "nar",
         "text": "Team hotel, meeting room, raat 9:30. Whiteboard pe koi XI nahi likhi — sirf matchups: left-arm spin. Death overs. Powerplay. Impact sub. Naam baad mein aate hain yahan; kaam pehle."
+      },
+      {
+        "t": "img",
+        "src": "/generated/cricket-posts/cr-s6-player.png",
+        "h": 210
       },
       {
         "t": "nar",
@@ -655,7 +674,8 @@ export const CRICKET_SITUATIONS: Situation[] = [
               "name": "memeovers",
               "text": "day 3: asks captain for the opening slot. day 4 prediction: asks for the captaincy 💀"
             }
-          ]
+          ],
+          "imageUrl": "/generated/cricket-posts/cr-s14-mipaltan.png"
         }
       }
     ],
@@ -774,7 +794,8 @@ export const CRICKET_SITUATIONS: Situation[] = [
               "char": "hardik",
               "text": "Sheet andar ki baat hoti hai jab tak media manager na bole. Yaad rakhna."
             }
-          ]
+          ],
+          "imageUrl": "/generated/cricket-posts/cr-s7-player.png"
         }
       }
     ],
@@ -870,7 +891,8 @@ export const CRICKET_SITUATIONS: Situation[] = [
                   "char": "hardik",
                   "text": "Thanks match ke baad bolna."
                 }
-              ]
+              ],
+              "imageUrl": "/generated/cricket-posts/cr-s2-mumbaiindians.png"
             }
           }
         ]
@@ -886,6 +908,11 @@ export const CRICKET_SITUATIONS: Situation[] = [
           {
             "t": "nar",
             "text": "Subah 9:04. Dressing room ke door pe sheet. Tum upar se neeche padhte ho. Phir dobara. Phir teesri baar — jaise dobara padhne se naam aa jayega."
+          },
+          {
+            "t": "img",
+            "src": "/generated/cricket-posts/cr-s27-player.png",
+            "h": 210
           },
           {
             "t": "nar",
@@ -1101,7 +1128,8 @@ export const CRICKET_SITUATIONS: Situation[] = [
               "char": "friend",
               "text": "BRO STOP LIKING EDITS AND GO PRACTICE. love you. GO."
             }
-          ]
+          ],
+          "imageUrl": "/generated/cricket-posts/cr-s13-friend.png"
         }
       }
     ],
@@ -1127,6 +1155,11 @@ export const CRICKET_SITUATIONS: Situation[] = [
           {
             "t": "nar",
             "text": "Subah 7 baje. Team sheet kal raat se pinned hai — gyaarah naam, tumhara nahi. Barahvan aadmi: drinks, towels, throw-downs."
+          },
+          {
+            "t": "img",
+            "src": "/generated/cricket-posts/cr-s9-shared.png",
+            "h": 210
           },
           {
             "t": "nar",
@@ -1210,7 +1243,8 @@ export const CRICKET_SITUATIONS: Situation[] = [
                   "name": "paltanpulse",
                   "text": "we love the kid but… not tonight yaar. not tonight."
                 }
-              ]
+              ],
+              "imageUrl": "/generated/cricket-posts/cr-s15-player.png"
             },
             "postTag": "APNI STORY",
             "postWhy": "Kisi aur ka debut chal raha hai aur tum apna edit post kar rahe ho. Sab dekhenge — aur sab yaad rakhenge kab post kiya tha."
@@ -1234,6 +1268,11 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         "t": "nar",
         "text": "Wankhede full hai. CSK ne 178 rakhe. Chase mein MI 39/2 — Rohit gaya, Tilak gaya. Dressing room mein sirf zip aur velcro ki aawaz."
+      },
+      {
+        "t": "img",
+        "src": "/generated/cricket-posts/cr-s3-player.png",
+        "h": 210
       },
       {
         "t": "nar",
@@ -1323,7 +1362,8 @@ export const CRICKET_SITUATIONS: Situation[] = [
                   "name": "cricketroom_india",
                   "text": "Picked the slower ball from the hand on debut. Someone in that dressing room taught this kid something specific."
                 }
-              ]
+              ],
+              "imageUrl": "/generated/cricket-posts/cr-s18-shared.png"
             }
           },
           "fail": {
@@ -1391,7 +1431,8 @@ export const CRICKET_SITUATIONS: Situation[] = [
                   "name": "paltanpulse",
                   "text": "THE KID IS A CHEAT CODE. WANKHEDE HAS A NEW SOUND."
                 }
-              ]
+              ],
+              "imageUrl": "/generated/cricket-posts/cr-s8-player.png"
             }
           },
           "fail": {
@@ -1498,7 +1539,8 @@ export const CRICKET_SITUATIONS: Situation[] = [
                       "name": "paltanpulse",
                       "text": "BENCH SE AAKE PATHIRANA KO MARA. protect this kid at all costs."
                     }
-                  ]
+                  ],
+                  "imageUrl": "/generated/cricket-posts/cr-s29-mipaltan.png"
                 }
               },
               "fail": {
@@ -1555,7 +1597,8 @@ export const CRICKET_SITUATIONS: Situation[] = [
                       "name": "memeovers",
                       "text": "bro went from filming the dugout to batting in it within 90 seconds. cinema."
                     }
-                  ]
+                  ],
+                  "imageUrl": "/generated/cricket-posts/cr-s12-player.png"
                 }
               },
               "fail": {
@@ -1680,7 +1723,8 @@ export const CRICKET_SITUATIONS: Situation[] = [
               "name": "memeovers",
               "text": "one good night and bro dropped a whole documentary 😭 respect honestly"
             }
-          ]
+          ],
+          "imageUrl": "/generated/cricket-posts/cr-s22-mipaltan.png"
         }
       },
       {
@@ -1872,6 +1916,11 @@ export const CRICKET_SITUATIONS: Situation[] = [
         "text": "Shaam 5:20. Maddy ka call: 'Bro sun. Mere ek senior ke paas kuch pahuncha hai — tere baare mein. Aaj raat drop hoga.' Chhe ghante tumhe pehle pata tha. Isliye jab woh aata hai, tumhara haath nahi kaanpta."
       },
       {
+        "t": "img",
+        "src": "/generated/cricket-posts/cr-s17-player.png",
+        "h": 210
+      },
+      {
         "t": "nar",
         "text": "Raat 11:47. Ek burner account se thread drop hota hai — 9 posts, teen clips, sab tumhare naam ke saath."
       },
@@ -1993,7 +2042,8 @@ export const CRICKET_SITUATIONS: Situation[] = [
               "name": "memeovers",
               "text": "'context' just entered the group chat 💀 PR speedrun any% record"
             }
-          ]
+          ],
+          "imageUrl": "/generated/cricket-posts/cr-s16-mipaltan.png"
         },
         "postTag": "DAMAGE CONTROL",
         "postWhy": "Leak viral hai aur team chup hai. Yeh post ya aag bujhayega ya petrol dalega — publish se pehle soch lo."
@@ -2025,6 +2075,11 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         "t": "nar",
         "text": "Shaam 6 baje. Team room. Whiteboard pe agle match ke matchups — aur Mahela ke haath mein woh sheet jisse har hafta shuru aur khatam hota hai."
+      },
+      {
+        "t": "img",
+        "src": "/generated/cricket-posts/cr-s13-hardik.png",
+        "h": 210
       },
       {
         "t": "nar",
@@ -2128,7 +2183,8 @@ export const CRICKET_SITUATIONS: Situation[] = [
               "name": "paltanpulse",
               "text": "HE STAYS. AS HE SHOULD. haters ka schedule bhi busy hai aaj 😌"
             }
-          ]
+          ],
+          "imageUrl": "/generated/cricket-posts/cr-s12-mipaltan.png"
         }
       }
     ],
@@ -2256,7 +2312,8 @@ export const CRICKET_SITUATIONS: Situation[] = [
                   "char": "hardik",
                   "text": "Jisko baat karni hai, meeting room mera khula hai. Timeline nahi."
                 }
-              ]
+              ],
+              "imageUrl": "/generated/cricket-posts/cr-s20-mipaltan.png"
             }
           }
         ]
@@ -2366,7 +2423,8 @@ export const CRICKET_SITUATIONS: Situation[] = [
                   "name": "cricketroom_india",
                   "text": "Public promises are heavy things at sixteen. Wednesday will weigh this one."
                 }
-              ]
+              ],
+              "imageUrl": "/generated/cricket-posts/cr-s22-hardik.png"
             },
             "postTag": "PROVE-IT SEASON",
             "postWhy": "Selection meeting ke baad ki raat. Jo bhi post karoge, dressing room subah wahi padhega."
@@ -2498,7 +2556,8 @@ export const CRICKET_SITUATIONS: Situation[] = [
               "name": "memeovers",
               "text": "bro posted 'silent grind' with a ring light 💀"
             }
-          ]
+          ],
+          "imageUrl": "/generated/cricket-posts/cr-s25-player.png"
         }
       }
     ],
@@ -2527,6 +2586,11 @@ export const CRICKET_SITUATIONS: Situation[] = [
           {
             "t": "nar",
             "text": "Subah 5:47. Darwaze pe knock. Peephole se dekho: Rohit Sharma. Training kit, haath mein coffee. \"Neeche gaadi hai. Paanch minute.\""
+          },
+          {
+            "t": "img",
+            "src": "/generated/cricket-posts/cr-s22-rohit.png",
+            "h": 210
           },
           {
             "t": "nar",
@@ -2625,7 +2689,8 @@ export const CRICKET_SITUATIONS: Situation[] = [
                   "name": "memeovers",
                   "text": "'apna tareeka' bhai woh ROHIT SHARMA hai 💀"
                 }
-              ]
+              ],
+              "imageUrl": "/generated/cricket-posts/cr-s19-rohit.png"
             }
           }
         ]
@@ -2778,7 +2843,8 @@ export const CRICKET_SITUATIONS: Situation[] = [
                 "name": "memeovers",
                 "text": "leak season > IPL season"
               }
-            ]
+            ],
+            "imageUrl": "/generated/cricket-posts/cr-s13-paltanpulse.png"
           },
           {
             "source": "account",
@@ -2965,7 +3031,8 @@ export const CRICKET_SITUATIONS: Situation[] = [
                     "name": "memeovers",
                     "text": "bench se press briefing — multitasking king 💀"
                   }
-                ]
+                ],
+                "imageUrl": "/generated/cricket-posts/cr-s2-cricketroom.png"
               },
               {
                 "source": "account",
@@ -3022,6 +3089,11 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         "t": "nar",
         "text": "Eliminator. Wankhede full house — 33,000 log aur sab khade. Chase: 168. MI 89/4, 11th over mein wicket girta hai. Dugout se ek hi ishara aata hai. Tumhara."
+      },
+      {
+        "t": "img",
+        "src": "/generated/cricket-posts/cr-s25-fail.png",
+        "h": 210
       },
       {
         "t": "nar",
@@ -3130,7 +3202,8 @@ export const CRICKET_SITUATIONS: Situation[] = [
                   "name": "paltanpulse",
                   "text": "16 SAAL. ELIMINATOR. 61 NOT OUT. main ro raha hoon 😭💙"
                 }
-              ]
+              ],
+              "imageUrl": "/generated/cricket-posts/cr-s25-pass.png"
             }
           },
           "fail": {
@@ -3201,7 +3274,8 @@ export const CRICKET_SITUATIONS: Situation[] = [
                   "name": "futurexi",
                   "text": "that counter-attack just walked into every India selection meeting."
                 }
-              ]
+              ],
+              "imageUrl": "/generated/cricket-posts/cr-s26-pass-mipaltan.png"
             }
           },
           "fail": {
@@ -3334,7 +3408,8 @@ export const CRICKET_SITUATIONS: Situation[] = [
                   "name": "futurexi",
                   "text": "selectors watch body language too. just saying."
                 }
-              ]
+              ],
+              "imageUrl": "/generated/cricket-posts/cr-s13-surya.png"
             }
           }
         ]
@@ -3355,6 +3430,11 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         "t": "nar",
         "text": "Day 11. Squad announcement — India A aur T20I list, shaam 6 baje. Abhi 3:47 hai. Tumhara phone do ghante mein 89 notifications kha chuka hai. Hardik us kamre mein hai jahan list banti hai."
+      },
+      {
+        "t": "img",
+        "src": "/generated/cricket-posts/cr-s26-player.png",
+        "h": 210
       },
       {
         "t": "nar",
@@ -3507,7 +3587,8 @@ export const CRICKET_SITUATIONS: Situation[] = [
               "char": "rohit",
               "text": "Statement se pehle career hota hai. Dono abhi lambe hain."
             }
-          ]
+          ],
+          "imageUrl": "/generated/cricket-posts/cr-s11-player.png"
         }
       }
     ],

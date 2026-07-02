@@ -50,13 +50,11 @@ export default function MeterHUD({ right, hideHeader }: Props) {
     const m = asCricket(game.meters)
     const set = () => {
       if (fameRef.current)  fameRef.current.style.width  = `${clamp(m.form)}%`                    // FORM bar
-      if (heatRef.current)  heatRef.current.style.width  = `${clamp(m.fame)}%`                    // FAME bar
       if (imageRef.current) imageRef.current.style.width = `${clamp(captainTrust(dmTrust))}%`     // CAPTAIN'S TRUST bar
     }
     if (!mountedRef.current) {
       mountedRef.current = true
       if (fameRef.current)  fameRef.current.style.width  = '0%'
-      if (heatRef.current)  heatRef.current.style.width  = '0%'
       if (imageRef.current) imageRef.current.style.width = '0%'
     }
     requestAnimationFrame(() => requestAnimationFrame(set))
@@ -73,13 +71,13 @@ export default function MeterHUD({ right, hideHeader }: Props) {
     ? `Mumbai Indians · Season 1`
     : `Creator House · Day ${currentDay} of 10`
 
-  // Cricket-only bars: the TWO goals (FORM + CAPTAIN'S TRUST) plus FAME as the
-  // secondary social stat. Captain's Trust = dmTrust.hardik — built in DMs.
+  // Cricket-only bars: the TWO goals — FORM + CAPTAIN'S TRUST. No FAME bar:
+  // fame IS the follower count already shown at the top right (one concept,
+  // one display). Captain's Trust = dmTrust.hardik — built in DMs.
   const cmHud = isCricket ? asCricket(game.meters) : null
   const meters = cmHud
     ? [
         { label: 'FORM',  val: cmHud.form,  ref: fameRef,  color: 'var(--fame)',  cls: 'fame' },
-        { label: 'FAME',  val: cmHud.fame,  ref: heatRef,  color: 'var(--heat)',  cls: 'heat' },
         { label: "CAPTAIN'S TRUST", val: captainTrust(dmTrust), ref: imageRef, color: 'var(--trust)', cls: 'image' },
       ]
     : []

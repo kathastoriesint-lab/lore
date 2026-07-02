@@ -843,7 +843,7 @@ export default function LiveScreen() {
                 fontWeight: 700, fontSize: 12.5, fontFamily: 'var(--sans)', cursor: d.disabled ? 'default' : 'pointer',
                 opacity: d.disabled ? 0.5 : 1,
               }}>
-                {d.label}<span style={{ display: 'block', fontSize: 9.5, fontWeight: 600, color: 'var(--ink3)', marginTop: 2 }}>{d.disabled ? 'capped' : d.hint}</span>
+                {d.label}<span style={{ display: 'block', fontSize: 9.5, fontWeight: 600, color: 'var(--ink3)', marginTop: 2 }}>{d.disabled ? 'aaj closed' : d.hint}</span>
               </button>
             ))}
           </div>

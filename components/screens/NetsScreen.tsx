@@ -57,7 +57,7 @@ export default function NetsScreen() {
             Teen sessions ho gaye. Physio ne lights band karwa di — &ldquo;Recovery bhi training hai, champ.&rdquo;
           </div>
           <div style={{ fontSize: 13, color: 'var(--ink3)', marginTop: 14, lineHeight: 1.6 }}>
-            More nets when the next match week opens. Until then — the room is awake, and the feed never sleeps.
+            Nets ab agle selection window mein khulenge. Tab tak — DMs mein baat karo, feed pe duniya chal rahi hai.
           </div>
         </div>
         <div style={{ paddingBottom: 48 }}>

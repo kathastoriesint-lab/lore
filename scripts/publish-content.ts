@@ -23,7 +23,7 @@ import {
 // Bump when cricket content shape or data changes meaningfully. The filename
 // carries the version so CDN/build caches can never serve a stale copy under
 // a fresh name (see the creator-house v1→v2 cache-bust incident, 2026-06-30).
-const CRICKET_VERSION = 3
+const CRICKET_VERSION = 4
 
 const cricket = {
   version: CRICKET_VERSION,

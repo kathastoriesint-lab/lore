@@ -310,6 +310,7 @@ export default function App() {
         meters: { form: 40, fame: 25 },
         flags: DEFAULT_FLAGS, runMemory: {},
         narrator_done: true, dayUnlockTime: {},
+        week: 1,
       }
       setDmTrust({ ...getCricketDMTrustStart() })
       setRelationshipAlerts([])
@@ -360,6 +361,7 @@ export default function App() {
       meters: { form: 40, fame: 25 },
       flags: DEFAULT_FLAGS, runMemory: {},
       narrator_done: true, dayUnlockTime: {},
+      week: 1,
     }
     setDmTrust({ ...getCricketDMTrustStart() })
     setRelationshipAlerts([])
