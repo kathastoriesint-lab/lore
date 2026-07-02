@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import {
   SEASON_WEEKS, weekForSituationId, isWeekEnd, snapToWeekStart,
-  NET_SESSIONS, INTERLUDE_CAPS, TRUST_MOMENTS, trustMomentFor, SENIORS, DM_DAILY_BUDGET,
+  NET_SESSIONS, INTERLUDE_CAPS, SENIORS, DM_DAILY_BUDGET,
 } from '@/lib/season'
 import { SELECTION_TRIGGERS } from '@/lib/cricket-selection'
 
@@ -54,7 +54,6 @@ describe('grind loop (selection windows)', () => {
   it('keeps the diminishing nets schedule and caps', () => {
     expect(INTERLUDE_CAPS.netSessions).toBe(3)
     expect(INTERLUDE_CAPS.netGains).toEqual([4, 2, 1])
-    expect(INTERLUDE_CAPS.chatTrustPerChar).toBe(2)
     expect(NET_SESSIONS.length).toBeGreaterThanOrEqual(3)
     NET_SESSIONS.forEach(s => {
       expect(s.safe.label).toBeTruthy()
@@ -67,10 +66,8 @@ describe('grind loop (selection windows)', () => {
     expect(DM_DAILY_BUDGET).toBeLessThanOrEqual(30)
   })
 
-  it('trust moments exist for the gate seniors', () => {
-    expect(TRUST_MOMENTS.map(m => m.charId)).toEqual(expect.arrayContaining(['rohit', 'hardik', 'bumrah']))
-    expect(trustMomentFor('hardik')?.replies.length).toBeGreaterThanOrEqual(2)
-    expect(trustMomentFor('zoya')).toBeNull()
+  it('chat trust is the trust surface (generic trust-moments removed)', () => {
+    expect(INTERLUDE_CAPS.chatTrustPerChar).toBe(4)
     expect(SENIORS).toContain('hardik')
   })
 })

@@ -335,13 +335,17 @@ export interface GameState {
    *  announcement). Reset when a selection window opens. */
   interlude?: {
     netsUsed: number
-    trustMomentUsed: boolean
     captionPosted: boolean
     repliesUsed: number
     chatTrustEarned: Record<string, number>
+    /** Distinct characters chatted with this window (earn-a-skip slate). */
+    charsChatted: string[]
   }
   /** Selection ceremony id to play before the next beat (free-flow squad gate). */
   pendingSelection?: string | null
+  /** Match calendar: epoch ms when the next match-week's story unlocks (7am next
+   *  morning). Null/past = open. Earn-a-skip clears it early. */
+  weekUnlockAt?: number | null
   /** Persisted squad verdicts by ceremony id — replay-safe ground truth for variants. */
   selections?: Record<string, SelectionVerdict>
   /** Weeks whose verdict was 'benched' (convenience for variants + endings). */

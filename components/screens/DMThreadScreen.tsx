@@ -5,7 +5,6 @@ import type { CharId, DMMessage } from '@/lib/types'
 import { getCricketChars, getCricketSituations, getCricketTrustGoals, getCricketDMTrustStart, getCHChars, getCHDMTrust, getCHDossiers } from '@/lib/content'
 import { getReplySuggestions, asCricket } from '@/lib/game'
 import { fmtClock, phaseLabel } from '@/lib/dm-time'
-import { trustMomentFor } from '@/lib/season'
 import { trustGateThreshold } from '@/lib/cricket-selection'
 import { relationshipFor, computeBond, bondColor } from '@/lib/relationships'
 
@@ -31,7 +30,7 @@ const StatusBar = () => (
 )
 
 export default function DMThreadScreen() {
-  const { goBack, navigate, showToast, dmChar, dmHistory, dmTrust, sendDM, game, completeTrustMoment } = useApp()
+  const { goBack, navigate, showToast, dmChar, dmHistory, dmTrust, sendDM, game } = useApp()
 
   const allChars = { ...getCHChars(), ...getCricketChars() }
   const charId = dmChar as CharId | null
@@ -105,10 +104,6 @@ export default function DMThreadScreen() {
     return () => clearTimeout(t)
   }, [trustVal, charId])
 
-  // Active trust moment (one per interlude) — also collapses Smart Reply so the
-  // thread isn't buried under two suggestion cards at once.
-  const trustMoment = (game.world === 'cricket' && game.pendingSelection
-    && !game.interlude?.trustMomentUsed && charId) ? trustMomentFor(charId) : null
 
   // Cap / lock state — re-reads localStorage on every render (tick keeps it live)
   const capState = charId ? getDmCap(charId) : { count: 0, lockedUntil: 0 }
@@ -434,39 +429,9 @@ export default function DMThreadScreen() {
         )}
       </div>
 
-      {/* Trust moment — once per interlude, a senior opens something real.
-          Answer well: big trust gain. The DM gym's heavy lift. */}
-      {trustMoment && charId && (
-        <div style={{
-          margin: '0 12px 8px', padding: '12px 16px', borderRadius: 14,
-          background: 'color-mix(in srgb, var(--trust) 7%, transparent)', border: '1px solid color-mix(in srgb, var(--trust) 22%, transparent)',
-        }}>
-          <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: '.1em', color: 'var(--trust)', marginBottom: 8 }}>
-            {char?.name?.toUpperCase()} — REAL TALK
-          </div>
-          <div style={{ fontSize: 13, color: 'var(--ink)', lineHeight: 1.55, marginBottom: 12 }}>
-            {trustMoment.opener}
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {trustMoment.replies.map((r, i) => (
-              <button
-                key={i}
-                onClick={() => completeTrustMoment(charId, trustMoment.opener, r.label, r.response, r.delta)}
-                style={{
-                  textAlign: 'left', padding: '12px', borderRadius: 12, minHeight: 44,
-                  border: '1px solid rgba(255,255,255,.14)', background: 'rgba(255,255,255,.05)',
-                  color: 'var(--ink)', fontSize: 12.5, lineHeight: 1.4,
-                  fontFamily: 'var(--sans)', cursor: 'pointer',
-                }}
-              >{r.label}</button>
-            ))}
-          </div>
-        </div>
-      )}
-
       {/* Smart Reply — opt-in. Only renders after the player taps the lightbulb;
           people type their own replies by default. */}
-      {hasStarted && !isLocked && !trustMoment && smartOpen && (dynamicChips.length > 0 || chipsLoading) && (
+      {hasStarted && !isLocked && smartOpen && (dynamicChips.length > 0 || chipsLoading) && (
         <div className="smart-reply">
           <div className="smart-reply-head">
             <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="var(--accent)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">

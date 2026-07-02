@@ -36,6 +36,7 @@ import { isWeekEnd, weekForSituationId, FRESH_INTERLUDE, SEASON_WEEKS, DM_DAILY_
 import { SELECTION_TRIGGERS, resolveSelectionVerdict, isRecall, captainTrust, selectionWeek } from '@/lib/cricket-selection'
 import { resolveVariantIndex, applyVariant, variantCtxFor, resolveGateOutcome } from '@/lib/variants'
 import { EVICTION_TRIGGERS, buildEviction } from '@/lib/creator-house'
+import { buildEveningPings } from '@/lib/companion'
 import { recordWorldEntered, bumpChoices, touchDayStreak } from '@/lib/profile-stats'
 
 const clampTrust = (n: number) => Math.max(0, Math.min(100, Math.round(n)))
@@ -429,6 +430,23 @@ export default function App() {
   }, [adjustIndividualTrust, game.world])
 
   const advanceSituation = useCallback(() => {
+    // MATCH CALENDAR side effects computed OUTSIDE the state updater (StrictMode-
+    // safe): crossing a cricket week boundary fires the evening companion pings.
+    {
+      const g = gameRef.current
+      const q = g.situationQueue
+      let calOff = false
+      try { calOff = localStorage.getItem('lore_cal_off') === '1' } catch {}
+      if (g.world === 'cricket' && !calOff && g.situation + 1 < q.length && isWeekEnd(q, g.situation)) {
+        const finishedWeek = weekForSituationId(q[g.situation])
+        const pings = buildEveningPings(finishedWeek, g)
+        const sitMapC = Object.fromEntries(getCricketSituations().map(x => [x.id, x]))
+        const dayNow = sitMapC[q[g.situation]]?.day ?? 1
+        pings.forEach((p, i) => {
+          setTimeout(() => notifyDMRef.current?.(p.char, p.text, undefined, { day: dayNow, phase: 'NIGHT', note: 'Raat — din khatam' }), 2500 + i * 1800)
+        })
+      }
+    }
     setGame(prev => {
       const nextIdx = prev.situation + 1
       const queue = prev.situationQueue
@@ -446,6 +464,21 @@ export default function App() {
         newUnlockTime[nextSit.day] = Date.now() + gateMs
       }
       const next = { ...prev, situation: nextIdx, situationQueue: queue, dayUnlockTime: newUnlockTime }
+
+      // Cricket MATCH CALENDAR: crossing a week boundary sets the next-morning
+      // unlock (7am local) and the evening begins — companion pings arrive and
+      // the engagement slate (earn-a-skip) resets. Dev bypass: ?cal=off.
+      if (prev.world === 'cricket' && nextIdx < queue.length && isWeekEnd(queue, prev.situation)) {
+        let calOff = false
+        try { calOff = localStorage.getItem('lore_cal_off') === '1' } catch {}
+        if (!calOff) {
+          const next7am = new Date()
+          next7am.setDate(next7am.getDate() + 1)
+          next7am.setHours(7, 0, 0, 0)
+          next.weekUnlockAt = next7am.getTime()
+          next.interlude = { ...FRESH_INTERLUDE, chatTrustEarned: {}, charsChatted: [] }
+        }
+      }
 
       // Cricket: finishing a selection-trigger beat opens the SELECTION WINDOW
       // (free-flow — no lock). The next beat is gated behind the squad-announcement
@@ -550,26 +583,16 @@ export default function App() {
     })
   }, [extrasSnapshot])
 
-  // Trust moment: inject the authored exchange into the thread, apply the
-  // trust delta, and consume the interlude's one moment.
-  const completeTrustMoment = useCallback((charId: CharId, opener: string, reply: string, response: string, delta: number) => {
-    const tmBase = dmHistory[charId] ?? []
-    const m0: DMMessage = { role: 'char', text: opener, ...stampTime(tmBase) }
-    const m1: DMMessage = { role: 'me', text: reply, ...stampTime([...tmBase, m0]) }
-    const m2: DMMessage = { role: 'char', text: response, ...stampTime([...tmBase, m0, m1]) }
-    const msgs: DMMessage[] = [m0, m1, m2]
-    setDmHistory(prev => ({ ...prev, [charId]: [...(prev[charId] ?? []), ...msgs] }))
-    setDmLastUpdated(prev => ({ ...prev, [charId]: Date.now() }))
-    msgs.forEach(m => { saveDM(charId, m).catch(() => {}) })
-    adjustIndividualTrust(charId, delta)
+  // Earn-a-skip: the engagement slate is done — the next match-week opens early.
+  const skipWeekWait = useCallback(() => {
     setGame(prev => {
-      const il = prev.interlude ?? { ...FRESH_INTERLUDE, chatTrustEarned: {} }
-      const next: GameState = { ...prev, interlude: { ...il, trustMomentUsed: true } }
+      if (!prev.weekUnlockAt) return prev
+      const next: GameState = { ...prev, weekUnlockAt: null }
+      analytics.track('week_skip_earned', 'cricket', { week: prev.week })
       saveGameState({ ...next, ...extrasSnapshot() })
       return next
     })
-    analytics.track('trust_moment_completed', 'cricket', { char_id: charId, delta })
-  }, [adjustIndividualTrust, extrasSnapshot, dmHistory])
+  }, [extrasSnapshot])
 
 
   const makeChoice = useCallback(async (idx: number) => {
@@ -729,6 +752,15 @@ export default function App() {
       }
     }
 
+    // Earn-a-skip slate: note the distinct characters you actually talked to.
+    if (gameRef.current.world === 'cricket') {
+      setGame(prev => {
+        const il = prev.interlude ?? { ...FRESH_INTERLUDE, chatTrustEarned: {} }
+        if ((il.charsChatted ?? []).includes(charId)) return prev
+        return { ...prev, interlude: { ...il, charsChatted: [...(il.charsChatted ?? []), charId] } }
+      })
+    }
+
     const playerName = game.playerName || 'Yaar'
     const currentTrust = dmTrust[charId] ?? defaultDmTrustFor(game.world, charId)
     const trustBand = trustBandFor(currentTrust)
@@ -791,7 +823,8 @@ export default function App() {
       // Selection-window cap: casual chat earns at most +2 trust per character
       // per window (negative deltas always apply — you can still blow it).
       let applied = delta
-      if (gameRef.current.pendingSelection && delta > 0) {
+      const windowActive = !!gameRef.current.pendingSelection || (gameRef.current.weekUnlockAt ?? 0) > Date.now()
+      if (windowActive && delta > 0) {
         const interlude = gameRef.current.interlude ?? { ...FRESH_INTERLUDE, chatTrustEarned: {} }
         const earned = interlude.chatTrustEarned[charId] ?? 0
         applied = Math.min(delta, Math.max(0, 2 - earned))
@@ -848,6 +881,7 @@ export default function App() {
     // or dismisses ("read later") — no auto-timeout, the DM demands a beat.
     setDmNotif({ id: charId, name: c?.name ?? 'Someone', cls: c?.cls ?? '', text })
   }, [injectCharDM])
+  const notifyDMRef = useRef(notifyDM); notifyDMRef.current = notifyDM
 
   // Merge a live-generated player post (caption / reactions) into game state and
   // persist it, so the feed shows the same gpt-4o text on every replay + reload.
@@ -909,7 +943,8 @@ export default function App() {
     // Naman also warms Hardik) — feed talk the story reads back.
     Object.entries(relationshipDeltas ?? {}).forEach(([id, d]) => { if (d) adjustIndividualTrust(id as CharId, d) })
     const tasksTotal = game.situationQueue.length || (isCricket ? buildCricketQueue().length : getCHSituations().length)
-    saveAndSet({ ...game, meters: nextMeters })
+    const il = game.interlude ?? { ...FRESH_INTERLUDE, chatTrustEarned: {} }
+    saveAndSet({ ...game, meters: nextMeters, ...(isCricket ? { interlude: { ...il, repliesUsed: il.repliesUsed + 1 } } : {}) })
     showImpact({
       action: charName ? `Commented on ${charName}'s post` : 'Commented',
       followerDelta: Math.round(publicFameDelta * 180),
@@ -961,7 +996,7 @@ export default function App() {
       advanceSituation, navigate, goBack, showToast, setChar, startGame, startCricketGame,
       makeChoice, sendDM, openDMThread, resetGame, likePost, applyFeedDeltas, injectCharDM, setViewingChar,
       pendingPostReveal, setPendingPostReveal, upsertAiPost, dmNotif, notifyDM, followerReceipt, showFollowerReceipt, hudReaction, setHudReaction,
-      resolveSelection, completeNetSession, completeTrustMoment, resolveEviction,
+      resolveSelection, completeNetSession, skipWeekWait, resolveEviction,
     }}>
       <div className="stage">
         <div className="phone">

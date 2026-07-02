@@ -106,7 +106,7 @@ const TRUST_NUDGES: Partial<Record<CharId, {
 
 
 export default function LiveScreen() {
-  const { navigate, game, screen, makeChoice, advanceSituation, injectCharDM, openDMThread, dmTrust, dmBadgeCount, startGame, upsertAiPost, setPendingPostReveal, notifyDM } = useApp()
+  const { navigate, game, screen, makeChoice, advanceSituation, injectCharDM, openDMThread, dmTrust, dmBadgeCount, startGame, upsertAiPost, setPendingPostReveal, notifyDM , skipWeekWait } = useApp()
   // Tracks when we're mid-choice-flow so the situation-change effect doesn't clear showPost
   const inFlowRef = useRef(false)
 
@@ -849,6 +849,53 @@ export default function LiveScreen() {
           </div>
         </div>
       )}
+
+      {/* MATCH CALENDAR — the next match-week drops next morning. The evening is
+          alive (companion DMs, nets, feed); the full slate earns an early unlock. */}
+      {isCricket && !game.pendingSelection && (game.weekUnlockAt ?? 0) > Date.now() && chosen === null && !inFlowRef.current && (() => {
+        const il = game.interlude
+        const slate = [
+          { label: '🏏 3 nets sessions', done: (il?.netsUsed ?? 0) >= 3, to: 'nets' as const },
+          { label: '💬 2 logon se baat', done: (il?.charsChatted?.length ?? 0) >= 2, to: 'dm-inbox' as const },
+          { label: '📱 Feed pe react karo', done: (il?.repliesUsed ?? 0) >= 1 || !!il?.captionPosted, to: 'feed' as const },
+        ]
+        const allDone = slate.every(x => x.done)
+        const unlockAt = new Date(game.weekUnlockAt!)
+        return (
+          <div style={{ position: 'absolute', inset: 0, zIndex: 50, background: 'var(--bg)', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '32px 24px' }}>
+            <div style={{ position: 'absolute', top: '12%', left: '50%', transform: 'translateX(-50%)', width: 280, height: 280, borderRadius: '50%', background: 'radial-gradient(ellipse, rgba(0,48,135,.25) 0%, transparent 70%)', pointerEvents: 'none' }} />
+            <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.16em', color: '#5B8DEF', textAlign: 'center' }}>MATCH CALENDAR</div>
+            <div style={{ fontFamily: 'var(--serif)', fontSize: 27, fontWeight: 600, lineHeight: 1.35, textAlign: 'center', margin: '14px 0 6px' }}>
+              Agla match kal subah.
+            </div>
+            <div style={{ fontSize: 12.5, color: 'var(--ink3)', textAlign: 'center', marginBottom: 22 }}>
+              Story {unlockAt.getHours()} baje khulegi — par raat abhi zinda hai. DMs mein log wait kar rahe hain.
+            </div>
+            <div style={{ background: 'var(--surf)', border: '1px solid var(--line)', borderRadius: 16, padding: '14px 16px' }}>
+              <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.1em', color: 'var(--fame)', marginBottom: 10 }}>
+                AAJ KA KAAM POORA → KAL SUBAH KA WAIT SKIP
+              </div>
+              {slate.map(row => (
+                <button key={row.label} onClick={() => navigate(row.to)} style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', background: 'none', border: 'none', padding: '7px 0', cursor: 'pointer', textAlign: 'left' }}>
+                  <span style={{ fontSize: 14 }}>{row.done ? '✅' : '⬜'}</span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: row.done ? 'var(--ink3)' : 'var(--ink)', textDecoration: row.done ? 'line-through' : 'none' }}>{row.label}</span>
+                  {!row.done && <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--accent)', fontWeight: 700 }}>jao →</span>}
+                </button>
+              ))}
+            </div>
+            {allDone ? (
+              <button onClick={() => { skipWeekWait(); }} style={{ width: '100%', marginTop: 14, padding: '15px 0', borderRadius: 16, border: 'none', background: 'var(--accent)', color: '#fff', fontWeight: 800, fontSize: 15, fontFamily: 'var(--sans)', cursor: 'pointer', boxShadow: '0 8px 28px rgba(255,45,120,.35)' }}>
+                Kaam poora — agla match ABHI khelo →
+              </button>
+            ) : (
+              <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
+                <button onClick={() => navigate('dm-inbox')} style={{ flex: 1, padding: '13px 0', borderRadius: 12, border: 'none', background: 'var(--accent)', color: '#fff', fontWeight: 800, fontSize: 13.5, fontFamily: 'var(--sans)', cursor: 'pointer' }}>Messages dekho →</button>
+                <button onClick={() => navigate('feed')} style={{ flex: 1, padding: '13px 0', borderRadius: 12, border: '1px solid var(--line)', background: 'var(--surf)', color: 'var(--ink)', fontWeight: 700, fontSize: 13.5, fontFamily: 'var(--sans)', cursor: 'pointer' }}>Feed</button>
+              </div>
+            )}
+          </div>
+        )
+      })()}
 
       {/* Day-lock overlay — sits above scroll, MeterHUD, sticky buttons, and tab bar */}
       {isDayLocked && sit && (

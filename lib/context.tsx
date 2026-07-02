@@ -77,7 +77,8 @@ export interface AppCtx {
   /** Apply a nets Form gain and consume one of the interlude's net sessions. */
   completeNetSession: (formGain: number) => void
   /** Play out an authored trust moment in a DM thread (once per interlude). */
-  completeTrustMoment: (charId: CharId, opener: string, reply: string, response: string, delta: number) => void
+  /** Earn-a-skip: clear the match-calendar wait once the engagement slate is done. */
+  skipWeekWait: () => void
   /** Close the current eviction ceremony — mark evicted, clear pending. */
   resolveEviction: () => void
 }

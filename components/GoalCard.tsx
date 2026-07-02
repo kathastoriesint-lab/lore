@@ -71,13 +71,24 @@ export default function GoalCard({ variant = 'full' }: { variant?: Variant }) {
       background: 'var(--surf)', border: '1px solid var(--line)', borderRadius: 16,
       padding: compact ? '12px 14px' : '16px 16px',
     }}>
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 10 }}>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 6 }}>
         <span style={{ fontSize: 9.5, fontWeight: 800, letterSpacing: '.12em', color: announcementReady ? 'var(--trust)' : 'var(--fame)' }}>
           {announcementReady
             ? 'SQUAD ANNOUNCEMENT — READY'
             : `SQUAD ANNOUNCEMENT · ${beats === 1 ? 'AFTER THIS BEAT' : `IN ${beats} BEATS`}`}
         </span>
         <span style={{ fontSize: 10, color: 'var(--ink3)', marginLeft: 'auto' }}>Week {week}</span>
+      </div>
+
+      {/* THE loud objective — one specific chase, always answering "what now?" */}
+      <div style={{ fontSize: 12.5, fontWeight: 800, color: '#fff', lineHeight: 1.4, marginBottom: 10 }}>
+        🎯 {ready
+          ? 'Sheet pakki lag rahi hai — DM mein baat karke pakka karo'
+          : !captainOk && !formOk
+            ? `Form +${rule.start.form - form} aur Hardik +${rule.start.captain - captain} — dono is sheet se pehle`
+            : !captainOk
+              ? `Hardik ko ${rule.start.captain} tak le jao — is hafte ki sheet ke liye`
+              : `Form ${rule.start.form} chahiye — nets ya agla beat`}
       </div>
 
       {/* FORM */}
