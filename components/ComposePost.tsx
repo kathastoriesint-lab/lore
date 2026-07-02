@@ -126,7 +126,7 @@ export default function ComposePost({ playerName, avatarUrl, imageUrl, ctx, fall
           <div className="pw-av" style={avatarUrl ? { backgroundImage: `url(${avatarUrl})` } : undefined}>{!avatarUrl && (playerName?.[0] ?? 'N').toUpperCase()}</div>
           <div>
             <div className="pw-n">@{handle}</div>
-            <div className="pw-sub">Creator House · Day {ctx.day}</div>
+            <div className="pw-sub">{ctx.world === 'cricket' ? 'Mumbai Indians · Season 1' : `Creator House · Day ${ctx.day}`}</div>
           </div>
         </div>
 
@@ -167,7 +167,7 @@ export default function ComposePost({ playerName, avatarUrl, imageUrl, ctx, fall
         </button>
         <div className="pw-footnote">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2L3 14h7l-1 8 10-12h-7z" /></svg>
-          Share karte hi feed pe live — ghar real-time react karega.
+          Share karte hi feed pe live — {ctx.world === 'cricket' ? 'poori Paltan' : 'ghar'} real-time react karega.
         </div>
       </div>
     </div>

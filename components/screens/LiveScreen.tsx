@@ -112,39 +112,9 @@ export default function LiveScreen() {
 
   const isCricket = game.world === 'cricket'
 
-  // Coach marks — shown once on first Live visit
-  const [coachStep, setCoachStep] = useState(-1)
-  // True while first-visit coach marks are pending/showing — holds narration
-  // until the tutorial is dismissed (so audio starts after, not during).
-  const [coachPending, setCoachPending] = useState(false)
-  const coachShownRef = useRef(false)
-  useEffect(() => {
-    if (screen !== 'live') return
-    // Creator House plays the clean day1-preview flow — no coach-mark tutorial.
-    if (!isCricket) return
-    if (coachShownRef.current) return
-    if (typeof window !== 'undefined' && localStorage.getItem('seen_live_tips')) return
-    coachShownRef.current = true
-    setCoachPending(true)
-    const t = setTimeout(() => setCoachStep(0), 700)
-    return () => clearTimeout(t)
-  }, [screen, isCricket])
-  const dismissCoach = useCallback(() => {
-    localStorage.setItem('seen_live_tips', '1')
-    setCoachStep(-1)
-    setCoachPending(false)
-  }, [])
-
-  // Both worlds share the 4-tab bar (Feed · Messages · Live · Profile), so the coach
-  // marks are the same 3-step shape with tabCount 4 (CH previously used tabCount 3 →
-  // the highlight landed on the wrong tab). The DM step teaches each world's spine:
-  // cricket = senior trust; Creator House = the Trust meter that keeps you off the block.
-  const coachSteps = [
-    { label: 'Yahan choices hoti hain', tabIdx: 2, tabCount: 4 },
-    { label: isCricket ? 'Characters se baat karo' : 'DM mein trust banao — eviction se yahi bachata hai', tabIdx: 1, tabCount: 4 },
-    { label: 'World ki reactions', tabIdx: 0, tabCount: 4 },
-  ]
-  const activeCoach = coachStep >= 0 ? coachSteps[coachStep] : null
+  // (Removed the first-visit coach-mark tour — it overlaid the opening cinematic
+  // beat with vague tab tooltips ("World ki reactions") and read as noise. Both
+  // worlds now open clean; onboarding, if reintroduced, must not cover scene one.)
   const allChars = isCricket ? { ...getCHChars(), ...getCricketChars() } : getCHChars()
   // 'player' is the cricket sentinel — the user plays as themselves, not an NPC.
   // char is null in cricket; use a synthetic player object only where post-card needs it.
@@ -519,33 +489,26 @@ export default function LiveScreen() {
       return
     }
 
-    // Cricket: inject DMs through the same timestamped path as CH (WhatsApp-style
-    // arrival with day/phase dividers), then show the result sheet.
-    {
-      const dmMeta = sit ? { day: sit.day, phase: phaseFromTag(sit.tag), note: r(sit.title) } : undefined
-      dmsToInject.forEach((dmToInject, dmIndex) => {
-        addTimer(() => { notifyDM(dmToInject.char, r(dmToInject.text), undefined, dmMeta) }, 900 + dmIndex * 450)
-      })
-    }
-    addTimer(() => { setShowPost(true) }, 600)
-
-    // Story-pause trust beat: if this situation is a relationship anchor and the
-    // senior's trust gate isn't met yet, pause once and route into their DM. Fires
-    // after the result settles so it reads as the scene's consequence.
-    const anchorChar = TRUST_NUDGE_ANCHORS[sit.id]
-    if (isCricket && anchorChar && TRUST_NUDGES[anchorChar]) {
-      const need = trustGateThreshold(anchorChar, weekForSituationId(sit.id)) ?? 55
-      const cur = Math.round(dmTrust[anchorChar] ?? getCricketDMTrustStart()[anchorChar] ?? 50)
-      const seenKey = `lore_trust_nudge_${sit.id}`
-      let seen = false; try { seen = !!localStorage.getItem(seenKey) } catch {}
-      if (cur < need && !seen) {
-        addTimer(() => {
-          try { localStorage.setItem(seenKey, '1') } catch {}
-          setTrustNudge({ charId: anchorChar, cur, need })
-        }, 1600)
-      }
-    }
-  }, [sit, game.meters, makeChoice, advanceSituation, navigate, injectCharDM, isCricket, dmTrust])
+    // Cricket: no result sheet — parity with Creator House. A DM outcome drops
+    // you into that senior's thread; a post lands on the feed. FORM + CAPTAIN'S
+    // TRUST changes surface at the top (goal card) and the impact shows on the
+    // feed — not in a receipt sheet. The last beat routes to the ending arc.
+    const primary = dmsToInject[0]?.char as CharId | undefined
+    const dmMeta = sit ? { day: sit.day, phase: phaseFromTag(sit.tag), note: r(sit.title) } : undefined
+    dmsToInject.forEach((dm, i) => {
+      addTimer(() => {
+        if (dm.char === primary) injectCharDM(dm.char, r(dm.text), undefined, dmMeta)
+        else notifyDM(dm.char, r(dm.text), undefined, dmMeta)
+      }, 150 + i * 220)
+    })
+    const lastBeat = situation >= queue.length - 1
+    addTimer(() => {
+      doReset()
+      if (lastBeat) return              // let the ending arc render on Live
+      if (primary) openDMThread(primary)
+      else navigate('feed')
+    }, 520)
+  }, [sit, situation, queue.length, game.meters, makeChoice, advanceSituation, navigate, injectCharDM, notifyDM, openDMThread, doReset, isCricket, dmTrust])
 
 
   // Navigate to tabs
@@ -1427,9 +1390,10 @@ export default function LiveScreen() {
         )
       })()}
 
-      {/* Cricket choice / result sheet — shared <ChoiceSheet> shell. The result content
-           (compact impact card + IG post + Next/Feed) is passed as children. */}
-      {displaySit && isCricket && (chosen !== null || !displaySit.reader) && (() => {
+      {/* Cricket: ONLY legacy non-reader (prose) beats use the ChoiceSheet shell.
+           Reader beats (all CR2 content) render choices inline and route straight
+           to the feed / DM after a choice — no result-receipt sheet. */}
+      {displaySit && isCricket && !displaySit.reader && (() => {
         const isResult = chosen !== null
         const ch = isResult ? displaySit.choices[chosen as 0 | 1] : null
         // "N new" on the Feed button = posts played since the Feed was last opened.
@@ -1506,31 +1470,6 @@ export default function LiveScreen() {
         />
       )}
 
-
-      {/* Coach marks — first Live visit */}
-      {activeCoach && (() => {
-        const tabW = 100 / activeCoach.tabCount
-        const tooltipLeft = activeCoach.tabIdx * tabW + tabW / 2
-        const glowLeft = activeCoach.tabIdx * tabW
-        return (
-          <div className="coach-overlay show">
-            <div className="coach-tooltip" style={{ left: `clamp(88px, ${tooltipLeft}%, calc(100% - 88px))`, transform: 'translateX(-50%)' }}>
-              <div className="coach-pill">{activeCoach.label}</div>
-              <div className="coach-arrow" />
-            </div>
-            <div className="coach-tab-glow" style={{ left: `${glowLeft}%`, width: `${tabW}%` }} />
-            <div className="coach-foot">
-              <button className="coach-skip-btn" onClick={dismissCoach}>Skip</button>
-              <button className="coach-next-btn" onClick={() => {
-                if (coachStep < coachSteps.length - 1) setCoachStep(s => s + 1)
-                else dismissCoach()
-              }}>
-                {coachStep === coachSteps.length - 1 ? 'Got it ✓' : 'Next →'}
-              </button>
-            </div>
-          </div>
-        )
-      })()}
 
       {/* Tab bar */}
       <div className="tabbar">
