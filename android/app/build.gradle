@@ -16,10 +16,28 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    // Release signing for the Play Store .aab. Values are injected by CI
+    // (see .github/workflows/android-release-aab.yml) via env vars. When they're
+    // absent (e.g. a plain local debug build), the release signingConfig is
+    // simply not attached, so nothing here breaks the debug APK workflow.
+    signingConfigs {
+        release {
+            def ksPath = System.getenv("LORE_KEYSTORE_PATH")
+            if (ksPath != null && !ksPath.isEmpty()) {
+                storeFile file(ksPath)
+                storePassword System.getenv("LORE_KEYSTORE_PASSWORD")
+                keyAlias System.getenv("LORE_KEY_ALIAS")
+                keyPassword System.getenv("LORE_KEY_PASSWORD")
+            }
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            if (System.getenv("LORE_KEYSTORE_PATH") != null && !System.getenv("LORE_KEYSTORE_PATH").isEmpty()) {
+                signingConfig signingConfigs.release
+            }
         }
     }
 }

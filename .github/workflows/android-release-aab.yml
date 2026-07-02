@@ -1,0 +1,126 @@
+name: Build Release AAB (Play Store)
+
+# Produces a SIGNED Android App Bundle (.aab) for uploading to Google Play.
+#
+# FIRST RUN (you have no keystore yet):
+#   - Leave the repo secrets empty and just click "Run workflow".
+#   - The job GENERATES a fresh upload keystore, signs the .aab with it, and
+#     uploads BOTH as artifacts: `lore-release-aab` and `lore-upload-keystore`.
+#   - Download the `.aab` -> upload it to Play (internal testing).
+#   - Download the keystore folder -> it contains the keystore file plus a
+#     KEYSTORE_SECRETS.txt telling you exactly which 4 repo secrets to add.
+#   - Add those 4 secrets (Settings -> Secrets and variables -> Actions).
+#   - !! BACK UP THE KEYSTORE FILE SOMEWHERE SAFE. If you lose it you can never
+#      update Lore again. !!
+#
+# EVERY RUN AFTER THAT (secrets are set):
+#   - Click "Run workflow". It reuses your saved keystore and just builds the .aab.
+#
+# Remember to bump `versionCode` in android/app/build.gradle for each new upload.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm ci
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - uses: android-actions/setup-android@v3
+
+      # Copy web assets + plugin config into the native project.
+      - run: npx cap sync android
+
+      # Decide: reuse the saved keystore, or generate a new one on first run.
+      - name: Prepare signing keystore
+        id: keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.LORE_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.LORE_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.LORE_KEY_ALIAS }}
+        run: |
+          set -e
+          KS_DIR="$RUNNER_TEMP/signing"
+          mkdir -p "$KS_DIR"
+          KS_PATH="$KS_DIR/lore-upload.jks"
+
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            echo "Using existing keystore from repo secrets."
+            echo "$KEYSTORE_BASE64" | base64 --decode > "$KS_PATH"
+            echo "generated=false" >> "$GITHUB_OUTPUT"
+            echo "ks_password=$KEYSTORE_PASSWORD" >> "$GITHUB_OUTPUT"
+            echo "key_alias=$KEY_ALIAS" >> "$GITHUB_OUTPUT"
+          else
+            echo "No keystore secret found -> generating a NEW upload keystore."
+            GEN_PASS=$(head -c 24 /dev/urandom | base64 | tr -dc 'A-Za-z0-9' | head -c 20)
+            GEN_ALIAS="lore-upload"
+            keytool -genkeypair -v \
+              -keystore "$KS_PATH" \
+              -alias "$GEN_ALIAS" \
+              -keyalg RSA -keysize 2048 -validity 10000 \
+              -storepass "$GEN_PASS" -keypass "$GEN_PASS" \
+              -dname "CN=Kathastories, OU=Lore, O=Kathastories, L=Mumbai, ST=Maharashtra, C=IN"
+
+            # Package the keystore + a plain-English secrets file for download.
+            OUT="$KS_DIR/deliver"
+            mkdir -p "$OUT"
+            cp "$KS_PATH" "$OUT/lore-upload.jks"
+            base64 -w0 "$KS_PATH" > "$OUT/lore-upload.jks.base64.txt" 2>/dev/null || base64 "$KS_PATH" | tr -d '\n' > "$OUT/lore-upload.jks.base64.txt"
+            {
+              echo "==== SAVE THESE — LORE UPLOAD KEYSTORE ===="
+              echo ""
+              echo "1. Back up lore-upload.jks somewhere safe (password manager / cloud)."
+              echo "   If you lose it you can NEVER update Lore on Play again."
+              echo ""
+              echo "2. Add these 4 repo secrets:"
+              echo "   Settings -> Secrets and variables -> Actions -> New repository secret"
+              echo ""
+              echo "   LORE_KEYSTORE_BASE64   = (paste the entire contents of lore-upload.jks.base64.txt)"
+              echo "   LORE_KEYSTORE_PASSWORD = $GEN_PASS"
+              echo "   LORE_KEY_ALIAS         = $GEN_ALIAS"
+              echo "   LORE_KEY_PASSWORD      = $GEN_PASS"
+              echo ""
+              echo "3. After adding secrets, future 'Run workflow' clicks reuse this key."
+            } > "$OUT/KEYSTORE_SECRETS.txt"
+
+            echo "generated=true" >> "$GITHUB_OUTPUT"
+            echo "ks_password=$GEN_PASS" >> "$GITHUB_OUTPUT"
+            echo "key_alias=$GEN_ALIAS" >> "$GITHUB_OUTPUT"
+          fi
+          echo "ks_path=$KS_PATH" >> "$GITHUB_OUTPUT"
+
+      - name: Build signed release AAB
+        env:
+          LORE_KEYSTORE_PATH: ${{ steps.keystore.outputs.ks_path }}
+          LORE_KEYSTORE_PASSWORD: ${{ steps.keystore.outputs.ks_password }}
+          LORE_KEY_ALIAS: ${{ steps.keystore.outputs.key_alias }}
+          LORE_KEY_PASSWORD: ${{ steps.keystore.outputs.ks_password }}
+        run: cd android && ./gradlew bundleRelease --no-daemon --stacktrace
+
+      - name: Upload AAB
+        uses: actions/upload-artifact@v4
+        with:
+          name: lore-release-aab
+          path: android/app/build/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
+
+      # Only produced on the first run, when a new keystore was generated.
+      - name: Upload generated keystore (FIRST RUN ONLY — save it!)
+        if: steps.keystore.outputs.generated == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: lore-upload-keystore
+          path: ${{ runner.temp }}/signing/deliver/
+          if-no-files-found: error
