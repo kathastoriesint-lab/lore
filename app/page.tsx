@@ -66,16 +66,16 @@ const defaultDmTrustFor = (world: GameState['world'], charId: CharId) => (
 // First-contact opener DMs for the dressing room. Seniors greet a 16-year-old
 // newcomer (tu/beta from elders is natural); friend is a same-age peer.
 // Schedule: coach + friend open after the 1st situation; the rest after the 2nd.
+// First-contact openers: the dressing room introduces itself AFTER your first
+// nets day (S2). Coach + Maddy get REAL story DMs at S1 — no canned openers
+// for them (they contradicted the auction-night timeline).
 const CRICKET_DM_OPENERS: Partial<Record<CharId, string>> = {
-  coach:  'Beta pahunch gaye? Dressing room kaisa laga? ||| Settle ho jao, baaki sab baad mein. ||| Koi bhi dikkat ho toh seedha mujhe phone karna, samjhe?',
-  friend: 'BHAII 😭 tu sach mein MI ke dressing room mein hai?! ||| Pinch me yaar. ||| Bata na sab — Hardik bhai mile? Kaisa lag raha hai wahan?',
   hardik: 'Welcome to the squad. ||| Yahan kaam bolta hai, baaki sab noise hai. Ready reh — mauka kabhi bhi aa sakta hai.',
   rohit:  'Aa gaye. Aaram se lo, pressure abhi se mat lo. ||| Dekhte hain tum khel ke baare mein sochte kaise ho.',
   surya:  'Arre champion aa gaya! 😄 ||| Koi bhi cheez poochni ho — shot, field, kuch bhi — bejhijhak bol dena. Main yahin hoon.',
   bumrah: 'Nets mein tujhe dekha tha. Potential hai. ||| Par potential se runs nahi bante. Kaam karega toh baat karenge.',
   tilak:  'Bhai tu naya hai na squad mein? Tension mat le, sab settle ho jaata hai. ||| Kuch samajhna ho toh bata dena.',
 }
-const DM_OPENER_TIER1: CharId[] = ['coach', 'friend']
 const DM_OPENER_TIER2: CharId[] = ['hardik', 'rohit', 'surya', 'bumrah', 'tilak']
 
 const asArray = <T,>(value: T | T[] | null | undefined): T[] => {
@@ -930,8 +930,9 @@ export default function App() {
     }
 
     if (game.world === 'cricket') {
-      if (count >= 1) seedTier(DM_OPENER_TIER1, 't1', id => CRICKET_DM_OPENERS[id] ?? '', 700)
-      if (count >= 2) seedTier(DM_OPENER_TIER2, 't2', id => CRICKET_DM_OPENERS[id] ?? '', 1000)
+      // Seniors introduce themselves after your first nets day (S2) — story-
+      // plausible timing. Characters with existing threads are skipped.
+      if (count >= 2) seedTier(DM_OPENER_TIER2, 't2', id => CRICKET_DM_OPENERS[id] ?? '', 2500)
     }
     // Creator House: the inbox stays EMPTY by design. A DM thread opens only when a
     // character is triggered — a story choice, or you commenting on their post.
