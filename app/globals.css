@@ -1179,3 +1179,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
   color:rgba(255,255,255,.4);font-size:13px;
   cursor:pointer;font-family:var(--sans);
 }
+
+/* Sheet Morph (choice → DM): the thread expands in as a sheet — same-surface feel */
+@keyframes dmSheetIn{from{transform:translateY(46px) scale(.96);opacity:0}to{transform:none;opacity:1}}
+.dm-sheet-in{animation:dmSheetIn .42s cubic-bezier(.22,.9,.3,1) both;transform-origin:50% 88%}

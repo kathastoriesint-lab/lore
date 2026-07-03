@@ -65,8 +65,14 @@ export default function DMThreadScreen() {
   const getSeen = (cid: string) => { try { return (JSON.parse(localStorage.getItem(SEEN_KEY) || '{}'))[cid] ?? 0 } catch { return 0 } }
   const setSeen = (cid: string, n: number) => { try { const s = JSON.parse(localStorage.getItem(SEEN_KEY) || '{}'); s[cid] = n; localStorage.setItem(SEEN_KEY, JSON.stringify(s)) } catch {} }
   const [revealCount, setRevealCount] = useState(0)
-  const [dripActive, setDripActive] = useState(false)
-  const dripTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  // Arrival animator (the "Sheet Morph" prototype): each unseen character bubble
+  // plays typing dots, then TYPEWRITES in (~40 chars/s with caret) — never pops
+  // in whole. Player bubbles reveal instantly. Runs for the mount-time backlog
+  // AND for bubbles that land while you're watching the thread.
+  const [anim, setAnim] = useState<{ idx: number; phase: 'dots' | 'typing'; chars: number } | null>(null)
+  const revealRef = useRef(0)
+  const messagesRef = useRef<DMMessage[]>([])
+  messagesRef.current = messages
 
   // Creator House: establish who this person is to YOU at the top of the thread —
   // crisp + helpful (the dossier is the deep bible; this is the living relationship).
@@ -147,46 +153,71 @@ export default function DMThreadScreen() {
     return () => clearInterval(t)
   }, [isLocked])
 
-  // Scroll to bottom on new / dripping messages
+  // Scroll to bottom on new / animating messages
   useEffect(() => {
     const el = chatRef.current
     if (el) requestAnimationFrame(() => { el.scrollTop = el.scrollHeight })
-  }, [messages.length, typing, revealCount, dripActive])
+  }, [messages.length, typing, revealCount, anim])
 
-  // Keep all messages visible — except while a drip is animating new arrivals.
-  // Anything shown in full counts as seen (live arrivals you watched land, or
-  // history that hydrated after the mount-time drip check).
+  // On opening a thread: everything you've already seen shows instantly; the
+  // animator picks up from there. Never LOWER seen (history may not have
+  // hydrated yet); cap the replay burst at the last 4 on a fresh device.
   useEffect(() => {
-    if (dripActive) return
-    setRevealCount(messages.length)
-    if (charId && messages.length > getSeen(charId)) setSeen(charId, messages.length)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [messages.length, dripActive, charId])
-
-  // On opening a thread: drip in any messages that arrived since you last saw it.
-  useEffect(() => {
-    if (!charId) return
+    if (!charId) { revealRef.current = 0; setRevealCount(0); setAnim(null); return }
     const total = (dmHistory[charId] ?? []).length
-    const seen = getSeen(charId)
-    // Never LOWER seen: history may not have hydrated from the server yet
-    // (total 0 at mount) — clobbering seen here forced a full re-drip of the
-    // whole thread on the next open.
-    if (total <= seen) return
-    // Cap the drip burst: on a fresh device (empty localStorage) seen is 0 for
-    // a long-running thread — replay at most the last few, show the rest instantly.
-    const start = Math.max(seen, total - 4)
-    setDripActive(true)
+    const start = Math.min(total, Math.max(getSeen(charId), total - 4))
+    revealRef.current = start
     setRevealCount(start)
-    let n = start
-    const step = () => {
-      n += 1; setRevealCount(n); setSeen(charId, n)
-      if (n >= total) { setDripActive(false); dripTimerRef.current = null; return }
-      dripTimerRef.current = setTimeout(step, 850)
-    }
-    dripTimerRef.current = setTimeout(step, 650)
-    return () => { if (dripTimerRef.current) { clearTimeout(dripTimerRef.current); dripTimerRef.current = null } setDripActive(false) }
+    setAnim(null)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [charId])
+
+  // The animator: walks revealRef → messages.length one bubble at a time.
+  // Character bubble: dots (~700ms) → typewrite → settle. Player bubble: instant.
+  // Re-arms itself when new messages land mid-run (cleanup cancels, effect restarts).
+  useEffect(() => {
+    if (!charId) return
+    if (revealRef.current >= messages.length) {
+      if (messages.length > getSeen(charId)) setSeen(charId, messages.length)
+      return
+    }
+    let cancelled = false
+    const timers: ReturnType<typeof setTimeout>[] = []
+    const t = (fn: () => void, ms: number) => { timers.push(setTimeout(fn, ms)) }
+    const step = () => {
+      if (cancelled) return
+      const msgs = messagesRef.current
+      const i = revealRef.current
+      if (i >= msgs.length) { setAnim(null); setSeen(charId, msgs.length); return }
+      const m = msgs[i]
+      if (m.role === 'me') {
+        revealRef.current = i + 1; setRevealCount(i + 1); setSeen(charId, i + 1)
+        t(step, 140)
+        return
+      }
+      setAnim({ idx: i, phase: 'dots', chars: 0 })
+      t(() => {
+        if (cancelled) return
+        revealRef.current = i + 1; setRevealCount(i + 1)
+        const full = m.text
+        const t0 = performance.now()
+        const iv = setInterval(() => {
+          if (cancelled) { clearInterval(iv); return }
+          const n = Math.min(full.length, Math.floor((performance.now() - t0) / 1000 * 40) + 1)
+          setAnim({ idx: i, phase: 'typing', chars: n })
+          if (n >= full.length) {
+            clearInterval(iv)
+            setAnim(null); setSeen(charId, i + 1)
+            t(step, 300)
+          }
+        }, 30)
+        timers.push(iv as unknown as ReturnType<typeof setTimeout>)
+      }, 700)
+    }
+    step()
+    return () => { cancelled = true; timers.forEach(clearTimeout) }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messages.length, charId])
 
   // Smart Reply is OPT-IN: people type their own replies by default. Tapping the
   // lightbulb fetches one contextual suggestion for whatever was just said.
@@ -257,7 +288,10 @@ export default function DMThreadScreen() {
   }
 
   return (
-    <div style={{ display:'flex', flexDirection:'column', height:'100%' }}>
+    // A story choice morphs INTO this surface (Sheet Morph prototype): when a
+    // beat routed us here, the thread expands in like a sheet instead of a
+    // lateral screen swap — choice and chat feel like one continuous surface.
+    <div className={storySession ? 'dm-sheet-in' : undefined} style={{ display:'flex', flexDirection:'column', height:'100%' }}>
       <StatusBar />
 
       {/* Thread header */}
@@ -437,7 +471,9 @@ export default function DMThreadScreen() {
                   </div>
                 )}
                 <div className={`msg${isIn ? ' in' : ''}${isOut ? ' out' : ''}`}>
-                  {msg.text}
+                  {anim?.phase === 'typing' && anim.idx === i
+                    ? <>{msg.text.slice(0, anim.chars)}<span className="cin-caret" /></>
+                    : msg.text}
                 </div>
                 {clock && <div className={`dm-time${isOut ? ' out' : ''}`}>{clock}</div>}
               </div>
@@ -445,8 +481,8 @@ export default function DMThreadScreen() {
           )
         })}
 
-        {/* Typing indicator — for AI replies AND while new messages drip in */}
-        {(typing || (dripActive && revealCount < messages.length)) && (
+        {/* Typing indicator — for AI replies AND before each arriving story bubble */}
+        {(typing || anim?.phase === 'dots') && (
           <div style={{ display:'flex', flexDirection:'column' }}>
             <div className="msg-av">
               <div className={`av ${char.cls}`} style={{ width:22, height:22, fontSize:10 }}>{char.init}</div>
