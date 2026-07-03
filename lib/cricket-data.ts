@@ -127,7 +127,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
     "reader": [
       {
         "t": "nar",
-        "text": "Auction night. Poora ghar TV ke saamne, aur screen pe — tumhara naam. Base price ₹30 lakh. MI ka paddle uthta hai. Counter aata hai. MI phir. Hammer: SOLD."
+        "text": "Auction Night. Poora ghar TV ke saamne, aur screen pe — tumhara naam: {name}. Base price — ₹30 lakh. MI, tumhari dream franchise, ka paddle uthta hai. Phir RCB. MI phirse. Hammer — aur SOLD."
       },
       {
         "t": "img",
@@ -136,13 +136,13 @@ export const CRICKET_SITUATIONS: Situation[] = [
       },
       {
         "t": "nar",
-        "text": "Mumbai Indians. 16 saal ki umar mein. Mummy ro rahi hai, Papa ka haath kaanp raha hai — aur tumhara phone pagal ho chuka hai. 214 notifications. Maddy ke 11 missed calls."
+        "text": "Mumbai Indians. 16 saal ki umar mein. Mummy ro rahi hai khushi se, Papa ka haath kaanp raha hai — aur tumhara phone pagal ho chuka hai. 200 notifications. Maddy, tumhare bestie, ke 11 missed calls."
       },
       {
         "t": "cue",
         "who": "Coach Sir",
         "avatar": "/avatars/coach.png",
-        "text": "Beta, khushi mana — poori mana. Par yaad rakh: MI ne tujhe khareeda hai. Cricket ne abhi accept nahi kiya."
+        "text": "Beta, khushi mana — poori mana. Par yaad rakh: MI ne tujhe khareeda hai. Cricket ne abhi accept nahi kiya. Tujhe use karwana hoga — still day 1."
       },
       {
         "t": "nar",

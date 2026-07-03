@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import cricketBundled from '@/public/content/cricket-v7.json'
+import cricketBundled from '@/public/content/cricket-v8.json'
 import { CRICKET_SITUATIONS, CRICKET_CHARS, CRICKET_ENDING_DATA } from '@/lib/cricket-data'
 import { isValidCricketContent } from '@/lib/content'
 
