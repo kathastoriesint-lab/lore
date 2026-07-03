@@ -50,6 +50,8 @@ function makeCtx(overrides: Partial<AppCtx> = {}): AppCtx {
     resolveSelection: vi.fn(),
     completeNetSession: vi.fn(),
     skipWeekWait: vi.fn(),
+    dmStorySession: null,
+    startDmStorySession: vi.fn(),
     resolveEviction: vi.fn(),
     ...overrides,
   }

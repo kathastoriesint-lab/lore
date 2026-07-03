@@ -87,6 +87,11 @@ export default function App() {
   const [screen, setScreen] = useState<Screen>('worlds')
   const [navHistory, setNavHistory] = useState<Screen[]>(['worlds'])
   const [dmChar, setDmChar] = useState<CharId | null>(null)
+  // Story-chat session: set when a CHOICE routes into a DM. Scopes that visit
+  // to a few replies, then hands the player back to the feed. Visiting threads
+  // on your own is unscoped (daily budget applies instead).
+  const [dmStorySession, setDmStorySession] = useState<{ char: CharId; sent: number } | null>(null)
+  const startDmStorySession = useCallback((char: CharId) => setDmStorySession({ char, sent: 0 }), [])
   const [dmTrust, setDmTrust] = useState<Record<string, number>>({})
   const [relationshipAlerts, setRelationshipAlerts] = useState<RelationshipAlert[]>([])
   const [impactNotif, setImpactNotif] = useState<ImpactNotif | null>(null)
@@ -752,6 +757,9 @@ export default function App() {
       }
     }
 
+    // Story-chat session: count this reply toward the scoped window.
+    setDmStorySession(prev => prev && prev.char === charId ? { ...prev, sent: prev.sent + 1 } : prev)
+
     // Earn-a-skip slate: note the distinct characters you actually talked to.
     if (gameRef.current.world === 'cricket') {
       setGame(prev => {
@@ -978,6 +986,11 @@ export default function App() {
   }, [navigate])
 
 
+  // Story-chat session ends the moment you leave the thread.
+  useEffect(() => {
+    if (screen !== 'dm-thread' && dmStorySession) setDmStorySession(null)
+  }, [screen, dmStorySession])
+
   const prev = navHistory[navHistory.length - 2] ?? null
 
   if (!ready) return (
@@ -997,6 +1010,7 @@ export default function App() {
       makeChoice, sendDM, openDMThread, resetGame, likePost, applyFeedDeltas, injectCharDM, setViewingChar,
       pendingPostReveal, setPendingPostReveal, upsertAiPost, dmNotif, notifyDM, followerReceipt, showFollowerReceipt, hudReaction, setHudReaction,
       resolveSelection, completeNetSession, skipWeekWait, resolveEviction,
+      dmStorySession, startDmStorySession,
     }}>
       <div className="stage">
         <div className="phone">

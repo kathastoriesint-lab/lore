@@ -106,7 +106,7 @@ const TRUST_NUDGES: Partial<Record<CharId, {
 
 
 export default function LiveScreen() {
-  const { navigate, game, screen, makeChoice, advanceSituation, injectCharDM, openDMThread, dmTrust, dmBadgeCount, startGame, upsertAiPost, setPendingPostReveal, notifyDM , skipWeekWait } = useApp()
+  const { navigate, game, screen, makeChoice, advanceSituation, injectCharDM, openDMThread, dmTrust, dmBadgeCount, startGame, upsertAiPost, setPendingPostReveal, notifyDM , skipWeekWait , startDmStorySession } = useApp()
   // Tracks when we're mid-choice-flow so the situation-change effect doesn't clear showPost
   const inFlowRef = useRef(false)
 
@@ -489,7 +489,7 @@ export default function LiveScreen() {
           else notifyDM(cid, r(d.text), undefined, dmMeta)
         }, 150 + i * 220)
       })
-      addTimer(() => { doReset(); if (primary) openDMThread(primary); else navigate('feed') }, 520)
+      addTimer(() => { doReset(); if (primary) { startDmStorySession(primary); openDMThread(primary) } else navigate('feed') }, 520)
       return
     }
 
@@ -509,7 +509,7 @@ export default function LiveScreen() {
     addTimer(() => {
       doReset()
       if (lastBeat) return              // let the ending arc render on Live
-      if (primary) openDMThread(primary)
+      if (primary) { startDmStorySession(primary); openDMThread(primary) }
       else navigate('feed')
     }, 520)
   }, [sit, situation, queue.length, game.meters, makeChoice, advanceSituation, navigate, injectCharDM, notifyDM, openDMThread, doReset, isCricket, dmTrust])

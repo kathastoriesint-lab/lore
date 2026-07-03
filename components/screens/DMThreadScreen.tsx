@@ -30,12 +30,19 @@ const StatusBar = () => (
 )
 
 export default function DMThreadScreen() {
-  const { goBack, navigate, showToast, dmChar, dmHistory, dmTrust, sendDM, game } = useApp()
+  const { goBack, navigate, showToast, dmChar, dmHistory, dmTrust, sendDM, game, dmStorySession } = useApp()
 
   const allChars = { ...getCHChars(), ...getCricketChars() }
   const charId = dmChar as CharId | null
   const char = charId ? (allChars[charId] ?? null) : null
   const messages: DMMessage[] = charId ? (dmHistory[charId] ?? []) : []
+
+  // Story-chat session (choice → DM): scope this visit to a few replies, then
+  // hand the player back to the feed. Free visits are unscoped.
+  const STORY_CHAT_REPLIES = 3
+  const storySession = dmStorySession && dmStorySession.char === charId ? dmStorySession : null
+  const storyRepliesLeft = storySession ? Math.max(0, STORY_CHAT_REPLIES - storySession.sent) : null
+  const storyDone = storySession !== null && storyRepliesLeft === 0
 
   const [input, setInput] = useState('')
   const [sending, setSending] = useState(false)
@@ -488,10 +495,29 @@ export default function DMThreadScreen() {
         </div>
       )}
 
+      {/* Story-chat wrap-up: the scoped conversation is over — back to the story */}
+      {hasStarted && storyDone && (
+        <div style={{ padding: '10px 14px 14px' }}>
+          <div style={{ textAlign: 'center', fontSize: 11.5, color: 'var(--ink3)', marginBottom: 8 }}>
+            Baaki baatein baad mein — story aage badh rahi hai.
+          </div>
+          <button
+            className="lo-press"
+            onClick={() => navigate('feed')}
+            style={{ width: '100%', padding: '15px 0', borderRadius: 14, border: 'none', background: 'var(--accent)', color: '#fff', fontWeight: 800, fontSize: 14.5, fontFamily: 'var(--sans)', cursor: 'pointer', boxShadow: '0 6px 22px rgba(255,45,120,.3)' }}
+          >Wapas feed pe →</button>
+        </div>
+      )}
+
       {/* Message counter + input bar */}
-      {hasStarted && !isLocked && (
+      {hasStarted && !isLocked && !storyDone && (
         <>
-          {msgsLeft <= 5 && msgsLeft > 0 && (
+          {storySession && !storyDone && (
+            <div style={{ textAlign: 'center', fontSize: 11, fontWeight: 700, color: 'var(--accent)', padding: '4px 0 2px' }}>
+              STORY CHAT · {storyRepliesLeft} repl{storyRepliesLeft === 1 ? 'y' : 'ies'} left
+            </div>
+          )}
+          {!storySession && msgsLeft <= 5 && msgsLeft > 0 && (
             <div style={{ textAlign: 'center', fontSize: 11, color: 'var(--ink3)', padding: '4px 0 2px' }}>
               {game.world === 'cricket'
                 ? `${msgsLeft} free message${msgsLeft !== 1 ? 's' : ''} left today`

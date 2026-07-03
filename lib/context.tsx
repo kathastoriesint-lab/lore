@@ -77,6 +77,10 @@ export interface AppCtx {
   /** Apply a nets Form gain and consume one of the interlude's net sessions. */
   completeNetSession: (formGain: number) => void
   /** Play out an authored trust moment in a DM thread (once per interlude). */
+  /** Story-chat session (choice → DM): which thread is scoped + replies sent. */
+  dmStorySession: { char: CharId; sent: number } | null
+  /** Begin a scoped story chat when a choice routes into a DM. */
+  startDmStorySession: (char: CharId) => void
   /** Earn-a-skip: clear the match-calendar wait once the engagement slate is done. */
   skipWeekWait: () => void
   /** Close the current eviction ceremony — mark evicted, clear pending. */
