@@ -158,7 +158,6 @@ export const CRICKET_SITUATIONS: Situation[] = [
           "fame": -1
         },
         "relationshipDeltas": {
-          "coach": 3,
           "friend": 2
         },
         "flagDeltas": {
@@ -171,11 +170,11 @@ export const CRICKET_SITUATIONS: Situation[] = [
           },
           {
             "char": "friend",
-            "text": "Kal poori story chahiye. Ball-by-ball. Paddle uthne se hammer tak."
+            "text": "Mummy ro rahi thi na? Video call pe mujhe bhi rulayega ab."
           },
           {
-            "char": "coach",
-            "text": "Beta, aaj phone side pe rakha — maine dekh liya. Yahi tera pehla shot tha, aur middle se laga. Kal subah 6 baje call kar. Kaam shuru."
+            "char": "friend",
+            "text": "Kal poori story chahiye. Ball-by-ball. Paddle uthne se hammer tak."
           }
         ]
       },
@@ -186,8 +185,8 @@ export const CRICKET_SITUATIONS: Situation[] = [
           "fame": 3
         },
         "relationshipDeltas": {
-          "friend": 1,
-          "coach": -2
+          "coach": -2,
+          "friend": -2
         },
         "flagDeltas": {
           "hypeRisk": 1
@@ -213,7 +212,21 @@ export const CRICKET_SITUATIONS: Situation[] = [
             }
           ],
           "imageUrl": "/generated/cricket-posts/cr-s1-mipaltan.png"
-        }
+        },
+        "dm": [
+          {
+            "char": "friend",
+            "text": "Bhai??? 11 missed calls ka reply nahi… aur yeh aa gaya? 😑"
+          },
+          {
+            "char": "friend",
+            "text": "Tu instagram pe duniya se baat kar raha hai aur apne bestie se nahi. Noted. 📝"
+          },
+          {
+            "char": "friend",
+            "text": "Chal theek hai, superstar. Kal poori story chahiye — WARNA main ghar aa raha hoon."
+          }
+        ]
       }
     ],
     "feedReaction": {

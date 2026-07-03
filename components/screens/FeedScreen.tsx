@@ -520,7 +520,10 @@ export default function FeedScreen() {
       }
       rafs.push(requestAnimationFrame(step))
       for (let i = 0; i < n; i++) timers.push(setTimeout(() => setRevealCount(c => Math.max(c, i + 1)), 1100 + i * 950))
-      dms.forEach((d, i) => timers.push(setTimeout(() => notifyDM(d.char, d.text), 1100 + n * 950 + i * 900)))
+      // Reaction DMs quote the post they're reacting to — the first one carries
+      // the post as an embed (Maddy sending your own post back at you).
+      const postEmbed = { caption: ai.caption, imageUrl: ai.imageUrl, handle: (game.playerName || 'you').toLowerCase().replace(/\s+/g, '') }
+      dms.forEach((d, i) => timers.push(setTimeout(() => notifyDM(d.char, d.text, i === 0 ? postEmbed : undefined), 1100 + n * 950 + i * 900)))
       timers.push(setTimeout(() => {
         upsertAiPost(key, { revealed: true }); setPendingPostReveal(null); setHudReaction(null); revealKeyRef.current = null
       }, 1100 + n * 950 + dms.length * 900 + 600))
