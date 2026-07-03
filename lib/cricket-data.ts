@@ -127,7 +127,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
     "reader": [
       {
         "t": "nar",
-        "text": "Auction night. Poora ghar TV ke saamne, aur screen pe — tumhara naam. Base price tees lakh. MI ka paddle uthta hai. Counter aata hai. MI phir. Hammer: SOLD."
+        "text": "Auction night. Poora ghar TV ke saamne, aur screen pe — tumhara naam. Base price ₹30 lakh. MI ka paddle uthta hai. Counter aata hai. MI phir. Hammer: SOLD."
       },
       {
         "t": "img",
@@ -136,7 +136,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       },
       {
         "t": "nar",
-        "text": "Mumbai Indians. Solah saal ki umar mein. Mummy ro rahi hai, Papa ka haath kaanp raha hai — aur tumhara phone pagal ho chuka hai. Do sau notifications. Maddy ke gyarah missed calls."
+        "text": "Mumbai Indians. 16 saal ki umar mein. Mummy ro rahi hai, Papa ka haath kaanp raha hai — aur tumhara phone pagal ho chuka hai. 214 notifications. Maddy ke 11 missed calls."
       },
       {
         "t": "cue",
