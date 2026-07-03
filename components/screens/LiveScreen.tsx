@@ -281,8 +281,12 @@ export default function LiveScreen() {
         commit(); setReaderBusy(true); scroll()
         dwell = setTimeout(() => { setLast({ phase: 'typing' }); scroll(); typeLast(it.text) }, 700 + Math.min(600, it.text.length * 8))
       } else if (it.t === 'img') {
+        // Images are free — they reveal WITH the next block instead of costing
+        // their own tap (a photo isn't a story beat; it's staging for one).
         rev.push({ kind: 'img', src: it.src, cap: it.cap, h: it.h, pos: it.pos })
-        commit(); setReaderBusy(false); scroll(); afterSettle()
+        commit(); scroll()
+        revealNext()
+        return
       } else {
         rev.push({ kind: 'nar', text: it.text, big: it.big })
         commit(); setReaderBusy(false); scroll(); afterSettle()

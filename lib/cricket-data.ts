@@ -120,14 +120,14 @@ export const CRICKET_SITUATIONS: Situation[] = [
     "tag": "⚡ AUCTION NIGHT · NIGHT",
     "title": "Sold. Mumbai.",
     "body": [
-      "Auction night. TV pe tumhara naam, do paddle, hammer — Sold. Mumbai Indians. Phone pe 214 notifications, drawing room mein family ro rahi hai.",
-      "Yeh raat ek hi baar aati hai. Ghar ke saath bitaoge, ya internet ke saath?"
+      "Auction night. TV pe tumhara naam, MI ka paddle, hammer — SOLD. Ghar ro raha hai, phone phat raha hai.",
+      "Yeh raat ek hi baar aati hai. Kisko doge — ghar ko, ya duniya ko?"
     ],
     "q": "Auction ke turant baad kya karte ho?",
     "reader": [
       {
         "t": "nar",
-        "text": "Drawing room. TV full volume — har naam seedha seene mein lagta hai. Saamne Coach Sir ka notebook, aur tumhara phone — screen down, silent."
+        "text": "Auction night. Poora ghar TV ke saamne, aur screen pe — tumhara naam. Base price tees lakh. MI ka paddle uthta hai. Counter aata hai. MI phir. Hammer: SOLD."
       },
       {
         "t": "img",
@@ -136,32 +136,18 @@ export const CRICKET_SITUATIONS: Situation[] = [
       },
       {
         "t": "nar",
-        "text": "Screen pe tumhara naam. Base price ₹30 lakh. Do second ki khamoshi — do saal jaisi. MI ka paddle uthta hai. Counter. MI phir."
-      },
-      {
-        "t": "nar",
-        "text": "Hammer girta hai. SOLD. MUMBAI INDIANS. Room phat jaata hai — Mummy ro rahi, Papa ka haath kandhe pe kaanpta hua."
+        "text": "Mumbai Indians. Solah saal ki umar mein. Mummy ro rahi hai, Papa ka haath kaanp raha hai — aur tumhara phone pagal ho chuka hai. Do sau notifications. Maddy ke gyarah missed calls."
       },
       {
         "t": "cue",
         "who": "Coach Sir",
         "avatar": "/avatars/coach.png",
-        "text": "Beta, khushi mana. Poora mana. Par yaad rakh — MI ne tujhe khareeda hai. Cricket ne abhi accept nahi kiya."
-      },
-      {
-        "t": "nar",
-        "text": "Phone zinda hai. 3 notifications. 47. 214. Upar @futurexi: \"MI just bought a 16-year-old prodigy. Watch this space.\" Neeche — Maddy, 11 missed calls."
-      },
-      {
-        "t": "cue",
-        "who": "Maddy",
-        "avatar": "/avatars/friend.png",
-        "text": "BRO. TU MUMBAI INDIANS MEIN HAI. MAINE TV PE TERA CHEHRA DEKHA. PICK UP THE PHONE 😭😭"
+        "text": "Beta, khushi mana — poori mana. Par yaad rakh: MI ne tujhe khareeda hai. Cricket ne abhi accept nahi kiya."
       },
       {
         "t": "nar",
         "big": true,
-        "text": "214 notifications. Ro rahi Mummy. Yeh raat ek hi baar aati hai — kisko dete ho?"
+        "text": "Yeh raat zindagi mein ek hi baar aati hai. Kisko doge — ghar ko, ya duniya ko?"
       }
     ],
     "choices": [
