@@ -247,23 +247,19 @@ export const CRICKET_SITUATIONS: Situation[] = [
     "tag": "⚡ NETS · AFTERNOON",
     "title": "Bumrah Ka Over",
     "body": [
-      "Wankhede nets, pehla rotation — Mahela ki ek line: \"Kid, next net. Jasprit, one over.\" Teen balls, teen baar beat. Poora room dekh raha hai.",
-      "Teen balls bachi hain. Yeh net over nahi — room ka pehla real test hai."
+      "Wankhede nets, pehla din — Mahela ki ek line: \"Kid, next net. Jasprit, one over.\" 3 balls, 3 baar beat. Poora room dekh raha hai.",
+      "3 balls bachi hain. Student ya show-off?"
     ],
     "q": "Bumrah ki agli ball kaise khelte ho?",
     "reader": [
       {
         "t": "nar",
-        "text": "Wankhede nets. Pehla serious rotation. Tum pads baandh rahe ho. Mahela, bina nazar uthaye: \"Kid — next net. Jasprit, one over.\""
+        "text": "Wankhede nets, pehla din. Pads baandh rahe ho jab Mahela, bina nazar uthaye, bolta hai — \"Kid, next net. Jasprit, one over.\" Poora room dekhne aa gaya hai."
       },
       {
         "t": "img",
         "src": "/generated/cricket-posts/cr-s2-player.png",
         "h": 210
-      },
-      {
-        "t": "nar",
-        "text": "Bas itna. Bumrah ball ghumata hai. Na sledging, na smile. Room ka har free aadmi bahane se net ke paas khisak aaya hai."
       },
       {
         "t": "cue",
@@ -275,11 +271,11 @@ export const CRICKET_SITUATIONS: Situation[] = [
             "gte": 1
           }
         },
-        "text": "Raat ko emotional post, subah seedha Bumrah. Scheduling department ka sense of humour savage hai 😄"
+        "text": "Raat ko emotional post, subah seedha Bumrah. Scheduling ka sense of humour savage hai 😄"
       },
       {
         "t": "nar",
-        "text": "Pehli ball — length kuch dikhti hai, guzarti kuch aur. Beat. Doosri — edge, side-net. Teesri — slower one: shot pehle khatam, ball baad mein aati hai."
+        "text": "3 balls, 3 baar beat. Length dikhti kuch hai, guzarti kuch aur. Teesri — slower ball: shot pehle khatam, ball baad mein aati hai. Hardik arms folded. Rohit bilkul still."
       },
       {
         "t": "cue",
@@ -289,12 +285,8 @@ export const CRICKET_SITUATIONS: Situation[] = [
       },
       {
         "t": "nar",
-        "text": "Hardik arms folded. Rohit bilkul still. Tilak apni baari bhool chuka hai. Teen balls bachi hain."
-      },
-      {
-        "t": "nar",
         "big": true,
-        "text": "Teen balls ne expose kar diya. Agli teen decide karengi — student ya show-off. Kya karte ho?"
+        "text": "3 balls bachi hain. Poora room dekh raha hai — student ya show-off?"
       }
     ],
     "choices": [
