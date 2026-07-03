@@ -576,7 +576,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       },
       {
         "t": "nar",
-        "text": "Meeting khatam. Sab nikal rahe hain. Hardik ka ishara: ruk. Mahela table pe, sheet saamne. Yeh casual nahi hai."
+        "text": "Meeting khatam. Hardik ka ishara: {name}, ruk. Mahela table pe tumhare saamne sheet kholte hain. Yeh casual nahi hai."
       },
       {
         "t": "cue",
@@ -594,22 +594,12 @@ export const CRICKET_SITUATIONS: Situation[] = [
         "t": "cue",
         "who": "Hardik",
         "avatar": "/avatars/hardik.png",
-        "text": "Pehla chance opening nahi hoga. No.5, shayad No.6. Shayad sirf 28 off 15 — na fifty, na highlight. Tu ready hai?"
-      },
-      {
-        "t": "cue",
-        "who": "Mahela",
-        "avatar": "/avatars/mahela.png",
-        "text": "Selection is a sheet of numbers and one question — can I trust the role? Always both."
-      },
-      {
-        "t": "nar",
-        "text": "Zindagi bhar top order khela. Viral clip powerplay ka. Fan pages tumhe opener bolte hain. Yeh room kuch aur maang raha hai."
+        "text": "Pehla chance opening nahi milega — jaise tumne humesha ki hai. No.5, shayad No.6. Shayad sirf 28 off 15 — na fifty, na highlight. Tu ready hai?"
       },
       {
         "t": "nar",
         "big": true,
-        "text": "Captain jawaab nahi sun raha — tareeka sun raha hai. Isi pe kal ki team sheet ka ink lagega."
+        "text": "Zindagi bhar top order khela hai. Captain jawaab nahi — tumhara mindset jaanna chahta hai."
       }
     ],
     "choices": [
@@ -636,13 +626,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
             "char": "hardik",
             "text": "Jab chance aayega, mujhe flexibility chahiye — explanation nahi. Role clear rakh, sar thanda rakh."
           }
-        ],
-        "dmMission": {
-          "char": "hardik",
-          "brief": "Aaj raat Hardik ko khud message karo — No.5 role pe exact clarity maango. Kaunse overs, kaunse matchups, us role mein success kya dikhti hai. Sawaal poochho, khud ko justify mat karo.",
-          "hint": "Ego nahi, clarity. Captain seedhe sawaal respect karta hai — drama aur self-defence nahi.",
-          "flag": "talkedRole"
-        }
+        ]
       },
       {
         "t": "Opening maango — apni strength pitch karo",
@@ -700,18 +684,19 @@ export const CRICKET_SITUATIONS: Situation[] = [
     "tag": "⚡ TEAM SHEET · MORNING",
     "title": "Team Sheet",
     "body": [
-      "Subah 9:04 — door pe team sheet. Tumhara naam No.5 pe. Kal raat Wankhede. IPL debut, solah saal ki umar.",
+      "Subah 9:04 — door pe team sheet. Tumhara naam No.5 pe. Kal raat Wankhede. IPL debut, 16 saal ki umar.",
       "Neeche: 12th man — Naman Dhir. Woh corridor mein hai, aur usne sheet abhi tak nahi dekhi."
     ],
     "q": "Naman ko kaun batayega — tum, ya sheet?",
     "reader": [
       {
         "t": "nar",
-        "text": "Subah 9:04. Door pe A4 sheet lagti hai. Har player ka same ritual — upar se neeche, apna naam dhoondo, saans chhodo."
+        "text": "Subah 9:04. Door pe team sheet. Tumhe naam dhoondhna nahi padta — wahan hai. No.5: {name}. 16 saal. Kal raat. Wankhede. IPL debut."
       },
       {
-        "t": "nar",
-        "text": "Tumhe dhoondhna nahi padta. Wahan hai. No.5 — {name}. Solah saal. Kal raat. Wankhede. IPL debut."
+        "t": "img",
+        "src": "/generated/cricket-posts/cr2-s5-sheet.png",
+        "h": 210
       },
       {
         "t": "cue",
@@ -721,7 +706,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       },
       {
         "t": "nar",
-        "text": "Nazar list ke neeche jaati hai. 12th man: Naman Dhir. Woh corridor mein hai, phone pe — sheet abhi tak nahi dekhi."
+        "text": "Neeche: 12th man — Naman Dhir. Corridor mein hai, phone pe — sheet abhi nahi dekhi. Tumhare phone mein draft ready hai, uske mein kuch nahi."
       },
       {
         "t": "nar",
@@ -731,16 +716,12 @@ export const CRICKET_SITUATIONS: Situation[] = [
             "gte": 1
           }
         },
-        "text": "\"Slot ek hai. Kaam bolega.\" — uska post yaad hai? Slot tumhe mila. Ab barah kadam ka corridor bacha hai."
-      },
-      {
-        "t": "nar",
-        "text": "Tumhare phone mein draft ready hai. Uske mein kuch nahi. Ek notification pehle jayega."
+        "text": "\"Slot 1 hai. Kaam bolega.\" — uska post yaad hai? Slot tumhe mila. Ab 12 kadam ka corridor bacha hai."
       },
       {
         "t": "nar",
         "big": true,
-        "text": "Chaubees ghante mein debut. Pehla decision bat se nahi — us ladke se, jo tumhari jagah khelna chahta tha. Kaun batayega?"
+        "text": "24 ghante mein debut, aur pehla decision bat se nahi — us ladke se hai jo tumhari jagah khelna chahta tha. Kaun batayega — tum, ya sheet?"
       }
     ],
     "choices": [
@@ -813,17 +794,18 @@ export const CRICKET_SITUATIONS: Situation[] = [
         "reader": [
           {
             "t": "nar",
-            "text": "Subah 9:04. Sheet abhi nahi lagi. Tumhe selection table pe bulaya gaya hai. Mahela ke saamne printout: tumhare hafte ke nets numbers."
+            "text": "Subah 9:04. Sheet abhi nahi lagi — tumhe selection table pe bulaya gaya hai. Mahela ke saamne printout: tumhare hafte ke nets numbers."
+          },
+          {
+            "t": "img",
+            "src": "/generated/cricket-posts/cr2-s5-selection.png",
+            "h": 210
           },
           {
             "t": "cue",
             "who": "Mahela",
             "avatar": "/avatars/mahela.png",
             "text": "The numbers are honest — borderline. Is week sheet pe naam maybe nahi banta. That is what the paper says."
-          },
-          {
-            "t": "nar",
-            "text": "Ek second ki khamoshi. Pen table pe rukta hai. Phir Hardik aage jhukta hai."
           },
           {
             "t": "cue",
@@ -833,12 +815,12 @@ export const CRICKET_SITUATIONS: Situation[] = [
           },
           {
             "t": "nar",
-            "text": "Mahela ek lambi nazar dekhta hai. Phir pen chalti hai. No.5 — {name}. Ink abhi geeli hai."
+            "text": "Khamoshi. Mahela lambi nazar dekhta hai — phir pen chalti hai. No.5 — {name}. Ink abhi geeli hai."
           },
           {
             "t": "nar",
             "big": true,
-            "text": "Captain ne apna naam tumhare aage rakh diya. Kal sirf tumhara debut nahi — uska judgment bhi bat karega. Jawaab kaise doge?"
+            "text": "Captain ne apna naam tumhare aage rakh diya — kal tumhare debut ke saath uska judgment bhi bat karega. Jawaab kaise doge?"
           }
         ],
         "choices": [
@@ -910,7 +892,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
         "reader": [
           {
             "t": "nar",
-            "text": "Subah 9:04. Door pe sheet. Upar se neeche padhte ho. Dobara. Teesri baar — jaise dobara padhne se naam aa jayega."
+            "text": "Subah 9:04. Door pe sheet. 3 baar padhte ho — naam nahi hai. No.5: Naman Dhir. Tumhe 12th man bhi nahi — orange bib, drinks duty."
           },
           {
             "t": "img",
@@ -918,18 +900,14 @@ export const CRICKET_SITUATIONS: Situation[] = [
             "h": 210
           },
           {
-            "t": "nar",
-            "text": "Nahi hai. No.5 — Naman Dhir. Tumhe 12th man bhi nahi: orange bib. Drinks duty. Wankhede ki lights rope ke bahar se dekhoge."
-          },
-          {
             "t": "cue",
             "who": "Tilak",
             "avatar": "/avatars/tilak.png",
-            "text": "Pehli sheet bina naam ke sabse zor se lagti hai. Do saal bib mein tha main. Path wapas hai — par maidan se jaata hai."
+            "text": "Kal Wankhede ki lights rope ke bahar se dekhega — pehli sheet bina naam ke sabse zor se lagti hai. Main 2 saal bib mein tha. Path wapas maidan se jaata hai, timeline se nahi."
           },
           {
             "t": "nar",
-            "text": "Phone buzz. @paltanpulse ka post up hai: \"WHERE IS THE KID?? MI buys a prodigy and BENCHES him?? #JusticeFor{name}\" — 8k likes, badh rahe hain."
+            "text": "Phone buzz. Paltan Pulse ka post: \"WHERE IS THE KID?? MI buys a prodigy and BENCHES him?? #JusticeFor{name}\" — 8k likes, badh rahe hain."
           },
           {
             "t": "nar",
@@ -944,7 +922,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
           {
             "t": "nar",
             "big": true,
-            "text": "Bench se do raaste hain — ek maidan se, ek timeline se. Sirf ek XI tak wapas jaata hai. Kaunsa lete ho?"
+            "text": "Bench se 2 raaste hain — 1 maidan se, 1 timeline se. Sirf 1 XI tak wapas jaata hai: kaunsa lete ho?"
           }
         ],
         "choices": [
@@ -1027,18 +1005,19 @@ export const CRICKET_SITUATIONS: Situation[] = [
     "tag": "⚡ MATCHDAY · MORNING",
     "title": "Debut Morning",
     "body": [
-      "Debut ka din. Alarm se do minute pehle aankh khuli, kit bag raat se ready, phone pe 61 unread — sab 'aaj ka din' bol rahe hain.",
+      "Debut ka din. Alarm se 2 minute pehle aankh khuli, kit bag raat se ready, phone pe 61 unread — sab 'aaj ka din' bol rahe hain.",
       "Team bus 9 baje. Coach Sir ka raat wala message: 'Shadow practice. 20 minute. Phone mat le aana.'"
     ],
-    "q": "Debut ke teen ghante kahan jaate hain?",
+    "q": "Debut ke 3 ghante kahan jaate hain?",
     "reader": [
       {
         "t": "nar",
-        "text": "Subah 6:58, alarm se pehle aankh khuli. Marine Drive adha soya hai — aur aaj raat team sheet pe tumhara naam."
+        "text": "Subah 6:58, alarm se 2 minute pehle aankh khuli. Marine Drive adha soya hai — aur aaj raat team sheet pe tumhara naam."
       },
       {
-        "t": "nar",
-        "text": "Kit bag ready. Jersey ka number bilkul naya. Phone pe 61 unread — sab 'aaj ka din' bol rahe hain."
+        "t": "img",
+        "src": "/generated/cricket-posts/cr2-s6-hotel.png",
+        "h": 210
       },
       {
         "t": "cue",
@@ -1056,20 +1035,16 @@ export const CRICKET_SITUATIONS: Situation[] = [
             "gte": 1
           }
         },
-        "text": "Woh presser wali headline? Aaj raat ball usse padhegi. Jawaab bat se dena."
+        "text": "Presser wali headline? Aaj raat ball usse padhegi. Jawaab bat se dena."
       },
       {
         "t": "nar",
-        "text": "Lift band. Ground floor tak aath second. Un aath second mein do raaste: routine — ya shor."
-      },
-      {
-        "t": "nar",
-        "text": "Coach ka message: 'Shadow practice. 20 minute. Phone mat le aana.' Doosri taraf timeline — poora Mumbai tumhara naam bol raha hai."
+        "text": "Phone pe 61 unread — poora Mumbai tumhara naam bol raha hai. Coach ka message: 'Shadow practice. 20 minute. Phone mat le aana.'"
       },
       {
         "t": "nar",
         "big": true,
-        "text": "Debut se pehle teen ghante sirf tumhare hain. Kise dete ho — game ko, ya naam ko?"
+        "text": "Debut se pehle 3 ghante sirf tumhare hain. Kise doge — game ko, ya naam ko?"
       }
     ],
     "choices": [
@@ -1115,7 +1090,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
           "name": "Paltan Pulse",
           "handle": "paltanpulse",
           "label": "Paltan Pulse · fan page",
-          "caption": "DEBUT DAY 🚨 {name} tonight at Wankhede. Solah saal. Auction se team sheet tak — teen hafte. Paltan, aaj raat history dekh lena. 💙",
+          "caption": "DEBUT DAY 🚨 {name} tonight at Wankhede. 16 saal. Auction se team sheet tak — 3 hafte. Paltan, aaj raat history dekh lena. 💙",
           "reactions": [
             {
               "char": "__fan",
@@ -1151,13 +1126,13 @@ export const CRICKET_SITUATIONS: Situation[] = [
         "when": {
           "benched": true
         },
-        "title": "Barahvan Aadmi",
-        "tag": "⚡ BARAHVAN AADMI · MORNING",
+        "title": "12th Man",
+        "tag": "⚡ 12TH MAN · MORNING",
         "q": "Naman ke debut wale din tum kya ho?",
         "reader": [
           {
             "t": "nar",
-            "text": "Subah 7 baje. Team sheet pinned hai — gyaarah naam, tumhara nahi. Barahvan aadmi: drinks, towels, throw-downs."
+            "text": "Subah 7 baje. Team sheet pinned — 11 naam, tumhara nahi. 12th man: drinks, towels, throw-downs."
           },
           {
             "t": "img",
@@ -1175,10 +1150,6 @@ export const CRICKET_SITUATIONS: Situation[] = [
             "text": "Bhai… pata nahi kya bolun. Sapna mera bhi yahi tha. Bas socha nahi tha tere saamne poora hoga."
           },
           {
-            "t": "nar",
-            "text": "Uski aawaz mein guilt. Tumhare pet mein kuch aur — jiska naam tum lena nahi chahte."
-          },
-          {
             "t": "cue",
             "who": "Tilak Varma",
             "avatar": "/avatars/tilak.png",
@@ -1187,7 +1158,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
           {
             "t": "nar",
             "big": true,
-            "text": "Aaj ka din uska hai. Sawaal bas ek — tum us din ka kya karte ho?"
+            "text": "Naman ki aawaz mein guilt, tumhare pet mein kuch aur. Aaj ka din uska hai — tum us din ka kya karte ho?"
           }
         ],
         "choices": [
@@ -1270,16 +1241,12 @@ export const CRICKET_SITUATIONS: Situation[] = [
     "reader": [
       {
         "t": "nar",
-        "text": "Wankhede full. CSK ke 178, MI 39/2 — Rohit gaya, Tilak gaya. Room mein sirf zip aur velcro ki aawaz."
+        "text": "Wankhede full. CSK ke 178, MI 39/2 — Rohit gaya, Tilak gaya. Mahela ki 1 hi line: 'No.5. Apna game.' 139 chahiye, 84 gend."
       },
       {
         "t": "img",
         "src": "/generated/cricket-posts/cr-s3-player.png",
         "h": 210
-      },
-      {
-        "t": "nar",
-        "text": "Mahela ki ek line: 'No.5. Apna game.' Helmet strap tight. Gloves double-check. 139 chahiye, 84 gend."
       },
       {
         "t": "nar",
@@ -1296,26 +1263,18 @@ export const CRICKET_SITUATIONS: Situation[] = [
       },
       {
         "t": "nar",
-        "text": "Seedhiyaan. Roar. Speaker pe tumhara naam — ek second ke liye poora Wankhede use seekhta hai."
-      },
-      {
-        "t": "nar",
-        "text": "Saamne Noor Ahmad — googly jo TV pe nahi dikhti. Long-on aur deep midwicket peeche, slip gayab. Death mein Pathirana intezaar mein."
-      },
-      {
-        "t": "nar",
         "when": {
           "flag": {
             "key": "roleAcceptance",
             "gte": 1
           }
         },
-        "text": "No.5 — wahi role jo captain ne diya, tumne haan bola. Tum jaante ho yahan exactly kya karna hai."
+        "text": "No.5 — wahi role jo captain ne diya, tumne haan bola. Yahan kya karna hai — tum jaante ho."
       },
       {
         "t": "nar",
         "big": true,
-        "text": "Pehli gend nikalne wali hai. Career baad mein — pehle yeh gend. Kaise khelte ho?"
+        "text": "Saamne Noor Ahmad ki googly, death mein Pathirana, long-on–deep midwicket peeche. Pehli IPL gend nikalne wali hai — kaise khelte ho?"
       }
     ],
     "choices": [
@@ -1343,14 +1302,14 @@ export const CRICKET_SITUATIONS: Situation[] = [
           ],
           "pass": {
             "title": "47 OFF 29",
-            "note": "Form ne nerves ko jeet liya. Noor ki googly ko do-lo mein khela, aur Pathirana ka slower ball haath se pick kiya — release point, bilkul waise jaise sikhaaya gaya tha. Uske aakhri do over mein 19. MI jeet gayi, aur Wankhede ne naam yaad kar liya.",
+            "note": "Form ne nerves ko jeet liya. Noor ki googly ko do-lo mein khela, aur Pathirana ka slower ball haath se pick kiya — release point, bilkul waise jaise sikhaaya gaya tha. Uske aakhri 2 over mein 19. MI jeet gayi, aur Wankhede ne naam yaad kar liya.",
             "post": {
               "source": "account",
               "name": "MI Paltan",
               "handle": "mipaltan",
               "label": "MI Paltan · just now",
               "surface": "scorecard",
-              "caption": "DEBUT: {name} 47 (29). 39/2 se jeet tak — solah saal ke bacche ne chase ko haath se pakda aur ghar le gaya. Pathirana ke aakhri do over mein 19. MI win by 5 wickets. 💙",
+              "caption": "DEBUT: {name} 47 (29). 39/2 se jeet tak — 16 saal ke bacche ne chase ko haath se pakda aur ghar le gaya. Pathirana ke aakhri 2 over mein 19. MI win by 5 wickets. 💙",
               "reactions": [
                 {
                   "char": "hardik",
@@ -1371,7 +1330,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
           },
           "fail": {
             "title": "9 OFF 11",
-            "note": "Pathirana ka slower ball haath se nahi pada — bas hava mein gaya. Deep midwicket ne hilna bhi nahi tha. 9 (11). Wankhede ek second chup — phir agla naam announce.",
+            "note": "Pathirana ka slower ball haath se nahi pada — bas hava mein gaya. Deep midwicket ne hilna bhi nahi tha. 9 (11). Wankhede 1 second chup — phir agla naam announce.",
             "dm": [
               {
                 "char": "rohit",
@@ -1440,7 +1399,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
           },
           "fail": {
             "title": "2 OFF 3",
-            "note": "Teesri hi gend pe wahi shot — bina base ke. Long-on ne ek kadam bhi nahi liya. 2 (3). Aaj raat ka highlight sirf ek hai, aur woh tumhara wicket hai.",
+            "note": "Teesri hi gend pe wahi shot — bina base ke. Long-on ne 1 kadam bhi nahi liya. 2 (3). Aaj raat ka highlight sirf 1 hai, aur woh tumhara wicket hai.",
             "dm": [
               {
                 "char": "surya",
@@ -1479,12 +1438,13 @@ export const CRICKET_SITUATIONS: Situation[] = [
             "text": "Wankhede full. Tum orange bib mein, drinks tray haath mein. Naman No.6 pe pad-up — uski pehli raat."
           },
           {
-            "t": "nar",
-            "text": "CSK ke 178. MI 71/3 se seedha 98/6. Chase phisal raha hai — Pathirana ke do over abhi baaki."
+            "t": "img",
+            "src": "/generated/cricket-posts/cr-s11-player.png",
+            "h": 210
           },
           {
             "t": "nar",
-            "text": "Hardik dugout scan karta hai. Ek impact slot bacha hai. Nazar tum pe rukti hai — sirf ek second."
+            "text": "CSK ke 178. MI 71/3 se 98/6 — chase phisal raha hai, Pathirana ke 2 over baaki. Hardik dugout scan karta hai: 1 impact slot bacha hai."
           },
           {
             "t": "cue",
@@ -1494,12 +1454,12 @@ export const CRICKET_SITUATIONS: Situation[] = [
           },
           {
             "t": "nar",
-            "text": "Tilak bagal mein, chup. Tumhare haath mein drinks tray — aur ek decision."
+            "text": "Nazar tum pe rukti hai — sirf 1 second. Tilak bagal mein, chup. Tumhare haath mein tray — aur 1 decision."
           },
           {
             "t": "nar",
             "big": true,
-            "text": "Paanch minute mein faisla hoga. Tum abhi jo kar rahe ho — wahi uska data hai. Kya kar rahe ho?"
+            "text": "5 minute mein faisla hoga — tum abhi jo kar rahe ho, wahi uska data hai. Kya kar rahe ho?"
           }
         ],
         "choices": [
@@ -1520,14 +1480,14 @@ export const CRICKET_SITUATIONS: Situation[] = [
               "threshold": 46,
               "pass": {
                 "title": "IMPACT SUB — 14* (8)",
-                "note": "Captain ka haath utha: 'Kid. Pads.' Do over ka cameo — Pathirana ko do boundary, aakhri over mein 11 ki jagah 6 gaye. 14* off 8. Chhota number, bada statement: jab usne dekha, tum ready the.",
+                "note": "Captain ka haath utha: 'Kid. Pads.' 2 over ka cameo — Pathirana ko 2 boundary, aakhri over mein 11 ki jagah 6 gaye. 14* off 8. Chhota number, bada statement: jab usne dekha, tum ready the.",
                 "post": {
                   "source": "account",
                   "name": "MI Paltan",
                   "handle": "mipaltan",
                   "label": "MI Paltan · just now",
                   "surface": "scorecard",
-                  "caption": "IMPACT: {name} 14* (8) as sub. Haari hui position se almost khींch laaye. Solah saal ka baccha Pathirana ke death overs mein aise utara jaise slot pehle se book tha. 💙",
+                  "caption": "IMPACT: {name} 14* (8) as sub. Haari hui position se almost kheench laaye. 16 saal ka baccha Pathirana ke death overs mein aise utara jaise slot pehle se book tha. 💙",
                   "reactions": [
                     {
                       "char": "hardik",
@@ -1589,7 +1549,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
                   "handle": "mipaltan",
                   "label": "MI Paltan · just now",
                   "surface": "scorecard",
-                  "caption": "IMPACT: {name} 14* (8) as sub. Late call, quick hands — Pathirana ke death overs mein do boundary. Chase phir bhi door reh gayi. 💙",
+                  "caption": "IMPACT: {name} 14* (8) as sub. Late call, quick hands — Pathirana ke death overs mein 2 boundary. Chase phir bhi door reh gayi. 💙",
                   "reactions": [
                     {
                       "char": "hardik",
@@ -1606,7 +1566,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
               },
               "fail": {
                 "title": "CAMERA MEIN SAB AAYA",
-                "note": "Impact slot doosre naam ko gaya. Aur broadcast camera ne pakad liya: haarte hue match mein, barahvan aadmi, phone pe. Woh clip raat khatam hone se pehle timeline pe thi.",
+                "note": "Impact slot doosre naam ko gaya. Aur broadcast camera ne pakad liya: haarte hue match mein, 12th aadmi, phone pe. Woh clip raat khatam hone se pehle timeline pe thi.",
                 "dm": [
                   {
                     "char": "tilak",
@@ -1631,34 +1591,33 @@ export const CRICKET_SITUATIONS: Situation[] = [
     "tag": "⚡ TIMELINE · MORNING",
     "title": "Toofan",
     "body": [
-      "Debut ke agle din phone ulta pada hai, phir bhi jal raha hai — 348 notifications, 23 missed calls, raat bhar mein hazaaron naye followers.",
+      "Debut ke agle din phone ulta pada hai, phir bhi jal raha hai — 348 notifications, 23 missed calls, raat bhar mein 40,000 naye followers.",
       "Toofan tumhare naam ka hai. Sawaal: tum uske andar rehte ho, ya upar."
     ],
     "q": "Hero-storm ka kya karte ho?",
     "reader": [
       {
         "t": "nar",
-        "text": "Subah 6:12. Phone ulta, phir bhi jal raha hai. 348 notifications. 23 missed calls. 40,000 naye followers — raat bhar mein."
+        "text": "6:12. Phone ulta, phir bhi jal raha hai. 348 notifications. 4 interview requests, 1 brand ka DM. Coach ka sirf: 'Recovery kiya?'"
+      },
+      {
+        "t": "img",
+        "src": "/generated/cricket-posts/cr2-s8-phone.png",
+        "h": 210
       },
       {
         "t": "nar",
         "when": {
           "started": true
         },
-        "text": "Har teesri post wahi frame: Pathirana ka slower ball, tumhara wait, gap. Score ab caption nahi — hashtag hai."
+        "text": "Har 3rd post wahi frame: Pathirana ka slower ball, tumhara wait, gap. Score ab caption nahi — hashtag hai."
       },
       {
         "t": "nar",
         "when": {
           "benched": true
         },
-        "text": "Har edit wahi aath gend — orange bib se Pathirana tak. '14 not out' chhota hai, clip bada. 'SUPER SUB' trending."
-      },
-      {
-        "t": "cue",
-        "who": "Maddy",
-        "avatar": "/avatars/friend.png",
-        "text": "Bro Insta khol mat. Ya khol. Pata nahi. Tu famous ho gaya hai aur main comments mein tere liye ladh raha hoon 😭"
+        "text": "Har edit wahi 8 gend — orange bib se Pathirana tak. '14 not out' chhota hai, clip bada. 'SUPER SUB' trending."
       },
       {
         "t": "nar",
@@ -1668,7 +1627,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
             "gte": 48
           }
         },
-        "text": "Scroll karte karte ek post sab shaant kar deta hai — SKY ka."
+        "text": "Scroll ke beech 1 post sab shaant kar deta hai — SKY ka."
       },
       {
         "t": "cue",
@@ -1683,13 +1642,15 @@ export const CRICKET_SITUATIONS: Situation[] = [
         "text": "Timeline chill. Kid ko main dekh raha hoon. Tum log match dekho. 💙"
       },
       {
-        "t": "nar",
-        "text": "MI media ke chaar interview requests. Ek brand ka DM. Aur coach ke do shabd: 'Recovery kiya?'"
+        "t": "cue",
+        "who": "Maddy",
+        "avatar": "/avatars/friend.png",
+        "text": "Bro, 23 missed calls mein se aadhe mere the 😭 Insta khol mat. Ya khol. Tu famous ho gaya hai aur main comments mein tere liye ladh raha hoon."
       },
       {
         "t": "nar",
         "big": true,
-        "text": "Toofan tumhare naam ka hai. Tum uske andar rehte ho — ya upar?"
+        "text": "Toofan tumhare naam ka hai — andar rehte ho, ya upar?"
       }
     ],
     "choices": [
@@ -1776,31 +1737,26 @@ export const CRICKET_SITUATIONS: Situation[] = [
         "reader": [
           {
             "t": "nar",
-            "text": "Subah 6:12. Phone ulta pada hai — par pata hai andar kya hai. 212 notifications. Ek bhi mubarak nahi."
+            "text": "6:12. Phone ulta. 212 notifications, 1 bhi mubarak nahi. Analyst thread — 'MI ne jaldi kar di?' — 4,000 retweets. Memeovers: template ready."
+          },
+          {
+            "t": "img",
+            "src": "/generated/cricket-posts/cr2-s8-phone.png",
+            "h": 210
           },
           {
             "t": "nar",
             "when": {
               "started": true
             },
-            "text": "Wahi gendein, har angle se cut. Pathirana ka slower ball, hava mein shot, deep midwicket ka intezaar. Caption: 'Overhyped?' Question mark bas formality hai."
+            "text": "Wahi gendein har angle se: Pathirana ka slower ball, hava mein shot, deep midwicket. Caption: 'Overhyped?' Question mark bas formality hai."
           },
           {
             "t": "nar",
             "when": {
               "benched": true
             },
-            "text": "Khele bhi nahi, phir bhi thread tumhare naam ka: 'The invisible man of MI.' Do sheet, zero matches — timeline ke liye yahi crime kaafi hai."
-          },
-          {
-            "t": "cue",
-            "who": "Maddy",
-            "avatar": "/avatars/friend.png",
-            "text": "Bro. Comments mat padh. MAT padh. Main padh raha hoon aur mera BP dono handle nahi ho rahe."
-          },
-          {
-            "t": "nar",
-            "text": "Ek verified analyst ka thread — 'MI ne jaldi kar di?' — 4,000 retweets. Memeovers ne subah subah template bana diya."
+            "text": "Khele bhi nahi, phir bhi thread tumhare naam ka: 'The invisible man of MI.' 2 sheet, 0 match — timeline ke liye yahi crime kaafi hai."
           },
           {
             "t": "nar",
@@ -1810,7 +1766,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
                 "gte": 48
               }
             },
-            "text": "Phir 9:40 pe ek post — jo poore pile-on ke upar baith jaata hai."
+            "text": "Phir 9:40 pe 1 post — jo poore pile-on ke upar baith jaata hai."
           },
           {
             "t": "cue",
@@ -1822,7 +1778,13 @@ export const CRICKET_SITUATIONS: Situation[] = [
                 "gte": 48
               }
             },
-            "text": "Ek match. Solah saal. Thoda saans le lo timeline. Kid ko main dekh raha hoon. 💙"
+            "text": "1 match. 16 saal. Thoda saans le lo timeline. Kid ko main dekh raha hoon. 💙"
+          },
+          {
+            "t": "cue",
+            "who": "Maddy",
+            "avatar": "/avatars/friend.png",
+            "text": "Bro. Comments mat padh. MAT padh. Main padh raha hoon aur mera BP dono handle nahi ho rahe."
           },
           {
             "t": "nar",
@@ -1833,7 +1795,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
         "choices": [
           {
             "t": "Clap-back post karo",
-            "s": "Chup rehna guilt jaisa lagta hai. Ek line se band karo sab.",
+            "s": "Chup rehna guilt jaisa lagta hai. 1 line se band karo sab.",
             "deltas": {
               "fame": 3
             },
@@ -1845,7 +1807,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
             },
             "post": {
               "source": "player",
-              "caption": "Ek raat mein expert ban gaye sab? Meri jersey bhi pehen lo phir. Season lamba hai. Yaad rakhna. 🙂",
+              "caption": "1 raat mein expert ban gaye sab? Meri jersey bhi pehen lo phir. Season lamba hai. Yaad rakhna. 🙂",
               "reactions": [
                 {
                   "char": "__fan",
@@ -1916,7 +1878,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
             "gte": 78
           }
         },
-        "text": "Shaam 5:20. Maddy: 'Bro, tere baare mein kuch aaj raat drop hoga.' Chhe ghante pehle pata tha — isliye haath nahi kaanpta."
+        "text": "Shaam 5:20. Maddy: 'Bro, aaj raat tere baare mein kuch drop hoga.' 6 ghante ka head start — isliye haath nahi kaanpta."
       },
       {
         "t": "img",
@@ -1925,7 +1887,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       },
       {
         "t": "nar",
-        "text": "Raat 11:47. Burner account se thread drop — 9 posts, teen clips, sab tumhare naam ke saath."
+        "text": "Raat 11:47. Burner thread live: 9 posts, 3 clips — 1 kahani jo tumne nahi likhi. Har refresh pe naya screenshot."
       },
       {
         "t": "nar",
@@ -1935,7 +1897,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
             "gte": 1
           }
         },
-        "text": "Centre-piece: tumhara kal ka clap-back, ab screenshot ban ke. Caption: 'Attitude ya insecurity?' Quote-tweets mein aag lagi hai."
+        "text": "Thread ka centre-piece: tumhara kal ka clap-back, ab screenshot. Caption: 'Attitude ya insecurity?' Quote-tweets mein aag."
       },
       {
         "t": "nar",
@@ -1945,7 +1907,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
             "gte": 1
           }
         },
-        "text": "Kisi ne tumhare likes khod liye — bench wale din ke saare outrage posts, ek compilation. Caption: 'Team se pehle main.'"
+        "text": "Tumhare likes bhi khode gaye — bench wale din ke saare outrage posts, ek hi compilation mein. Caption: 'Team se pehle main.'"
       },
       {
         "t": "nar",
@@ -1955,26 +1917,16 @@ export const CRICKET_SITUATIONS: Situation[] = [
             "gte": 1
           }
         },
-        "text": "Pehli presser ka clip scorecard ke saath stitch: 'Main XI ke liye aaya hoon' — cut — number. Dramatic music. 2.1 million views."
+        "text": "Pehli presser ka clip scorecard se stitch: 'Main XI ke liye aaya hoon' — cut — number. Dramatic music. 2.1 million views."
       },
       {
         "t": "nar",
-        "text": "Baaki clips context se kate hue — cafe, adhura sentence, galat jagah edit hui hasi. Alag alag kuch nahi. Ek saath — ek kahani jo tumne nahi likhi."
-      },
-      {
-        "t": "nar",
-        "text": "Team group chat: 340 members online. Zero messages. Phir ek. Mahela: 'Meeting. 9am.'"
-      },
-      {
-        "t": "cue",
-        "who": "Maddy",
-        "avatar": "/avatars/friend.png",
-        "text": "Bro, main sach jaanta hoon. Par abhi sach se zyada important hai — tu next kya karta hai."
+        "text": "Team chat: 340 online, 0 messages. Phir Mahela ka 1 message: 'Meeting. 9am.'"
       },
       {
         "t": "nar",
         "big": true,
-        "text": "9am se pehle tay hoga tum kaun ho: galti ke saamne khade, ya PR ke peeche. Room dekh raha hai. Duniya bhi."
+        "text": "9am se pehle tay hoga tum kaun ho: galti ke saamne khade — ya PR ke peeche?"
       }
     ],
     "choices": [
@@ -2005,13 +1957,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
             "char": "rohit",
             "text": "Kal 9 baje se pehle mujhe khud likh. Jo bolna hai, pehle mujhe bol."
           }
-        ],
-        "dmMission": {
-          "char": "rohit",
-          "brief": "9am meeting se pehle Rohit ko khud message karo — seedha, bina excuse. Jo clip mein hai usko naam do, jo sach hai woh bolo, aur jo galat tha woh own karo.",
-          "hint": "Rohit process sunta hai, safai nahi. Chhota rakho. Seedha rakho. Excuse ka ek shabd bhi mat likhna.",
-          "flag": "facedRohit"
-        }
+        ]
       },
       {
         "t": "PR-fix karo — statement post, clips delete",
@@ -2077,22 +2023,13 @@ export const CRICKET_SITUATIONS: Situation[] = [
     "reader": [
       {
         "t": "nar",
-        "text": "Shaam 6 baje, team room. Whiteboard pe matchups — Mahela ke haath mein wahi sheet jisse har hafta shuru aur khatam hota hai."
-      },
-      {
-        "t": "img",
-        "src": "/generated/cricket-posts/cr-s13-hardik.png",
-        "h": 210
-      },
-      {
-        "t": "nar",
         "when": {
           "gate": {
             "sitId": "CR2-S7",
             "is": "pass"
           }
         },
-        "text": "Mahela tumhara debut number padhta hai — ab hashtag ban chuka hai. Phir woh Hardik ko dekhta hai. Hardik pehle se tumhe dekh raha hai."
+        "text": "Team room, shaam 6. Mahela tumhara debut number padhta hai — ab hashtag hai. Phir Hardik ko dekhta hai. Hardik pehle se tumhe dekh raha hai."
       },
       {
         "t": "nar",
@@ -2102,7 +2039,12 @@ export const CRICKET_SITUATIONS: Situation[] = [
             "is": "fail"
           }
         },
-        "text": "Mahela woh number padhta hai jo tum bhoolna chahte ho. Lambi khamoshi. 'Numbers argue nahi karte. Tape kabhi kabhi karta hai.' Phir Hardik ko dekhta hai."
+        "text": "Team room, shaam 6. Mahela woh number padhta hai jo tum bhoolna chahte ho. Khamoshi. 'Numbers argue nahi karte. Tape kabhi kabhi karta hai.'"
+      },
+      {
+        "t": "img",
+        "src": "/generated/cricket-posts/cr-s13-hardik.png",
+        "h": 210
       },
       {
         "t": "nar",
@@ -2112,7 +2054,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
             "gte": 1
           }
         },
-        "text": "Meeting se pehle Mahela alag se bolta hai: 'Kal raat jaise handle hui — woh sheet pe nahi likhi jaati. Par ginti hoti hai.'"
+        "text": "Meeting se pehle Mahela alag se: 'Kal raat jaise handle hui — woh sheet pe nahi likhi jaati. Par ginti hoti hai.'"
       },
       {
         "t": "nar",
@@ -2133,7 +2075,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       {
         "t": "nar",
         "big": true,
-        "text": "Naam sheet pe hai — bina drama. Do raaste: chupchaap agla kaam, ya duniya ko batana ki tum sahi the."
+        "text": "Naam sheet pe — bina drama. Chupchaap agla match kamao, ya duniya ko batao ki tum sahi the?"
       }
     ],
     "choices": [
@@ -2212,11 +2154,12 @@ export const CRICKET_SITUATIONS: Situation[] = [
         "reader": [
           {
             "t": "nar",
-            "text": "Shaam 6 baje. Sheet board pe lagti hai. Upar se neeche padhte ho. Phir ek baar aur. Naam nahi."
+            "text": "Shaam 6 baje. Sheet board pe lagti hai. 2 baar padhte ho — naam nahi. Naman No.6 confirm. 2 hafte, 2 sheet — 1 baar bhi 12 ke andar nahi."
           },
           {
-            "t": "nar",
-            "text": "Naman No.6 confirm. Impact list mein bhi tum nahi. Do hafte, do sheet — ek baar bhi barah ke andar nahi."
+            "t": "img",
+            "src": "/generated/cricket-posts/cr-s10-player.png",
+            "h": 210
           },
           {
             "t": "nar",
@@ -2236,17 +2179,17 @@ export const CRICKET_SITUATIONS: Situation[] = [
                 "gte": 1
               }
             },
-            "text": "Nikalte waqt kandhe pe haath — Rohit. Kuch bola nahi, zaroorat nahi thi. Kal raat room ne dekha. Par sheet numbers se banti hai."
+            "text": "Nikalte waqt kandhe pe haath — Rohit. Kuch bola nahi, zaroorat nahi. Kal raat room ne dekha. Par sheet numbers se banti hai."
           },
           {
             "t": "cue",
             "who": "Mahela Jayawardene",
             "avatar": "/avatars/mahela.png",
-            "text": "Ruk. Do minute."
+            "text": "Ruk. 2 minute."
           },
           {
             "t": "nar",
-            "text": "Room khali. Mahela sheet ki taraf ishara karta hai — form column, tumhara number, aage ek khali box."
+            "text": "Room khali. Mahela ka ishara sheet pe — form column, tumhara number, aage khali box."
           },
           {
             "t": "nar",
@@ -2331,7 +2274,12 @@ export const CRICKET_SITUATIONS: Situation[] = [
         "reader": [
           {
             "t": "nar",
-            "text": "Shaam 6 baje, team room. Mahela sheet padhta hai — is baar numbers tumhari taraf nahi."
+            "text": "Shaam 6, team room. Mahela sheet padhta hai — numbers tumhari taraf nahi. Form column pe pen rukta hai. 'Doosre options hain.' Room chup."
+          },
+          {
+            "t": "img",
+            "src": "/generated/cricket-posts/cr2-s5-selection.png",
+            "h": 210
           },
           {
             "t": "cue",
@@ -2343,21 +2291,13 @@ export const CRICKET_SITUATIONS: Situation[] = [
                 "gte": 1
               }
             },
-            "text": "Doosri baar naam laga raha hoon tere liye. Pehli ka hisaab abhi khula hai. Teesri nahi hogi."
-          },
-          {
-            "t": "nar",
-            "text": "Form column pe Mahela ka pen rukta hai. 'Doosre options hain.' Room chup ho jaata hai."
+            "text": "2nd baar naam laga raha hoon tere liye. 1st ka hisaab abhi khula hai. 3rd baar nahi hogi."
           },
           {
             "t": "cue",
             "who": "Hardik Pandya",
             "avatar": "/avatars/hardik.png",
             "text": "Agla match yeh khelega. Meri call. Mere naam pe likh lo."
-          },
-          {
-            "t": "nar",
-            "text": "Mahela ek second dekhta hai. Sheet band. Meeting khatam. Captain ka naam ab tumhare number ke aage hai — sabke saamne."
           },
           {
             "t": "cue",
@@ -2368,7 +2308,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
           {
             "t": "nar",
             "big": true,
-            "text": "Uska naam ab tumhare score ke saath udega — ya girega. Jawaab kaise dete ho?"
+            "text": "Captain ka naam ab sabke saamne tumhare number ke aage — udega ya girega tumhare score ke saath. Jawaab kaise doge?"
           }
         ],
         "choices": [
@@ -2449,56 +2389,51 @@ export const CRICKET_SITUATIONS: Situation[] = [
     "reader": [
       {
         "t": "nar",
-        "text": "Day 8, subah 5:52. Gym mein ghuste ho — aadhi lights jalti hain. Baaki gym khaali. Mirror poora."
-      },
-      {
-        "t": "nar",
-        "text": "Orange bib ab aadat hai. Timeline ne naam lena band kar diya — trolling se zyada yeh dukhta hai.",
         "when": {
           "benched": true
-        }
+        },
+        "text": "Day 8, subah 5:52. Khaali gym, Eliminator 2 din door. Orange bib ab aadat hai. Timeline ab naam nahi leti — trolling se zyada dukhta hai."
       },
       {
         "t": "nar",
-        "text": "Naam sheet pe hai. Teen innings ka total? Ek over jitna. Room chup hai — wahi khamoshi sabse loud.",
         "when": {
           "started": true
-        }
+        },
+        "text": "Day 8, subah 5:52. Khaali gym, Eliminator 2 din door. Naam sheet pe hai — par 3 innings ka total? 1 over jitna. Yeh khamoshi sabse loud hai."
       },
       {
-        "t": "nar",
-        "text": "PR statement ke baad team group mein tumhare messages pe bas 'seen'. Reply koi nahi karta.",
-        "when": {
-          "flag": {
-            "key": "deflected",
-            "gte": 1
-          }
-        }
-      },
-      {
-        "t": "nar",
-        "text": "Us raat galti maani — isliye nazrein ab bhi milti hain. Par izzat form wapas nahi laati. Dobara kamani padti hai.",
-        "when": {
-          "flag": {
-            "key": "ownedIt",
-            "gte": 1
-          }
-        }
-      },
-      {
-        "t": "nar",
-        "text": "Mirror mein 16 saal ka ladka, trigger movement bhoola hua. Rohit isi floor pe. Knock na tumne kiya, na usne."
+        "t": "img",
+        "src": "/generated/cricket-posts/cr-s15-player.png",
+        "h": 210
       },
       {
         "t": "cue",
         "who": "Coach Sir",
         "avatar": "/avatars/coach.png",
-        "text": "Beta, teen din se video nahi aaya. Bhaag mat. Slump soch ka hota hai, technique ka nahi. Cement wicket yaad hai? Grip se shuru karte hain."
+        "when": {
+          "flag": {
+            "key": "deflected",
+            "gte": 1
+          }
+        },
+        "text": "Beta, statement PR ne likha — par 3 din se video nahi aaya, woh tu hai. Bhaag mat. Slump soch ka hota hai, technique ka nahi. Cement wicket yaad hai? Grip se shuru karte hain."
+      },
+      {
+        "t": "cue",
+        "who": "Coach Sir",
+        "avatar": "/avatars/coach.png",
+        "when": {
+          "flag": {
+            "key": "ownedIt",
+            "gte": 1
+          }
+        },
+        "text": "Beta, suna maine — galti tune khud maani. Nazrein milti rahengi, par form izzat se wapas nahi aati. 3 din se video nahi aaya. Cement wicket yaad hai? Grip se shuru karte hain."
       },
       {
         "t": "nar",
         "big": true,
-        "text": "Do crore ka Mumbai — tumhare paas sirf ek video call. Eliminator do din door. Slump kaise todte ho?"
+        "text": "Mirror mein trigger movement gayab; Rohit isi floor pe — knock kisi ne nahi kiya. 2 crore ka Mumbai, bas 1 video call: slump kaise todte ho?"
       }
     ],
     "choices": [
@@ -2588,7 +2523,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
         "reader": [
           {
             "t": "nar",
-            "text": "Subah 5:47. Knock. Peephole se dekho: Rohit Sharma. Training kit, haath mein coffee. \"Neeche gaadi hai. Paanch minute.\""
+            "text": "Subah 5:47 — knock. Peephole mein Rohit Sharma, training kit, coffee: \"Neeche gaadi. 5 minute.\" Khaali Wankhede — 33,000 seatein, 2 log."
           },
           {
             "t": "img",
@@ -2597,48 +2532,34 @@ export const CRICKET_SITUATIONS: Situation[] = [
           },
           {
             "t": "nar",
-            "text": "Marine Drive khaali. Wankhede aur bhi — 33,000 seatein, seagulls, ek bag balls. Sabse loud ground pe aaj sirf do log."
-          },
-          {
-            "t": "nar",
-            "text": "Clip wali raat tumne sabke saamne galti maani thi. Rohit tab chup tha. Yeh subah — yehi uska jawab hai.",
             "when": {
               "flag": {
                 "key": "ownedIt",
                 "gte": 1
               }
-            }
+            },
+            "text": "Clip wali raat tumne sabke saamne galti maani thi. Rohit tab chup tha. Yeh subah — yehi uska jawab hai."
           },
           {
             "t": "nar",
-            "text": "PR statement usse pasand nahi aaya — sabko pata hai. Phir bhi aaya. Rohit player nahi, problem dekhta hai.",
             "when": {
               "flag": {
                 "key": "deflected",
                 "gte": 1
               }
-            }
+            },
+            "text": "PR statement usse pasand nahi aaya — sabko pata hai. Phir bhi aaya. Rohit player nahi, problem dekhta hai."
           },
           {
             "t": "cue",
             "who": "Rohit",
             "avatar": "/avatars/rohit.png",
-            "text": "Teri problem shot nahi. Tu ball pe jaldi pahunch raha hai — tempo gaya hai. Baith. Pehle dekh main kya karta hoon."
-          },
-          {
-            "t": "nar",
-            "text": "Pandrah minute sirf leave. Har gend ko naam — \"boring\", \"good\", \"meri.\" Ek shot nahi. Phir bhi lagta hai batting dekh rahe ho."
-          },
-          {
-            "t": "cue",
-            "who": "Rohit",
-            "avatar": "/avatars/rohit.png",
-            "text": "Ab tu. Aur sun — ya mera bola karega, ya apna tareeka mujhe dikhayega. Dono chalega. Par decide abhi kar."
+            "text": "Teri problem shot nahi, tempo hai — tu ball pe jaldi pahunchta hai. 15 minute sirf leave, har gend ko naam — \"boring\", \"good\", \"meri\". Ya apna tareeka mujhe dikha. Dono chalega — decide abhi."
           },
           {
             "t": "nar",
             "big": true,
-            "text": "Khaali Wankhede. India ka sabse calm batsman tumhare liye 6 baje utha. Full surrender — ya apna tareeka?"
+            "text": "India ka sabse calm batsman sirf tumhare liye 6 baje utha. Full surrender — ya apna tareeka?"
           }
         ],
         "choices": [
@@ -2707,21 +2628,22 @@ export const CRICKET_SITUATIONS: Situation[] = [
     "tag": "⚡ DO NAAM, EK JAGAH · EVENING",
     "title": "Do Naam, Ek Jagah",
     "body": [
-      "Eliminator se ek raat pehle whiteboard pe middle order mein do naam: tumhara aur Naman ka. Poll 51-49 pe jhool raha hai, journalist 'inside story' maang raha hai, aur Mahela ka pen ruka hua hai."
+      "Eliminator se ek raat pehle whiteboard pe middle order mein 2 naam: tumhara aur Naman ka. Poll 51-49 pe jhool raha hai, journalist 'inside story' maang raha hai, aur Mahela ka pen ruka hua hai."
     ],
-    "q": "Slot ek hai. Naman ke saath — ya against?",
+    "q": "Slot 1 hai. Naman ke saath — ya against?",
     "reader": [
       {
         "t": "nar",
-        "text": "Team room, 7 baje. Whiteboard pe kal ka Eliminator plan. Middle order mein do naam, ek jagah: {name} / Naman."
+        "text": "Team room, 7 baje. Whiteboard pe kal ka Eliminator plan — 2 naam, 1 jagah: {name} / Naman. Phone ulta hai, phir bhi buzz: poll 51-49."
+      },
+      {
+        "t": "img",
+        "src": "/generated/cricket-posts/cr-s2-cricketroom.png",
+        "h": 210
       },
       {
         "t": "nar",
-        "text": "Phone ulta rakha hai. Phir bhi buzz aata hai. @futurexi ka poll — 'WHO STARTS THE ELIMINATOR?' 18,000 votes. 52-48. Refresh. 51-49."
-      },
-      {
-        "t": "nar",
-        "text": "Journalist ka DM: \"Bola tha na — XI ke liye aaye ho, wait karne nahi. Story doge?\" Woh line peecha nahi chhodti.",
+        "text": "Journalist ka DM: \"Bola tha na — XI ke liye aaye ho, wait karne nahi. Story doge?\"",
         "when": {
           "flag": {
             "key": "pressCocky",
@@ -2745,7 +2667,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
         "t": "cue",
         "who": "Naman",
         "avatar": "/avatars/naman.png",
-        "text": "Hey. Ajeeb hai na — same room, same sapna, ek jagah. Anyway. Nets aath baje hain.",
+        "text": "Hey. Ajeeb hai na — same room, same sapna, 1 jagah. Anyway. Nets 8 baje hain.",
         "when": {
           "charTrust": {
             "charId": "naman",
@@ -2768,12 +2690,8 @@ export const CRICKET_SITUATIONS: Situation[] = [
       },
       {
         "t": "nar",
-        "text": "Mahela board pe rukta hai. Dono naam dekhta hai. Kuch nahi likhta. Ruka hua pen — kamre ki sabse loud awaaz."
-      },
-      {
-        "t": "nar",
         "big": true,
-        "text": "Ek slot. Do solah saal ke sapne. Kal ek naam mit jaayega. Aaj raat kaunsa khel khelte ho?"
+        "text": "Mahela ka pen dono naamon pe ruka hai — 16 saal ke 2 sapne, kal 1 mitega. Aaj raat kaunsa khel khelte ho?"
       }
     ],
     "choices": [
@@ -2788,12 +2706,6 @@ export const CRICKET_SITUATIONS: Situation[] = [
           "hardik": 3,
           "tilak": 2
         },
-        "dmMission": {
-          "char": "naman",
-          "brief": "Naman se seedhi baat — jo bhi kal ho, pehle dosti. Usko clear bolo ki ek slot tum dono ke beech nahi aayega.",
-          "hint": "Seedha aur warm raho. Jealousy ka ek shabd nahi — yeh baat selection se badi hai.",
-          "flag": "clearedNaman"
-        },
         "dm": [
           {
             "char": "naman",
@@ -2801,7 +2713,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
           },
           {
             "char": "naman",
-            "text": "Ok sun — maine unke death bowler ka poora season dekha hai. 19th over: pehli teen gendein WIDE yorker, third man upar. Charge karne waalon ko woh wahi khilaata hai."
+            "text": "Ok sun — maine unke death bowler ka poora season dekha hai. 19th over: pehli 3 gendein WIDE yorker, third man upar. Charge karne waalon ko woh wahi khilaata hai."
           },
           {
             "char": "naman",
@@ -2855,7 +2767,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
             "handle": "futurexi",
             "avatarText": "F",
             "label": "Future XI · prospects",
-            "caption": "POLL 🗳️ WHO STARTS THE ELIMINATOR? {name} vs Naman Dhir — ek slot, do future stars. 24,318 votes aur counting. Comments open. Selectors bhi scroll karte hain. 👀",
+            "caption": "POLL 🗳️ WHO STARTS THE ELIMINATOR? {name} vs Naman Dhir — 1 slot, 2 future stars. 24,318 votes aur counting. Comments open. Selectors bhi scroll karte hain. 👀",
             "comments": [
               {
                 "text": "Naman bhi deserve karta hai. Jo bhi khele — MI jeete. 💙",
@@ -2890,7 +2802,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
     "feedReaction": {
       "A": {
         "char": "tilak",
-        "caption": "Do naam, ek jagah — aur dono aaj saath nets pe the. Yeh hota hai dressing room culture. 💙"
+        "caption": "2 naam, 1 jagah — aur dono aaj saath nets pe the. Yeh hota hai dressing room culture. 💙"
       },
       "B": {
         "char": "friend",
@@ -2908,11 +2820,12 @@ export const CRICKET_SITUATIONS: Situation[] = [
         "reader": [
           {
             "t": "nar",
-            "text": "Shaam, practice ground. Main squad udhar, Eliminator plan mein. Tum side nets pe — jahan aaj ek whiteboard hai. Uspe sirf: 64."
+            "text": "Shaam, side nets. Board pe sirf: 64. Doosri net pe Naman — kal tumhari jagah. Poll: 'SHOULD MI RECALL THE KID?' 19,000 votes."
           },
           {
-            "t": "nar",
-            "text": "Mahela ka number. Woh line jahan sheet opinion nahi, fact ban jaati hai. Wapsi ka darwaza number se khulta hai."
+            "t": "img",
+            "src": "/generated/cricket-posts/cr2-s12-net64.png",
+            "h": 210
           },
           {
             "t": "nar",
@@ -2928,11 +2841,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
             "t": "cue",
             "who": "Mahela",
             "avatar": "/avatars/mahela.png",
-            "text": "Sixty-four. Not a punishment — the line. Trial sim, ten overs, match fielders, real umpire. Show me an innings, not intent."
-          },
-          {
-            "t": "nar",
-            "text": "Doosri net pe Naman — kal tumhari jagah khelega. @futurexi ka poll: 'SHOULD MI RECALL THE KID?' 19,000 votes. Stand tumhe jaanta hai. Sheet abhi nahi."
+            "text": "64. Not a punishment — the line. Trial sim: 10 overs, match fielders, real umpire. Show me an innings, not intent."
           },
           {
             "t": "cue",
@@ -2961,13 +2870,13 @@ export const CRICKET_SITUATIONS: Situation[] = [
           {
             "t": "nar",
             "big": true,
-            "text": "Ek whiteboard, ek number, ek raat. 64 score nahi — wapsi ka darwaza hai. Kaunsa khel khelte ho?"
+            "text": "64 score nahi, wapsi ka darwaza hai — stand tumhe jaanta hai, sheet abhi nahi. Aaj raat kaunsa khel khelte ho?"
           }
         ],
         "choices": [
           {
             "t": "Naman ke saath prep — usko kal jitao",
-            "s": "Tumhara sim, uska match. Plan ek, sapne do.",
+            "s": "Tumhara sim, uska match. Plan 1, sapne 2.",
             "deltas": {
               "form": 2
             },
@@ -2976,12 +2885,6 @@ export const CRICKET_SITUATIONS: Situation[] = [
               "hardik": 3,
               "tilak": 2
             },
-            "dmMission": {
-              "char": "naman",
-              "brief": "Naman se seedhi baat — jo bhi kal ho, pehle dosti. Bolo ki uska debut tumhari haar nahi hai.",
-              "hint": "Seedha, warm, zero jealousy. Woh tumhari jagah khel raha hai — aur phir bhi dost hai.",
-              "flag": "clearedNaman"
-            },
             "dm": [
               {
                 "char": "naman",
@@ -2989,7 +2892,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
               },
               {
                 "char": "naman",
-                "text": "Le, return gift — unka death bowler: 19th over pehli teen gendein wide yorker, third man upar. Charge mat karna uspe. Kabhi."
+                "text": "Le, return gift — unka death bowler: 19th over pehli 3 gendein wide yorker, third man upar. Charge mat karna uspe. Kabhi."
               },
               {
                 "char": "naman",
@@ -3085,13 +2988,13 @@ export const CRICKET_SITUATIONS: Situation[] = [
     "tag": "⚡ ELIMINATOR · NIGHT",
     "title": "Aakhri Gend Tak",
     "body": [
-      "Eliminator. Chase 168 — 11th over mein wicket girta hai aur dugout ka ishara tumhara hai. Do over baad board simple: 52 chahiye, 30 gendein. Aur stand mein selectors baithe hain."
+      "Eliminator. Chase 168 — 11th over mein wicket girta hai aur dugout ka ishara tumhara hai. 2 over baad board simple: 52 chahiye, 30 gendein. Aur stand mein selectors baithe hain."
     ],
     "q": "52 off 30. Kaise le jaate ho?",
     "reader": [
       {
         "t": "nar",
-        "text": "Eliminator. Wankhede full — 33,000 log, sab khade. Chase 168. MI 89/4, 11th over mein wicket. Dugout ka ishara: tumhara."
+        "text": "Eliminator. Wankhede full — 33,000 khade. Chase 168, MI 89/4 — ishara tumhara. Unka wide-yorker specialist 2 over bachaye baitha hai."
       },
       {
         "t": "img",
@@ -3100,7 +3003,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       },
       {
         "t": "nar",
-        "text": "Do hafte bench. Ek whiteboard ka number. Ab yeh walk. Recall 22 gaz pe hota hai. Crowd ko yaad hai tum kaun ho.",
+        "text": "2 hafte bench, ek whiteboard ka number — ab yeh walk. Recall 22 gaz pe hota hai. Crowd ko yaad hai tum kaun ho.",
         "when": {
           "flag": {
             "key": "recalled",
@@ -3110,20 +3013,16 @@ export const CRICKET_SITUATIONS: Situation[] = [
       },
       {
         "t": "nar",
-        "text": "Hardik ne toss pe camera ke saamne bola tha: \"Kid khelega. Mera call.\" Uska word ab tumhare bat mein hai.",
+        "text": "Toss pe Hardik ne camera pe bola tha: \"Kid khelega. Mera call.\" Uska word ab tumhare bat mein hai.",
         "when": {
           "lifeline": true
         }
       },
       {
-        "t": "nar",
-        "text": "Do over dekhte ho, singles kheenchte ho. Phir board simple: 52 chahiye, 30 gendein. Unka wide-yorker specialist do over bachaye baitha hai."
-      },
-      {
         "t": "cue",
         "who": "Naman",
         "avatar": "/avatars/naman.png",
-        "text": "(rope se, drinks leke bhaagte hue) WIDE YORKER! Pehli teen! Ruk ke khel — deep point khula hai!",
+        "text": "(rope se, drinks leke) WIDE YORKER! Pehli 3! Ruk ke khel — deep point khula hai!",
         "when": {
           "charTrust": {
             "charId": "naman",
@@ -3133,7 +3032,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       },
       {
         "t": "nar",
-        "text": "Rohit ne bola tha — \"dono chalega, par decide kar.\" Tumne apna tareeka chuna. Aaj woh 33,000 ke saamne exam dega.",
+        "text": "Rohit ne bola tha: \"dono chalega, par decide kar.\" Tumne apna tareeka chuna — aaj uska exam 33,000 ke saamne hai.",
         "when": {
           "flag": {
             "key": "ownMethod",
@@ -3142,15 +3041,9 @@ export const CRICKET_SITUATIONS: Situation[] = [
         }
       },
       {
-        "t": "cue",
-        "who": "Hardik",
-        "avatar": "/avatars/hardik.png",
-        "text": "Scoreboard mat dekh. Meri aankh dekh. Hum yahan se jeet rahe hain — sawaal sirf ek hai: kaise."
-      },
-      {
         "t": "nar",
         "big": true,
-        "text": "52 off 30. Poora season, 30 gendein. Selectors stand mein. India ki list teen din mein. Kaise khelte ho?"
+        "text": "52 off 30 — poora season, selectors stand mein, India ki list 3 din mein. Hardik ki aankh: hum yahan se jeet rahe hain, sawaal ek — kaise?"
       }
     ],
     "choices": [
@@ -3182,7 +3075,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
           ],
           "pass": {
             "title": "ELIMINATOR JEET LIYA",
-            "note": "Aakhri over, 8 chahiye. Wide yorker aayi — wahi jo plan mein likhi thi. Third man upar tha, deep point khula. Tum ruke, khela, doosri gend pe boundary. 61 not out. Wankhede ka shor abhi tak kaano mein hai.",
+            "note": "Aakhri over, 8 chahiye. Wide yorker aayi — wahi jo plan mein likhi thi. Third man upar tha, deep point khula. Tum ruke, khela, 2nd gend pe boundary. 61 not out. Wankhede ka shor abhi tak kaano mein hai.",
             "post": {
               "source": "account",
               "name": "MI Paltan",
@@ -3190,7 +3083,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
               "avatarText": "MI",
               "label": "MI Paltan · just now",
               "surface": "scorecard",
-              "caption": "ELIMINATOR ✅ MI 169/5 (19.4). {name} 61* — solah saal ka ladka aakhri gend tak khada raha. Season zinda hai. 💙 #OneFamily",
+              "caption": "ELIMINATOR ✅ MI 169/5 (19.4). {name} 61* — 16 saal ka ladka aakhri gend tak khada raha. Season zinda hai. 💙 #OneFamily",
               "reactions": [
                 {
                   "char": "hardik",
@@ -3227,7 +3120,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       },
       {
         "t": "Counter-attack — abhi maaro",
-        "s": "Pressure ulta karo. Do over mein match unke haath se cheen lo.",
+        "s": "Pressure ulta karo. 2 over mein match unke haath se cheen lo.",
         "deltas": {
           "form": 2,
           "fame": 3
@@ -3283,7 +3176,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
           },
           "fail": {
             "title": "Ek Shot Zyada",
-            "note": "Teesri hi gend pe wide yorker ko charge kar diya. Third man upar tha — sab jaante the. Top edge, keeper ke haath. Chase wahin toot gaya. Walk back mein 33,000 log chup the.",
+            "note": "3rd gend pe hi wide yorker ko charge kar diya. Third man upar tha — sab jaante the. Top edge, keeper ke haath. Chase wahin toot gaya. Walk back mein 33,000 log chup the.",
             "dm": [
               {
                 "char": "hardik",
@@ -3319,11 +3212,16 @@ export const CRICKET_SITUATIONS: Situation[] = [
         "reader": [
           {
             "t": "nar",
-            "text": "Eliminator. Tum khel nahi rahe. Bib pehne, rope pe paani leke bhaagte hue. Crowd XI ke naam chilla raha hai. Tumhara nahi."
+            "text": "Eliminator. Tum khel nahi rahe — bib pehne, rope pe paani leke bhaagte hue. Crowd XI ke naam chilla raha hai. Tumhara nahi."
+          },
+          {
+            "t": "img",
+            "src": "/generated/cricket-posts/cr-s27-player.png",
+            "h": 210
           },
           {
             "t": "nar",
-            "text": "Defense: unhe 24 chahiye, 17 gendein, 5 wicket baaki. Time-out. Hardik huddle se nikalta hai — seedha bench ki taraf. Tumhari taraf."
+            "text": "Defense: unhe 24 chahiye, 17 gendein, 5 wicket baaki. Time-out — Hardik huddle se nikalta hai, seedha bench ki taraf. Tumhari taraf."
           },
           {
             "t": "cue",
@@ -3333,7 +3231,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
           },
           {
             "t": "nar",
-            "text": "Trade rumor ke baad captain ne tumse shayad das shabd bole hain. Yeh gyaarahwan sawaal ek darwaza hai.",
+            "text": "Trade rumor ke baad captain ne tumse shayad 10 shabd bole hain. Yeh 11th sawaal ek darwaza hai.",
             "when": {
               "flag": {
                 "key": "tradeNoise",
@@ -3343,12 +3241,8 @@ export const CRICKET_SITUATIONS: Situation[] = [
           },
           {
             "t": "nar",
-            "text": "Mahela clipboard leke peeche khada hai, likhne ko taiyaar. Broadcast camera bhi bench pe hai — woh bhi sun raha hai, apne tareeke se."
-          },
-          {
-            "t": "nar",
             "big": true,
-            "text": "Aaj bat nahi bolega. Cricket dimaag 30 second mein bol sakta hai — ya hamesha ke liye chup. Kya karte ho?"
+            "text": "Aaj bat nahi bolega. Mahela likhne ko taiyaar, broadcast camera bench pe — cricket dimaag 30 second mein bolega, ya hamesha ke liye chup?"
           }
         ],
         "choices": [
@@ -3426,13 +3320,13 @@ export const CRICKET_SITUATIONS: Situation[] = [
     "tag": "⚡ THE VERDICT · EVENING",
     "title": "The Verdict",
     "body": [
-      "Squad announcement — India A aur T20I list, 6 baje. Abhi 3:47 hai, phone pe 89 notifications, aur Hardik us kamre mein hai jahan list banti hai. Do ghante. Kahan bitaoge?"
+      "Squad announcement — India A aur T20I list, 6 baje. Abhi 3:47 hai, phone pe 89 notifications, aur Hardik us kamre mein hai jahan list banti hai. 2 ghante. Kahan bitaoge?"
     ],
     "q": "6 baje list aati hai. Tab tak kahan ho?",
     "reader": [
       {
         "t": "nar",
-        "text": "Day 11. India A aur T20I list, 6 baje. Abhi 3:47, phone pe 89 notifications. Hardik us kamre mein hai jahan list banti hai."
+        "text": "Day 11. India A aur T20I list — 6 baje. Abhi 3:47, phone pe 89 notifications. Hardik us kamre mein hai jahan list banti hai."
       },
       {
         "t": "img",
@@ -3441,7 +3335,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       },
       {
         "t": "nar",
-        "text": "Kal ka knock har highlight package mein chal raha hai. 'ELIMINATOR' ab tumhare naam ke saath chipak gaya hai.",
+        "text": "Kal ka knock har highlight package mein hai. 'ELIMINATOR' ab tumhare naam se chipak gaya hai.",
         "when": {
           "gate": {
             "sitId": "CR2-S13",
@@ -3451,7 +3345,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       },
       {
         "t": "nar",
-        "text": "Kal ki haar abhi seene mein hai. Timeline aage badh gayi. Selectors haar mein bhi ladai dekhte hain. Shayad.",
+        "text": "Kal ki haar abhi seene mein hai. Par selectors haar mein bhi ladai dekhte hain. Shayad.",
         "when": {
           "gate": {
             "sitId": "CR2-S13",
@@ -3460,52 +3354,10 @@ export const CRICKET_SITUATIONS: Situation[] = [
         }
       },
       {
-        "t": "nar",
-        "text": "Kal bat se nahi, dimaag se match jitaya. Aaj pata chalega selectors ne broadcast pe kya dekha — bib ya brain.",
-        "when": {
-          "flag": {
-            "key": "benchImpact",
-            "gte": 1
-          }
-        }
-      },
-      {
-        "t": "cue",
-        "who": "Maddy",
-        "avatar": "/avatars/friend.png",
-        "text": "BRO. 6 BAJE. Teen YouTube channels khole hain aur ek astrology stream. MAIN nervous hoon aur main list mein bhi nahi.",
-        "when": {
-          "charTrust": {
-            "charId": "friend",
-            "gte": 60
-          }
-        }
-      },
-      {
-        "t": "nar",
-        "text": "Ek purani cheez bhi list ke saath travel karti hai — woh trade rumor. Selectors ne woh bhi padha tha.",
-        "when": {
-          "flag": {
-            "key": "tradeNoise",
-            "gte": 1
-          }
-        }
-      },
-      {
-        "t": "nar",
-        "text": "Aur woh 'sources' wali story — dressing room shayad bhool gaya ho. Selection room kabhi nahi bhoolta.",
-        "when": {
-          "flag": {
-            "key": "briefedPress",
-            "gte": 1
-          }
-        }
-      },
-      {
         "t": "cue",
         "who": "Coach Sir",
         "avatar": "/avatars/coach.png",
-        "text": "Beta. Jo bhi ho aaj — gyaarah saal ka tha tu jab bola tha yeh din aayega. Din aa gaya. Baaki formality hai.",
+        "text": "Beta. 11 saal ka tha tu jab bola tha — yeh din aayega. Din aa gaya. Baaki formality hai.",
         "when": {
           "charTrust": {
             "charId": "coach",
@@ -3514,21 +3366,63 @@ export const CRICKET_SITUATIONS: Situation[] = [
         }
       },
       {
+        "t": "nar",
+        "when": {
+          "flag": {
+            "key": "benchImpact",
+            "gte": 1
+          }
+        },
+        "text": "Kal bat se nahi, dimaag se match jitaya. Aaj pata chalega selectors ne broadcast pe kya dekha — bib, ya brain."
+      },
+      {
+        "t": "nar",
+        "when": {
+          "flag": {
+            "key": "briefedPress",
+            "gte": 1
+          }
+        },
+        "text": "Aur woh 'sources' wali story? Dressing room shayad bhool jaye. Selection room kabhi nahi bhoolta."
+      },
+      {
+        "t": "nar",
+        "when": {
+          "flag": {
+            "key": "tradeNoise",
+            "gte": 1
+          }
+        },
+        "text": "1 purani cheez list ke saath travel karti hai — woh trade rumor. Selectors ne woh bhi padha tha."
+      },
+      {
+        "t": "cue",
+        "who": "Maddy",
+        "avatar": "/avatars/friend.png",
+        "when": {
+          "charTrust": {
+            "charId": "friend",
+            "gte": 60
+          }
+        },
+        "text": "BRO. 6 BAJE. 3 YouTube channels khole hain aur 1 astrology stream. MAIN nervous hoon aur main list mein bhi nahi 😭"
+      },
+      {
         "t": "cue",
         "who": "Rohit",
         "avatar": "/avatars/rohit.png",
-        "text": "List se pehle ek baat. Jo is season seekha, woh kisi list mein nahi aata. Woh tere paas reh gaya.",
         "when": {
           "charTrust": {
             "charId": "rohit",
             "gte": 55
           }
-        }
+        },
+        "text": "List se pehle 1 baat. Jo is season seekha, woh kisi list mein nahi aata. Woh tere paas reh gaya."
       },
       {
         "t": "nar",
         "big": true,
-        "text": "Do ghante. Ek list. Solah saal ka sabse lamba intezaar. Kahan bitaoge?"
+        "text": "2 ghante, 1 list — 16 saal ka sabse lamba intezaar. Kahan bitaoge?"
       }
     ],
     "choices": [

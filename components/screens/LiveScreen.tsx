@@ -6,7 +6,7 @@ import { getVisibleSituations } from '@/lib/ch-rules'
 import { getCricketChars, getCricketSituations, getCricketEndingData, getCricketDMTrustStart, getCHChars } from '@/lib/content'
 import { resolveCricketEnding } from '@/lib/cricket-rules'
 import { captainTrust, trustGateThreshold } from '@/lib/cricket-selection'
-import { resolveGateOutcome, resolveSituationVariant, variantCtxFor } from '@/lib/variants'
+import { resolveGateOutcome, resolveSituationVariant, resolveVariantIndex, variantCtxFor } from '@/lib/variants'
 import { getWeek, weekForSituationId, SEASON_WEEKS } from '@/lib/season'
 import { getStats, clamp, resolveEnding, resolveTokens, fameToFollowers, chCharForGender, asCricket, crushId } from '@/lib/game'
 import { sentimentDelta, computeBond } from '@/lib/relationships'
@@ -139,9 +139,13 @@ export default function LiveScreen() {
   const situation = game.situation
   const queue = game.situationQueue
   const rawSit = queue[situation] ? allSituations[queue[situation]] ?? null : null
-  const sit = rawSit && isCricket
-    ? resolveSituationVariant(rawSit, variantCtxFor(game, dmTrust, weekForSituationId(rawSit.id)))
-    : rawSit
+  const variantCtx = rawSit && isCricket ? variantCtxFor(game, dmTrust, weekForSituationId(rawSit.id)) : null
+  const sit = rawSit && variantCtx ? resolveSituationVariant(rawSit, variantCtx) : rawSit
+  // Which variant resolved (−1 = base). The reveal machine must re-arm when this
+  // changes: a selection verdict landing mid-beat (SEL ceremony) swaps the beat's
+  // reader without changing its id — a stale id-keyed effect kept showing the
+  // base scene with the variant's choices.
+  const variantKey = rawSit && variantCtx ? resolveVariantIndex(rawSit, variantCtx) : -1
   const isFinale = situation >= queue.length
 
   // Day-lock disabled for user testing (restore check for prod)
@@ -296,7 +300,8 @@ export default function LiveScreen() {
     readerCtlRef.current = { revealNext, finishTyping }
     init = setTimeout(revealNext, 550)
     return () => { if (tw) clearInterval(tw); if (dwell) clearTimeout(dwell); if (auto) clearTimeout(auto); if (init) clearTimeout(init) }
-  }, [displaySit?.id, isCricket, chosen, game.playerName, game.playerGender])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [displaySit?.id, variantKey, isCricket, chosen, game.playerName, game.playerGender])
 
   // Effective react — derived from displaySit so it stays pinned during post-choice flow
   const effectiveReact = displaySit ? displaySit.react : null

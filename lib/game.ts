@@ -150,7 +150,9 @@ export async function loadGameState(): Promise<GameState> {
     benchedWeeks: Array.isArray(extra.benchedWeeks) ? (extra.benchedWeeks as number[]) : undefined,
     gateResults: (extra.gateResults as GameState['gateResults']) ?? undefined,
     variantSeen: (extra.variantSeen as GameState['variantSeen']) ?? undefined,
-    activeMission: (extra.activeMission as GameState['activeMission']) ?? null,
+    // DM missions are parked (no beat authors one since Jul 2026) — drop any
+    // stale persisted mission so old saves don't show an uncompletable pinned card.
+    activeMission: null,
     pendingEviction: typeof extra.pendingEviction === 'string' ? extra.pendingEviction : null,
     evictionsSeen: Array.isArray(extra.evictionsSeen) ? (extra.evictionsSeen as string[]) : undefined,
     evicted: Array.isArray(extra.evicted) ? (extra.evicted as string[]) : undefined,
