@@ -385,7 +385,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
     "day": 2,
     "slot": "Evening",
     "tag": "⚡ MEDIA ROOM · EVENING",
-    "title": "Pehla Presser",
+    "title": "Pehli Press Conference",
     "body": [
       "Pehli official press conference — 11 mics, sponsor board, bagal mein Naman Dhir: same age, same lane, XI mein ek hi jagah.",
       "Pehla sawaal seedha chest pe: \"Kya tum is season MI ki XI deserve karte ho?\" Jo bologe, woh clip banega."
@@ -394,17 +394,22 @@ export const CRICKET_SITUATIONS: Situation[] = [
     "reader": [
       {
         "t": "nar",
-        "text": "MI media room. Ring lights, sponsor board, gyarah mics, tumhare naam ka placard. Zindagi ki pehli press conference."
+        "text": "MI media room. Ring lights, sponsor boards, 11 mics — beech mein tumhare naam ka placard. Zindagi ki pehli press conference."
+      },
+      {
+        "t": "img",
+        "src": "/generated/cricket-posts/cr2-s3-presser.png",
+        "h": 210
       },
       {
         "t": "nar",
-        "text": "Bagal mein naya chehra — Naman Dhir. Same age. Same middle-order lane. Do naam, XI mein shayad ek jagah."
+        "text": "Bagal mein Naman Dhir. Same age, same middle-order lane. 2 naam, XI mein 1 jagah."
       },
       {
         "t": "cue",
         "who": "Naman",
         "avatar": "/avatars/naman.png",
-        "text": "Nervous? Main bhi tha. Free advice — headline mat ban na. Is kamre ki sabse aasan galti wahi hai."
+        "text": "Nervous? Main bhi tha. Free advice — headline mat ban na."
       },
       {
         "t": "nar",
@@ -414,20 +419,16 @@ export const CRICKET_SITUATIONS: Situation[] = [
             "gte": 1
           }
         },
-        "text": "Front row reporter ke phone pe tumhara clip khula hai. Woh muskura raha hai. Sawaal kal raat se ready hai."
+        "text": "Front row mein reporter ke phone pe tumhara clip chal raha hai. Sawaal kal raat se ready hai."
       },
       {
         "t": "nar",
-        "text": "Pehla sawaal seedha chest pe: \"Solah saal. Crores mein bike ho. Is season MI ki XI deserve karte ho?\""
-      },
-      {
-        "t": "nar",
-        "text": "Kamre ki saari lenses tum pe ghoom jaati hain. Naman ki nazar bhi."
+        "text": "Pehla sawaal seedha chest pe: \"16 saal. Crores mein bike ho. Kya tum MI ki XI deserve karte ho?\""
       },
       {
         "t": "nar",
         "big": true,
-        "text": "Agle 30 second clip banenge — aur clip context yaad nahi rakhta. Headline tum likhoge, ya headline tumhe?"
+        "text": "Agle 30 second clip banenge. Headline tum likhoge — ya headline tumhe?"
       }
     ],
     "choices": [
@@ -449,7 +450,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
           },
           {
             "char": "hardik",
-            "text": "Aise hi khelte hain yeh game — bat se shor, mic pe seedha. Role pe baat jaldi hogi. Tayyar rehna, sawaal easy nahi hoga."
+            "text": "Bat se shor, mic pe seedha — aise hi khelte hain. Role pe baat jaldi hogi. Tayyar rehna."
           }
         ]
       },
@@ -497,7 +498,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
           {
             "source": "character",
             "char": "naman",
-            "caption": "Slot ek hai. Kaam bolega. 🏏",
+            "caption": "Slot 1 hai. Kaam bolega. 🏏",
             "reactions": [
               {
                 "char": "__fan",
@@ -543,7 +544,8 @@ export const CRICKET_SITUATIONS: Situation[] = [
     "feedReaction": {
       "A": {
         "char": "naman",
-        "caption": "Press room mein do naye naam the aaj. Slot ek hai. Kaam bolega. 🤝"
+        "caption": "Press room mein 2 naye naam the aaj. Slot 1 hai. Kaam bolega. 🤝",
+        "imageUrl": "/generated/cricket-posts/cr-s4-player.png"
       },
       "B": {
         "char": "friend",
