@@ -163,14 +163,14 @@ export function deriveOvernightPosts(game: GameState): FeedPost[] {
   // After SEL-W1 (week 2 open): the sheet verdict is public news.
   if (week >= 2 && sel['SEL-W1']) {
     if (sel['SEL-W1'] === 'started') mk('paltanpulse', 'w1', `TEAM SHEET OUT: 16 saal ka debut aaj raat Wankhede pe. No.5 — ${name}. Neend kis kis ki udi? 🔥`, '/generated/cricket-posts/cr2-s5-sheet.png')
-    else if (sel['SEL-W1'] === 'lifeline') mk('cricketroom', 'w1', `Sources: coaching room ne form sheet dikhayi, captain ne apna naam. Aaj raat ka No.5 — ${name} — Hardik ki personal call hai.`)
+    else if (sel['SEL-W1'] === 'lifeline') mk('cricketroom', 'w1', `Sources: coaching room ne form sheet dikhayi, captain ne apna naam. Aaj raat ka No.5 — ${name} — Hardik ki personal call hai.`, '/generated/cricket-posts/cr2-s5-selection.png')
     else mk('paltanpulse', 'w1', `WHERE IS ${name.toUpperCase()}?? MI buys a prodigy and BENCHES him?? #JusticeFor${name.replace(/\s+/g, '')} 😤`, '/generated/cricket-posts/cr-s27-player.png')
   }
   // After the debut gate (S7) resolves and week 3 opens: the knock is history.
   if (week >= 3 && gates['CR2-S7']) {
     if (gates['CR2-S7'] === 'pass') mk('paltanpulse', 'w2', `${rm.debutRuns ?? 40}(${rm.debutBalls ?? 26})${sel['SEL-W1'] === 'benched' ? ' AS A SUB' : ' ON DEBUT'}. Okay MI, hum dekh rahe hain 💙 Ab isse XI se bahar mat karna.`, '/generated/cricket-posts/cr-s25-pass.png')
-    else mk('memeovers', 'w2', `debut ${rm.debutRuns ?? 12}(${rm.debutBalls ?? 14}) — hype train ka pehla station aa gaya. utarna hai kisi ko? 💀`)
-    if (sel['SEL-W2'] === 'benched') mk('cricketroom', 'w2b', `Week 2 sheet: ${name} OUT. Storm ke baad ki khamoshi hamesha zyada loud hoti hai. Eliminator se pehle wapas aana hoga — form 64 ka raasta nets se jaata hai.`)
+    else mk('memeovers', 'w2', `debut ${rm.debutRuns ?? 12}(${rm.debutBalls ?? 14}) — hype train ka pehla station aa gaya. utarna hai kisi ko? 💀`, '/generated/cricket-posts/cr-s25-fail.png')
+    if (sel['SEL-W2'] === 'benched') mk('cricketroom', 'w2b', `Week 2 sheet: ${name} OUT. Storm ke baad ki khamoshi hamesha zyada loud hoti hai. Eliminator se pehle wapas aana hoga — form 64 ka raasta nets se jaata hai.`, '/generated/cricket-posts/cr2-s12-net64.png')
   }
   return out
 }
