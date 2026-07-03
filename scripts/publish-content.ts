@@ -6,7 +6,7 @@
  * fetch fallback) and updates the manifest's cricket entry. Runs on `prebuild` so
  * the JSON can't drift from the TS.
  *
- * CREATOR HOUSE: authored DIRECTLY in public/content/creator-house-v2.json (the
+ * CREATOR HOUSE: authored DIRECTLY in public/content/creator-house-vN.json (see manifest) (the
  * cinematic reader[] rewrite happened in the JSON; lib/data.ts is stale legacy and
  * MUST NOT be published — regenerating from it would stomp the live story). This
  * script therefore leaves the CH file alone and PRESERVES the existing manifest
