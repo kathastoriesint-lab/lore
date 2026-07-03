@@ -62,9 +62,8 @@ function extractToken(d: unknown): string {
 }
 
 // MSG91 hands its failure callbacks an OBJECT ({message,type,...}), not a string;
-// pull the real message out (and log the raw payload) so the reason is visible.
+// pull the real message out so the reason is visible in the UI.
 function errText(e: unknown, fallback: string): string {
-  if (typeof window !== 'undefined') console.error('[msg91]', e)
   if (typeof e === 'string') return e || fallback
   const o = (e ?? {}) as Record<string, unknown>
   const data = (o.data ?? {}) as Record<string, unknown>

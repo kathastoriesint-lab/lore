@@ -130,7 +130,7 @@ export default function DMInboxScreen() {
           const lastMsg = hasMessages ? history[history.length - 1].text : null
           const isMission = game.activeMission?.char === charId
           const preview = isMission
-            ? '📌 Story mission — baat shuru karo'
+            ? '📌 STORY MISSION — baat shuru karo'
             : lastMsg
               ? (lastMsg.length > 42 ? lastMsg.slice(0, 42) + '…' : lastMsg)
               : CHAR_SUBTEXT[charId] ?? char.role.split(' · ')[0]

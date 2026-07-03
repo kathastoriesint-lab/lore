@@ -26,6 +26,7 @@ interface Props {
 export default function CommentComposer({ character, post, onDone }: Props) {
   const { notifyDM, game } = useApp()
   const [suggestions, setSuggestions] = useState<string[]>([])
+  const [suggestState, setSuggestState] = useState<'loading' | 'ready' | 'empty'>('loading')
   const [draft, setDraft] = useState('')
   const [sent, setSent] = useState(false)
   const persona = (() => {
@@ -43,8 +44,13 @@ export default function CommentComposer({ character, post, onDone }: Props) {
       body: JSON.stringify({ mode: 'comment-suggest', character: { name: character.name, persona }, caption: post.caption }),
     })
       .then(r => (r.ok ? r.json() : null))
-      .then(d => { if (alive && Array.isArray(d?.suggestions)) setSuggestions(d.suggestions) })
-      .catch(() => {})
+      .then(d => {
+        if (!alive) return
+        const sug = Array.isArray(d?.suggestions) ? d.suggestions : []
+        setSuggestions(sug)
+        setSuggestState(sug.length ? 'ready' : 'empty')
+      })
+      .catch(() => { if (alive) setSuggestState('empty') })
     return () => { alive = false }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -82,9 +88,11 @@ export default function CommentComposer({ character, post, onDone }: Props) {
   return (
     <div className="comment-sheet">
       <div className="comment-sheet-label">Comment on @{character.handle}&apos;s post</div>
-      {suggestions.length === 0
+      {suggestState === 'loading'
         ? <div className="comment-option" style={{ opacity: .55 }}>AI suggestions aa rahe hain…</div>
-        : suggestions.map((s, i) => <button key={i} className="comment-option" onClick={() => send(s)}>{s}</button>)}
+        : suggestState === 'empty'
+          ? <div className="comment-option" style={{ opacity: .55 }}>Apna comment neeche likho 👇</div>
+          : suggestions.map(s => <button key={s} className="comment-option" onClick={() => send(s)}>{s}</button>)}
       <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
         <input
           value={draft}

@@ -45,7 +45,7 @@ export default function OnboardingScreen() {
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: 'var(--bg)', fontFamily: 'var(--sans)' }}>
 
       {/* scrollable body */}
-      <div className="scroll" style={{ flex: 1 }}>
+      <div className="scroll" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
 
         {/* ===== HERO — ambient cross-fade loop (same as Login) ===== */}
         <div style={{ position: 'relative', height: 268, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '0 28px', overflow: 'hidden' }}>
@@ -76,8 +76,8 @@ export default function OnboardingScreen() {
           <div style={{ position: 'relative', fontSize: 14.5, color: 'var(--ink2)', marginTop: 6, lineHeight: 1.45 }}>Live in any world you want.</div>
         </div>
 
-        {/* ===== FORM ===== */}
-        <div style={{ padding: '26px 28px 28px' }}>
+        {/* ===== FORM — centred in the space between hero and CTA ===== */}
+        <div style={{ padding: '26px 28px 28px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
           <div style={{ ...eyebrow, marginBottom: 10 }}>YOUR NAME</div>
           <input
             value={name}

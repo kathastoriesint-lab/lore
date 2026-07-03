@@ -563,8 +563,8 @@ export default function FeedScreen() {
         <div className="feed-live" style={isCricket ? { color: '#FFB020' } : {}}>
           <div className="pulse" style={isCricket ? { background: '#FFB020' } : {}} />
           {isCricket
-            ? `LIVE — IPL Season 1 · Mumbai Indians · Situation ${game.situation + 1}`
-            : 'LIVE — Day 1 of 10 · 6 creators just arrived'}
+            ? `LIVE — MUMBAI INDIANS · WEEK ${game.week ?? 1} OF 3`
+            : `LIVE — CREATOR HOUSE · DAY ${Math.min(10, Math.ceil((game.situation + 1) / 3))} OF 10`}
         </div>
       </div>
 

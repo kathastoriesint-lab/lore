@@ -118,7 +118,7 @@ export default function SelectionScreen() {
       {phase === 'verdict' && (
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', position: 'relative' }}>
           <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.16em', color: 'var(--ink3)' }}>WEEK {sel.week} · {sel.verdict === 'benched' ? 'NOT IN THE XI' : 'IN THE XI'}</div>
-          <div style={{ fontFamily: 'var(--serif)', fontSize: 44, fontWeight: 600, color: verdictColor, marginTop: 14, textAlign: 'center', lineHeight: 1.05 }}>
+          <div style={{ fontFamily: 'var(--serif)', fontSize: 42, fontWeight: 600, color: verdictColor, marginTop: 14, textAlign: 'center', lineHeight: 1.15, padding: '0 12px' }}>
             {verdictWord}
           </div>
           {sel.verdict === 'lifeline' && (

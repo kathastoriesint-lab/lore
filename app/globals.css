@@ -64,7 +64,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
   position:relative;z-index:5}
 .icon-btn{width:44px;height:44px;display:grid;place-items:center;border-radius:50%}
 .icon-btn:active{background:rgba(255,255,255,.06)}
-.badge-num{position:absolute;top:2px;right:2px;min-width:16px;height:16px;padding:0 4px;
+.badge-num{position:absolute;top:-3px;right:-4px;min-width:16px;height:16px;padding:0 4px;
   background:var(--accent);color:#fff;border-radius:9px;font-size:9px;font-weight:800;
   display:grid;place-items:center;border:2px solid var(--bg)}
 
@@ -108,8 +108,9 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 @keyframes loreSpin{to{transform:rotate(360deg)}}
 @keyframes loFade{from{opacity:0}to{opacity:1}}
 @keyframes loSheetUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
-.lo-press{transition:transform var(--t-press) var(--ease-out)}
+.lo-press{transition:transform var(--t-press) var(--ease-out),filter var(--t-press) var(--ease-out)}
 .lo-press:active{transform:scale(.97)}
+@media(hover:hover){.lo-press:hover{filter:brightness(1.08)}}
 .logo{font-family:var(--serif);font-weight:600;font-size:26px;line-height:1;letter-spacing:-.01em}
 .logo-sub{font-size:11px;color:var(--ink3);padding-bottom:3px}
 .hero-tag{padding:14px 24px 4px}
@@ -637,7 +638,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .dm-daypill{font-size:10px;font-weight:800;letter-spacing:.09em;color:var(--accent);background:var(--accent-wash);border:1px solid var(--accent-ring);padding:4px 13px;border-radius:999px}
 .dm-daynote{font-size:11.5px;font-weight:600;color:var(--rose)}
 /* Per-message in-story timestamp, tucked under the bubble on its side. */
-.dm-time{font-size:10px;color:var(--ink3);align-self:flex-start;margin:1px 4px 0}
+.dm-time{font-size:11px;color:var(--ink2);align-self:flex-start;margin:1px 4px 0}
 .dm-time.out{align-self:flex-end}
 .typing{align-self:flex-start;background:#1c1c1f;border-radius:18px;border-bottom-left-radius:5px;padding:13px 16px;display:flex;gap:4px}
 .typing i{width:7px;height:7px;border-radius:50%;background:var(--ink2);animation:typing 1.2s infinite}
