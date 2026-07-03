@@ -4,11 +4,11 @@ import type { AiPost, CharId, DMMessage, GameState, Reaction, Screen, Situation 
 import { AppContext, ImpactNotif, RelationshipAlert } from '@/lib/context'
 import {
   applyDeltas, applyFlagDeltas, charMeters, ensureSession, getAIReply, scoreTrustDelta,
-  loadDMs, loadGameState, recordChoice, resetGameState, saveDM, saveGameState,
+  loadAllDMs, loadDMs, loadGameState, recordChoice, resetGameState, saveDM, saveGameState,
   fameToFollowers, DEFAULT_FLAGS, buildCricketQueue, buildCHQueue, asCricket, chCharForGender,
 } from '@/lib/game'
 import { getVisibleSituations } from '@/lib/ch-rules'
-import { stampTime, type DMTimeMeta } from '@/lib/dm-time'
+import { stampTime, phaseFromTag, type DMTimeMeta } from '@/lib/dm-time'
 import { getCricketChars, getCricketDMTrustStart, getCricketSituations, initContent, getCHChars, getCHSituations, getCHDMMock, getCHDMHooks, getCHDMOrder, getCHDMTrust } from '@/lib/content'
 import WorldsScreen from '@/components/screens/WorldsScreen'
 import WorldIntroScreen from '@/components/screens/WorldIntroScreen'
@@ -194,6 +194,28 @@ export default function App() {
         analytics.track('session_started', null, { authed: !!session })
         const s = await loadGameState()
         hydrateProgress(s)
+        // Hydrate all DM threads up front: previews render, threads open, and
+        // the opener-seeding effect sees real history instead of racing an
+        // empty inbox. Merge under any messages that landed while loading.
+        loadAllDMs().then(all => {
+          const chars = Object.keys(all) as CharId[]
+          chars.forEach(cid => dmDbLoadedRef.current.add(cid))
+          setDmHistory(prev => {
+            const next = { ...prev }
+            for (const cid of chars) {
+              const db = all[cid] ?? []
+              const inMemory = next[cid] ?? []
+              const dbKeys = new Set(db.map(m => `${m.role}:${m.text}`))
+              next[cid] = [...db, ...inMemory.filter(m => !dbKeys.has(`${m.role}:${m.text}`))]
+            }
+            return next
+          })
+          if (chars.length) setDmLastUpdated(prev => {
+            const next = { ...prev }
+            for (const cid of chars) next[cid] = next[cid] ?? Date.now()
+            return next
+          })
+        }).catch(() => {})
         // Route signal: session ordinal lets us slice "second session, which
         // screen did they open first" — the Sims-vs-companion-vs-story decider.
         try {
@@ -921,11 +943,22 @@ export default function App() {
       seeded[tierKey] = true
       try { localStorage.setItem('lore_dm_openers_v1', JSON.stringify(seeded)) } catch {}
       ids.forEach((id, idx) => {
-        if ((dmHistoryRef.current[id]?.length ?? 0) > 0) return // already has messages
-        const bubbles = (openerFor(id) ?? '').split('|||').map(s => s.trim()).filter(Boolean)
-        bubbles.forEach((text, b) => {
-          setTimeout(() => injectCharDM(id, text), baseDelay + idx * 900 + b * 500)
-        })
+        setTimeout(() => {
+          // Re-check AT FIRE TIME: the seeded flag is device-local while DM
+          // history is server-persisted — on a fresh device this can run long
+          // after story DMs already exist in the thread. Never inject a
+          // "welcome" under real conversation.
+          if ((dmHistoryRef.current[id]?.length ?? 0) > 0) return
+          // Stamp with the story's CURRENT day/phase, not the day-1 fallback —
+          // a late opener must not put a "DAY 1" divider after a "DAY 2" one.
+          const g = gameRef.current
+          const sit = getCricketSituations().find(x => x.id === g.situationQueue[g.situation])
+          const meta = sit ? { day: sit.day, phase: phaseFromTag(sit.tag) } : undefined
+          const bubbles = (openerFor(id) ?? '').split('|||').map(s => s.trim()).filter(Boolean)
+          bubbles.forEach((text, b) => {
+            setTimeout(() => injectCharDM(id, text, undefined, meta), b * 500)
+          })
+        }, baseDelay + idx * 900)
       })
     }
 

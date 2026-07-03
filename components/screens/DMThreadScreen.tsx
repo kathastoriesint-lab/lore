@@ -35,7 +35,15 @@ export default function DMThreadScreen() {
   const allChars = { ...getCHChars(), ...getCricketChars() }
   const charId = dmChar as CharId | null
   const char = charId ? (allChars[charId] ?? null) : null
-  const messages: DMMessage[] = charId ? (dmHistory[charId] ?? []) : []
+  // Render in STORY-TIME order, not arrival order. Late-injected messages (e.g.
+  // opener seeds racing story DMs on a fresh device) can land out of sequence;
+  // sorting by (day, minute) keeps the day/phase dividers monotonic. Only safe
+  // when every message carries a timestamp — older un-timed saves keep arrival order.
+  const rawMessages: DMMessage[] = charId ? (dmHistory[charId] ?? []) : []
+  const messages: DMMessage[] = useMemo(() => {
+    if (!rawMessages.length || rawMessages.some(m => typeof m.t !== 'number')) return rawMessages
+    return [...rawMessages].sort((a, b) => (a.day ?? 1) - (b.day ?? 1) || (a.t! - b.t!))
+  }, [rawMessages])
 
   // Story-chat session (choice → DM): scope this visit to a few replies, then
   // hand the player back to the feed. Free visits are unscoped.
@@ -146,17 +154,30 @@ export default function DMThreadScreen() {
   }, [messages.length, typing, revealCount, dripActive])
 
   // Keep all messages visible — except while a drip is animating new arrivals.
-  useEffect(() => { if (!dripActive) setRevealCount(messages.length) }, [messages.length, dripActive])
+  // Anything shown in full counts as seen (live arrivals you watched land, or
+  // history that hydrated after the mount-time drip check).
+  useEffect(() => {
+    if (dripActive) return
+    setRevealCount(messages.length)
+    if (charId && messages.length > getSeen(charId)) setSeen(charId, messages.length)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messages.length, dripActive, charId])
 
   // On opening a thread: drip in any messages that arrived since you last saw it.
   useEffect(() => {
     if (!charId) return
     const total = (dmHistory[charId] ?? []).length
     const seen = getSeen(charId)
-    if (total <= seen) { if (total !== seen) setSeen(charId, total); return }
+    // Never LOWER seen: history may not have hydrated from the server yet
+    // (total 0 at mount) — clobbering seen here forced a full re-drip of the
+    // whole thread on the next open.
+    if (total <= seen) return
+    // Cap the drip burst: on a fresh device (empty localStorage) seen is 0 for
+    // a long-running thread — replay at most the last few, show the rest instantly.
+    const start = Math.max(seen, total - 4)
     setDripActive(true)
-    setRevealCount(seen)
-    let n = seen
+    setRevealCount(start)
+    let n = start
     const step = () => {
       n += 1; setRevealCount(n); setSeen(charId, n)
       if (n >= total) { setDripActive(false); dripTimerRef.current = null; return }

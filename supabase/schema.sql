@@ -67,8 +67,14 @@ create table if not exists public.dm_messages (
   char_id    text not null,
   role       text not null check (role in ('me','char')),
   content    text not null,
+  meta       jsonb,
   created_at timestamptz not null default now()
 );
+
+-- Narrative timestamps for DM threads (day/phase/t/note) — Jul 2026, so the
+-- WhatsApp-style day dividers survive restarts/devices. Idempotent for
+-- existing databases; the client tolerates the column being absent.
+alter table public.dm_messages add column if not exists meta jsonb;
 
 -- Aggregated choice stats ("4,218 played · 62% chose A")
 create table if not exists public.situation_stats (

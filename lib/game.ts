@@ -235,7 +235,7 @@ export async function loadDMs(charId: CharId): Promise<DMMessage[]> {
   await ensureSession()
   const { data } = await supabase()
     .from('dm_messages')
-    .select('role, content')
+    .select('*')
     .eq('char_id', charId)
     .order('created_at', { ascending: true })
 
@@ -245,18 +245,64 @@ export async function loadDMs(charId: CharId): Promise<DMMessage[]> {
     await saveDM(charId, hook)
     return [hook]
   }
-  return data.map(r => ({ role: r.role as 'me' | 'char', text: r.content }))
+  return (data as Array<{ role: string; content: string; meta?: Partial<DMMessage> | null }>).map(r => {
+    const meta = r.meta ?? {}
+    return {
+      role: r.role as 'me' | 'char',
+      text: r.content,
+      ...(typeof meta.day === 'number' ? { day: meta.day } : {}),
+      ...(meta.phase ? { phase: meta.phase } : {}),
+      ...(typeof meta.t === 'number' ? { t: meta.t } : {}),
+      ...(meta.note ? { note: meta.note } : {}),
+    }
+  })
 }
 
 export async function saveDM(charId: CharId, msg: DMMessage) {
   const { data: { user } } = await supabase().auth.getUser()
   if (!user) return
-  await supabase().from('dm_messages').insert({
+  const base = {
     user_id: user.id,
     char_id: charId,
     role: msg.role,
     content: msg.text,
-  })
+  }
+  // Narrative timestamps (day/phase/t/note) ride in a jsonb column so threads
+  // keep their WhatsApp dividers across devices/restarts. The column may not
+  // exist yet on older databases — retry without it rather than losing the message.
+  const meta: Record<string, unknown> = {}
+  if (typeof msg.day === 'number') meta.day = msg.day
+  if (msg.phase) meta.phase = msg.phase
+  if (typeof msg.t === 'number') meta.t = msg.t
+  if (msg.note) meta.note = msg.note
+  if (Object.keys(meta).length === 0) { await supabase().from('dm_messages').insert(base); return }
+  const { error } = await supabase().from('dm_messages').insert({ ...base, meta })
+  if (error) await supabase().from('dm_messages').insert(base)
+}
+
+// Hydrate EVERY thread in one query at boot — lazy per-thread loading left the
+// inbox empty after a restart (no previews, rows refusing to open) until each
+// thread was individually opened.
+export async function loadAllDMs(): Promise<Partial<Record<CharId, DMMessage[]>>> {
+  await ensureSession()
+  const { data } = await supabase()
+    .from('dm_messages')
+    .select('*')
+    .order('created_at', { ascending: true })
+  const out: Partial<Record<CharId, DMMessage[]>> = {}
+  for (const r of (data ?? []) as Array<{ char_id: string; role: string; content: string; meta?: Partial<DMMessage> | null }>) {
+    const meta = r.meta ?? {}
+    const msg: DMMessage = {
+      role: r.role as 'me' | 'char',
+      text: r.content,
+      ...(typeof meta.day === 'number' ? { day: meta.day } : {}),
+      ...(meta.phase ? { phase: meta.phase } : {}),
+      ...(typeof meta.t === 'number' ? { t: meta.t } : {}),
+      ...(meta.note ? { note: meta.note } : {}),
+    }
+    ;(out[r.char_id as CharId] ??= []).push(msg)
+  }
+  return out
 }
 
 // ── Edge function auth ────────────────────────────────────────────────────────
