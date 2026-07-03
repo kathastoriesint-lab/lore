@@ -4,7 +4,6 @@ import { useApp } from '@/lib/context'
 import { NET_SESSIONS, INTERLUDE_CAPS } from '@/lib/season'
 import { asCricket } from '@/lib/game'
 import { analytics } from '@/lib/analytics'
-import ScreenHint from '@/components/ScreenHint'
 
 // Interlude Form grind: 30-second one-choice scenes against the diminishing
 // schedule (+4/+2/+1). The risky option reads your current Form through its
@@ -183,9 +182,6 @@ export default function NetsScreen() {
         </div>
       </div>
       <div style={{ height: 16 }} />
-      <ScreenHint id="nets" icon="🏏" active={screen === 'nets'}
-        title="Nets = Form"
-        body="Har session Form badhata hai — team sheet isi number se banti hai. Safe option pakka deta hai; risky zyada deta hai agar Form ready ho." />
     </div>
   )
 }

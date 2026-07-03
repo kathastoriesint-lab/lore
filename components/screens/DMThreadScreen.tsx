@@ -8,7 +8,6 @@ import { fmtClock, phaseLabel } from '@/lib/dm-time'
 import { trustGateThreshold } from '@/lib/cricket-selection'
 import { DM_DAILY_BUDGET } from '@/lib/season'
 import { relationshipFor, computeBond, bondColor } from '@/lib/relationships'
-import ScreenHint from '@/components/ScreenHint'
 
 // CH caps (crush window / generic). Cricket uses the DAILY budget from season.ts —
 // the UI must count against the SAME number sendDM enforces, or message #11
@@ -640,11 +639,6 @@ export default function DMThreadScreen() {
           </button>
         </div>
         </>
-      )}
-      {game.world === 'cricket' && (
-        <ScreenHint id="dm" icon="💬" active={screen === 'dm-thread'}
-          title="Yeh asli baatein hain"
-          body="Jo bhi type karoge, woh sach mein samajhte hain aur yaad rakhte hain. Seniors se seedhi baat karo — captain ka bharosa yahin banta hai." />
       )}
     </div>
   )

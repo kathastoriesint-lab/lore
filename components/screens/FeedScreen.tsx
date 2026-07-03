@@ -6,7 +6,6 @@ import type { PostCommentOption } from '@/lib/data'
 import { getCricketChars, getCHChars, getCHPostComments } from '@/lib/content'
 import { applyDeltas, resolveTokens, fameToFollowers } from '@/lib/game'
 import { derivePosts, deriveOvernightPosts, type FeedPost } from '@/lib/feed-posts'
-import ScreenHint from '@/components/ScreenHint'
 import MeterHUD from '@/components/MeterHUD'
 import LiveEntryCard from '@/components/LiveEntryCard'
 import CommentComposer from '@/components/CommentComposer'
@@ -887,11 +886,6 @@ export default function FeedScreen() {
       <LiveEntryCard />
 
       {/* Tab bar — Feed · Messages · Profile (Live is entered via the card above) */}
-      {isCricket && (
-        <ScreenHint id="feed" icon="📱" active={screen === 'feed'}
-          title="Yeh tumhara feed hai"
-          body="Duniya tumhare har move pe yahan react karti hai. Posts pe comment karo — bond aur fame dono yahin bante hain. Story neeche wale card se khulti hai." />
-      )}
       <div className="tabbar">
         <button className="tab active">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
