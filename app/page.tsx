@@ -38,6 +38,7 @@ import { resolveVariantIndex, applyVariant, variantCtxFor, resolveGateOutcome } 
 import { EVICTION_TRIGGERS, buildEviction } from '@/lib/creator-house'
 import { buildEveningPings } from '@/lib/companion'
 import { recordWorldEntered, bumpChoices, touchDayStreak } from '@/lib/profile-stats'
+import { scheduleMatchDayNotification, cancelMatchDayNotification } from '@/lib/native-notify'
 
 const clampTrust = (n: number) => Math.max(0, Math.min(100, Math.round(n)))
 
@@ -226,6 +227,26 @@ export default function App() {
     })()
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Return ritual: the app opens on a fresh match day (weekUnlockAt passed) →
+  // Maddy is already waiting in DMs before any menu. Once per week.
+  useEffect(() => {
+    if (!ready || game.world !== 'cricket') return
+    const w = game.week ?? 1
+    if (!game.weekUnlockAt || Date.now() < game.weekUnlockAt) return
+    try {
+      const key = `lore_return_ping_w${w}`
+      if (localStorage.getItem(key)) return
+      localStorage.setItem(key, '1')
+      const lines: Record<number, string> = {
+        2: 'BRO. AAJ. MATCH. 🏟️ Utha ja — sheet lag chuki hogi. Main abhi se nervous hoon aur main list mein bhi nahi.',
+        3: 'Eliminator week bhai. Poora school bol raha hai tera naam. AAJ sab decide hota hai — phone mat band karna.',
+      }
+      const text = lines[w] ?? 'Bro aaj ka din bada hai. Phone paas rakh.'
+      setTimeout(() => notifyDMRef.current?.('friend', text, undefined, { day: (w - 1) * 4 + 2, phase: 'MORNING', note: 'Match day' }), 1800)
+    } catch {}
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ready, game.world, game.week, game.weekUnlockAt])
+
   const showToast = useCallback((msg: string) => {
     setToast(msg)
     if (toastTimer.current) clearTimeout(toastTimer.current)
@@ -387,10 +408,11 @@ export default function App() {
     recordWorldEntered('cricket')
     if (typeof window !== 'undefined') {
       localStorage.setItem('lore_feed_seen', '1')
-      localStorage.removeItem('lore_dm_openers_v1') // fresh run re-seeds openers
       localStorage.removeItem('lore_dm_cap'); localStorage.removeItem('lore_dm_seen_v1')        // fresh run clears DM throttle
     }
-    navigate('feed')
+    // First open lands ON THE STORY — S1 is the dopamine beat; the feed is met
+    // after your first choice creates something on it (founder + CEO review P0).
+    navigate('live')
   }, [game.playerName, game.playerGender, saveAndSet, navigate])
 
   const queueLowTrustAlert = useCallback((_charId: CharId) => {
@@ -493,6 +515,8 @@ export default function App() {
           next7am.setHours(7, 0, 0, 0)
           next.weekUnlockAt = next7am.getTime()
           next.interlude = { ...FRESH_INTERLUDE, chatTrustEarned: {}, charsChatted: [] }
+          // The 7am pull-back: local push when the next match-week opens.
+          scheduleMatchDayNotification(next.weekUnlockAt, (prev.week ?? 1) + 1).catch(() => {})
         }
       }
 
@@ -604,6 +628,7 @@ export default function App() {
     setGame(prev => {
       if (!prev.weekUnlockAt) return prev
       const next: GameState = { ...prev, weekUnlockAt: null }
+      cancelMatchDayNotification().catch(() => {})
       analytics.track('week_skip_earned', 'cricket', { week: prev.week })
       saveGameState({ ...next, ...extrasSnapshot() })
       return next
@@ -1018,7 +1043,7 @@ export default function App() {
             <Slot id="nets"        cur={screen} prev={prev}><NetsScreen /></Slot>
             <Slot id="eviction"    cur={screen} prev={prev}><EvictionScreen /></Slot>
             <Slot id="dm-inbox"    cur={screen} prev={prev}><DMInboxScreen /></Slot>
-            <Slot id="dm-thread"   cur={screen} prev={prev}><DMThreadScreen /></Slot>
+            <Slot id="dm-thread"   cur={screen} prev={prev} sheet={game.world === 'cricket'}><DMThreadScreen /></Slot>
             <Slot id="profile"     cur={screen} prev={prev}><ProfileScreen /></Slot>
             <Slot id="profile-global" cur={screen} prev={prev}><GlobalProfileScreen /></Slot>
             <Slot id="char-profile" cur={screen} prev={prev}><CharProfileScreen /></Slot>
@@ -1050,7 +1075,10 @@ export default function App() {
   )
 }
 
-function Slot({ id, cur, prev, children }: { id: Screen; cur: Screen; prev: Screen | null; children: React.ReactNode }) {
-  const cls = cur === id ? 'screen active' : prev === id ? 'screen behind' : 'screen'
+function Slot({ id, cur, prev, children, sheet }: { id: Screen; cur: Screen; prev: Screen | null; children: React.ReactNode; sheet?: boolean }) {
+  // sheet: the screen ENTERS AS A BOTTOM SHEET (choice-to-dm morph prototype) —
+  // vertical expansion instead of the lateral slide, so choice → chat reads as
+  // one continuous surface.
+  const cls = `${sheet ? 'screen sheet' : 'screen'}${cur === id ? ' active' : prev === id ? ' behind' : ''}`
   return <section className={cls} id={`s-${id}`}>{children}</section>
 }

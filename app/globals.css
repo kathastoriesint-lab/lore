@@ -1186,3 +1186,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 
 /* Nets outcome pop — the dopamine hit */
 @keyframes netPop{from{transform:scale(.6) translateY(10px);opacity:0}60%{transform:scale(1.06)}to{transform:none;opacity:1}}
+
+/* Choice → DM sheet morph: the thread rises in as a sheet, not a lateral slide */
+.screen.sheet{transform:translateY(100%);transition:transform .44s cubic-bezier(.22,.9,.3,1)}
+.screen.sheet.active{transform:translateY(0)}

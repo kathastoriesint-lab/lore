@@ -4,12 +4,13 @@ import { useApp } from '@/lib/context'
 import { NET_SESSIONS, INTERLUDE_CAPS } from '@/lib/season'
 import { asCricket } from '@/lib/game'
 import { analytics } from '@/lib/analytics'
+import ScreenHint from '@/components/ScreenHint'
 
 // Interlude Form grind: 30-second one-choice scenes against the diminishing
 // schedule (+4/+2/+1). The risky option reads your current Form through its
 // threshold — the same drill plays out differently at Form 30 vs Form 55.
 export default function NetsScreen() {
-  const { game, goBack, completeNetSession } = useApp()
+  const { game, goBack, completeNetSession, screen } = useApp()
   const [phase, setPhase] = useState<'scene' | 'outcome'>('scene')
   // title snapshotted at choice time — `session` advances to the next drill the
   // moment netsUsed increments, so the outcome must not read it live.
@@ -182,6 +183,9 @@ export default function NetsScreen() {
         </div>
       </div>
       <div style={{ height: 16 }} />
+      <ScreenHint id="nets" icon="🏏" active={screen === 'nets'}
+        title="Nets = Form"
+        body="Har session Form badhata hai — team sheet isi number se banti hai. Safe option pakka deta hai; risky zyada deta hai agar Form ready ho." />
     </div>
   )
 }

@@ -129,6 +129,52 @@ export interface KeyDecision {
   color: string      // dominant meter colour
 }
 
+
+// ── Morning-after storm ───────────────────────────────────────────────────────
+// Overnight fan/analyst posts assembled from YOUR run — persisted verdicts, gate
+// results and exact runMemory numbers — prepended to the feed when a new week
+// opens. Deterministic from saved state → replay-safe on every device.
+const OVERNIGHT_ACCOUNTS = {
+  paltanpulse: { id: '__account', cls: '', init: 'P', handle: 'paltanpulse', color: '#003087', name: 'Paltan Pulse' },
+  cricketroom: { id: '__account', cls: '', init: 'C', handle: 'cricketroom_india', color: '#1a2a3a', name: 'Cricket Room India' },
+  memeovers: { id: '__account', cls: '', init: 'M', handle: 'memeovers', color: '#3a1a2a', name: 'Meme Overs' },
+}
+
+export function deriveOvernightPosts(game: GameState): FeedPost[] {
+  if (game.world !== 'cricket') return []
+  const name = game.playerName || 'the kid'
+  const sits = getCricketSituations()
+  const sitFallback = sits[0]
+  const out: FeedPost[] = []
+  const mk = (key: keyof typeof OVERNIGHT_ACCOUNTS, id: string, caption: string, imageUrl?: string) => {
+    const acc = OVERNIGHT_ACCOUNTS[key]
+    out.push({
+      type: 'authored', postId: 'overnight-' + id, sit: sitFallback, stepIndex: 9000 + out.length, postOffset: 0,
+      choice: 'A', caption, imageUrl,
+      owner: { id: acc.id, cls: acc.cls, init: acc.init, handle: acc.handle, color: acc.color, isPlayer: false },
+      label: acc.name + ' · overnight', reactions: [],
+    })
+  }
+  const sel = game.selections ?? {}
+  const gates = game.gateResults ?? {}
+  const rm = game.runMemory ?? {}
+  const week = game.week ?? 1
+
+  // After SEL-W1 (week 2 open): the sheet verdict is public news.
+  if (week >= 2 && sel['SEL-W1']) {
+    if (sel['SEL-W1'] === 'started') mk('paltanpulse', 'w1', `TEAM SHEET OUT: 16 saal ka debut aaj raat Wankhede pe. No.5 — ${name}. Neend kis kis ki udi? 🔥`, '/generated/cricket-posts/cr2-s5-sheet.png')
+    else if (sel['SEL-W1'] === 'lifeline') mk('cricketroom', 'w1', `Sources: coaching room ne form sheet dikhayi, captain ne apna naam. Aaj raat ka No.5 — ${name} — Hardik ki personal call hai.`)
+    else mk('paltanpulse', 'w1', `WHERE IS ${name.toUpperCase()}?? MI buys a prodigy and BENCHES him?? #JusticeFor${name.replace(/\s+/g, '')} 😤`, '/generated/cricket-posts/cr-s27-player.png')
+  }
+  // After the debut gate (S7) resolves and week 3 opens: the knock is history.
+  if (week >= 3 && gates['CR2-S7']) {
+    if (gates['CR2-S7'] === 'pass') mk('paltanpulse', 'w2', `${rm.debutRuns ?? 40}(${rm.debutBalls ?? 26})${sel['SEL-W1'] === 'benched' ? ' AS A SUB' : ' ON DEBUT'}. Okay MI, hum dekh rahe hain 💙 Ab isse XI se bahar mat karna.`, '/generated/cricket-posts/cr-s25-pass.png')
+    else mk('memeovers', 'w2', `debut ${rm.debutRuns ?? 12}(${rm.debutBalls ?? 14}) — hype train ka pehla station aa gaya. utarna hai kisi ko? 💀`)
+    if (sel['SEL-W2'] === 'benched') mk('cricketroom', 'w2b', `Week 2 sheet: ${name} OUT. Storm ke baad ki khamoshi hamesha zyada loud hoti hai. Eliminator se pehle wapas aana hoga — form 64 ka raasta nets se jaata hai.`)
+  }
+  return out
+}
+
 // Replay the run → a newest-first timeline of the choices the player made,
 // with a one-line meter-delta outcome (honest — derived straight from deltas).
 export function deriveKeyDecisions(game: GameState): KeyDecision[] {

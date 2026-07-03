@@ -34,3 +34,34 @@ export async function cancelLockNotification(): Promise<void> {
     await LocalNotifications.cancel({ notifications: [{ id: LOCK_NOTIF_ID }] })
   } catch { /* ignore */ }
 }
+
+const MATCHDAY_NOTIF_ID = 1002
+
+// 7am match-day push — THE return trigger the match calendar assumes. Fires at
+// weekUnlockAt ("team sheet aaj lagti hai"); cancelled if the player earns a skip.
+export async function scheduleMatchDayNotification(unlockAt: number, week: number): Promise<void> {
+  if (!Capacitor.isNativePlatform()) return
+  try {
+    const { LocalNotifications } = await import('@capacitor/local-notifications')
+    const perm = await LocalNotifications.requestPermissions()
+    if (perm.display !== 'granted') return
+    await LocalNotifications.cancel({ notifications: [{ id: MATCHDAY_NOTIF_ID }] })
+    if (unlockAt <= Date.now()) return
+    await LocalNotifications.schedule({
+      notifications: [{
+        id: MATCHDAY_NOTIF_ID,
+        title: 'Team sheet aaj lagti hai 🏏',
+        body: `Week ${week} — tumhara naam hoga? Story ab khuli hai.`,
+        schedule: { at: new Date(unlockAt) },
+      }],
+    })
+  } catch { /* web / plugin unavailable */ }
+}
+
+export async function cancelMatchDayNotification(): Promise<void> {
+  if (!Capacitor.isNativePlatform()) return
+  try {
+    const { LocalNotifications } = await import('@capacitor/local-notifications')
+    await LocalNotifications.cancel({ notifications: [{ id: MATCHDAY_NOTIF_ID }] })
+  } catch { /* ignore */ }
+}

@@ -1141,6 +1141,17 @@ export default function LiveScreen() {
               </div>
             </div>
 
+            {/* Season 2 hook — no ending dead-ends */}
+            <div style={{ borderTop: '1px solid var(--line)', paddingTop: 16, fontSize: 13, color: 'var(--ink2)', lineHeight: 1.6 }}>
+              <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.1em', color: 'var(--fame)', display: 'block', marginBottom: 6 }}>SEASON 2</span>
+              {({
+                indiaCall: 'India ki jersey mili hai — ab use RAKHNA padta hai. Pehla international season aa raha hai.',
+                captainsBet: 'Captain ne daav lagaya tha. Season 2 mein woh daav vasool hoga — ya doob jayega.',
+                statsMachine: 'Numbers ne bulaya, kamre ne nahi. Season 2: thande kamre ko garam karna hai.',
+                notYet: "Benched hua ladka Ranji se wapas aata hai. Season 2 wahi kahani hai — tumhari.",
+              } as Record<string, string>)[endingKey ?? 'notYet']}
+            </div>
+
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 16 }}>
               <button

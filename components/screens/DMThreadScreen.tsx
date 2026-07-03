@@ -6,9 +6,14 @@ import { getCricketChars, getCricketSituations, getCricketTrustGoals, getCricket
 import { getReplySuggestions, asCricket } from '@/lib/game'
 import { fmtClock, phaseLabel } from '@/lib/dm-time'
 import { trustGateThreshold } from '@/lib/cricket-selection'
+import { DM_DAILY_BUDGET } from '@/lib/season'
 import { relationshipFor, computeBond, bondColor } from '@/lib/relationships'
+import ScreenHint from '@/components/ScreenHint'
 
-const dmCapFor = (cid?: string | null) => (cid === 'ananya' ? 7 : 20)
+// CH caps (crush window / generic). Cricket uses the DAILY budget from season.ts —
+// the UI must count against the SAME number sendDM enforces, or message #11
+// silently disappears (CEO review P0).
+const dmCapFor = (cid?: string | null, cricket?: boolean) => (cricket ? DM_DAILY_BUDGET : cid === 'ananya' ? 7 : 20)
 
 function getDmCap(charId: string) {
   try {
@@ -30,7 +35,7 @@ const StatusBar = () => (
 )
 
 export default function DMThreadScreen() {
-  const { goBack, navigate, showToast, dmChar, dmHistory, dmTrust, sendDM, game, dmStorySession } = useApp()
+  const { goBack, navigate, showToast, dmChar, dmHistory, dmTrust, sendDM, game, dmStorySession, screen } = useApp()
 
   const allChars = { ...getCHChars(), ...getCricketChars() }
   const charId = dmChar as CharId | null
@@ -128,9 +133,12 @@ export default function DMThreadScreen() {
 
   // Cap / lock state — re-reads localStorage on every render (tick keeps it live)
   const capState = charId ? getDmCap(charId) : { count: 0, lockedUntil: 0 }
+  const isCricketWorld = game.world === 'cricket'
   const isLocked = capState.lockedUntil > Date.now()
   const msRemaining = isLocked ? capState.lockedUntil - Date.now() : 0
-  const msgsLeft = Math.max(0, dmCapFor(charId) - capState.count)
+  const msgsLeft = Math.max(0, dmCapFor(charId, isCricketWorld) - capState.count)
+  // Cricket: budget spent = the character has gone to sleep for the day.
+  const asleep = isCricketWorld && msgsLeft <= 0 && !storySession
 
   const lockCountdown = (() => {
     const h = Math.floor(msRemaining / 3_600_000)
@@ -574,9 +582,21 @@ export default function DMThreadScreen() {
         </div>
       )}
 
+      {/* Cricket daily budget spent → the character is ASLEEP, not silent. */}
+      {asleep && (
+        <div style={{ padding: '14px 16px 18px', textAlign: 'center', borderTop: '1px solid var(--line)' }}>
+          <div style={{ fontSize: 13.5, fontWeight: 700, color: 'var(--ink)' }}>
+            {char.name.split(' ')[0]} so gaya 💤
+          </div>
+          <div style={{ fontSize: 11.5, color: 'var(--ink3)', marginTop: 4 }}>
+            Aaj ke {DM_DAILY_BUDGET} messages ho gaye — kal subah phir baat hogi.
+          </div>
+        </div>
+      )}
+
       {/* Message counter + input bar. Cricket: the composer shows on EMPTY
           threads too — the player texts a senior first (DM-first design). */}
-      {(hasStarted || game.world === 'cricket') && !isLocked && !storyDone && (
+      {(hasStarted || game.world === 'cricket') && !isLocked && !storyDone && !asleep && (
         <>
           {storySession && !storyDone && (
             <div style={{ textAlign: 'center', fontSize: 11, fontWeight: 700, color: 'var(--accent)', padding: '4px 0 2px' }}>
@@ -620,6 +640,11 @@ export default function DMThreadScreen() {
           </button>
         </div>
         </>
+      )}
+      {game.world === 'cricket' && (
+        <ScreenHint id="dm" icon="💬" active={screen === 'dm-thread'}
+          title="Yeh asli baatein hain"
+          body="Jo bhi type karoge, woh sach mein samajhte hain aur yaad rakhte hain. Seniors se seedhi baat karo — captain ka bharosa yahin banta hai." />
       )}
     </div>
   )
