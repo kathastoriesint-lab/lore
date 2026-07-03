@@ -31,6 +31,15 @@ export default function SelectionScreen() {
     if (screen === 'selection' && !game.pendingSelection) navigate('live', { replace: true })
   }, [screen, game.pendingSelection, navigate])
 
+  // Screens stay mounted (Slot pattern): a NEW selection must restart the
+  // ceremony from intro — else week 2/3 open on week 1's leftover readout
+  // phase and the reveal is silently skipped.
+  useEffect(() => {
+    timersRef.current.forEach(clearTimeout)
+    timersRef.current = []
+    setPhase('intro'); setStep(0); setResolved(false)
+  }, [game.pendingSelection])
+
   useEffect(() => () => { timersRef.current.forEach(clearTimeout) }, [])
 
   if (!sel) return null
@@ -155,7 +164,9 @@ export default function SelectionScreen() {
             }}>
               <span style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 16, color: 'var(--ink3)', width: 16, textAlign: 'center', flex: 'none' }}>{nRows}</span>
               <span style={{ fontWeight: youIn ? 800 : 600, fontSize: 15.5, color: youIn ? '#fff' : 'var(--ink)' }}>
-                {sel.teamSheet[lastIdx]?.you ? 'Tum' : sel.teamSheet[lastIdx]?.name}
+                {sel.teamSheet[lastIdx]?.you
+                  ? `Tum${game.playerName ? ` (${game.playerName})` : ''}`
+                  : sel.teamSheet[lastIdx]?.name}
               </span>
               {youIn && (
                 <span style={{ marginLeft: 'auto', fontSize: 8.5, fontWeight: 800, letterSpacing: '.1em', color: verdictColor, border: `1px solid color-mix(in srgb, ${verdictColor} 35%, transparent)`, borderRadius: 30, padding: '3px 9px' }}>
