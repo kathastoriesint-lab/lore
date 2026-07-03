@@ -278,6 +278,11 @@ export const CRICKET_SITUATIONS: Situation[] = [
         "text": "3 balls, 3 baar beat. Length dikhti kuch hai, guzarti kuch aur. Teesri — slower ball: shot pehle khatam, ball baad mein aati hai. Hardik arms folded. Rohit bilkul still."
       },
       {
+        "t": "img",
+        "src": "/generated/cricket-posts/seed-bumrah.png",
+        "h": 210
+      },
+      {
         "t": "cue",
         "who": "Bumrah",
         "avatar": "/avatars/bumrah.png",
@@ -361,8 +366,13 @@ export const CRICKET_SITUATIONS: Situation[] = [
     ],
     "feedReaction": {
       "A": {
-        "char": "coach",
-        "caption": "Aaj Bumrah se beat hua? Achha hua. Free mein woh over kahin nahi milta. Ab video bhej."
+        "account": {
+          "name": "Paltan Pulse",
+          "handle": "paltanpulse",
+          "avatarText": "P"
+        },
+        "caption": "Nets update: naya kid Boom se 3 baar beat hua — aur phir POOCHHA kya miss hua. Seniors sab dekh rahe the. Yeh cheez scorecard pe nahi dikhti 💙",
+        "imageUrl": "/generated/cricket-posts/cr-s8-mipaltan.png"
       },
       "B": {
         "char": "friend",

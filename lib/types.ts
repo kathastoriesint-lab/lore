@@ -245,6 +245,16 @@ export interface AiPost {
   revealed?: boolean
 }
 
+/** The world's background reaction on the feed after a choice. Either a
+ *  character's post (char) or a fan/meme account's (account). imageUrl routes
+ *  it through the full authored-post rendering (photo card). */
+export interface FeedReactionSpec {
+  char?: CharId
+  account?: { name: string; handle: string; avatarText?: string }
+  caption: string
+  imageUrl?: string
+}
+
 export interface Situation {
   id: string
   day: number
@@ -262,8 +272,8 @@ export interface Situation {
   q: string
   choices: [Choice, Choice]
   feedReaction?: {
-    A: { char: CharId; caption: string } | null
-    B: { char: CharId; caption: string } | null
+    A: FeedReactionSpec | null
+    B: FeedReactionSpec | null
   }
   loyaltyChoice?: 'A' | 'B'
 }

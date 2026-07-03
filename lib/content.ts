@@ -17,7 +17,7 @@
 import type { Character, Situation, CharId } from './types'
 import type { Dossier } from './dossier'
 import type { PostCommentOption } from './data'
-import cricketBundled from '@/public/content/cricket-v10.json'
+import cricketBundled from '@/public/content/cricket-v11.json'
 import chBundled from '@/public/content/creator-house-v2.json'
 
 export interface CricketContent {

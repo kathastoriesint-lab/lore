@@ -69,11 +69,24 @@ export function derivePosts(game: GameState): FeedPost[] {
     if (!sit) continue
     const ch = sit.choices[letter === 'A' ? 0 : 1]
 
-    const reaction = isCricket ? null : sit.feedReaction?.[letter]
-    if (reaction) {
+    const reaction = sit.feedReaction?.[letter]
+    if (reaction && (reaction.account || reaction.imageUrl)) {
+      // Fan-account reactions (and photo reactions) use the full authored-post
+      // rendering — avatar chip, photo card, like/comment row.
+      const owner = reaction.account
+        ? { id: '__account', cls: '', init: reaction.account.avatarText ?? reaction.account.name[0]?.toUpperCase() ?? 'F', handle: reaction.account.handle, color: '#003087', isPlayer: false }
+        : (() => {
+            const c = allChars[chCharForGender(reaction.char!, game.playerGender) as CharId]
+            return c ? { id: c.id, cls: c.cls, init: c.init, handle: c.handle, avatarUrl: `/avatars/${c.id}.png`, color: CHAR_COLORS_HEX[c.id] ?? '#1a1a2e', isPlayer: false, likeTarget: c.id as CharId } : null
+          })()
+      if (owner) posts.push({ type: 'authored', postId: `react-${sit.id}-${letter}`, sit, stepIndex: i, postOffset: 2, choice: letter, caption: reaction.caption, imageUrl: reaction.imageUrl, owner, reactions: [] })
+    } else if (reaction && !isCricket && reaction.char) {
       // Render the gender-correct creator (crush/ally swap for female players).
       const char = allChars[chCharForGender(reaction.char, game.playerGender) as CharId]
-      if (char) posts.push({ type: 'npc', postId: `react-${sit.id}-${letter}`, sit, stepIndex: i, postOffset: 2, choice: letter, reaction, char })
+      if (char) posts.push({ type: 'npc', postId: `react-${sit.id}-${letter}`, sit, stepIndex: i, postOffset: 2, choice: letter, reaction: { char: reaction.char, caption: reaction.caption }, char })
+    } else if (reaction && isCricket && reaction.char) {
+      const char = allChars[reaction.char]
+      if (char) posts.push({ type: 'npc', postId: `react-${sit.id}-${letter}`, sit, stepIndex: i, postOffset: 2, choice: letter, reaction: { char: reaction.char, caption: reaction.caption }, char })
     }
 
     const legacyPost: ChoicePost | null = ch?.caption ? { source: 'player', caption: ch.caption, reactions: ch.reactions ?? [] } : null
