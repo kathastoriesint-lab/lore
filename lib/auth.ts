@@ -6,8 +6,33 @@
 // verifies it with MSG91, links the phone to the current guest (preserving
 // progress) or signs into the existing account, and returns a real Supabase
 // session that we adopt here. Downstream there's ONE identity: the Supabase user.
-import { getClient, ensureSession } from './game'
+import { getClient, ensureSession, resetGameState } from './game'
 import { createClient } from './supabase'
+
+// Full account deletion for the in-app "Delete account" button. Calls the
+// delete-account edge function (removes the user's data AND the auth account /
+// phone record via the service role). If that function isn't deployed yet, it
+// falls back to wiping the data + signing out locally — so the button always at
+// least removes gameplay data. Always resolves; the caller reloads afterwards.
+export async function deleteAccountFully(): Promise<{ ok: true; full: boolean }> {
+  try {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const { data: { session } } = await getClient().auth.getSession()
+    const token = session?.access_token
+    if (url && token) {
+      const res = await fetch(`${url}/functions/v1/delete-account`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      })
+      if (res.ok) {
+        await getClient().auth.signOut({ scope: 'local' })
+        return { ok: true, full: true }
+      }
+    }
+  } catch { /* fall through to the local wipe */ }
+  await resetGameState() // deletes game_state + dm_messages, signs out local
+  return { ok: true, full: false }
+}
 
 export interface AuthInfo {
   isAuthed: boolean

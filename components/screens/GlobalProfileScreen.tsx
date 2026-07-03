@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect, type CSSProperties } from 'react'
 import { useApp } from '@/lib/context'
-import { getAuthInfo, signOutToGuest, type AuthInfo } from '@/lib/auth'
+import { getAuthInfo, signOutToGuest, deleteAccountFully, type AuthInfo } from '@/lib/auth'
 import { getProfileStats, type ProfileStats } from '@/lib/profile-stats'
 
 // Global profile — world-agnostic, reached from the Worlds tab. About YOU across
@@ -46,10 +46,11 @@ export default function GlobalProfileScreen() {
 
   const deleteAccount = () => {
     if (typeof window !== 'undefined' && !window.confirm('Delete your account and wipe all progress? This cannot be undone.')) return
-    // TODO: real Supabase user deletion needs an admin edge-fn. For now wipe local
-    // progress and sign out to a fresh guest.
+    // Full deletion: removes gameplay data AND the auth account (phone record)
+    // via the delete-account edge fn; falls back to a local data-wipe if that
+    // function isn't deployed yet. Reload either way → fresh guest.
     resetGame()
-    signOutToGuest().then(() => { if (typeof window !== 'undefined') window.location.reload() })
+    deleteAccountFully().finally(() => { if (typeof window !== 'undefined') window.location.reload() })
   }
 
   const contact = auth?.email
