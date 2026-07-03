@@ -2,6 +2,7 @@
 import { useApp } from '@/lib/context'
 import type { CharId } from '@/lib/types'
 import { getCricketChars, getCHChars, getCHDMOrder } from '@/lib/content'
+import { fmtClock } from '@/lib/dm-time'
 import GoalCard from '@/components/GoalCard'
 import LiveEntryCard from '@/components/LiveEntryCard'
 
@@ -18,7 +19,7 @@ const StatusBar = () => (
   </div>
 )
 
-const CRICKET_DM_ORDER: CharId[] = ['hardik', 'rohit', 'surya', 'bumrah', 'tilak', 'coach', 'friend']
+const CRICKET_DM_ORDER: CharId[] = ['hardik', 'rohit', 'surya', 'bumrah', 'tilak', 'naman', 'mahela', 'coach', 'friend']
 
 // Character subtexts shown under name in DM list
 const CHAR_SUBTEXT: Partial<Record<string, string>> = {
@@ -68,6 +69,13 @@ export default function DMInboxScreen() {
     })
   }, [])
 
+  // The story's "today" = the max day stamped anywhere in the inbox.
+  const latestDay = useMemo(() => {
+    let d = 1
+    for (const msgs of Object.values(dmHistory)) for (const m of msgs ?? []) if ((m.day ?? 0) > d) d = m.day!
+    return d
+  }, [dmHistory])
+
   const visibleChars = useMemo(() => {
     const baseOrder = isCricket
       ? CRICKET_DM_ORDER
@@ -82,14 +90,17 @@ export default function DMInboxScreen() {
   }, [dmHistory, dmLastUpdated, game.char, isCricket])
 
   const handleOpen = useCallback((charId: CharId) => {
-    if ((dmHistory[charId]?.length ?? 0) === 0) {
+    // Cricket: empty threads OPEN — the player texts a senior first and the
+    // character's first reply welcomes them (no canned openers). CH threads
+    // still unlock through the story.
+    if (!isCricket && (dmHistory[charId]?.length ?? 0) === 0) {
       showToast('No messages yet')
       return
     }
     setOpened(userId, charId)
     setOpenedMap(prev => ({ ...prev, [charId]: Date.now() }))
     openDMThread(charId)
-  }, [dmHistory, openDMThread, showToast, userId])
+  }, [dmHistory, openDMThread, showToast, userId, isCricket])
 
   const handleTab = useCallback((tab: string) => {
     if (tab === 'home') navigate('feed')
@@ -134,6 +145,12 @@ export default function DMInboxScreen() {
             : lastMsg
               ? (lastMsg.length > 42 ? lastMsg.slice(0, 42) + '…' : lastMsg)
               : CHAR_SUBTEXT[charId] ?? char.role.split(' · ')[0]
+          // WhatsApp-style stamp: story clock if the thread's last message is from
+          // the latest story day, else "Day N". (No more constant "now".)
+          const lastTimed = [...history].reverse().find(m => typeof m.t === 'number')
+          const stamp = lastTimed
+            ? (lastTimed.day === latestDay ? fmtClock(lastTimed.t) : `Day ${lastTimed.day ?? 1}`)
+            : ''
 
           return (
             <button key={charId} className="dm-row" onClick={() => handleOpen(charId)}
@@ -148,7 +165,7 @@ export default function DMInboxScreen() {
                 </div>
               </div>
               <div className="meta">
-                <div className="ts">{hasMessages ? 'now' : ''}</div>
+                <div className="ts">{stamp}</div>
                 {isUnread && <div className="unread" />}
               </div>
             </button>

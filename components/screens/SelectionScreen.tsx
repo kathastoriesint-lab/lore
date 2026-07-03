@@ -1,14 +1,17 @@
 'use client'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useApp } from '@/lib/context'
 import { buildSelection } from '@/lib/cricket-selection'
 import { getCricketChars } from '@/lib/content'
 
-// Squad Selection — the weekly ceremony (EvictionScreen's cricket sibling).
-// Phases: intro → team sheet (one name per tap) → verdict hero → captain/coach
-// lines → readout. The final CTA persists the verdict (resolveSelection) and
-// returns to Live, where the next beat renders its verdict variant.
-type Phase = 'intro' | 'sheet' | 'verdict' | 'lines' | 'readout'
+// Squad Selection — the weekly ceremony, per the founder's "Squad Announcement
+// redesign" prototype (1b): names DROP one by one on their own (no taps), the
+// No.5 slot holds with typing dots — the "is it me?" dread — then the verdict
+// lands full-size in serif ON the sheet. Then captain/coach lines → readout.
+type Phase = 'intro' | 'sheet' | 'lines' | 'readout'
+
+const NAME_MS = 720          // cadence between name drops
+const VERDICT_HOLD_MS = 950  // dots hold on the final slot before the verdict
 
 export default function SelectionScreen() {
   const { game, dmTrust, navigate, resolveSelection, screen } = useApp()
@@ -19,25 +22,46 @@ export default function SelectionScreen() {
   )
 
   const [phase, setPhase] = useState<Phase>('intro')
-  const [namesShown, setNamesShown] = useState(0)
+  const [step, setStep] = useState(0)          // names revealed so far
+  const [resolved, setResolved] = useState(false)
+  const timersRef = useRef<ReturnType<typeof setTimeout>[]>([])
 
   // Guard: no pending selection (direct nav / after resolve) → back to live.
   useEffect(() => {
     if (screen === 'selection' && !game.pendingSelection) navigate('live', { replace: true })
   }, [screen, game.pendingSelection, navigate])
 
+  useEffect(() => () => { timersRef.current.forEach(clearTimeout) }, [])
+
   if (!sel) return null
 
+  const nRows = sel.teamSheet.length
+  const lastIdx = nRows - 1
+  const youIn = sel.verdict !== 'benched'
   const verdictColor = sel.verdict === 'benched' ? 'var(--heat)' : sel.verdict === 'lifeline' ? '#FFB020' : 'var(--trust)'
   const verdictWord = sel.verdict === 'benched' ? 'BENCHED' : sel.verdict === 'lifeline' ? "CAPTAIN'S CALL" : sel.recall ? 'RECALLED' : 'STARTING'
+  const verdictSub = sel.verdict === 'benched'
+    ? 'Tumhara naam sheet pe nahi hai. Orange bib, drinks duty — path wapas maidan se jaata hai.'
+    : sel.verdict === 'lifeline'
+      ? 'Form sheet ne mana kiya. Captain ne apna naam laga diya.'
+      : sel.recall
+        ? 'Bench se wapas — nets ne darwaza khol diya.'
+        : sel.week === 1
+          ? 'No.5 · IPL debut, 16 saal. Kal raat Wankhede ki lights tumhare naam.'
+          : 'Naam sheet pe hai. Kaam abhi baaki hai.'
+
+  const startReveal = () => {
+    setPhase('sheet'); setStep(0); setResolved(false)
+    // rows 1..n-1 drop on their own; the final slot holds with dots, then resolves
+    for (let i = 1; i <= lastIdx; i++) {
+      timersRef.current.push(setTimeout(() => setStep(i), i * NAME_MS))
+    }
+    timersRef.current.push(setTimeout(() => setResolved(true), lastIdx * NAME_MS + NAME_MS + VERDICT_HOLD_MS))
+  }
 
   const advance = () => {
-    if (phase === 'intro') setPhase('sheet')
-    else if (phase === 'sheet') {
-      if (namesShown < sel.teamSheet.length) setNamesShown(n => n + 1)
-      else setPhase('verdict')
-    }
-    else if (phase === 'verdict') setPhase('lines')
+    if (phase === 'intro') startReveal()
+    else if (phase === 'sheet') { if (resolved) setPhase('lines') }
     else if (phase === 'lines') setPhase('readout')
     else {
       resolveSelection()
@@ -52,26 +76,34 @@ export default function SelectionScreen() {
     position: 'relative', overflow: 'hidden', padding: '0 24px',
   }
   const glow: React.CSSProperties = {
-    position: 'absolute', inset: 0, pointerEvents: 'none',
-    background: `radial-gradient(ellipse 120% 45% at 50% 0%, color-mix(in srgb, ${verdictColor} 13%, transparent) 0%, transparent 65%)`,
+    position: 'absolute', inset: 0, pointerEvents: 'none', transition: 'opacity .6s',
+    opacity: phase !== 'sheet' || resolved ? 1 : 0,
+    background: `radial-gradient(ellipse 120% 45% at 50% 0%, color-mix(in srgb, ${verdictColor} 14%, transparent) 0%, transparent 65%)`,
   }
-  const cta = (hero = false): React.CSSProperties => ({
+  const ctaStyle = (hero: boolean, wait: boolean): React.CSSProperties => ({
     width: '100%', padding: '16px 0', borderRadius: 16, border: 'none',
-    background: hero ? verdictColor : 'rgba(255,255,255,.06)',
-    color: hero ? '#08080F' : 'var(--ink)', fontWeight: 800, fontSize: 15,
-    fontFamily: 'var(--sans)', cursor: 'pointer',
-    boxShadow: hero ? `0 8px 28px color-mix(in srgb, ${verdictColor} 35%, transparent)` : 'none',
+    background: wait ? 'rgba(255,255,255,.05)' : hero ? 'var(--accent)' : 'rgba(255,255,255,.06)',
+    color: wait ? 'var(--ink3)' : '#fff', fontWeight: 800, fontSize: 15,
+    fontFamily: 'var(--sans)', cursor: wait ? 'default' : 'pointer',
+    boxShadow: hero && !wait ? '0 10px 30px rgba(255,45,120,.3)' : 'none',
+    transition: 'background .3s, color .3s',
   })
+
+  const rowBase: React.CSSProperties = {
+    display: 'flex', alignItems: 'center', gap: 14, background: 'var(--surf)',
+    border: '1px solid var(--line)', borderRadius: 14, padding: '14px 17px',
+    animation: 'evVoteIn .42s cubic-bezier(.32,.72,0,1) both',
+  }
 
   return (
     <div style={wrap}>
       <div style={glow} />
 
       {/* Kicker */}
-      <div style={{ paddingTop: 56, textAlign: 'center', position: 'relative' }}>
+      <div style={{ paddingTop: 52, textAlign: 'center', position: 'relative' }}>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7 }}>
-          <span className="pulse" style={{ background: verdictColor }} />
-          <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.18em', color: verdictColor }}>
+          <span className="pulse" style={{ background: resolved || phase !== 'sheet' ? verdictColor : 'var(--fame)' }} />
+          <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.18em', color: resolved || phase !== 'sheet' ? verdictColor : 'var(--fame)' }}>
             SQUAD ANNOUNCEMENT · WEEK {sel.week}
           </span>
         </div>
@@ -87,48 +119,57 @@ export default function SelectionScreen() {
         </div>
       )}
 
-      {/* ── TEAM SHEET — one name per tap; slot 5 is the moment of truth ── */}
+      {/* ── THE REVEAL — names drop on their own; the last slot is the dread ── */}
       {phase === 'sheet' && (
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', position: 'relative', gap: 10 }}>
-          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.14em', color: 'var(--ink3)', textAlign: 'center', marginBottom: 10 }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', position: 'relative', gap: 9 }}>
+          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.14em', color: 'var(--ink3)', textAlign: 'center', marginBottom: 8 }}>
             TEAM SHEET
           </div>
-          {sel.teamSheet.slice(0, namesShown).map((row, i) => (
-            <div key={i} style={{
-              display: 'flex', alignItems: 'center', gap: 12, borderRadius: 14, padding: '13px 16px',
-              background: row.you ? `color-mix(in srgb, ${verdictColor} 12%, var(--surf))` : 'var(--surf)',
-              border: `1px solid ${row.you ? verdictColor : 'var(--line)'}`,
-              animation: 'evVoteIn .35s ease-out',
-            }}>
-              <span style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 15, color: 'var(--ink3)', width: 20 }}>{i + 1}</span>
-              <span style={{ fontWeight: row.you ? 800 : 600, fontSize: 15, color: row.you ? '#fff' : 'var(--ink)' }}>
-                {row.name}{row.you ? ' — TUM' : ''}
+
+          {/* rows 1..n-1 */}
+          {sel.teamSheet.slice(0, lastIdx).map((row, i) => (
+            i < step && (
+              <div key={i} style={rowBase}>
+                <span style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 16, color: 'var(--ink3)', width: 16, textAlign: 'center', flex: 'none' }}>{i + 1}</span>
+                <span style={{ fontWeight: 600, fontSize: 15.5, color: 'var(--ink)' }}>{row.name}</span>
+              </div>
+            )
+          ))}
+
+          {/* the held final slot: dots → you / other */}
+          {step >= lastIdx && !resolved && (
+            <div style={{ ...rowBase, borderStyle: 'dashed', borderColor: '#33333d', background: 'rgba(255,255,255,.02)' }}>
+              <span style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 16, color: 'var(--ink3)', width: 16, textAlign: 'center', flex: 'none' }}>{nRows}</span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 9, color: 'var(--ink3)', fontSize: 14, fontWeight: 600 }}>
+                Aakhri naam
+                <span className="typing" style={{ background: 'none', padding: 0 }}><i /><i /><i /></span>
               </span>
             </div>
-          ))}
-          {namesShown >= sel.teamSheet.length && !sel.teamSheet.some(r => r.you) && (
-            <div style={{ fontSize: 13, color: 'var(--heat)', textAlign: 'center', marginTop: 10, fontWeight: 700 }}>
-              Tumhara naam sheet pe nahi hai.
+          )}
+          {resolved && (
+            <div style={{
+              ...rowBase,
+              ...(youIn
+                ? { border: `1.5px solid ${verdictColor}`, background: `color-mix(in srgb, ${verdictColor} 12%, var(--surf))`, boxShadow: `0 0 26px color-mix(in srgb, ${verdictColor} 20%, transparent)` }
+                : { borderColor: '#2a2a33' }),
+            }}>
+              <span style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 16, color: 'var(--ink3)', width: 16, textAlign: 'center', flex: 'none' }}>{nRows}</span>
+              <span style={{ fontWeight: youIn ? 800 : 600, fontSize: 15.5, color: youIn ? '#fff' : 'var(--ink)' }}>
+                {sel.teamSheet[lastIdx]?.you ? 'Tum' : sel.teamSheet[lastIdx]?.name}
+              </span>
+              {youIn && (
+                <span style={{ marginLeft: 'auto', fontSize: 8.5, fontWeight: 800, letterSpacing: '.1em', color: verdictColor, border: `1px solid color-mix(in srgb, ${verdictColor} 35%, transparent)`, borderRadius: 30, padding: '3px 9px' }}>
+                  {sel.week === 1 ? 'DEBUT' : sel.recall ? 'RECALL' : 'IN'}
+                </span>
+              )}
             </div>
           )}
-        </div>
-      )}
 
-      {/* ── VERDICT HERO ── */}
-      {phase === 'verdict' && (
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', position: 'relative' }}>
-          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.16em', color: 'var(--ink3)' }}>WEEK {sel.week} · {sel.verdict === 'benched' ? 'NOT IN THE XI' : 'IN THE XI'}</div>
-          <div style={{ fontFamily: 'var(--serif)', fontSize: 42, fontWeight: 600, color: verdictColor, marginTop: 14, textAlign: 'center', lineHeight: 1.15, padding: '0 12px' }}>
-            {verdictWord}
-          </div>
-          {sel.verdict === 'lifeline' && (
-            <div style={{ fontSize: 13, color: 'var(--ink2)', marginTop: 14, textAlign: 'center', lineHeight: 1.5 }}>
-              Form sheet ne mana kiya. Captain ne apna naam laga diya.
-            </div>
-          )}
-          {sel.recall && (
-            <div style={{ fontSize: 13, color: 'var(--ink2)', marginTop: 14, textAlign: 'center', lineHeight: 1.5 }}>
-              Bench se wapas — nets ne darwaza khol diya.
+          {/* the verdict lands full-size, on this screen — no 13px gut-punch */}
+          {resolved && (
+            <div style={{ padding: '14px 20px 0', textAlign: 'center', animation: 'evVoteIn .5s cubic-bezier(.32,.72,0,1) both' }}>
+              <div style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 40, lineHeight: 1, color: verdictColor }}>{verdictWord}</div>
+              <div style={{ fontSize: 13, lineHeight: 1.5, color: 'var(--ink2)', marginTop: 12, padding: '0 8px' }}>{verdictSub}</div>
             </div>
           )}
         </div>
@@ -187,10 +228,9 @@ export default function SelectionScreen() {
 
       {/* CTA */}
       <div style={{ paddingBottom: 44, position: 'relative' }}>
-        <button onClick={advance} style={cta(phase === 'verdict' || phase === 'readout')}>
+        <button onClick={advance} style={ctaStyle(phase === 'sheet' || phase === 'readout', phase === 'sheet' && !resolved)}>
           {phase === 'intro' && 'Team sheet dekho →'}
-          {phase === 'sheet' && (namesShown < sel.teamSheet.length ? 'Agla naam →' : 'Verdict →')}
-          {phase === 'verdict' && 'Captain kya bola? →'}
+          {phase === 'sheet' && (!resolved ? 'Sheet lag rahi hai…' : 'Captain kya bola? →')}
           {phase === 'lines' && 'Numbers dekho →'}
           {phase === 'readout' && 'Wapas game mein →'}
         </button>

@@ -426,11 +426,19 @@ export default function DMThreadScreen() {
 
         {!hasStarted && !chContext && (
           <div style={{ height:'100%', display:'grid', placeItems:'center', textAlign:'center', color:'var(--ink3)', padding:'0 28px' }}>
-            <div>
-              <div style={{ fontSize:22, marginBottom:8 }}>💬</div>
-              <div style={{ fontWeight:700, color:'var(--ink)', marginBottom:5 }}>No messages yet</div>
-              <div style={{ fontSize:13, lineHeight:1.45 }}>{char.name} will appear here after they message you in the story.</div>
-            </div>
+            {game.world === 'cricket' ? (
+              <div>
+                <div style={{ fontSize:22, marginBottom:8 }}>🏏</div>
+                <div style={{ fontWeight:700, color:'var(--ink)', marginBottom:5 }}>Pehli baat tumhari hai</div>
+                <div style={{ fontSize:13, lineHeight:1.5 }}>{char.name.split(' ')[0]} ko message karo — dressing room ka darwaza yahin se khulta hai.</div>
+              </div>
+            ) : (
+              <div>
+                <div style={{ fontSize:22, marginBottom:8 }}>💬</div>
+                <div style={{ fontWeight:700, color:'var(--ink)', marginBottom:5 }}>No messages yet</div>
+                <div style={{ fontSize:13, lineHeight:1.45 }}>{char.name} will appear here after they message you in the story.</div>
+              </div>
+            )}
           </div>
         )}
         {/* CH thread with no messages: the context card is the opener; nudge a first move */}
@@ -566,8 +574,9 @@ export default function DMThreadScreen() {
         </div>
       )}
 
-      {/* Message counter + input bar */}
-      {hasStarted && !isLocked && !storyDone && (
+      {/* Message counter + input bar. Cricket: the composer shows on EMPTY
+          threads too — the player texts a senior first (DM-first design). */}
+      {(hasStarted || game.world === 'cricket') && !isLocked && !storyDone && (
         <>
           {storySession && !storyDone && (
             <div style={{ textAlign: 'center', fontSize: 11, fontWeight: 700, color: 'var(--accent)', padding: '4px 0 2px' }}>

@@ -71,34 +71,34 @@ export default function NetsScreen() {
     )
   }
 
-  // Outcome view
+  // Outcome view — the dopamine beat: verdict word + a BIG animated form pop.
   if (phase === 'outcome' && outcome) {
+    const verdict = outcome.passed === true ? 'CLEAN HIT' : outcome.passed === false ? 'BEAT HUE — PAR SEEKHA' : 'SOLID SESSION'
+    const vColor = outcome.passed === false ? '#FFB020' : 'var(--trust)'
     return (
       <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: 'var(--bg)', padding: '0 28px', position: 'relative', overflow: 'hidden' }}>
         <div style={{
           position: 'absolute', inset: 0, pointerEvents: 'none',
-          background: outcome.passed !== false
-            ? 'radial-gradient(ellipse 120% 50% at 50% -10%, color-mix(in srgb, var(--trust) 12%, transparent) 0%, transparent 70%)'
-            : 'radial-gradient(ellipse 120% 50% at 50% -10%, color-mix(in srgb, var(--fame) 10%, transparent) 0%, transparent 70%)',
+          background: `radial-gradient(ellipse 120% 50% at 50% -10%, color-mix(in srgb, ${vColor} 14%, transparent) 0%, transparent 70%)`,
         }} />
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', position: 'relative' }}>
-          <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.14em', color: 'var(--ink3)', marginBottom: 12 }}>
+          <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.14em', color: 'var(--ink3)', marginBottom: 10 }}>
             {outcome.title.toUpperCase()}
           </div>
-          <div style={{ fontFamily: 'var(--serif)', fontSize: 20, fontWeight: 600, lineHeight: 1.55 }}>
-            {outcome.note}
+          <div style={{ fontFamily: 'var(--serif)', fontSize: 34, fontWeight: 600, lineHeight: 1.05, color: vColor, animation: 'netPop .55s cubic-bezier(.2,1.4,.4,1) both' }}>
+            {verdict}
           </div>
-          <div style={{
-            display: 'inline-flex', alignItems: 'center', gap: 8, marginTop: 22,
-            background: 'color-mix(in srgb, var(--trust) 10%, transparent)', border: '1px solid color-mix(in srgb, var(--trust) 30%, transparent)',
-            borderRadius: 10, padding: '8px 14px', alignSelf: 'flex-start',
-          }}>
-            <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.08em', color: 'var(--trust)' }}>
-              FORM +{outcome.gain}
-            </span>
-            <span style={{ fontSize: 11, color: 'var(--ink3)' }}>
-              → {asCricket(game.meters).form}
-            </span>
+          {/* the number is the hit */}
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginTop: 18, animation: 'netPop .55s cubic-bezier(.2,1.4,.4,1) .12s both' }}>
+            <span style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 56, lineHeight: 1, color: 'var(--trust)' }}>+{outcome.gain}</span>
+            <span style={{ fontSize: 13, fontWeight: 800, letterSpacing: '.1em', color: 'var(--trust)' }}>FORM</span>
+            <span style={{ fontSize: 13, color: 'var(--ink3)', fontWeight: 700 }}>→ ab {asCricket(game.meters).form}</span>
+          </div>
+          <div style={{ height: 7, borderRadius: 5, background: 'rgba(255,255,255,.08)', marginTop: 16, overflow: 'hidden' }}>
+            <div style={{ width: `${Math.min(100, asCricket(game.meters).form)}%`, height: '100%', borderRadius: 5, background: '#FFB020', transition: 'width .9s cubic-bezier(.32,.72,0,1)' }} />
+          </div>
+          <div style={{ fontFamily: 'var(--serif)', fontSize: 17, fontWeight: 600, lineHeight: 1.55, marginTop: 20, color: 'var(--ink2)' }}>
+            {outcome.note}
           </div>
         </div>
         <div style={{ paddingBottom: 48, position: 'relative', display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -119,22 +119,32 @@ export default function NetsScreen() {
     )
   }
 
-  // Scene + choice
+  // Scene + choice — a real training moment: photo, visible stakes on both options.
+  const form = asCricket(game.meters).form
+  const riskyOk = form > session.risky.threshold
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: 'var(--bg)' }}>
-      <div style={{ padding: '52px 24px 0', flex: 1, display: 'flex', flexDirection: 'column' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      {/* cinematic header */}
+      <div style={{
+        height: 168, position: 'relative', flexShrink: 0,
+        backgroundImage: 'url(/generated/cricket-posts/cr-s15-player.png)',
+        backgroundSize: 'cover', backgroundPosition: 'center 22%',
+      }}>
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(8,8,15,.25), var(--bg))' }} />
+        <div style={{ position: 'absolute', left: 24, right: 24, bottom: 10, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.14em', color: 'var(--fame)' }}>
             NETS · SESSION {used + 1} OF {INTERLUDE_CAPS.netSessions}
           </div>
-          <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.08em', color: 'var(--ink3)' }}>
-            FORM {asCricket(game.meters).form}
+          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.08em', color: '#FFB020' }}>
+            🏏 FORM {form}
           </div>
         </div>
-        <div style={{ fontFamily: 'var(--serif)', fontSize: 23, fontWeight: 600, marginTop: 10, lineHeight: 1.3 }}>
+      </div>
+      <div style={{ padding: '14px 24px 0', flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <div style={{ fontFamily: 'var(--serif)', fontSize: 23, fontWeight: 600, lineHeight: 1.3 }}>
           {session.title}
         </div>
-        <div style={{ fontSize: 14.5, color: 'var(--ink2)', lineHeight: 1.7, marginTop: 16 }}>
+        <div style={{ fontSize: 14.5, color: 'var(--ink2)', lineHeight: 1.7, marginTop: 12 }}>
           {session.scene}
         </div>
         <div style={{ flex: 1 }} />
@@ -144,13 +154,27 @@ export default function NetsScreen() {
             border: '1px solid rgba(255,255,255,.14)', background: 'var(--surf)',
             color: 'var(--ink)', fontWeight: 600, fontSize: 14, fontFamily: 'var(--sans)',
             cursor: 'pointer', lineHeight: 1.4,
-          }}>{session.safe.label}</button>
+          }}>
+            {session.safe.label}
+            <span style={{ display: 'block', fontSize: 10.5, fontWeight: 800, color: 'var(--trust)', marginTop: 5 }}>+{baseGain} FORM pakka</span>
+          </button>
           <button onClick={() => choose(true)} style={{
             width: '100%', padding: '15px 16px', borderRadius: 14, textAlign: 'left',
             border: '1px solid rgba(255,45,120,.35)', background: 'rgba(255,45,120,.08)',
             color: 'var(--ink)', fontWeight: 600, fontSize: 14, fontFamily: 'var(--sans)',
             cursor: 'pointer', lineHeight: 1.4,
-          }}>{session.risky.label}</button>
+          }}>
+            {session.risky.label}
+            {/* the stake is VISIBLE — no hidden coin-flip */}
+            <span style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 5 }}>
+              <span style={{ fontSize: 10.5, fontWeight: 800, color: 'var(--accent)' }}>+{baseGain + 1} FORM agar nikla</span>
+              <span style={{
+                fontSize: 9, fontWeight: 800, letterSpacing: '.05em', padding: '2px 8px', borderRadius: 30,
+                background: riskyOk ? 'rgba(61,214,200,.13)' : 'rgba(255,92,58,.13)',
+                color: riskyOk ? 'var(--trust)' : 'var(--heat)',
+              }}>Form {session.risky.threshold}+ chahiye · {riskyOk ? 'tum ready ho' : 'abhi risky hai'}</span>
+            </span>
+          </button>
           <button onClick={() => goBack()} style={{
             background: 'none', border: 'none', color: 'var(--ink3)', fontSize: 12,
             fontWeight: 600, padding: '12px 0', minHeight: 44, cursor: 'pointer', fontFamily: 'var(--sans)',

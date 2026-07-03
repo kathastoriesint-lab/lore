@@ -360,7 +360,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .feed-heart-climb{animation:lrHb .7s ease-in-out infinite;display:inline-flex}
 /* A post quoted inside a DM thread (e.g. the post you commented on) */
 .dm-embed{align-self:flex-start;max-width:80%;margin:2px 0 5px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--surf2,#0f0f12)}
-.dm-embed-img{height:118px;background-size:cover;background-position:center}
+.dm-embed-img{height:150px;background-size:cover;background-position:center 20%}
 .dm-embed-cap{font:500 11px/1.4 var(--sans);color:var(--ink2);padding:8px 10px}
 .dm-embed-cap b{color:#fff;font-weight:700}
 /* Relationship marker (replaces the numeric trust meter for Creator House) */
@@ -1183,3 +1183,6 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 /* Sheet Morph (choice → DM): the thread expands in as a sheet — same-surface feel */
 @keyframes dmSheetIn{from{transform:translateY(46px) scale(.96);opacity:0}to{transform:none;opacity:1}}
 .dm-sheet-in{animation:dmSheetIn .42s cubic-bezier(.22,.9,.3,1) both;transform-origin:50% 88%}
+
+/* Nets outcome pop — the dopamine hit */
+@keyframes netPop{from{transform:scale(.6) translateY(10px);opacity:0}60%{transform:scale(1.06)}to{transform:none;opacity:1}}

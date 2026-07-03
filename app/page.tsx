@@ -63,20 +63,9 @@ const defaultDmTrustFor = (world: GameState['world'], charId: CharId) => (
   world === 'cricket' ? (getCricketDMTrustStart()[charId] ?? 50) : (getCHDMTrust()[charId] ?? 50)
 )
 
-// First-contact opener DMs for the dressing room. Seniors greet a 16-year-old
-// newcomer (tu/beta from elders is natural); friend is a same-age peer.
-// Schedule: coach + friend open after the 1st situation; the rest after the 2nd.
-// First-contact openers: the dressing room introduces itself AFTER your first
-// nets day (S2). Coach + Maddy get REAL story DMs at S1 — no canned openers
-// for them (they contradicted the auction-night timeline).
-const CRICKET_DM_OPENERS: Partial<Record<CharId, string>> = {
-  hardik: 'Welcome to the squad. ||| Yahan kaam bolta hai, baaki sab noise hai. Ready reh — mauka kabhi bhi aa sakta hai.',
-  rohit:  'Aa gaye. Aaram se lo, pressure abhi se mat lo. ||| Dekhte hain tum khel ke baare mein sochte kaise ho.',
-  surya:  'Arre champion aa gaya! 😄 ||| Koi bhi cheez poochni ho — shot, field, kuch bhi — bejhijhak bol dena. Main yahin hoon.',
-  bumrah: 'Nets mein tujhe dekha tha. Potential hai. ||| Par potential se runs nahi bante. Kaam karega toh baat karenge.',
-  tilak:  'Bhai tu naya hai na squad mein? Tension mat le, sab settle ho jaata hai. ||| Kuch samajhna ho toh bata dena.',
-}
-const DM_OPENER_TIER2: CharId[] = ['hardik', 'rohit', 'surya', 'bumrah', 'tilak']
+// No canned opener DMs: the dressing room does NOT introduce itself. The
+// player DMs a senior first, and the character's FIRST AI reply carries the
+// welcome beat (founder call, Jul 3) — earned access, not broadcast.
 
 const asArray = <T,>(value: T | T[] | null | undefined): T[] => {
   if (value == null) return []
@@ -801,7 +790,14 @@ export default function App() {
       situation: game.situation,
       world: game.world,
       flags: game.flags,
-      story: buildStorySummary() ?? undefined,
+      story: (() => {
+        const base = buildStorySummary() ?? ''
+        // First-ever exchange with this character: the reply IS the welcome.
+        const firstContact = contextHistory.filter(m => m.role === 'char').length === 0
+        if (!firstContact) return base || undefined
+        return (base ? base + '\n' : '') +
+          'FIRST CONTACT: yeh newcomer ka tumhe bheja pehla message hai. Apne persona ke hisaab se ek chhoti si welcome beat se shuru karo — 16-saal ke naye ladke ne khud pehal ki hai (warm ya measured, jaisa tumhara character hai) — phir uske message ka jawab do.'
+      })(),
       trustWithChar: currentTrust,
       trustBand,
       trustGuidance: trustGuidanceFor(currentTrust),
@@ -929,47 +925,6 @@ export default function App() {
     setTimeout(() => setFollowerReceipt(null), 3600)
   }, [])
 
-  // Progressive DM openers: coach + friend reach out after the 1st situation,
-  // the rest of the dressing room after the 2nd — so chats "open" in order.
-  // Guarded by a localStorage flag so each tier seeds exactly once per run.
-  useEffect(() => {
-    if (game.world !== 'cricket' && game.world !== 'creator-house') return
-    const count = game.choices.length
-    let seeded: Record<string, boolean> = {}
-    try { seeded = JSON.parse(localStorage.getItem('lore_dm_openers_v1') || '{}') } catch {}
-
-    const seedTier = (ids: CharId[], tierKey: string, openerFor: (id: CharId) => string, baseDelay: number) => {
-      if (seeded[tierKey]) return
-      seeded[tierKey] = true
-      try { localStorage.setItem('lore_dm_openers_v1', JSON.stringify(seeded)) } catch {}
-      ids.forEach((id, idx) => {
-        setTimeout(() => {
-          // Re-check AT FIRE TIME: the seeded flag is device-local while DM
-          // history is server-persisted — on a fresh device this can run long
-          // after story DMs already exist in the thread. Never inject a
-          // "welcome" under real conversation.
-          if ((dmHistoryRef.current[id]?.length ?? 0) > 0) return
-          // Stamp with the story's CURRENT day/phase, not the day-1 fallback —
-          // a late opener must not put a "DAY 1" divider after a "DAY 2" one.
-          const g = gameRef.current
-          const sit = getCricketSituations().find(x => x.id === g.situationQueue[g.situation])
-          const meta = sit ? { day: sit.day, phase: phaseFromTag(sit.tag) } : undefined
-          const bubbles = (openerFor(id) ?? '').split('|||').map(s => s.trim()).filter(Boolean)
-          bubbles.forEach((text, b) => {
-            setTimeout(() => injectCharDM(id, text, undefined, meta), b * 500)
-          })
-        }, baseDelay + idx * 900)
-      })
-    }
-
-    if (game.world === 'cricket') {
-      // Seniors introduce themselves after your first nets day (S2) — story-
-      // plausible timing. Characters with existing threads are skipped.
-      if (count >= 2) seedTier(DM_OPENER_TIER2, 't2', id => CRICKET_DM_OPENERS[id] ?? '', 2500)
-    }
-    // Creator House: the inbox stays EMPTY by design. A DM thread opens only when a
-    // character is triggered — a story choice, or you commenting on their post.
-  }, [game.world, game.char, game.choices.length, injectCharDM])
 
   const applyFeedDeltas = useCallback((deltas: Partial<{ form: number; fame: number; trust: number }>, charId?: string, charName?: string, relationshipDeltas?: Partial<Record<string, number>>) => {
     const isCricket = game.world === 'cricket'

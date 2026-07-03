@@ -242,8 +242,11 @@ export async function loadDMs(charId: CharId): Promise<DMMessage[]> {
     .order('created_at', { ascending: true })
 
   if (!data || data.length === 0) {
-    // First time — insert opening hook
-    const hook: DMMessage = { role: 'char', text: getCHDMHooks()[charId] ?? getCricketDMHooks()[charId] ?? 'Hey! Kya chal raha hai?' }
+    // Cricket: threads start EMPTY — the player texts first and the AI's first
+    // reply carries the welcome (no canned hooks). CH keeps its opening hook.
+    const chHook = getCHDMHooks()[charId]
+    if (!chHook) return []
+    const hook: DMMessage = { role: 'char', text: chHook }
     await saveDM(charId, hook)
     return [hook]
   }
