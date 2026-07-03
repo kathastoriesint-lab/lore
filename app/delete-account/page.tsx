@@ -37,23 +37,39 @@ export default function DeleteAccount() {
 
       <div style={{ maxWidth: 720, margin: '0 auto', padding: '36px 24px 96px', lineHeight: 1.62 }}>
         <p style={{ fontSize: 16, color: '#2a2a2e', marginTop: 0 }}>
-          You can request deletion of your <strong>Lore</strong> account (by Kathastories) and all
-          associated data at any time. Because Lore accounts are created with a phone number, we
-          verify and process deletions by email. Here&rsquo;s how:
+          You can delete your <strong>Lore</strong> account (by Kathastories) and all associated data
+          at any time. There are two ways &mdash; the in-app button is instant; email is available if
+          you can no longer open the app.
         </p>
 
-        <h2 style={{ fontSize: 19, fontWeight: 700, margin: '30px 0 16px' }}>Steps to request deletion</h2>
+        <h2 style={{ fontSize: 19, fontWeight: 700, margin: '30px 0 6px' }}>Option 1 &mdash; In the app <span style={{ color: ACCENT, fontSize: 14, fontWeight: 700 }}>(fastest)</span></h2>
+        <p style={{ marginTop: 0, color: MUTED, fontSize: 14 }}>Removes your account and all data immediately.</p>
         <div style={step}>
           <div style={num}>1</div>
-          <div>Email us at {mail('katha.storiesint@gmail.com', 'Delete my Lore account')} with the subject <strong>&ldquo;Delete my Lore account&rdquo;</strong>.</div>
+          <div>Open Lore and go to the <strong>Profile</strong> tab.</div>
         </div>
         <div style={step}>
           <div style={num}>2</div>
-          <div>In the email, include the <strong>phone number you use to sign in to Lore</strong> (and your email, if you added one), so we can locate your account.</div>
+          <div>Under <strong>Account</strong>, tap <strong>&ldquo;Delete account&rdquo;</strong>.</div>
         </div>
         <div style={step}>
           <div style={num}>3</div>
-          <div>We verify the request and <strong>delete your account and data within 30 days</strong>, then send you a confirmation.</div>
+          <div>Confirm. Your account and all associated data are <strong>deleted right away</strong>.</div>
+        </div>
+
+        <h2 style={{ fontSize: 19, fontWeight: 700, margin: '34px 0 6px' }}>Option 2 &mdash; By email</h2>
+        <p style={{ marginTop: 0, color: MUTED, fontSize: 14 }}>Use this if you no longer have the app installed.</p>
+        <div style={step}>
+          <div style={num}>1</div>
+          <div>Email {mail('katha.storiesint@gmail.com', 'Delete my Lore account')} with the subject <strong>&ldquo;Delete my Lore account&rdquo;</strong>.</div>
+        </div>
+        <div style={step}>
+          <div style={num}>2</div>
+          <div>Include the <strong>phone number you use to sign in to Lore</strong> (and your email, if you added one), so we can locate your account.</div>
+        </div>
+        <div style={step}>
+          <div style={num}>3</div>
+          <div>We verify and <strong>delete your account and data within 30 days</strong>, then send a confirmation.</div>
         </div>
 
         <div style={{ border: `1px solid ${LINE}`, borderRadius: 14, padding: '18px 20px', background: '#fafafb', marginTop: 30 }}>

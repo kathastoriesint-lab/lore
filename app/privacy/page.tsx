@@ -89,9 +89,11 @@ export default function PrivacyPolicy() {
         <Section n="4" title="Data retention & deletion">
           <p style={{ margin: 0 }}>
             We keep your account and gameplay data for as long as your account is active. You can
-            request deletion of your account and associated data at any time by emailing us at{' '}
-            {mail('katha.storiesint@gmail.com')}. We will delete it within 30 days, except where we are
-            required to retain it by law.
+            delete your account and all associated data instantly from <strong>Profile &rarr; Delete
+            account</strong> in the app, or by emailing us at {mail('katha.storiesint@gmail.com')} (email
+            requests are actioned within 30 days). See our{' '}
+            <a href="/delete-account" style={{ color: ACCENT, fontWeight: 600, textDecoration: 'none' }}>account-deletion page</a> for details.
+            We may retain records only where required by law.
           </p>
         </Section>
 
