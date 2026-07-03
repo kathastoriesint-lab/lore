@@ -20,22 +20,25 @@ export default function LiveEntryCard() {
     navigate(game.char ? 'live' : 'narrator')
   }, [navigate, game.char])
 
-  // The full season has been played → clean "season complete" card (both worlds).
+  // The full season has been played. Cricket: the ENDING ceremony (India verdict)
+  // lives on the Live finale screen — this card is the road there, so it must
+  // stay clickable or the season's payoff is unreachable.
   if (!nextSit) {
     if (isCricket) return (
       <div className="le-wrap">
-        <div className="le-cta cricket" style={{ cursor: 'default' }}>
+        <button className="le-cta cricket" onClick={enterLive}>
           <div className="le-row">
-            <div className="le-play" style={{ background: 'rgba(255,255,255,.14)' }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+            <div className="le-play">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg>
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div className="le-eye">SEASON 1 COMPLETE</div>
+              <div className="le-eye">SEASON FINALE · INDIA LIST</div>
               <div className="le-ttl">Verdict aa gaya 🏏</div>
-              <div className="le-sub">Poora season tumhara tha. Agla chapter jald…</div>
+              <div className="le-sub">6 baje ki list nikli hai — apna naam dekho</div>
             </div>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="M9 18l6-6-6-6"/></svg>
           </div>
-        </div>
+        </button>
       </div>
     )
     return (
