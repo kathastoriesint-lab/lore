@@ -9,3 +9,6 @@ voice-samples/
 
 # Supabase CLI scratch
 supabase/.temp/
+
+# Local QA screenshot artifacts (not source)
+cricket-world-screenshots/
