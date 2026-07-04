@@ -4,10 +4,19 @@
 // story tap + on making a choice) to warm the AudioContext before a timer-fired
 // cue (like a DM landing) needs to play.
 let ctx: AudioContext | null = null
-let enabled = true
 
-// Future: wire setSoundEnabled to a Profile toggle + persisted setting.
-export function setSoundEnabled(on: boolean) { enabled = on }
+// User preference, persisted so it survives reloads. Default ON.
+const LS_KEY = 'weev_sound'
+function loadPref(): boolean {
+  try { if (typeof localStorage !== 'undefined') { const v = localStorage.getItem(LS_KEY); if (v !== null) return v === '1' } } catch { /* private mode */ }
+  return true
+}
+let enabled = loadPref()
+export function setSoundEnabled(on: boolean) {
+  enabled = on
+  try { if (typeof localStorage !== 'undefined') localStorage.setItem(LS_KEY, on ? '1' : '0') } catch { /* private mode */ }
+}
+export function isSoundEnabled(): boolean { return enabled }
 
 function ac(): AudioContext | null {
   if (typeof window === 'undefined') return null

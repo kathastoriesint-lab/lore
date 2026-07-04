@@ -9,9 +9,18 @@
 import { Capacitor } from '@capacitor/core'
 import { Haptics, ImpactStyle, NotificationType } from '@capacitor/haptics'
 
-// Future: wire setHapticsEnabled to a Profile toggle + persisted setting.
-let enabled = true
-export function setHapticsEnabled(on: boolean) { enabled = on }
+// User preference, persisted so it survives reloads. Default ON.
+const LS_KEY = 'weev_haptics'
+function loadPref(): boolean {
+  try { if (typeof localStorage !== 'undefined') { const v = localStorage.getItem(LS_KEY); if (v !== null) return v === '1' } } catch { /* private mode */ }
+  return true
+}
+let enabled = loadPref()
+export function setHapticsEnabled(on: boolean) {
+  enabled = on
+  try { if (typeof localStorage !== 'undefined') localStorage.setItem(LS_KEY, on ? '1' : '0') } catch { /* private mode */ }
+}
+export function isHapticsEnabled(): boolean { return enabled }
 
 function reducedMotion(): boolean {
   return typeof window !== 'undefined'

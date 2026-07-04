@@ -3,6 +3,8 @@ import { useState, useEffect, type CSSProperties } from 'react'
 import { useApp } from '@/lib/context'
 import { getAuthInfo, signOutToGuest, deleteAccountFully, type AuthInfo } from '@/lib/auth'
 import { getProfileStats, type ProfileStats } from '@/lib/profile-stats'
+import * as haptics from '@/lib/haptics'
+import * as sound from '@/lib/sound'
 
 // Global profile — world-agnostic, reached from the Worlds tab. About YOU across
 // all of Weev: identity, your worlds hub, account/settings. (The per-world profile
@@ -19,9 +21,14 @@ export default function GlobalProfileScreen() {
   const [stats, setStats] = useState<ProfileStats>({ worlds: 0, choices: 0, streak: 0 })
   const [editing, setEditing] = useState(false)
   const [draft, setDraft] = useState('')
+  // Feedback prefs — synced from the persisted util state on mount (client-only,
+  // avoids a hydration mismatch since the util reads localStorage).
+  const [hapticsOn, setHapticsOn] = useState(true)
+  const [soundOn, setSoundOn] = useState(true)
 
   useEffect(() => { getAuthInfo().then(setAuth) }, [])
   useEffect(() => { setStats(getProfileStats()) }, [])
+  useEffect(() => { setHapticsOn(haptics.isHapticsEnabled()); setSoundOn(sound.isSoundEnabled()) }, [])
 
   const name = game.playerName || 'Player'
   const initial = (name[0] || 'P').toUpperCase()
@@ -65,6 +72,19 @@ export default function GlobalProfileScreen() {
     { icon: '↪', label: 'Log out', color: 'var(--ink)', onClick: () => signOutToGuest().then(() => { if (typeof window !== 'undefined') window.location.reload() }) },
     { icon: '🗑', label: 'Delete account', color: 'var(--heat)', onClick: deleteAccount },
   ]
+
+  // Toggling ON fires a sample so you immediately feel/hear it.
+  const feedbackRows: { icon: string; label: string; meta: string; on: boolean; set: (v: boolean) => void }[] = [
+    { icon: '📳', label: 'Vibration', meta: 'Taps & choices', on: hapticsOn, set: (v) => { haptics.setHapticsEnabled(v); setHapticsOn(v); if (v) haptics.select() } },
+    { icon: '🔊', label: 'Sound', meta: 'DMs & posts', on: soundOn, set: (v) => { sound.setSoundEnabled(v); setSoundOn(v); if (v) sound.dmLand() } },
+  ]
+
+  const Toggle = ({ on, onChange }: { on: boolean; onChange: (v: boolean) => void }) => (
+    <button role="switch" aria-checked={on} onClick={() => onChange(!on)}
+      style={{ width: 46, height: 27, borderRadius: 99, border: 'none', padding: 0, flexShrink: 0, cursor: 'pointer', position: 'relative', background: on ? 'var(--accent)' : 'rgba(255,255,255,.16)', transition: 'background .18s' }}>
+      <span style={{ position: 'absolute', top: 3, left: on ? 22 : 3, width: 21, height: 21, borderRadius: '50%', background: '#fff', boxShadow: '0 1px 3px rgba(0,0,0,.35)', transition: 'left .18s' }} />
+    </button>
+  )
 
   const sectionLabel: CSSProperties = { fontSize: 11, fontWeight: 800, letterSpacing: '.1em', color: 'var(--ink3)', padding: '0 4px 12px' }
   const statCol = (value: string | number, label: string, gold = false) => (
@@ -144,6 +164,26 @@ export default function GlobalProfileScreen() {
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
             Explore {hasRun ? 'more ' : ''}worlds
           </button>
+        </div>
+
+        {/* ── Feedback (haptics + sound) ── */}
+        <div style={{ padding: '22px 18px 0' }}>
+          <div style={sectionLabel}>FEEDBACK</div>
+          <div style={{ background: 'var(--surf)', border: '1px solid var(--line)', borderRadius: 16, overflow: 'hidden' }}>
+            {feedbackRows.map((row, i) => (
+              <div key={row.label}
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', padding: '13px 16px', borderTop: i === 0 ? 'none' : '1px solid var(--line)' }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <span style={{ fontSize: 15, width: 20, textAlign: 'center' }}>{row.icon}</span>
+                  <span style={{ display: 'flex', flexDirection: 'column' }}>
+                    <span style={{ fontSize: 15, fontWeight: 500, color: 'var(--ink)' }}>{row.label}</span>
+                    <span style={{ fontSize: 12, color: 'var(--ink3)' }}>{row.meta}</span>
+                  </span>
+                </span>
+                <Toggle on={row.on} onChange={row.set} />
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* ── Account ── */}
