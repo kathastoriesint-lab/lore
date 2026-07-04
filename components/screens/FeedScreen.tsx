@@ -6,6 +6,7 @@ import type { PostCommentOption } from '@/lib/data'
 import { getCricketChars, getCHChars, getCHPostComments } from '@/lib/content'
 import { applyDeltas, resolveTokens, fameToFollowers } from '@/lib/game'
 import { derivePosts, deriveOvernightPosts, type FeedPost } from '@/lib/feed-posts'
+import { weekForSituationId } from '@/lib/season'
 import MeterHUD from '@/components/MeterHUD'
 import LiveEntryCard from '@/components/LiveEntryCard'
 import CommentComposer from '@/components/CommentComposer'
@@ -488,9 +489,19 @@ export default function FeedScreen() {
   const worldLabel = isCricket ? 'Indian Dressing Room' : 'Creator House'
 
   // Player's run → feed posts (newest first). Shared with the world profile.
-  // Overnight storm first (the morning newspaper), then the replayed run.
+  // Chronology is sacred (founder): newest first. Posts YOU made this week sit
+  // on top; the overnight storm is "last night's" news so it slots under them;
+  // older weeks follow.
   const completedPosts = useMemo<FeedPost[]>(
-    () => [...deriveOvernightPosts(game), ...derivePosts(game)],
+    () => {
+      const derived = derivePosts(game)          // already newest-first
+      const overnight = deriveOvernightPosts(game)
+      if (!overnight.length) return derived
+      const wk = game.week ?? 1
+      const wkStart = game.situationQueue.findIndex(id => weekForSituationId(id) === wk)
+      const split = wkStart <= 0 ? 0 : derived.filter(p => p.stepIndex >= wkStart).length
+      return [...derived.slice(0, split), ...overnight, ...derived.slice(split)]
+    },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [game.choices, game.char, isCricket, game.aiPosts, game.week, game.selections, game.gateResults],
   )
@@ -508,6 +519,23 @@ export default function FeedScreen() {
     setCommentPost(null)
     addPostComment(postId, text)
   }, [addPostComment])
+
+  // Land on the NEW content when the feed becomes visible — never wherever it
+  // was last scrolled (founder). A composing reveal anchors to that post; any
+  // other new outcome snaps to top, where the newest post now lives.
+  const lastSeenChoicesRef = useRef(-1)
+  useEffect(() => {
+    if (screen !== 'feed') return
+    const fresh = game.choices.length !== lastSeenChoicesRef.current
+    lastSeenChoicesRef.current = game.choices.length
+    if (!fresh && !pendingPostReveal) return
+    const t = setTimeout(() => {
+      const target = pendingPostReveal ? document.getElementById(`fp-${pendingPostReveal}`) : null
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      else { const sc = document.getElementById('feed-scroll'); if (sc) sc.scrollTop = 0 }
+    }, 250)
+    return () => clearTimeout(t)
+  }, [screen, game.choices.length, pendingPostReveal])
 
   // Stream a freshly-posted player post: reactions appear one at a time, likes
   // climb, the follower receipt shows, and any DM lands as an app-wide notification.
@@ -602,7 +630,7 @@ export default function FeedScreen() {
       <MeterHUD />
 
       {/* Scrollable feed */}
-      <div className="scroll" style={{ flex: 1 }}>
+      <div id="feed-scroll" className="scroll" style={{ flex: 1 }}>
 
         {/* Relationship fallout posts — only when an individual trust crosses below 30 */}
         {isCricket && relationshipAlerts.map((alert, i) => {
