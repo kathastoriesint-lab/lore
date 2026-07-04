@@ -176,19 +176,30 @@ export function deriveOvernightPosts(game: GameState): FeedPost[] {
 }
 
 // ── Beat buzz ────────────────────────────────────────────────────────────────
-// After the LATEST beat, a couple of extra characters react on the feed — so
-// landing on the feed after a beat shows a burst of NEW posts from x, y, z, not
-// just the one authored reaction (founder). Deterministic from the beat index
-// (replay-safe); latest beat only, so the feed doesn't bloat. Real characters
-// only — these render as npc posts (reactable + AI-commentable; canDM applies).
-const BUZZ_POOL = ['surya', 'rohit', 'bumrah', 'tilak', 'naman'] as const
-const BUZZ_LINES: Record<string, string[]> = {
-  surya: ['Yeh temperament dekha? 😄 Isko field padhna aata hai.', 'Champion material. Andar sab notice kar rahe hain 🔥', 'Bhai isko nets mein dekho — alag hi calm hai.'],
-  rohit: ['Hmm. Dekh raha hoon. 🏏', 'Jaldi mat karo iske baare mein. Innings lambi hai.', 'Tempo samajhta hai. Baaki time batayega.'],
-  bumrah: ['Nets mein isne mujhe surprise kiya. Facts.', 'Ego kam, seekhne ki bhookh zyada. Achha sign.', 'Ball ke peeche aankhein sahi hain iski.'],
-  tilak: ['Process pe raha toh yeh lamba khelega 💙', 'Same energy jo humein chahiye thi. 🔥', 'Bas hype se door raha toh set hai.'],
-  naman: ['Slot ek hai. Kaam bolega. 🤝', 'Sab hype kar rahe hain. Main scoreboard dekhta hoon.', 'Dekhte hain kitna asli hai.'],
-}
+// After the LATEST beat, a couple of FAN/MEDIA accounts react on the feed — so
+// landing on the feed after a beat shows a burst of new posts about you (founder).
+// These are fan pages, NOT the seniors: a fan account posting "yeh kid alag hai"
+// is natural; a senior posting third-person commentary about you on their own
+// feed is not (that belongs in a DM). Deterministic from the beat index
+// (replay-safe); latest beat only, so the feed doesn't bloat. Each carries a real
+// image so it never renders blank.
+const BUZZ_FEED = [
+  { handle: 'paltanpulse', init: 'P', color: '#003087', img: '/generated/cricket-posts/cr-s14-mipaltan.png', lines: [
+    'Yeh kid alag hai. Andar wale bhi notice kar rahe hain 👀💙',
+    'Remember the name — Paltan ne pehle hi bola tha 🔥',
+    'Temperament > hype. Aur dono side dikh raha hai. 💙',
+  ] },
+  { handle: 'cricketroom_india', init: 'C', color: '#1a2a3a', img: '/generated/cricket-posts/cr-s2-cricketroom.png', lines: [
+    'Talent toh hai. Pressure mein kya karta hai — wahi asli test.',
+    'MI ka yeh young pick — abhi sabse zyada charcha isi ki.',
+    'Trust takes time. Kid abhi apna case bana raha hai.',
+  ] },
+  { handle: 'futurexi', init: 'FX', color: '#2a1a4a', img: '/generated/cricket-posts/seed-futurexi.png', lines: [
+    'India ka next? Raasta lamba hai, par shuruaat solid.',
+    'Scouting note: is umar mein yeh temperament rare hai. 🏏',
+    'Yeh naam yaad rakhna. Watch this space.',
+  ] },
+] as const
 
 export function deriveBeatBuzz(game: GameState): FeedPost[] {
   if (game.world !== 'cricket') return []
@@ -198,20 +209,16 @@ export function deriveBeatBuzz(game: GameState): FeedPost[] {
   const sitMap = Object.fromEntries(sits.map(s => [s.id, s]))
   const latestSit = sitMap[game.situationQueue[n - 1]]
   if (!latestSit) return []
-  const chars = getCricketChars()
   const letter = game.choices[n - 1] as 'A' | 'B'
-  const authoredChar = latestSit.feedReaction?.[letter]?.char
   const out: FeedPost[] = []
-  for (let k = 0; out.length < 2 && k < BUZZ_POOL.length; k++) {
-    const id = BUZZ_POOL[(n + k) % BUZZ_POOL.length]
-    if (id === authoredChar) continue
-    const char = chars[id]
-    if (!char) continue
-    const lines = BUZZ_LINES[id] ?? ['👀']
+  for (let k = 0; out.length < 2 && k < BUZZ_FEED.length; k++) {
+    const acc = BUZZ_FEED[(n + k) % BUZZ_FEED.length]
     out.push({
-      type: 'npc', postId: `buzz-${latestSit.id}-${id}`, sit: latestSit,
+      type: 'authored', postId: `buzz-${latestSit.id}-${acc.handle}`, sit: latestSit,
       stepIndex: n - 1, postOffset: 3 + out.length, choice: letter,
-      reaction: { char: id, caption: lines[n % lines.length] }, char,
+      caption: acc.lines[n % acc.lines.length], imageUrl: acc.img,
+      owner: { id: '__account', cls: '', init: acc.init, handle: acc.handle, color: acc.color, isPlayer: false },
+      label: '', reactions: [],
     })
   }
   return out
