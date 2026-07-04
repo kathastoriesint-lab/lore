@@ -59,7 +59,7 @@ function feedFillImg(handle: string | undefined, char: string | undefined, step:
 }
 
 export type FeedPost =
-  | { type: 'npc'; postId: string; sit: Situation; stepIndex: number; postOffset: number; ageMinutes?: number; choice: 'A'|'B'; reaction: { char: string; caption: string }; char: Character }
+  | { type: 'npc'; postId: string; sit: Situation; stepIndex: number; postOffset: number; ageMinutes?: number; choice: 'A'|'B'; reaction: { char: string; caption: string; imageUrl?: string }; char: Character }
   | {
       type: 'authored'
       postId: string
@@ -106,28 +106,19 @@ export function derivePosts(game: GameState): FeedPost[] {
     const ch = sit.choices[letter === 'A' ? 0 : 1]
 
     const reaction = sit.feedReaction?.[letter]
-    // Fill an image-less cricket reaction from the library so it renders as a real
-    // photo post (avatar + photo card) instead of a blank gradient.
-    const reactImg = reaction
-      ? (reaction.imageUrl ?? (isCricket ? feedFillImg(reaction.account?.handle, reaction.char, i) : undefined))
-      : undefined
-    if (reaction && (reaction.account || reactImg)) {
-      // Fan-account reactions (and photo reactions) use the full authored-post
-      // rendering — avatar chip, photo card, like/comment row.
-      const owner = reaction.account
-        ? { id: '__account', cls: '', init: reaction.account.avatarText ?? reaction.account.name[0]?.toUpperCase() ?? 'F', handle: reaction.account.handle, color: '#003087', isPlayer: false }
-        : (() => {
-            const c = allChars[chCharForGender(reaction.char!, game.playerGender) as CharId]
-            return c ? { id: c.id, cls: c.cls, init: c.init, handle: c.handle, avatarUrl: `/avatars/${c.id}.png`, color: CHAR_COLORS_HEX[c.id] ?? '#1a1a2e', isPlayer: false, likeTarget: c.id as CharId } : null
-          })()
-      if (owner) posts.push({ type: 'authored', postId: `react-${sit.id}-${letter}`, sit, stepIndex: i, postOffset: 2, choice: letter, caption: reaction.caption, imageUrl: reactImg, owner, reactions: [] })
-    } else if (reaction && !isCricket && reaction.char) {
-      // Render the gender-correct creator (crush/ally swap for female players).
+    // Image fill: a fan-account reaction renders as a photo card; a real CHARACTER's
+    // reaction stays an npc post (so it keeps its comment composer → the character's
+    // DM back, plus trust-on-like) and now carries the photo too, not a blank gradient.
+    const acctFill = reaction?.account && isCricket && !reaction.imageUrl ? feedFillImg(reaction.account.handle, undefined, i) : undefined
+    const charFill = reaction?.char && isCricket && !reaction.imageUrl ? feedFillImg(undefined, reaction.char, i) : undefined
+    if (reaction && reaction.account) {
+      // Fan / media account reaction → authored card (photo, commentable, never DMs).
+      const owner = { id: '__account', cls: '', init: reaction.account.avatarText ?? reaction.account.name[0]?.toUpperCase() ?? 'F', handle: reaction.account.handle, color: '#003087', isPlayer: false }
+      posts.push({ type: 'authored', postId: `react-${sit.id}-${letter}`, sit, stepIndex: i, postOffset: 2, choice: letter, caption: reaction.caption, imageUrl: reaction.imageUrl ?? acctFill, owner, reactions: [] })
+    } else if (reaction && reaction.char) {
+      // Real character reaction → npc post (gender-correct for CH crush/ally), + photo.
       const char = allChars[chCharForGender(reaction.char, game.playerGender) as CharId]
-      if (char) posts.push({ type: 'npc', postId: `react-${sit.id}-${letter}`, sit, stepIndex: i, postOffset: 2, choice: letter, reaction: { char: reaction.char, caption: reaction.caption }, char })
-    } else if (reaction && isCricket && reaction.char) {
-      const char = allChars[reaction.char]
-      if (char) posts.push({ type: 'npc', postId: `react-${sit.id}-${letter}`, sit, stepIndex: i, postOffset: 2, choice: letter, reaction: { char: reaction.char, caption: reaction.caption }, char })
+      if (char) posts.push({ type: 'npc', postId: `react-${sit.id}-${letter}`, sit, stepIndex: i, postOffset: 2, choice: letter, reaction: { char: reaction.char, caption: reaction.caption, imageUrl: reaction.imageUrl ?? charFill }, char })
     }
 
     const legacyPost: ChoicePost | null = ch?.caption ? { source: 'player', caption: ch.caption, reactions: ch.reactions ?? [] } : null

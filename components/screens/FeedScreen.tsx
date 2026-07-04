@@ -932,8 +932,10 @@ export default function FeedScreen() {
                 </div>
                 <button className="icon-btn"><svg viewBox="0 0 24 24" width="20" height="20" fill="#fff"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
               </div>
-              <div className={`post-img grain ${reactChar.cls}`} style={{ background: charBg(reactChar.id) }}>
-                <p className="overlay-txt" style={{ fontSize:14 }}>{resolveTokens(post.reaction.caption, game.playerName, game.playerGender)}</p>
+              <div className={`post-img grain ${reactChar.cls}`} style={post.reaction.imageUrl
+                ? { backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,.05) 0%, rgba(0,0,0,.12) 55%, rgba(0,0,0,.55) 100%), url(${post.reaction.imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+                : { background: charBg(reactChar.id) }}>
+                {!post.reaction.imageUrl && <p className="overlay-txt" style={{ fontSize:14 }}>{resolveTokens(post.reaction.caption, game.playerName, game.playerGender)}</p>}
               </div>
               <ActionRow
                 like={

@@ -106,18 +106,50 @@ function reactionsPrompt(ctx: Ctx, caption: string) {
   return { system, user }
 }
 
-// Two short comment suggestions the player could leave on a character's post.
-function commentSuggestPrompt(character: { name?: string; persona?: string }, caption: string) {
+// Two short comment suggestions the PLAYER would leave on someone else's post.
+// World-aware: cricket = you are a young MI debutant, voice + tone matched to who
+// posted (senior vs fan-page vs peer); creator-house = a reality-show viewer.
+function commentSuggestPrompt(world: string | undefined, character: { name?: string; persona?: string }, caption: string) {
+  const poster = `${character?.name || 'someone'}${character?.persona ? ` (${character.persona})` : ''}`
+  if (world === 'cricket') {
+    const system =
+      `You are a 16-year-old Mumbai Indians debutant scrolling your cricket feed. ` +
+      `Write EXACTLY 2 short, distinct comments YOU would leave on this post, in natural Gen-Z Indian-cricket Hinglish (Roman script). ` +
+      `Match the relationship to who posted: to a SENIOR or coach → respectful, warm, a little starstruck — NEVER cheeky, teasing or disrespectful; ` +
+      `to a fan / media page → grateful or a humble hype-back; to a peer or rival → friendly banter with a small edge. ` +
+      `Comment #1 = genuine / warm; #2 = lighter, more personality. Each under ~10 words. ` +
+      `At most one emoji each, no hashtags. Output strict JSON {"suggestions":[string,string]}.`
+    const user = `The post is by ${poster}. Caption: "${caption}". Write the 2 comments in your own voice as the young player.`
+    return { system, user }
+  }
   const system =
     `You write short Instagram comments a viewer would leave on a reality-show creator's photo. ` +
     `Gen-Z Hinglish (Roman script). Return EXACTLY 2 short, distinct comments: #1 hype/supportive, #2 cheeky/spicy/teasing. ` +
     `At most one emoji each, no hashtags. Output strict JSON {"suggestions":[string,string]}.`
-  const user = `Post by ${character?.name || 'a creator'}${character?.persona ? ` (${character.persona})` : ''}. Caption: "${caption}". Write the 2 comments.`
+  const user = `Post by ${poster}. Caption: "${caption}". Write the 2 comments.`
   return { system, user }
 }
 
 // The character's reaction to the player's comment: tone bucket + an in-character DM.
-function commentReactPrompt(character: { name?: string; persona?: string }, caption: string, comment: string) {
+// World-aware so a cricket senior doesn't reply like a reality-show contestant.
+function commentReactPrompt(world: string | undefined, character: { name?: string; persona?: string }, caption: string, comment: string) {
+  if (world === 'cricket') {
+    const system =
+      `You ARE ${character?.name || 'a cricketer'} (${character?.persona || 'a Mumbai Indians player'}). ` +
+      `A young MI teammate / debutant just commented on your post. First classify their comment toward you as EXACTLY one of:\n` +
+      `- "positive": genuine respect, support, or warmth.\n` +
+      `- "negative": rude, cocky, or disrespectful to a senior.\n` +
+      `- "spicy": cheeky banter, a bit forward or provocative — playful, not cruel.\n` +
+      `- "boring": generic, low-effort ("nice", "👍", "well played", "🔥").\n` +
+      `Then write the short DM you'd send back — your voice, Gen-Z Indian-cricket Hinglish, 1-2 short lines:\n` +
+      `- positive → warm, encouraging, senior-to-junior; make the kid's day.\n` +
+      `- negative → a measured put-down or cool distance — you're the senior, you don't flare up.\n` +
+      `- spicy → amused, give it back, keep the kid in their place with a smile.\n` +
+      `- boring → curt, barely engaged (e.g. "hmm." / "ok kid").\n` +
+      `Output strict JSON {"sentiment":"positive|negative|spicy|boring","reply":string}.`
+    const user = `Your post caption: "${caption}". The player's comment: "${comment}". React as a DM.`
+    return { system, user }
+  }
   const system =
     `You ARE ${character?.name || 'a creator'}, a contestant on the Indian reality show "Creator House". ` +
     `Persona: ${character?.persona || 'a creator'}. A viewer just commented on your post. ` +
@@ -137,7 +169,7 @@ function commentReactPrompt(character: { name?: string; persona?: string }, capt
 }
 
 export async function POST(req: Request) {
-  let body: { mode?: string; vibe?: Vibe; caption?: string; comment?: string; character?: { name?: string; persona?: string }; ctx?: Ctx } = {}
+  let body: { mode?: string; vibe?: Vibe; caption?: string; comment?: string; character?: { name?: string; persona?: string }; ctx?: Ctx; world?: string } = {}
   try {
     body = await req.json()
   } catch {
@@ -177,7 +209,7 @@ export async function POST(req: Request) {
     }
 
     if (body.mode === 'comment-suggest') {
-      const { system, user } = commentSuggestPrompt(body.character || {}, (body.caption || '').trim())
+      const { system, user } = commentSuggestPrompt(body.world ?? body.ctx?.world, body.character || {}, (body.caption || '').trim())
       const out = await callOpenAI(system, user, 120, 'gpt-4o-mini')
       const suggestions = Array.isArray(out?.suggestions)
         ? out.suggestions.filter((s: unknown) => typeof s === 'string' && s.trim()).map((s: string) => s.trim()).slice(0, 2)
@@ -189,7 +221,7 @@ export async function POST(req: Request) {
     if (body.mode === 'comment-react') {
       const comment = (body.comment || '').trim()
       if (!comment) return Response.json({ error: 'no comment' }, { status: 400 })
-      const { system, user } = commentReactPrompt(body.character || {}, (body.caption || '').trim(), comment)
+      const { system, user } = commentReactPrompt(body.world ?? body.ctx?.world, body.character || {}, (body.caption || '').trim(), comment)
       const out = await callOpenAI(system, user, 160, 'gpt-4o-mini')
       const sentiment = ['positive', 'negative', 'spicy', 'boring'].includes(out?.sentiment) ? out.sentiment : 'boring'
       const reply = typeof out?.reply === 'string' ? out.reply.trim() : ''

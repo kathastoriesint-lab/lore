@@ -14,6 +14,23 @@ const CHAR_PERSONAS: Record<string, string> = {
 const CRUSH_PERSONA = 'the one you share a history with from a few years ago — guarded, real, an unspoken almost-something, quietly watching you'
 const ALLY_PERSONA  = 'your loud, loyal ride-or-die — warm, all heart, hypes you up and films the chaos'
 
+// Cricket personas (by character id + fan-page handle) so the suggester speaks
+// in-world — a senior isn't a "Creator House contestant".
+const CRICKET_PERSONAS: Record<string, string> = {
+  hardik: 'the MI captain — decisive, team-first, approval is earned',
+  rohit: 'the senior legend — unhurried, sparing with words',
+  surya: 'the warm senior who loves to teach; calls you champion/bhai',
+  bumrah: 'the pace spearhead — minimal, technical',
+  tilak: 'your closest peer in the squad — friendly but measuring',
+  naman: 'your direct rival for one middle-order slot — guarded, competitive',
+  mahela: 'the head coach — precise, numbers over adjectives',
+  coach: 'MI support-staff coach — calm, developmental',
+  friend: 'your best friend from back home — hypes you, roasts you, all love',
+  paltanpulse: 'a rabid Mumbai Indians fan & gossip page',
+  cricketroom_india: 'a big neutral cricket news & opinion page',
+  futurexi: "a talent-scouting page hyping India's next generation",
+}
+
 interface Props {
   character: { id: string; name: string; handle: string }
   post: { caption: string; imageUrl?: string }
@@ -35,6 +52,7 @@ export default function CommentComposer({ character, post, onDone, persona: pers
   const [draft, setDraft] = useState('')
   const [sent, setSent] = useState(false)
   const persona = personaProp ?? (() => {
+    if (game.world === 'cricket') return CRICKET_PERSONAS[character.id] ?? 'a Mumbai Indians player'
     if (character.id === 'kabir' || character.id === 'ananya') {
       const isCrush = game.playerGender === 'male' ? character.id === 'ananya' : character.id === 'kabir'
       return isCrush ? CRUSH_PERSONA : ALLY_PERSONA
@@ -46,7 +64,7 @@ export default function CommentComposer({ character, post, onDone, persona: pers
     let alive = true
     fetch('/api/lore-post', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ mode: 'comment-suggest', character: { name: character.name, persona }, caption: post.caption }),
+      body: JSON.stringify({ mode: 'comment-suggest', world: game.world, character: { name: character.name, persona }, caption: post.caption }),
     })
       .then(r => (r.ok ? r.json() : null))
       .then(d => {
@@ -66,7 +84,7 @@ export default function CommentComposer({ character, post, onDone, persona: pers
     try {
       const res = await fetch('/api/lore-post', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mode: 'comment-react', character: { name: character.name, persona }, caption: post.caption, comment: text.trim() }),
+        body: JSON.stringify({ mode: 'comment-react', world: game.world, character: { name: character.name, persona }, caption: post.caption, comment: text.trim() }),
       })
       if (res.ok) { const d = await res.json(); sentiment = d.sentiment || 'boring'; reply = d.reply || '' }
     } catch { /* no reply on failure */ }
