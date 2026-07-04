@@ -72,7 +72,7 @@ export default function OnboardingScreen() {
               <circle cx="16" cy="16" r="1.9" fill="#ffd24d" />
             </svg>
           </div>
-          <div style={{ position: 'relative', fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 32, color: '#fff', letterSpacing: '.5px' }}>Welcome to Lore</div>
+          <div style={{ position: 'relative', fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 32, color: '#fff', letterSpacing: '.5px' }}>Welcome to Weev</div>
           <div style={{ position: 'relative', fontSize: 14.5, color: 'var(--ink2)', marginTop: 6, lineHeight: 1.45 }}>Live in any world you want.</div>
         </div>
 

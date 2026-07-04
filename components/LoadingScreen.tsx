@@ -1,6 +1,6 @@
 'use client'
 
-// Full-bleed Lore loading splash (per the loading-page handoff). The orbit mark —
+// Full-bleed Weev loading splash (per the loading-page handoff). The orbit mark —
 // gradient ring spinning, inner ring counter-rotating, gold core pulsing — over a
 // breathing pink halo, with the Fraunces wordmark, an indeterminate pink progress
 // bar and an optional status line. Near-black + film-grain + pink wash. Fills its
@@ -36,7 +36,7 @@ export default function LoadingScreen({
       </div>
 
       {/* wordmark + tagline */}
-      <div style={{ position: 'relative', fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 34, color: '#fff', letterSpacing: '.5px', lineHeight: 1 }}>Lore</div>
+      <div style={{ position: 'relative', fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 34, color: '#fff', letterSpacing: '.5px', lineHeight: 1 }}>Weev</div>
       {tagline && <div style={{ position: 'relative', fontSize: 13.5, color: 'var(--ink2)', marginTop: 8, letterSpacing: '.3px' }}>{tagline}</div>}
 
       {/* indeterminate progress bar */}

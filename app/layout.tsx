@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Lore — Worlds you can live in',
+  title: 'Weev — Worlds you can live in',
   description: 'Deep characters. Real drama. Two ways to live them.',
 }
 

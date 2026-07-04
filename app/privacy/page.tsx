@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy — Lore',
-  description: 'How Lore collects, uses, and protects your data.',
+  title: 'Privacy Policy — Weev',
+  description: 'How Weev collects, uses, and protects your data.',
 }
 
 // Public privacy policy for the Google Play store listing and in-app link.
@@ -36,7 +36,7 @@ export default function PrivacyPolicy() {
         <div style={{ maxWidth: 760, margin: '0 auto' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <span style={{ width: 10, height: 10, borderRadius: '50%', background: ACCENT, boxShadow: `0 0 14px ${ACCENT}` }} />
-            <span style={{ fontFamily: '"Fraunces", Georgia, serif', fontSize: 26, fontWeight: 600, letterSpacing: '-.01em' }}>Lore</span>
+            <span style={{ fontFamily: '"Fraunces", Georgia, serif', fontSize: 26, fontWeight: 600, letterSpacing: '-.01em' }}>Weev</span>
             <span style={{ marginLeft: 'auto', fontSize: 12, color: 'rgba(255,255,255,.55)' }}>by Kathastories</span>
           </div>
           <h1 style={{ fontFamily: '"Fraunces", Georgia, serif', fontSize: 34, fontWeight: 600, margin: '22px 0 6px' }}>Privacy Policy</h1>
@@ -50,8 +50,8 @@ export default function PrivacyPolicy() {
         <p style={{ fontSize: 16, color: '#2a2a2e' }}>
           This Privacy Policy explains how <strong>Kathastories</strong> (&ldquo;we&rdquo;,
           &ldquo;us&rdquo;, &ldquo;our&rdquo;) collects, uses, and shares information when you use the
-          Lore mobile app and website (together, the &ldquo;Service&rdquo;). Lore is an
-          interactive-story app intended for users aged 18 and over. By using Lore, you agree to
+          Weev mobile app and website (together, the &ldquo;Service&rdquo;). Weev is an
+          interactive-story app intended for users aged 18 and over. By using Weev, you agree to
           this policy.
         </p>
 
@@ -107,7 +107,7 @@ export default function PrivacyPolicy() {
 
         <Section n="6" title="Children">
           <p style={{ margin: 0 }}>
-            Lore is not directed to, or intended for, anyone under 18. We do not knowingly collect
+            Weev is not directed to, or intended for, anyone under 18. We do not knowingly collect
             personal information from children. If you believe a child has provided us data, contact
             us and we will delete it.
           </p>
@@ -152,7 +152,7 @@ export default function PrivacyPolicy() {
         </Section>
 
         <footer style={{ marginTop: 48, paddingTop: 20, borderTop: `1px solid ${LINE}`, color: MUTED, fontSize: 13 }}>
-          © 2026 Kathastories. Lore is an interactive-fiction app. All trademarks belong to their respective owners.
+          © 2026 Kathastories. Weev is an interactive-fiction app. All trademarks belong to their respective owners.
         </footer>
       </div>
     </main>

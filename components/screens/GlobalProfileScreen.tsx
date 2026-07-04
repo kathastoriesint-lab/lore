@@ -5,7 +5,7 @@ import { getAuthInfo, signOutToGuest, deleteAccountFully, type AuthInfo } from '
 import { getProfileStats, type ProfileStats } from '@/lib/profile-stats'
 
 // Global profile — world-agnostic, reached from the Worlds tab. About YOU across
-// all of Lore: identity, your worlds hub, account/settings. (The per-world profile
+// all of Weev: identity, your worlds hub, account/settings. (The per-world profile
 // is a separate screen.)
 
 const WORLD_META: Record<string, { name: string; cover: string; livePink: boolean }> = {
@@ -161,7 +161,7 @@ export default function GlobalProfileScreen() {
               </button>
             ))}
           </div>
-          <div style={{ textAlign: 'center', fontSize: 11, color: 'var(--ink3)', marginTop: 16 }}>Lore v1.0 · Made in India 🇮🇳</div>
+          <div style={{ textAlign: 'center', fontSize: 11, color: 'var(--ink3)', marginTop: 16 }}>Weev v1.0 · Made in India 🇮🇳</div>
         </div>
 
         <div style={{ height: 20 }} />

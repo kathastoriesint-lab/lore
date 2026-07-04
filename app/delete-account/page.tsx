@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Delete your account — Lore',
-  description: 'How to request deletion of your Lore account and associated data.',
+  title: 'Delete your account — Weev',
+  description: 'How to request deletion of your Weev account and associated data.',
 }
 
 // Google Play requires a public account-deletion page (separate from the privacy
@@ -27,17 +27,17 @@ export default function DeleteAccount() {
         <div style={{ maxWidth: 720, margin: '0 auto' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <span style={{ width: 10, height: 10, borderRadius: '50%', background: ACCENT, boxShadow: `0 0 14px ${ACCENT}` }} />
-            <span style={{ fontFamily: '"Fraunces", Georgia, serif', fontSize: 26, fontWeight: 600, letterSpacing: '-.01em' }}>Lore</span>
+            <span style={{ fontFamily: '"Fraunces", Georgia, serif', fontSize: 26, fontWeight: 600, letterSpacing: '-.01em' }}>Weev</span>
             <span style={{ marginLeft: 'auto', fontSize: 12, color: 'rgba(255,255,255,.55)' }}>by Kathastories</span>
           </div>
           <h1 style={{ fontFamily: '"Fraunces", Georgia, serif', fontSize: 34, fontWeight: 600, margin: '22px 0 6px' }}>Delete your account</h1>
-          <p style={{ margin: 0, color: 'rgba(255,255,255,.6)', fontSize: 13.5 }}>How to remove your Lore account and data · Last updated 3 July 2026</p>
+          <p style={{ margin: 0, color: 'rgba(255,255,255,.6)', fontSize: 13.5 }}>How to remove your Weev account and data · Last updated 3 July 2026</p>
         </div>
       </header>
 
       <div style={{ maxWidth: 720, margin: '0 auto', padding: '36px 24px 96px', lineHeight: 1.62 }}>
         <p style={{ fontSize: 16, color: '#2a2a2e', marginTop: 0 }}>
-          You can delete your <strong>Lore</strong> account (by Kathastories) and all associated data
+          You can delete your <strong>Weev</strong> account (by Kathastories) and all associated data
           at any time. There are two ways &mdash; the in-app button is instant; email is available if
           you can no longer open the app.
         </p>
@@ -46,7 +46,7 @@ export default function DeleteAccount() {
         <p style={{ marginTop: 0, color: MUTED, fontSize: 14 }}>Removes your account and all data immediately.</p>
         <div style={step}>
           <div style={num}>1</div>
-          <div>Open Lore and go to the <strong>Profile</strong> tab.</div>
+          <div>Open Weev and go to the <strong>Profile</strong> tab.</div>
         </div>
         <div style={step}>
           <div style={num}>2</div>
@@ -61,11 +61,11 @@ export default function DeleteAccount() {
         <p style={{ marginTop: 0, color: MUTED, fontSize: 14 }}>Use this if you no longer have the app installed.</p>
         <div style={step}>
           <div style={num}>1</div>
-          <div>Email {mail('katha.storiesint@gmail.com', 'Delete my Lore account')} with the subject <strong>&ldquo;Delete my Lore account&rdquo;</strong>.</div>
+          <div>Email {mail('katha.storiesint@gmail.com', 'Delete my Weev account')} with the subject <strong>&ldquo;Delete my Weev account&rdquo;</strong>.</div>
         </div>
         <div style={step}>
           <div style={num}>2</div>
-          <div>Include the <strong>phone number you use to sign in to Lore</strong> (and your email, if you added one), so we can locate your account.</div>
+          <div>Include the <strong>phone number you use to sign in to Weev</strong> (and your email, if you added one), so we can locate your account.</div>
         </div>
         <div style={step}>
           <div style={num}>3</div>
@@ -99,7 +99,7 @@ export default function DeleteAccount() {
         </p>
 
         <footer style={{ marginTop: 40, paddingTop: 20, borderTop: `1px solid ${LINE}`, color: MUTED, fontSize: 13 }}>
-          © 2026 Kathastories · Lore
+          © 2026 Kathastories · Weev
         </footer>
       </div>
     </main>

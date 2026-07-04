@@ -267,7 +267,7 @@ export default function LoginScreen() {
               <circle cx="16" cy="16" r="1.9" fill="#ffd24d" />
             </svg>
           </div>
-          <div style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 40, color: 'var(--ink)', lineHeight: 1, letterSpacing: '.5px' }}>Lore</div>
+          <div style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 40, color: 'var(--ink)', lineHeight: 1, letterSpacing: '.5px' }}>Weev</div>
           <div style={{ fontSize: 14, color: 'var(--ink2)', marginTop: 8, letterSpacing: '.3px' }}>Live your story</div>
         </div>
       </div>
