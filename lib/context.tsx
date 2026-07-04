@@ -43,7 +43,7 @@ export interface AppCtx {
   viewingCharId: CharId | null
   dmBadgeCount: number
   clearDmBadge: () => void
-  likePost: (postId: string, charId: CharId, fameDelta: number) => void
+  likePost: (postId: string, charId: CharId | null, fameDelta: number) => void
   // ── Live "make a post" (gpt-4o) ──────────────────────────────────────────
   /** Key of the freshly-posted player post the feed should stream in, or null. */
   pendingPostReveal: string | null

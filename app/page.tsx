@@ -73,8 +73,8 @@ const trustGuidanceFor = (trust: number, charId?: string) => {
   const p = (charId && TALK_PROFILES[charId]) || DEFAULT_TALK_PROFILE
   const words = band === 'low' ? p.low : band === 'high' ? p.high : p.normal
   const bubbleRule = p.bubbles === 1
-    ? 'ONE short bubble only — never split into multiple messages.'
-    : `At most ${p.bubbles} short bubbles, but usually just 1. Never a wall of text.`
+    ? 'Send it as ONE short bubble — do not split.'
+    : `Text like WhatsApp: if your reply is more than one short line, BREAK IT into ${p.bubbles === 2 ? '2' : '2-3'} short bubbles — one thought per bubble, separated by " ||| ". NEVER send it as one long paragraph; that reads as a lecture, not a text.`
   const askRule = p.asksBack === 'rare'
     ? 'Do NOT end with a question — you rarely ask anything back. Let the line land. A question only when truly unavoidable (~1 in 5 replies).'
     : 'Mostly make a statement, not a question. Ask something back only when it is genuinely natural (~1 in 3 replies) — never every time.'
@@ -982,16 +982,22 @@ export default function App() {
   }, [adjustIndividualTrust, dmHistory, game, dmTrust, getDmCapState, setDmCapState, buildStorySummary, extrasSnapshot])
 
   // Like a post — updates player fame + target character's fame (idempotent: no double-like)
-  const likePost = useCallback((postId: string, charId: CharId, _fameDelta: number) => {
+  const likePost = useCallback((postId: string, charId: CharId | null, _fameDelta: number) => {
     if (likedPosts.has(postId)) return  // already liked — full no-op
     setLikedPosts(prev => { const n = new Set(prev); n.add(postId); return n })
     // A like is low-stakes: liking someone ELSE's post never grows YOUR audience.
     // It just gets noticed by that creator — a small private trust nudge. The real
     // stakes (followers, drama, DMs) live in *commenting*, not liking.
-    adjustIndividualTrust(charId, 1)
-    const allChars = game.world === 'cricket' ? { ...getCHChars(), ...getCricketChars() } : getCHChars()
-    const charName = allChars[charId]?.name
-    if (charName) showToast(`Liked ${charName}'s post ❤️`)
+    // charId=null for fan-page / non-character accounts: like still registers,
+    // just no character-trust credit (a fan page has no bond to move).
+    if (charId) {
+      adjustIndividualTrust(charId, 1)
+      const allChars = game.world === 'cricket' ? { ...getCHChars(), ...getCricketChars() } : getCHChars()
+      const charName = allChars[charId]?.name
+      showToast(charName ? `Liked ${charName}'s post ❤️` : 'Liked ❤️')
+    } else {
+      showToast('Liked ❤️')
+    }
   }, [likedPosts, adjustIndividualTrust, game.world, showToast])
 
   // A posted comment BELONGS to the post — persist it and render it under the

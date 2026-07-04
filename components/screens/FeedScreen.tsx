@@ -779,14 +779,17 @@ export default function FeedScreen() {
                   )}
                 </div>
                 <div className="post-actions pa-counts">
-                  <button className="pa-item" onClick={() => !liked && pc.likeTarget && likePost(post.postId, pc.likeTarget, 2)} disabled={pc.isPlayer} style={{ opacity: (!pc.isPlayer && liked) ? 0.7 : 1 }}>
+                  <button className="pa-item" onClick={() => !liked && likePost(post.postId, pc.likeTarget ?? null, 2)} disabled={pc.isPlayer} style={{ opacity: (!pc.isPlayer && liked) ? 0.7 : 1 }}>
                     <svg viewBox="0 0 24 24" fill={liked ? 'var(--accent)' : 'none'} stroke={liked ? 'var(--accent)' : '#fff'} strokeWidth="1.8" strokeLinecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
                     <span>{likesStr}</span>
                   </button>
-                  <div className="pa-item">
+                  {/* Account posts (fan pages) are commentable too — open the AI composer, canDM=false */}
+                  {pc.id === '__account' && !pc.isPlayer && !commentedPosts.has(post.postId)
+                    ? <button className="pa-item" onClick={() => setCommentPost(commentPost === post.postId ? null : post.postId)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'inherit' }}><CommentIcon active={commentPost===post.postId} /></button>
+                    : <div className="pa-item">
                     <CommentIcon />
                     <span>{shownReactions.length}</span>
-                  </div>
+                  </div>}
                   {isRevealing && climbing && <span className="feed-livetag" style={{ marginLeft: 'auto' }}>▲ live</span>}
                 </div>
                 <div className="caption"><b>{pc.handle}</b> {resolveTokens(post.caption, game.playerName, game.playerGender)}</div>
@@ -806,6 +809,16 @@ export default function FeedScreen() {
                 )}
                 {postComments[post.postId] && (
                   <div className="caption cmt-in" style={{ padding: '2px 14px 0', color: 'rgba(255,255,255,.85)' }}><b>{myHandle}</b> {postComments[post.postId]}</div>
+                )}
+                {/* Fan-page (account) post — AI comment composer, never DMs you back */}
+                {commentPost === post.postId && pc.id === '__account' && !commentedPosts.has(post.postId) && (
+                  <CommentComposer
+                    character={{ id: pc.handle, name: pc.handle, handle: pc.handle }}
+                    post={{ caption: resolveTokens(post.caption, game.playerName, game.playerGender), imageUrl: post.imageUrl }}
+                    persona="a fan / media page that posts about players — hype, banter, hot takes"
+                    canDM={false}
+                    onDone={t => markCommented(post.postId, t)}
+                  />
                 )}
                 {/* Authored comment hooks — your reply moves real bonds (story reads it back) */}
                 {!pc.isPlayer && (post.comments?.length ?? 0) > 0 && !commentedPosts.has(post.postId) && (
