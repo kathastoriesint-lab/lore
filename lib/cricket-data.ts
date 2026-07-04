@@ -131,7 +131,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       },
       {
         "t": "img",
-        "src": "/generated/cricket-posts/cr-s1-player.png",
+        "src": "/generated/cricket-posts/cr2-s1-auction.png",
         "h": 210
       },
       {
@@ -258,7 +258,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       },
       {
         "t": "img",
-        "src": "/generated/cricket-posts/cr-s2-player.png",
+        "src": "/generated/cricket-posts/cr2-s2-nets.png",
         "h": 210
       },
       {
@@ -372,7 +372,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
           "avatarText": "P"
         },
         "caption": "Nets update: naya kid Boom se 3 baar beat hua — aur phir POOCHHA kya miss hua. Seniors sab dekh rahe the. Yeh cheez scorecard pe nahi dikhti 💙",
-        "imageUrl": "/generated/cricket-posts/cr-s8-mipaltan.png"
+        "imageUrl": "/generated/cricket-posts/cr2-s2-fan.png"
       },
       "B": {
         "char": "friend",
@@ -545,7 +545,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       "A": {
         "char": "naman",
         "caption": "Press room mein 2 naye naam the aaj. Slot 1 hai. Kaam bolega. 🤝",
-        "imageUrl": "/generated/cricket-posts/cr-s4-player.png"
+        "imageUrl": "/generated/cricket-posts/cr2-s3-feed.png"
       },
       "B": {
         "char": "friend",
@@ -571,7 +571,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       },
       {
         "t": "img",
-        "src": "/generated/cricket-posts/cr-s6-player.png",
+        "src": "/generated/cricket-posts/cr2-s4-role.png",
         "h": 210
       },
       {
@@ -896,7 +896,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
           },
           {
             "t": "img",
-            "src": "/generated/cricket-posts/cr-s27-player.png",
+            "src": "/generated/cricket-posts/cr2-s5-benched.png",
             "h": 210
           },
           {
@@ -1136,7 +1136,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
           },
           {
             "t": "img",
-            "src": "/generated/cricket-posts/cr-s9-shared.png",
+            "src": "/generated/cricket-posts/cr2-s6-benched.png",
             "h": 210
           },
           {
@@ -1245,7 +1245,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       },
       {
         "t": "img",
-        "src": "/generated/cricket-posts/cr-s3-player.png",
+        "src": "/generated/cricket-posts/cr2-s7-debut.png",
         "h": 210
       },
       {
@@ -1439,7 +1439,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
           },
           {
             "t": "img",
-            "src": "/generated/cricket-posts/cr-s11-player.png",
+            "src": "/generated/cricket-posts/cr2-s7-benched.png",
             "h": 210
           },
           {
@@ -1882,7 +1882,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       },
       {
         "t": "img",
-        "src": "/generated/cricket-posts/cr-s17-player.png",
+        "src": "/generated/cricket-posts/cr2-s9-fall.png",
         "h": 210
       },
       {
@@ -2043,7 +2043,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       },
       {
         "t": "img",
-        "src": "/generated/cricket-posts/cr-s13-hardik.png",
+        "src": "/generated/cricket-posts/cr2-s10-selection.png",
         "h": 210
       },
       {
@@ -2158,7 +2158,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
           },
           {
             "t": "img",
-            "src": "/generated/cricket-posts/cr-s10-player.png",
+            "src": "/generated/cricket-posts/cr2-s10-benched.png",
             "h": 210
           },
           {
@@ -2403,7 +2403,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       },
       {
         "t": "img",
-        "src": "/generated/cricket-posts/cr-s15-player.png",
+        "src": "/generated/cricket-posts/cr2-s11-gym.png",
         "h": 210
       },
       {
@@ -2527,7 +2527,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
           },
           {
             "t": "img",
-            "src": "/generated/cricket-posts/cr-s22-rohit.png",
+            "src": "/generated/cricket-posts/cr2-s11-rohit.png",
             "h": 210
           },
           {
@@ -2638,7 +2638,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       },
       {
         "t": "img",
-        "src": "/generated/cricket-posts/cr-s2-cricketroom.png",
+        "src": "/generated/cricket-posts/cr2-s12-rivalry.png",
         "h": 210
       },
       {
@@ -2998,7 +2998,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       },
       {
         "t": "img",
-        "src": "/generated/cricket-posts/cr-s25-fail.png",
+        "src": "/generated/cricket-posts/cr2-s13-eliminator.png",
         "h": 210
       },
       {
@@ -3216,7 +3216,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
           },
           {
             "t": "img",
-            "src": "/generated/cricket-posts/cr-s27-player.png",
+            "src": "/generated/cricket-posts/cr2-s13-benched.png",
             "h": 210
           },
           {
@@ -3330,7 +3330,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       },
       {
         "t": "img",
-        "src": "/generated/cricket-posts/cr-s26-player.png",
+        "src": "/generated/cricket-posts/cr2-s14-verdict.png",
         "h": 210
       },
       {
