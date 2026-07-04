@@ -106,7 +106,7 @@ const TRUST_NUDGES: Partial<Record<CharId, {
 
 
 export default function LiveScreen() {
-  const { navigate, game, screen, makeChoice, advanceSituation, injectCharDM, openDMThread, dmTrust, dmBadgeCount, startGame, upsertAiPost, setPendingPostReveal, notifyDM , skipWeekWait , startDmStorySession } = useApp()
+  const { navigate, game, screen, makeChoice, advanceSituation, injectCharDM, openDMThread, dmTrust, dmBadgeCount, startGame, upsertAiPost, setPendingPostReveal, notifyDM , skipWeekWait , startDmStorySession, dmNotif } = useApp()
   // Tracks when we're mid-choice-flow so the situation-change effect doesn't clear showPost
   const inFlowRef = useRef(false)
 
@@ -195,7 +195,6 @@ export default function LiveScreen() {
   const [showPost, setShowPost] = useState(false)
   const [stats, setStats] = useState<{ total: number; pctA: number } | null>(null)
   // Chapter beat — brief full-screen card between situations
-  const [showBeat, setShowBeat] = useState(false)
   const [outcomeFlash, setOutcomeFlash] = useState<{ title: string; note: string; passed: boolean } | null>(null)
   // DM notification banner — shows after injectCharDM fires
   // Story-pause trust nudge — shows once per stage when a senior's trust gates progress
@@ -232,7 +231,7 @@ export default function LiveScreen() {
   useEffect(() => {
     const blocks = displaySit?.reader
     if (!blocks || chosen !== null) return
-    if (isCricket && introGate) return  // beat waits behind the title card
+    if (introGate) return  // beat waits behind the cinematic title card (both worlds)
     setRevealed([]); setReaderBusy(false); setReaderShowTap(false); setReaderComplete(false); setReaderFinalHint(false)
 
     const resolve = (t?: string) => resolveTokens(t ?? '', game.playerName, game.playerGender)
@@ -372,15 +371,23 @@ export default function LiveScreen() {
   }, [screen, isCricket, game.pendingSelection, chosen, navigate])
 
   // Beat title card behaves like a LOADING SCREEN (founder): it holds for a
-  // cinematic beat, then the story starts itself — no tap. Only auto-advances
-  // when it's actually the frontmost thing (not behind the break / ceremony).
+  // cinematic beat, then the story starts itself — no tap. CRITICAL: only auto-
+  // advances while the player is ACTUALLY LOOKING at the Live screen. Otherwise
+  // the timer would fire in the background (while they're on the feed/DM) and the
+  // next beat would play behind them — the exact "story moves ahead on its own"
+  // bug. Both worlds; never behind the break / ceremony / eviction.
   useEffect(() => {
-    const cardUp = isCricket && introGate && !!sit && !isFinale && chosen === null
-      && !game.pendingSelection && !isDayLocked && !((game.weekUnlockAt ?? 0) > Date.now())
+    // NOT while an outcome overlay covers Live: the DM arrival sheet (dmNotif)
+    // and the post-compose sheet both keep screen==='live', so without these the
+    // card would "load" the next beat behind them.
+    const cardUp = introGate && screen === 'live' && !dmNotif && !compose
+      && !!sit && !isFinale && chosen === null
+      && !game.pendingSelection && !game.pendingEviction && !isDayLocked
+      && !((game.weekUnlockAt ?? 0) > Date.now())
     if (!cardUp) return
     const t = setTimeout(() => setIntroGate(false), 1650)
     return () => clearTimeout(t)
-  }, [isCricket, introGate, sit?.id, isFinale, chosen, game.pendingSelection, isDayLocked, game.weekUnlockAt])
+  }, [introGate, screen, dmNotif, compose, sit?.id, isFinale, chosen, game.pendingSelection, game.pendingEviction, isDayLocked, game.weekUnlockAt])
 
   // Clear pending timers on unmount to prevent post-unmount navigate/advanceSituation
   useEffect(() => {
@@ -427,19 +434,15 @@ export default function LiveScreen() {
     setSheetOpen(false)
     setShowImpact(false)
     setShowPost(false)
-    setShowBeat(false)
     setOutcomeFlash(null)
     setRevealed([]); setReaderBusy(false); setReaderShowTap(false); setReaderComplete(false); setReaderFinalHint(false)
     processingRef.current = false
     scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
   }, [])
 
-  // Show chapter beat, then reset after 1.2s
-  const resetAfterChoice = useCallback(() => {
-    if (isFinale) { doReset(); return }
-    setShowBeat(true)
-    setTimeout(() => doReset(), 1200)
-  }, [isFinale, doReset])
+  // Advance past a resolved beat: doReset arms the cinematic title card (introGate),
+  // which is the single beat-entry screen for the NEXT beat. No separate chapter card.
+  const resetAfterChoice = useCallback(() => { doReset() }, [doReset])
 
   const goToFeed = useCallback(() => {
     resetAfterChoice()
@@ -604,7 +607,6 @@ export default function LiveScreen() {
   }
 
   // Next situation for chapter beat display
-  const nextSitForBeat = queue[game.situation] ? allSituations[queue[game.situation]] ?? null : null
 
   // "The world reacts" IG post(s) for a chosen choice — used by the cricket
   // result sheet. (Creator House renders its own inline copy below, unchanged.)
@@ -785,25 +787,8 @@ export default function LiveScreen() {
         )
       })()}
 
-      {/* Chapter beat overlay — brief full-screen card between situations */}
-      {showBeat && nextSitForBeat && (
-        <div style={{
-          position: 'absolute', inset: 0, background: 'var(--bg)', zIndex: 40,
-          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6,
-          animation: 'fadeIn .25s ease both',
-        }}>
-          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.12em', color: 'var(--accent)', marginBottom: 4, animation: 'fadeIn .3s ease .1s both', opacity: 0 }}>SITUATION</div>
-          <div style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 80, lineHeight: 1, color: '#fff', animation: 'fadeIn .3s ease .05s both', opacity: 0 }}>
-            {game.situation + 1}
-          </div>
-          <div style={{ fontSize: 16, color: 'var(--ink3)', fontWeight: 500, letterSpacing: '.05em', animation: 'fadeIn .3s ease .1s both', opacity: 0 }}>
-            of {queue.length}
-          </div>
-          <div style={{ fontFamily: 'var(--serif)', fontWeight: 500, fontSize: 20, color: 'rgba(255,255,255,.6)', marginTop: 6, animation: 'fadeIn .3s ease .2s both', opacity: 0 }}>
-            {r(nextSitForBeat.title)}
-          </div>
-        </div>
-      )}
+      {/* (Old "SITUATION N of M" chapter card removed — the single cinematic
+          title card below is the one beat-entry screen, both worlds.) */}
 
       {/* Match outcome flash — used for gated cricket beats like debut result */}
       {outcomeFlash && (
@@ -921,14 +906,15 @@ export default function LiveScreen() {
       {/* BEAT TITLE CARD — every beat opens on this cinematic gate (week, beat
           number, title). The reader starts on YOUR tap, never by itself. Sits
           UNDER the break/system overlays (z45 < z50). */}
-      {isCricket && introGate && sit && !isFinale && chosen === null && !game.pendingSelection && !isDayLocked && (() => {
-        const wk = weekForSituationId(sit.id)
+      {introGate && sit && !isFinale && chosen === null && !game.pendingSelection && !game.pendingEviction && !isDayLocked && (() => {
+        const eyebrow = isCricket ? `WEEK ${weekForSituationId(sit.id)}` : `DAY ${sit.day}`
+        const glow = isCricket ? 'rgba(0,48,135,.22)' : 'rgba(255,45,120,.16)'
         return (
           <div
             style={{ position: 'absolute', inset: 0, zIndex: 45, background: 'var(--bg)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '0 34px', textAlign: 'center', animation: 'loFade .4s ease both' }}>
-            <div style={{ position: 'absolute', top: '16%', left: '50%', transform: 'translateX(-50%)', width: 260, height: 260, borderRadius: '50%', background: 'radial-gradient(ellipse, rgba(0,48,135,.22) 0%, transparent 70%)', pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', top: '16%', left: '50%', transform: 'translateX(-50%)', width: 260, height: 260, borderRadius: '50%', background: `radial-gradient(ellipse, ${glow} 0%, transparent 70%)`, pointerEvents: 'none' }} />
             <div className="cin-si" style={{ alignItems: 'center' }}>
-              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.24em', color: 'var(--accent)' }}>WEEK {wk}</div>
+              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.24em', color: 'var(--accent)' }}>{eyebrow}</div>
               <div style={{ fontFamily: 'var(--serif)', fontSize: 82, fontWeight: 700, lineHeight: 1.05, color: '#fff', margin: '6px 0 0' }}>{situation + 1}</div>
               <div style={{ fontSize: 15, color: 'var(--ink3)' }}>of {queue.length}</div>
               <div style={{ fontFamily: 'var(--serif)', fontSize: 27, fontWeight: 600, color: 'var(--ink2)', lineHeight: 1.3, marginTop: 12 }}>{r(sit.title)}</div>
