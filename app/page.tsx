@@ -31,6 +31,8 @@ import FeedbackButton from '@/components/FeedbackButton'
 import DMArrivalSheet from '@/components/DMArrivalSheet'
 import ErrorBoundary from '@/components/ErrorBoundary'
 import { analytics, getDeviceId } from '@/lib/analytics'
+import * as haptics from '@/lib/haptics'
+import * as sound from '@/lib/sound'
 import { isWeekEnd, weekForSituationId, FRESH_INTERLUDE, SEASON_WEEKS, DM_DAILY_BUDGET, INTERLUDE_CAPS } from '@/lib/season'
 import { SELECTION_TRIGGERS, resolveSelectionVerdict, isRecall, captainTrust, selectionWeek } from '@/lib/cricket-selection'
 import { resolveVariantIndex, applyVariant, variantCtxFor, resolveGateOutcome } from '@/lib/variants'
@@ -676,6 +678,9 @@ export default function App() {
 
 
   const makeChoice = useCallback(async (idx: number) => {
+    // Committing a choice → selection haptic; warm the audio context under this
+    // gesture so the DM cue that a beat may fire can play.
+    haptics.select(); sound.prime()
     // Look up current situation by ID from the queue (world-aware, index-shift-safe)
     const currentId = game.situationQueue[game.situation]
     const sitMap = game.world === 'cricket'
@@ -1030,6 +1035,7 @@ export default function App() {
   // Inject a DM AND raise the app-wide notification banner. Used by the feed
   // reveal so a "the world reacts" DM surfaces as a notification on any screen.
   const notifyDM = useCallback((charId: CharId, text: string, embed?: DMMessage['embed'], meta?: DMTimeMeta, opts?: { story?: boolean }) => {
+    sound.dmLand()   // a DM just landed — soft arrival cue
     injectCharDM(charId, text, embed, meta)
     const c = ({ ...getCHChars(), ...getCricketChars() })[charId]
     // The arrival sheet "types in" this text; it stays until the player taps Reply

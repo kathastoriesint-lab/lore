@@ -1,5 +1,7 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
+import * as haptics from '@/lib/haptics'
+import * as sound from '@/lib/sound'
 
 export interface ComposeCtx {
   playerName: string
@@ -138,7 +140,7 @@ export default function ComposePost({ playerName, avatarUrl, imageUrl, ctx, fall
 
       {/* Sticky footer — just the action */}
       <div className="pw-foot">
-        <button className={`pw-share${(ready && !posting) ? '' : ' off'}`} onClick={() => { if (!ready || posting) return; setPosting(true); onShare(caption, reactionsRef.current?.caption === caption ? reactionsRef.current.reactions : undefined) }}>
+        <button className={`pw-share${(ready && !posting) ? '' : ' off'}`} onClick={() => { if (!ready || posting) return; setPosting(true); sound.postDone(); haptics.success(); onShare(caption, reactionsRef.current?.caption === caption ? reactionsRef.current.reactions : undefined) }}>
           {posting ? 'Posting…' : shareLabel}
           {ready && !posting && <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6" /></svg>}
         </button>

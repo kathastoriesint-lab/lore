@@ -11,6 +11,8 @@ import { getWeek, weekForSituationId, SEASON_WEEKS } from '@/lib/season'
 import { getStats, clamp, resolveEnding, resolveTokens, fameToFollowers, chCharForGender, asCricket, crushId } from '@/lib/game'
 import { sentimentDelta, computeBond } from '@/lib/relationships'
 import { phaseFromTag } from '@/lib/dm-time'
+import * as haptics from '@/lib/haptics'
+import * as sound from '@/lib/sound'
 import MeterHUD from '@/components/MeterHUD'
 import GoalCard from '@/components/GoalCard'
 import ChoiceSheet from '@/components/ChoiceSheet'
@@ -1098,8 +1100,10 @@ export default function LiveScreen() {
       <div className="live-scroll" ref={scrollRef}
         onClick={() => {
           if (!displaySit?.reader || chosen !== null || readerComplete) return
-          if (readerBusy) readerCtlRef.current?.finishTyping()
-          else if (readerShowTap) readerCtlRef.current?.revealNext()
+          // Story tap → light haptic. Also warm the audio context under this
+          // gesture so a later timer-fired DM cue can play.
+          if (readerBusy) { haptics.tap(); sound.prime(); readerCtlRef.current?.finishTyping() }
+          else if (readerShowTap) { haptics.tap(); sound.prime(); readerCtlRef.current?.revealNext() }
         }}
         style={displaySit?.reader && chosen === null && !readerComplete ? { cursor: 'pointer' } : undefined}
       >
