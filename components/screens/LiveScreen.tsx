@@ -49,10 +49,12 @@ const StatusBar = () => (
   </div>
 )
 
-// Two reachable endings (2026-07): Followers-led → Main Character, crush-Bond-led → The Heart.
+// Creator House v4: four endings on the 2×2 (followers × crush bond).
 const FINALE_DATA = {
-  heart: { arc: 'The Heart', sub: 'Numbers ka peecha kiya sabne. Tumne kuch real chuna — aur woh bond aakhir tak saath raha.', color: '#FF5C3A' },
-  main:  { arc: 'The Main Character', sub: 'Har scene tumhara. Har headline tumhara. Yahi hai Creator House.', color: '#FFB020' },
+  won:       { arc: 'Ghar Bhi, Dil Bhi', sub: 'Number #1 pe pahunche — aur jo real tha, woh bhi aakhir tak saath raha. Perfect finale.', color: '#FF2D78' },
+  feedQueen: { arc: 'Feed Ka Raja/Rani', sub: 'Har headline tumhara. Tum jeete — par akele. Numbers aaye, log gaye.', color: '#FFB020' },
+  worthMore: { arc: 'Numbers Se Zyada', sub: 'Leaderboard #1 nahi bane — par jo lekar nikle, woh numbers se bada tha.', color: '#FF5C3A' },
+  chewedUp:  { arc: 'Ghar Ne Chaba Diya', sub: 'Ghar ne use kiya, phir thook diya. Na numbers, na koi apna. Yahi hai game.', color: '#5e5e6e' },
 }
 
 const asArray = <T,>(value: T | T[] | null | undefined): T[] => {

@@ -44,15 +44,18 @@ describe('fameToFollowers', () => {
 })
 
 describe('resolveEnding', () => {
-  // Two-ending model (2026-07): followers(fame) vs crush bond; fame >= bond → main.
-  it('returns main when followers lead the crush bond', () => {
-    expect(resolveEnding(80, 40)).toBe('main')
+  // CH v4 2×2 (followers × crush bond): fameHigh = fame>=45, bondHigh = bond>=55.
+  it('won — both goals high', () => {
+    expect(resolveEnding(70, 70)).toBe('won')
   })
-  it('returns heart when the crush bond leads', () => {
-    expect(resolveEnding(40, 80)).toBe('heart')
+  it('feedQueen — followers high, bond low', () => {
+    expect(resolveEnding(70, 30)).toBe('feedQueen')
   })
-  it('ties to main when followers === bond', () => {
-    expect(resolveEnding(50, 50)).toBe('main')
+  it('worthMore — bond high, followers low', () => {
+    expect(resolveEnding(30, 70)).toBe('worthMore')
+  })
+  it('chewedUp — both low', () => {
+    expect(resolveEnding(20, 20)).toBe('chewedUp')
   })
 })
 

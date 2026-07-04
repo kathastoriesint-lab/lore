@@ -581,13 +581,20 @@ export function allyLoyalty(choices: ('A' | 'B')[], situations: import('./types'
 
 // ── Ending resolution ─────────────────────────────────────────────────────────
 // Creator House ships TWO reachable endings, now decided by the player's TWO VISIBLE
-// goals (heat is gone): followers (fame) vs the crush BOND — the same bond shown on
-// the Profile's "Bond" stat / crushTier. Whichever is ahead decides who you became.
-//   fame >= crushBond → The Main Character (the celebrity — you chased the spotlight)
-//   else              → The Heart (you chose something real over the numbers)
-// Both are 0–100; the tie defaults to Main Character.
-export function resolveEnding(fame: number, crushBond: number): 'heart' | 'main' {
-  return fame >= crushBond ? 'main' : 'heart'
+// Creator House v4: the two goals cross into a 2×2 ending (followers × crush bond).
+//   both high      → 'won'       (Ghar Ki Rani/King — won the house AND the love)
+//   fame only      → 'feedQueen' (Feed Ki Rani — #1, but you played everyone; alone)
+//   bond only      → 'worthMore' (Numbers Se Zyada — didn't top the board, kept something real)
+//   both low       → 'chewedUp'  (the house used you; neither)
+// Thresholds tuned against the authored delta budget (retune with a path sim).
+export type CHEnding = 'won' | 'feedQueen' | 'worthMore' | 'chewedUp'
+export function resolveEnding(fame: number, crushBond: number): CHEnding {
+  const fameHigh = fame >= 45
+  const bondHigh = crushBond >= 55
+  if (fameHigh && bondHigh) return 'won'
+  if (fameHigh) return 'feedQueen'
+  if (bondHigh) return 'worthMore'
+  return 'chewedUp'
 }
 
 // ── Fame → followers ──────────────────────────────────────────────────────────
