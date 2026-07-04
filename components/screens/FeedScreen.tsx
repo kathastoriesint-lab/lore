@@ -501,14 +501,15 @@ export default function FeedScreen() {
       localStorage.setItem('lore_feed_seen_choices', String(game.choices.length))
     }
   }, [screen, game.choices.length])
-  // The "N new posts" chip shows at the top, then fades the moment you scroll.
-  const [feedScrolled, setFeedScrolled] = useState(false)
+  // "N new posts" bar shows on a fresh drop, then collapses the moment you scroll
+  // past it — and STAYS gone (with the fresh highlight cleared) until the next
+  // drop. Design ref: one scroll dismisses it.
+  const [newsDismissed, setNewsDismissed] = useState(false)
   useEffect(() => {
     if (screen !== 'feed') return
     const sc = document.getElementById('feed-scroll')
     if (!sc) return
-    const onScroll = () => setFeedScrolled(sc.scrollTop > 6)
-    onScroll()
+    const onScroll = () => { if (sc.scrollTop > 24) setNewsDismissed(true) }
     sc.addEventListener('scroll', onScroll, { passive: true })
     return () => sc.removeEventListener('scroll', onScroll)
   }, [screen])
@@ -599,17 +600,36 @@ export default function FeedScreen() {
     while (n < completedPosts.length && !isOld(completedPosts[n])) n++
     return n
   }, [completedPosts, latestStep])
+  // Colored avatar dots for the bar (up to 3 of the new posters).
+  const newAvatars = useMemo(() => {
+    const seen = new Set<string>(); const out: { color: string; letter: string }[] = []
+    for (const p of completedPosts.slice(0, newCount)) {
+      const id = p.type === 'authored' ? p.owner.handle : p.char.id
+      const color = p.type === 'authored' ? (p.owner.color ?? '#1a2a3a') : (CHAR_COLORS_HEX[p.char.id] ?? '#1a2a3a')
+      const letter = (p.type === 'authored' ? p.owner.init : p.char.init) || (id[0] ?? '?').toUpperCase()
+      if (seen.has(id)) continue
+      seen.add(id); out.push({ color, letter })
+      if (out.length >= 3) break
+    }
+    return out
+  }, [completedPosts, newCount])
+  // A fresh drop (new latest beat) re-arms the bar + fresh highlight.
+  useEffect(() => { setNewsDismissed(false) }, [latestStep])
+  const showNewsBar = newCount > 0
+  const freshOn = showNewsBar && !newsDismissed
+
   const scrollFeedTop = useCallback(() => {
     document.getElementById('feed-scroll')?.scrollTo({ top: 0, behavior: 'smooth' })
   }, [])
 
   const caughtUp = (
-    <div key="feed-caughtup" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 11, padding: '32px 24px 28px' }}>
-      <div style={{ width: 54, height: 54, borderRadius: '50%', border: '2px solid var(--trust)', display: 'grid', placeItems: 'center', color: 'var(--trust)', boxShadow: '0 0 22px color-mix(in srgb, var(--trust) 30%, transparent)' }}>
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
+    <div key="feed-caughtup">
+      <div className="caughtup-card">
+        <span className="chk"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg></span>
+        <h4>You&apos;re all caught up</h4>
+        <p>Pichhle 24 ghante ke saare posts dekh liye. Neeche purane posts.</p>
       </div>
-      <div style={{ fontFamily: 'var(--serif)', fontSize: 22, fontWeight: 600, color: '#fff' }}>You&apos;re all caught up</div>
-      <div style={{ fontSize: 12.5, color: 'var(--ink3)', textAlign: 'center', maxWidth: '30ch', lineHeight: 1.5 }}>Pichhle 24 ghante ke saare posts dekh liye. Neeche purane posts.</div>
+      <div className="olderlbl">Purane posts</div>
     </div>
   )
 
@@ -739,12 +759,16 @@ export default function FeedScreen() {
       {/* Scrollable feed */}
       <div id="feed-scroll" className="scroll" style={{ flex: 1 }}>
 
-        {/* Small "N new posts" chip — fades out the moment you scroll */}
-        {newCount > 0 && (
-          <div style={{ position: 'sticky', top: 8, zIndex: 20, display: 'flex', justifyContent: 'center', pointerEvents: 'none', height: 0, opacity: feedScrolled ? 0 : 1, transform: feedScrolled ? 'translateY(-6px)' : 'none', transition: 'opacity .22s ease, transform .22s ease' }}>
-            <button onClick={scrollFeedTop} style={{ pointerEvents: feedScrolled ? 'none' : 'auto', background: 'linear-gradient(120deg,#ff2d78,#b8195a)', border: 'none', borderRadius: 999, padding: '6px 15px', color: '#fff', fontWeight: 700, fontSize: 12.5, boxShadow: '0 6px 18px rgba(255,45,120,.36)', cursor: 'pointer', fontFamily: 'var(--sans)', animation: 'cmtIn .35s cubic-bezier(.32,.72,0,1) both' }}>
-              {newCount} new post{newCount > 1 ? 's' : ''}
-            </button>
+        {/* Slim "N new posts" bar — collapses the moment you scroll past it (ref) */}
+        {showNewsBar && (
+          <div className={`nbar${newsDismissed ? ' gone' : ''}`} onClick={scrollFeedTop} role="button">
+            <span className="avs">
+              {newAvatars.map((a, i) => (
+                <span key={i} className="pdot" style={{ background: a.color }}>{a.letter}</span>
+              ))}
+            </span>
+            <span>{newCount} new post{newCount > 1 ? 's' : ''}</span>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14" /><path d="M6 13l6 6 6-6" /></svg>
           </div>
         )}
 
@@ -788,6 +812,9 @@ export default function FeedScreen() {
         {(() => {
           const els = completedPosts.map((post, i) => {
           const isNew = post.stepIndex === latestStep
+          const fresh = i < newCount && freshOn      // in the new cluster, not yet dismissed
+          const isOldPost = i >= newCount            // below the caught-up marker
+          const clusterCls = `${fresh ? ' fresh' : ''}${isOldPost ? ' old' : ''}`
           const timeLabel = postAgeLabel(post.stepIndex, game.choices.length, post.postOffset)
           const timeLabelUpper = postAgeLabel(post.stepIndex, game.choices.length, post.postOffset, true)
           if (post.type === 'authored') {
@@ -801,7 +828,7 @@ export default function FeedScreen() {
             const likesStr = compactCount(likesVal)
             const shownReactions = ai ? (isRevealing ? post.reactions.slice(0, revealCount) : post.reactions) : post.reactions.slice(0, 1)
             return (
-              <div key={post.postId} id={`fp-${aiKey}`} className={`post${isNew ? ' cmt-in' : ''}`} style={isNew ? { borderTop: '2px solid rgba(255,45,120,.3)', background: 'rgba(255,45,120,.04)' } : {}}>
+              <div key={post.postId} id={`fp-${aiKey}`} className={`post${clusterCls}`}>
                 <div className="post-head">
                   <div className={pc.cls ? `av ${pc.cls}` : 'av'} style={{ width:34, height:34, fontSize:14, background: pc.avatarUrl ? undefined : pc.color, backgroundImage: pc.avatarUrl ? `url(${pc.avatarUrl})` : undefined, backgroundSize:'cover', backgroundPosition:'center' }}>
                     {!pc.avatarUrl && pc.init}
@@ -892,7 +919,7 @@ export default function FeedScreen() {
           const liked = likedPosts.has(post.postId)
           const commented = commentedPosts.has(post.postId)
           return (
-            <div key={post.postId} className="post" style={isNew ? { borderTop: '2px solid rgba(255,45,120,.3)', background: 'rgba(255,45,120,.04)' } : {}}>
+            <div key={post.postId} className={`post${clusterCls}`}>
               <div className="post-head">
                 <button
                   className={`av ${reactChar.cls}`}
