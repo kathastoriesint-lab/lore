@@ -577,16 +577,19 @@ STYLE:
     const roleAcceptance = player_flags?.roleAcceptance ?? 0
     const charTrust = trust_with_char ?? 50
     const resolvedTrustBand = trust_band ?? (charTrust < 30 ? 'low' : charTrust < 60 ? 'normal' : 'high')
+    // Fallback only — the client sends per-character `trust_guidance` (with word
+    // budget, bubble cap, and question rate per character). Keep this consistent:
+    // short by default, and NEVER mandate ending on a question.
     const resolvedTrustGuidance = trust_guidance ?? (
       resolvedTrustBand === 'low'
-        ? "Trust band: LOW (<30). This overrides the character's usual warmth, nicknames, emoji habits, and teaching style. Output shape: under 22 words, one blunt line plus one terse question/challenge. No lists, tactical field/bowler details, multi-step advice, detailed coaching, private history, personal warmth, emojis, or \"I noticed\" language. If asked for advice, give only a surface-level instruction and imply they must earn deeper mentorship."
+        ? "Trust is LOW (<30): guarded. Keep it clipped — under ~18 words, ONE short bubble, no emojis, no private history or deep coaching (that's earned). Do NOT end with a question; let the line land."
         : resolvedTrustBand === 'high'
-          ? "Trust band: HIGH (60+). Output shape: 3-5 sentences. Make it feel earned and personal. If story context exists, reference one specific past choice or pattern. Give the real advice you would hold back at low trust. You may show warmth, concern, teasing, or investment in your own character voice. End with a sharper follow-up question. Do not offer future preference unlocks yet."
-          : "Trust band: NORMAL (30-60). Output shape: 2-3 sentences. Be professional and useful, but not intimate. Give one practical piece of advice. Avoid private history unless it is directly relevant. Avoid deep emotional warmth or vulnerability. End with one practical follow-up question."
+          ? "Trust is HIGH (60+): earned. Under ~45 words, at most 2 short bubbles. Personal and real; reference one specific thing from their journey if it fits. Mostly a statement — a question only if genuinely natural, not every time."
+          : "Trust is NORMAL (30-60): professional and useful, not intimate. Under ~28 words, usually 1 bubble. One real practical thing. Do NOT end every reply with a question."
     )
     const dressingRoomTrust = team_trust ?? trustVal
-    // Multi-bubble replies need more room than the old single-line caps. Low trust stays tighter.
-    const maxCompletionTokens = resolvedTrustBand === 'low' ? 110 : resolvedTrustBand === 'high' ? 240 : 170
+    // Tighter caps — replies should be as long as REQUIRED, not padded. Low trust stays terse.
+    const maxCompletionTokens = resolvedTrustBand === 'low' ? 80 : resolvedTrustBand === 'high' ? 190 : 130
 
     const gameStateContext = player_meters ? (isCricketChar ? `
 
@@ -628,16 +631,14 @@ Write ONLY in Roman script. Never use Devanagari (Hindi/Marathi script like अ 
 LANGUAGE — this is the most important rule:
 Text like a REAL Indian person texting a friend, not like a translation. Natural, spoken Hinglish that flows. Use the rhythm of how people actually talk — "kahin beh gaye the kya?", "sach batana", "dimaag bahut chalta hai mera", "waise batao". NEVER write stiff, literal, translated-from-English Hindi. NEVER over-formal or textbook Hindi. Contractions, half-sentences, real slang, the way it sounds out loud. If a line sounds like Google Translate, rewrite it. Hindi should carry the emotion; English words slip in only where a real person would use them.
 
-FLOW — text exactly like WhatsApp:
-${lowTrustFlow
-  ? `Trust is low, so keep it tight: usually 1 short bubble, sometimes 2. Still natural Hindi. Separate bubbles with " ||| ".`
-  : `Don't dump one paragraph. Break your reply into SHORT message bubbles the way people actually text on WhatsApp — one thought per bubble. Vary it naturally: sometimes a single line, often 2-3 quick ones in a row. Separate each bubble with " ||| " (three pipes). Example: "rohan? ||| wo naam sunte hi mujhe purani baatein yaad aa jaati hain ||| tumne uske baare mein kya suna hai?". The bubbles should feel spontaneous and build on each other, never a list.`}
+FLOW — text like WhatsApp, but the LENGTH is set by the behaviour instruction:
+The FINAL TRUST BAND OVERRIDE below tells you the exact word budget, how many bubbles you may send, and whether you ask anything back. Obey it. Separate any bubbles with " ||| " (three pipes), one thought per bubble. If it says one bubble, send exactly one. Never dump a paragraph, never pad to fill space.
 
-HOOK — every single reply must end this way, no exceptions:
-End your last bubble with a QUESTION that keeps the conversation going — specific, in YOUR character's voice, about the actual thing ${player_name} just said. Never a flat closing statement.
-EXCEPTION: If ${player_name} was rude, abusive, used bad words, or insulted you, do NOT reward it with a question — instead push back hard with strong, in-character feedback that puts them in their place (still natural Hindi, still your voice). React like a real person who was just disrespected.
+QUESTIONS — do NOT end every reply with a question:
+Most replies should land as a statement. Only ask something back when the behaviour instruction allows it AND it's genuinely natural — a real person doesn't interrogate every text. A short, blunt reply with no question is often the strongest thing this character can send.
+EXCEPTION: If ${player_name} was rude, abusive, used bad words, or insulted you, do NOT reward it — push back hard with strong, in-character feedback that puts them in their place (still natural Hindi, still your voice). React like a real person who was just disrespected.
 
-NOTE: This FLOW + multi-bubble + HOOK instruction overrides any "one message only" or strict word-count line in your character description above. Keep each individual bubble short, but you may send a few. Stay fully in character.`;
+NOTE: When in doubt, be SHORTER. Say the necessary thing well and stop. Stay fully in character.`;
 
     const finalTrustOverride = isCricketChar ? `
 

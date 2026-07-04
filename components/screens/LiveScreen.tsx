@@ -371,6 +371,17 @@ export default function LiveScreen() {
     }
   }, [screen, isCricket, game.pendingSelection, chosen, navigate])
 
+  // Beat title card behaves like a LOADING SCREEN (founder): it holds for a
+  // cinematic beat, then the story starts itself — no tap. Only auto-advances
+  // when it's actually the frontmost thing (not behind the break / ceremony).
+  useEffect(() => {
+    const cardUp = isCricket && introGate && !!sit && !isFinale && chosen === null
+      && !game.pendingSelection && !isDayLocked && !((game.weekUnlockAt ?? 0) > Date.now())
+    if (!cardUp) return
+    const t = setTimeout(() => setIntroGate(false), 1650)
+    return () => clearTimeout(t)
+  }, [isCricket, introGate, sit?.id, isFinale, chosen, game.pendingSelection, isDayLocked, game.weekUnlockAt])
+
   // Clear pending timers on unmount to prevent post-unmount navigate/advanceSituation
   useEffect(() => {
     return () => { timersRef.current.forEach(clearTimeout) }
@@ -914,8 +925,7 @@ export default function LiveScreen() {
         const wk = weekForSituationId(sit.id)
         return (
           <div
-            onClick={(e) => { e.stopPropagation(); setIntroGate(false) }}
-            style={{ position: 'absolute', inset: 0, zIndex: 45, background: 'var(--bg)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: '0 34px', textAlign: 'center' }}>
+            style={{ position: 'absolute', inset: 0, zIndex: 45, background: 'var(--bg)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '0 34px', textAlign: 'center', animation: 'loFade .4s ease both' }}>
             <div style={{ position: 'absolute', top: '16%', left: '50%', transform: 'translateX(-50%)', width: 260, height: 260, borderRadius: '50%', background: 'radial-gradient(ellipse, rgba(0,48,135,.22) 0%, transparent 70%)', pointerEvents: 'none' }} />
             <div className="cin-si" style={{ alignItems: 'center' }}>
               <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.24em', color: 'var(--accent)' }}>WEEK {wk}</div>
@@ -924,7 +934,10 @@ export default function LiveScreen() {
               <div style={{ fontFamily: 'var(--serif)', fontSize: 27, fontWeight: 600, color: 'var(--ink2)', lineHeight: 1.3, marginTop: 12 }}>{r(sit.title)}</div>
               {sit.tag && <div style={{ fontSize: 9.5, fontWeight: 800, letterSpacing: '.14em', textTransform: 'uppercase', color: 'var(--ink3)', marginTop: 9 }}>{r(sit.tag)}</div>}
             </div>
-            <div style={{ position: 'absolute', bottom: 92, left: 0, right: 0, fontSize: 9.5, fontWeight: 800, letterSpacing: '.18em', color: 'var(--ink3)', animation: 'cinBlink 2.4s step-end infinite' }}>TAP KARKE SHURU KARO</div>
+            {/* loading-screen affordance — no tap, the beat starts itself */}
+            <div style={{ position: 'absolute', bottom: 96, left: 0, right: 0, display: 'flex', gap: 7, justifyContent: 'center' }}>
+              <span className="cin-td" /><span className="cin-td d2" /><span className="cin-td d3" />
+            </div>
           </div>
         )
       })()}

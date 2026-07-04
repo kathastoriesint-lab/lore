@@ -46,16 +46,47 @@ const trustBandFor = (trust: number): 'low' | 'normal' | 'high' => {
   return 'high'
 }
 
-const trustGuidanceFor = (trust: number) => {
+// Per-character DM "talk profile" — how much each person actually says, and how
+// it grows with trust. Big players are terse at first and earn the words; warm
+// helpers (Surya, Coach, Maddy) open up early. `low/normal/high` are the reply's
+// TOTAL word budget per trust band, `bubbles` caps WhatsApp-style splits, and
+// `asksBack` governs how rarely a reply ends on a question (founder, Jul 4:
+// stop ending every message with a question; length as required, not always long).
+type TalkProfile = { low: number; normal: number; high: number; bubbles: 1 | 2 | 3; asksBack: 'rare' | 'sometimes'; earlyWarmth?: boolean }
+const TALK_PROFILES: Record<string, TalkProfile> = {
+  // Seniors / big players — short at the start, open up only as trust is earned.
+  hardik: { low: 12, normal: 22, high: 38, bubbles: 1, asksBack: 'rare' },
+  bumrah: { low: 10, normal: 18, high: 32, bubbles: 1, asksBack: 'rare' },
+  rohit:  { low: 13, normal: 24, high: 42, bubbles: 2, asksBack: 'rare' },
+  mahela: { low: 16, normal: 28, high: 44, bubbles: 1, asksBack: 'sometimes' },
+  naman:  { low: 9,  normal: 24, high: 44, bubbles: 1, asksBack: 'rare' },
+  // Peer + warm helpers — more give, even early.
+  tilak:  { low: 18, normal: 30, high: 46, bubbles: 2, asksBack: 'sometimes' },
+  surya:  { low: 26, normal: 42, high: 60, bubbles: 3, asksBack: 'sometimes', earlyWarmth: true },
+  coach:  { low: 22, normal: 34, high: 52, bubbles: 2, asksBack: 'sometimes', earlyWarmth: true },
+  friend: { low: 26, normal: 42, high: 58, bubbles: 3, asksBack: 'sometimes', earlyWarmth: true },
+}
+const DEFAULT_TALK_PROFILE: TalkProfile = { low: 20, normal: 34, high: 50, bubbles: 2, asksBack: 'sometimes' }
+
+const trustGuidanceFor = (trust: number, charId?: string) => {
   const band = trustBandFor(trust)
-  const teamLine = ''
-  if (band === 'low') {
-    return `Trust band: LOW (<30). This overrides the character's usual warmth, nicknames, emoji habits, and teaching style. Output shape: under 22 words, one blunt line plus one terse question/challenge. No lists, tactical field/bowler details, multi-step advice, detailed coaching, private history, personal warmth, emojis, or "I noticed" language. If asked for advice, give only a surface-level instruction and imply they must earn deeper mentorship.${teamLine}`
-  }
-  if (band === 'high') {
-    return `Trust band: HIGH (60+). Output shape: 3-5 sentences. Make it feel earned and personal. If story context exists, reference one specific past choice or pattern. Give the real advice you would hold back at low trust. You may show warmth, concern, teasing, or investment in your own character voice. End with a sharper follow-up question. Do not offer future preference unlocks yet.${teamLine}`
-  }
-  return `Trust band: NORMAL (30-60). Output shape: 2-3 sentences. Be professional and useful, but not intimate. Give one practical piece of advice. Avoid private history unless it is directly relevant. Avoid deep emotional warmth or vulnerability. End with one practical follow-up question.${teamLine}`
+  const p = (charId && TALK_PROFILES[charId]) || DEFAULT_TALK_PROFILE
+  const words = band === 'low' ? p.low : band === 'high' ? p.high : p.normal
+  const bubbleRule = p.bubbles === 1
+    ? 'ONE short bubble only — never split into multiple messages.'
+    : `At most ${p.bubbles} short bubbles, but usually just 1. Never a wall of text.`
+  const askRule = p.asksBack === 'rare'
+    ? 'Do NOT end with a question — you rarely ask anything back. Let the line land. A question only when truly unavoidable (~1 in 5 replies).'
+    : 'Mostly make a statement, not a question. Ask something back only when it is genuinely natural (~1 in 3 replies) — never every time.'
+  const bandColor =
+    band === 'low'
+      ? (p.earlyWarmth
+          ? 'Trust is still new, but you are naturally warm and helpful — be human and useful, just do not overshare deep private history yet.'
+          : 'Trust is LOW (<30): you are guarded. Clipped and a little distant. Warmth, nicknames, private history and real coaching are EARNED, not given yet. No emojis.')
+      : band === 'high'
+        ? 'Trust is HIGH (60+): earned. Be personal and real, reference one specific thing from their journey if it fits, give the advice you would hold back from a stranger.'
+        : 'Trust is NORMAL (30-60): professional and useful, warm but not intimate. One real, practical thing.'
+  return `Behaviour for THIS reply (overrides any default verbosity): ${bandColor} Keep it UNDER ${words} words total. ${bubbleRule} ${askRule} Stay 100% in your character's own voice — do not sound like every other character.`
 }
 
 const defaultDmTrustFor = (world: GameState['world'], charId: CharId) => (
@@ -825,19 +856,21 @@ export default function App() {
       })(),
       trustWithChar: currentTrust,
       trustBand,
-      trustGuidance: trustGuidanceFor(currentTrust),
+      trustGuidance: trustGuidanceFor(currentTrust, charId),
       playerGender: game.playerGender,
     })
+    // Fallbacks fire only when the AI call fails — keep them short and mostly
+    // statements (matching the talk profiles), not the old question-on-every-line.
     const CRICKET_MOCK_FALLBACK: Partial<Record<string, string[]>> = {
-      hardik: ['Role pe focus rakh. Kya soch raha hai abhi?', 'Execution dikhao. Simple hai na?', 'Theek hai. Kal kya plan hai?'],
-      rohit:  ['Tempo samajh raha hai? Sach mein?', 'Hmm. Kya feel hua?', 'Process pe raho. Kya miss kar raha hai?'],
-      surya:  ['Champion! Field dekh pehle 😄 Woh specific ball pe kya socha?', 'Energy mast hai. Ab reason bata.', 'Aaja kal nets mein. Ready hai?'],
-      bumrah: ['Wrist pehle pick karo. Kar sakta hai?', 'Better. Kya different tha?', 'Kal over milega. Kya practice karoge?'],
-      tilak:  ['Good. Repeat kar sakta hai? Consistently?', 'Process pe raho. Kya block hai?', 'Hota hai. Agle situation mein kya karoge?'],
-      coach:  ['Kal subah 6 baje. Aa sakta hai?', '10 minute rona allowed. Phir kya?', 'Footwork pe kaam karo. Samajh aaya?'],
-      friend: ['BHAI REPLY KAR 😭 Tu theek hai?', 'Tu theek hai? Genuinely pooch raha hoon.', 'Main hoon yaar. Baat kar. Kya ho raha hai?'],
+      hardik: ['Role pe focus rakh. Baaki noise hai.', 'Execution dikhao. Baat baad mein.', 'Theek hai. Kaam pe lag.'],
+      rohit:  ['Tempo. Bas wahi dekh raha hoon.', 'Hmm. Dekhte hain.', 'Process pe raho. Der lagegi, hogi.'],
+      surya:  ['Champion! Field pehle padho, phir shot 😄', 'Energy mast hai — ab reason bhi rakho.', 'Kal nets mein aaja, dikhata hoon.'],
+      bumrah: ['Wrist pehle pick karo.', 'Better tha. Isi pe raho.', 'Kal over milega. Ready reh.'],
+      tilak:  ['Good. Ab isko consistent bana.', 'Process pe raho, hype chhod.', 'Hota hai yaar. Reset kar.'],
+      coach:  ['Kal subah 6 baje. Footwork.', '10 minute halka ho le, phir kaam.', 'Ball dekh, baaki apne aap hoga.'],
+      friend: ['Bhai main hoon, tension mat le 🫂', 'Sun, tu wahi purana ladka hai. Yaad rakh.', 'Chal baad mein baat karte hain, aaram kar.'],
     }
-    const mockArr = getCHDMMock()[charId] ?? CRICKET_MOCK_FALLBACK[charId] ?? ['Haan yaar. Kya chal raha hai?', 'Interesting. Aur?', 'Hmm. Kya feel hua?']
+    const mockArr = getCHDMMock()[charId] ?? CRICKET_MOCK_FALLBACK[charId] ?? ['Haan bol, main sun raha hoon.', 'Theek hai, samajh gaya.', 'Hmm. Chalta hai.']
     const reply = raw?.trim() || mockArr[Math.floor(Math.random() * mockArr.length)]
 
     // Split into separate chat bubbles (model uses "|||" between thoughts) and
