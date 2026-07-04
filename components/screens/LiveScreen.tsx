@@ -182,6 +182,7 @@ export default function LiveScreen() {
   const [readerBusy, setReaderBusy] = useState(false)
   const [readerShowTap, setReaderShowTap] = useState(false)
   const [readerComplete, setReaderComplete] = useState(false)
+  const [readerFinalHint, setReaderFinalHint] = useState(false)
   const readerCtlRef = useRef<{ revealNext: () => void; finishTyping: () => void } | null>(null)
   // Cricket choice sheet: peek (question only) vs expanded (choices). Once a
   // choice is made it auto-expands to the result. Cricket-only — CH keeps its bar.
@@ -227,7 +228,7 @@ export default function LiveScreen() {
   useEffect(() => {
     const blocks = displaySit?.reader
     if (!blocks || chosen !== null) return
-    setRevealed([]); setReaderBusy(false); setReaderShowTap(false); setReaderComplete(false)
+    setRevealed([]); setReaderBusy(false); setReaderShowTap(false); setReaderComplete(false); setReaderFinalHint(false)
 
     const resolve = (t?: string) => resolveTokens(t ?? '', game.playerName, game.playerGender)
     // Swap the cue avatar to the gender-correct creator (crush/ally flip for female players),
@@ -275,8 +276,9 @@ export default function LiveScreen() {
     const setLast = (patch: Partial<CinItem>) => { rev[rev.length - 1] = { ...rev[rev.length - 1], ...patch }; commit() }
 
     const afterSettle = () => {
-      // The final chunk flows straight into the choice splash — no dead tap.
-      if (idx >= chunks.length - 1) { setReaderComplete(true); scroll(); return }
+      // The choice must be ASKED FOR — the splash arrives on the player's tap,
+      // never mid-read (founder: 'choices come very abruptly').
+      if (idx >= chunks.length - 1) setReaderFinalHint(true)
       setReaderShowTap(true); scroll()
     }
     const typeLast = (full: string) => {
@@ -337,7 +339,7 @@ export default function LiveScreen() {
     setShowImpact(false)
     setShowPost(false)
     setStats(null)
-    setRevealed([]); setReaderBusy(false); setReaderShowTap(false); setReaderComplete(false)
+    setRevealed([]); setReaderBusy(false); setReaderShowTap(false); setReaderComplete(false); setReaderFinalHint(false)
     processingRef.current = false
     timersRef.current = []
   }, [situation])
@@ -409,7 +411,7 @@ export default function LiveScreen() {
     setShowPost(false)
     setShowBeat(false)
     setOutcomeFlash(null)
-    setRevealed([]); setReaderBusy(false); setReaderShowTap(false); setReaderComplete(false)
+    setRevealed([]); setReaderBusy(false); setReaderShowTap(false); setReaderComplete(false); setReaderFinalHint(false)
     processingRef.current = false
     scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
   }, [])
@@ -1195,9 +1197,9 @@ export default function LiveScreen() {
                     </div>
                   ))}
                   {readerShowTap && (
-                    <div className="cin-taphint">
+                    <div className="cin-taphint" style={readerFinalHint ? { color: 'var(--accent)', fontWeight: 800 } : undefined}>
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6" /></svg>
-                      Tap anywhere to continue
+                      {readerFinalHint ? 'Faisle ka waqt — tap karo' : 'Tap anywhere to continue'}
                     </div>
                   )}
                 </div>
