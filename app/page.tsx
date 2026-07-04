@@ -99,6 +99,7 @@ export default function App() {
     ria:85, kabir:55, dev:30, ananya:15, zoya:50
   })
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set())
+  const [postComments, setPostComments] = useState<Record<string, string>>({})
   const [dmBadgeCount, setDmBadgeCount] = useState(0)
   const clearDmBadge = useCallback(() => setDmBadgeCount(0), [])
   const [viewingCharId, setViewingCharId] = useState<CharId | null>(null)
@@ -129,12 +130,14 @@ export default function App() {
   const dmTrustRef = useRef(dmTrust); dmTrustRef.current = dmTrust
   const charFameRef = useRef(charFame); charFameRef.current = charFame
   const likedPostsRef = useRef(likedPosts); likedPostsRef.current = likedPosts
+  const postCommentsRef = useRef(postComments); postCommentsRef.current = postComments
   const dmHistoryRef = useRef(dmHistory); dmHistoryRef.current = dmHistory
   // Snapshot of all progress-extras to merge into every game_state write
   const extrasSnapshot = useCallback(() => ({
     dmTrust: dmTrustRef.current,
     charFame: charFameRef.current,
     likedPosts: [...likedPostsRef.current],
+    postComments: postCommentsRef.current,
   }), [])
 
   // Hydrate all persisted progress after login/reload — game + relationships + likes
@@ -143,6 +146,7 @@ export default function App() {
     if (s.dmTrust && Object.keys(s.dmTrust).length) setDmTrust(s.dmTrust)
     if (s.charFame && Object.keys(s.charFame).length) setCharFame(prev => ({ ...prev, ...s.charFame }))
     if (s.likedPosts && s.likedPosts.length) setLikedPosts(new Set(s.likedPosts))
+    if (s.postComments && Object.keys(s.postComments).length) setPostComments(s.postComments)
   }, [])
 
   useEffect(() => {
@@ -906,6 +910,18 @@ export default function App() {
     if (charName) showToast(`Liked ${charName}'s post ❤️`)
   }, [likedPosts, adjustIndividualTrust, game.world, showToast])
 
+  // A posted comment BELONGS to the post — persist it and render it under the
+  // post like a real comment (founder call, Jul 4).
+  const addPostComment = useCallback((postId: string, text: string) => {
+    if (!text.trim()) return
+    setPostComments(prev => {
+      const next = { ...prev, [postId]: text.trim() }
+      postCommentsRef.current = next
+      saveGameState({ ...gameRef.current, ...extrasSnapshot() }).catch(() => {})
+      return next
+    })
+  }, [extrasSnapshot])
+
   // Inject a DM message from a character without AI round-trip (used after Live choices).
   // `meta` carries the story beat's day/phase/event so the thread can show a
   // "DAY 2 · MORNING" divider + an in-story timestamp on the message.
@@ -1020,7 +1036,7 @@ export default function App() {
       dmBadgeCount, clearDmBadge,
       saveProfile,
       advanceSituation, navigate, goBack, showToast, setChar, startGame, startCricketGame,
-      makeChoice, sendDM, openDMThread, resetGame, likePost, applyFeedDeltas, injectCharDM, setViewingChar,
+      makeChoice, sendDM, openDMThread, resetGame, likePost, applyFeedDeltas, injectCharDM, setViewingChar, postComments, addPostComment,
       pendingPostReveal, setPendingPostReveal, upsertAiPost, dmNotif, notifyDM, followerReceipt, showFollowerReceipt, hudReaction, setHudReaction,
       resolveSelection, skipWeekWait, resolveEviction,
       dmStorySession, startDmStorySession,

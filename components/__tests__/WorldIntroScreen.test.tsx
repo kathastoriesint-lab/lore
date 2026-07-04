@@ -17,6 +17,8 @@ function makeCtx(overrides: Partial<AppCtx> = {}): AppCtx {
     relationshipAlerts: [],
     charFame: {},
     likedPosts: new Set(),
+    postComments: {},
+    addPostComment: () => {},
     toast: null,
     viewingCharId: null,
     impactNotif: null,

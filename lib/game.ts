@@ -134,6 +134,7 @@ export async function loadGameState(): Promise<GameState> {
     dmTrust: (extra.dmTrust as Record<string, number>) ?? undefined,
     charFame: (extra.charFame as Record<string, number>) ?? undefined,
     likedPosts: Array.isArray(extra.likedPosts) ? (extra.likedPosts as string[]) : undefined,
+    postComments: (extra.postComments as Record<string, string>) ?? undefined,
     aiPosts: (extra.aiPosts as GameState['aiPosts']) ?? undefined,
     // In-flight save migration: pre-season saves have no week — derive it from
     // the current queue position (weeks overlay the unchanged queue, so the
@@ -183,6 +184,7 @@ export async function saveGameState(state: GameState, deviceId?: string) {
       dmTrust: state.dmTrust ?? {},
       charFame: state.charFame ?? {},
       likedPosts: state.likedPosts ?? [],
+      postComments: state.postComments ?? {},
       aiPosts: state.aiPosts ?? {},
       // Season progression (cricket)
       week: state.week ?? null,

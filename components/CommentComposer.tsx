@@ -17,7 +17,7 @@ const ALLY_PERSONA  = 'your loud, loyal ride-or-die — warm, all heart, hypes y
 interface Props {
   character: { id: string; name: string; handle: string }
   post: { caption: string; imageUrl?: string }
-  onDone: () => void
+  onDone: (text: string) => void
 }
 
 // On a character's post: 2 AI suggestions + a free-type box. Sending fires the
@@ -78,7 +78,7 @@ export default function CommentComposer({ character, post, onDone }: Props) {
       try { localStorage.setItem('lore_comment_dm_v1', JSON.stringify([...fired])) } catch {}
       setTimeout(() => notifyDM(character.id as CharId, reply, { caption: post.caption, imageUrl: post.imageUrl, handle: character.handle }), 700)
     }
-    setTimeout(onDone, 1000)
+    setTimeout(() => onDone(text.trim()), 1000)
   }
 
   if (sent) {

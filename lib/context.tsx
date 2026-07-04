@@ -36,6 +36,9 @@ export interface AppCtx {
   showImpact: (n: ImpactNotif) => void
   charFame: Record<string, number>
   likedPosts: Set<string>
+  /** Player comments on feed posts (postId → text) — visible under the post. */
+  postComments: Record<string, string>
+  addPostComment: (postId: string, text: string) => void
   toast: string | null
   viewingCharId: CharId | null
   dmBadgeCount: number

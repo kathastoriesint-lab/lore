@@ -100,16 +100,18 @@ interface SeedPostProps {
   imageUrl?: string
   likedPosts: Set<string>
   commentedPosts: Set<string>
+  myComment?: string
+  myHandle?: string
   onLike: (id: string, charId: CharId, delta: number) => void
   onComment: (id: string | null) => void
   commentOpen: string | null
   comments: import('@/lib/data').PostCommentOption[]
   onHandleComment: (charId: string, postId: string, opt: import('@/lib/data').PostCommentOption) => void
   playingCharName: string
-  onCommentSent: (postId: string) => void
+  onCommentSent: (postId: string, text: string) => void
 }
 
-function SeedPost({ id, charId, onViewChar, bg, caption, fullCaption, likes, time, imageUrl, likedPosts, commentedPosts, onLike, onComment, commentOpen, onCommentSent, playingCharName }: SeedPostProps) {
+function SeedPost({ id, charId, onViewChar, bg, caption, fullCaption, likes, time, imageUrl, likedPosts, commentedPosts, onLike, onComment, commentOpen, onCommentSent, playingCharName, myComment, myHandle }: SeedPostProps) {
   const char = getCHChars()[charId as CharId]
   if (!char) return null
   const isOpen = commentOpen === id
@@ -157,10 +159,13 @@ function SeedPost({ id, charId, onViewChar, bg, caption, fullCaption, likes, tim
         <CommentComposer
           character={{ id: char.id, name: char.name, handle: char.handle }}
           post={{ caption: fullCaption, imageUrl }}
-          onDone={() => onCommentSent(id)}
+          onDone={t => onCommentSent(id, t)}
         />
       )}
       <div className="caption"><b>{char.handle}</b> {fullCaption}</div>
+      {myComment && (
+        <div className="caption cmt-in" style={{ paddingTop: 2, color: 'rgba(255,255,255,.85)' }}><b>{myHandle}</b> {myComment}</div>
+      )}
       <div className="ts" style={{ padding:'2px 14px 12px' }}>{time}</div>
     </div>
   )
@@ -170,6 +175,8 @@ function SeedPost({ id, charId, onViewChar, bg, caption, fullCaption, likes, tim
 interface CricketSeedProps {
   likedPosts: Set<string>
   commentedPosts: Set<string>
+  postComments: Record<string, string>
+  myHandle: string
   onLike: (id: string, charId: CharId, delta: number) => void
   onComment: (id: string | null) => void
   commentOpen: string | null
@@ -206,7 +213,7 @@ const CRICKET_COMMENTS: Record<string, PostCommentOption[]> = {
   ],
 }
 
-function CricketSeedFeed({ likedPosts, commentedPosts, onLike, onComment, commentOpen, onHandleComment, playingCharName, onViewChar }: CricketSeedProps) {
+function CricketSeedFeed({ likedPosts, commentedPosts, postComments, myHandle, onLike, onComment, commentOpen, onHandleComment, playingCharName, onViewChar }: CricketSeedProps) {
   const cricketChars = { ...getCHChars(), ...getCricketChars() }
 
   const seedPost = (id: string, charKey: string, bg: string, caption: string, fullCaption: string, likes: string, time: string, imageUrl?: string) => {
@@ -260,6 +267,9 @@ function CricketSeedFeed({ likedPosts, commentedPosts, onLike, onComment, commen
           </div>
         )}
         <div className="caption"><b>{char.handle}</b> {fullCaption}</div>
+        {postComments[id] && (
+          <div className="caption cmt-in" style={{ paddingTop: 2, color: 'rgba(255,255,255,.85)' }}><b>{myHandle}</b> {postComments[id]}</div>
+        )}
         <div className="ts" style={{ padding:'2px 14px 12px' }}>{time}</div>
       </div>
     )
@@ -320,6 +330,9 @@ function CricketSeedFeed({ likedPosts, commentedPosts, onLike, onComment, commen
               </div>
             )}
             <div className="caption"><b>paltanpulse</b> Remember the name. #Paltan 💙</div>
+            {postComments['paltan-seed'] && (
+              <div className="caption cmt-in" style={{ paddingTop: 2, color: 'rgba(255,255,255,.85)' }}><b>{myHandle}</b> {postComments['paltan-seed']}</div>
+            )}
             <div className="ts" style={{ padding:'2px 14px 12px' }}>1 HOUR AGO</div>
           </div>
         )
@@ -414,7 +427,7 @@ const StatusBar = () => (
 )
 
 export default function FeedScreen() {
-  const { navigate, goBack, showToast, game, screen, likePost, likedPosts, applyFeedDeltas, setViewingChar, dmBadgeCount, relationshipAlerts, pendingPostReveal, setPendingPostReveal, upsertAiPost, notifyDM, setHudReaction } = useApp()
+  const { navigate, goBack, showToast, game, screen, likePost, likedPosts, postComments, addPostComment, applyFeedDeltas, setViewingChar, dmBadgeCount, relationshipAlerts, pendingPostReveal, setPendingPostReveal, upsertAiPost, notifyDM, setHudReaction } = useApp()
 
   // Mark how many posts the player has "seen" — recorded only while the Feed is the
   // ACTIVE screen (Slots keep every screen mounted). The Live sheet's "N new" badge
@@ -430,7 +443,9 @@ export default function FeedScreen() {
   const [climbing, setClimbing] = useState(false)
   const revealKeyRef = useRef<string | null>(null)
   const [commentPost, setCommentPost] = useState<string | null>(null)
-  const [commentedPosts, setCommentedPosts] = useState<Set<string>>(new Set())
+  // Posted comments are PERSISTED game state (postId → text) — the Set is derived.
+  const commentedPosts = useMemo(() => new Set(Object.keys(postComments)), [postComments])
+  const myHandle = (game.playerName || 'you').toLowerCase().replace(/\s+/g, '')
 
   // World intro overlay
   const [showIntro, setShowIntro] = useState(false)
@@ -482,17 +497,17 @@ export default function FeedScreen() {
 
   const handleComment = useCallback((postKey: string, postId: string, opt: PostCommentOption) => {
     setCommentPost(null)
-    setCommentedPosts(prev => { const n = new Set(prev); n.add(postId); return n })
+    addPostComment(postId, opt.text)
     const charName = allChars[postKey]?.name
     applyFeedDeltas(opt.deltas, postKey, charName, opt.relationshipDeltas)
-  }, [applyFeedDeltas])
+  }, [applyFeedDeltas, addPostComment])
 
   // Mark a post commented + close the sheet (AI comment path; the DM trigger lives
   // inside CommentComposer).
-  const markCommented = useCallback((postId: string) => {
+  const markCommented = useCallback((postId: string, text: string) => {
     setCommentPost(null)
-    setCommentedPosts(prev => { const n = new Set(prev); n.add(postId); return n })
-  }, [])
+    addPostComment(postId, text)
+  }, [addPostComment])
 
   // Stream a freshly-posted player post: reactions appear one at a time, likes
   // climb, the follower receipt shows, and any DM lands as an app-wide notification.
@@ -691,6 +706,9 @@ export default function FeedScreen() {
                     })}
                   </div>
                 )}
+                {postComments[post.postId] && (
+                  <div className="caption cmt-in" style={{ padding: '2px 14px 0', color: 'rgba(255,255,255,.85)' }}><b>{myHandle}</b> {postComments[post.postId]}</div>
+                )}
                 {/* Authored comment hooks — your reply moves real bonds (story reads it back) */}
                 {!pc.isPlayer && (post.comments?.length ?? 0) > 0 && !commentedPosts.has(post.postId) && (
                   <div style={{ padding: '2px 14px 6px', display: 'flex', flexDirection: 'column', gap: 6 }}>
@@ -744,11 +762,14 @@ export default function FeedScreen() {
                 likes={compactCount(likeNum(feedLikes(i, isCricket)))} comments={sideCounts(likeNum(feedLikes(i, isCricket))).comments}
               />
               <div className="caption"><b>{reactChar.handle}</b> {resolveTokens(post.reaction.caption, game.playerName, game.playerGender)}</div>
+              {postComments[post.postId] && (
+                <div className="caption cmt-in" style={{ paddingTop: 2, color: 'rgba(255,255,255,.85)' }}><b>{myHandle}</b> {postComments[post.postId]}</div>
+              )}
               {commentPost === post.postId && !commented && (
                 <CommentComposer
                   character={{ id: reactChar.id, name: reactChar.name, handle: reactChar.handle }}
                   post={{ caption: resolveTokens(post.reaction.caption, game.playerName, game.playerGender) }}
-                  onDone={() => markCommented(post.postId)}
+                  onDone={t => markCommented(post.postId, t)}
                 />
               )}
               <div className="ts" style={{ padding:'2px 14px 12px' }}>{timeLabelUpper}</div>
@@ -762,6 +783,7 @@ export default function FeedScreen() {
         {isCricket ? (
           <CricketSeedFeed
             likedPosts={likedPosts} commentedPosts={commentedPosts}
+            postComments={postComments} myHandle={myHandle}
             onLike={likePost} onComment={setCommentPost}
             commentOpen={commentPost} onHandleComment={handleComment}
             playingCharName={game.playerName || 'You'}
@@ -771,7 +793,7 @@ export default function FeedScreen() {
           <>
         {/* Ria */}
         <SeedPost
-          id="ria-seed" charId="ria" onViewChar={setViewingChar}
+          id="ria-seed" myComment={postComments['ria-seed']} charId="ria" onViewChar={setViewingChar}
           bg="linear-gradient(135deg,#b03a5e,#4a0820)"
           caption="Pehla din. Pehla room. Pehle mujhe. Kuch cheezein change nahi honti. 🤍"
           fullCaption="Kaafi log poochte hain — 'Ria, tujhe stress nahi hota?' Stress? Main stress ko content mein convert karti hoon. 🤍"
@@ -779,12 +801,12 @@ export default function FeedScreen() {
           imageUrl="/generated/creator-house-posts/seed-ria.png"
           likedPosts={likedPosts} commentedPosts={commentedPosts} onLike={likePost} onComment={setCommentPost}
           commentOpen={commentPost} comments={getCHPostComments().ria}
-          onHandleComment={handleComment} playingCharName={playingChar?.name ?? 'you'} onCommentSent={markCommented}
+          onHandleComment={handleComment} playingCharName={playingChar?.name ?? 'you'} onCommentSent={markCommented} myHandle={myHandle}
         />
 
         {/* Zoya */}
         <SeedPost
-          id="zoya-seed" charId="zoya" onViewChar={setViewingChar}
+          id="zoya-seed" myComment={postComments['zoya-seed']} charId="zoya" onViewChar={setViewingChar}
           bg="linear-gradient(135deg,#aa6a8a,#2a0a1a)"
           caption="Naye log. Naye vibes. Is ghar mein sab interesting lagte hain. Especially ek. 👀🫶"
           fullCaption="Day 1 done. Chai piya. Kuch connections bane. Kuch strategies bhi. #CreatorHouse"
@@ -792,7 +814,7 @@ export default function FeedScreen() {
           imageUrl="/generated/creator-house-posts/seed-zoya.png"
           likedPosts={likedPosts} commentedPosts={commentedPosts} onLike={likePost} onComment={setCommentPost}
           commentOpen={commentPost} comments={getCHPostComments().zoya}
-          onHandleComment={handleComment} playingCharName={playingChar?.name ?? 'you'} onCommentSent={markCommented}
+          onHandleComment={handleComment} playingCharName={playingChar?.name ?? 'you'} onCommentSent={markCommented} myHandle={myHandle}
         />
 
         {/* housewatch_india gossip account */}
@@ -832,6 +854,9 @@ export default function FeedScreen() {
                 </div>
               )}
               <div className="caption"><b>housewatch_india</b> Pehla din. Thread kal. 👀 #CreatorHouse</div>
+              {postComments['housewatch'] && (
+                <div className="caption cmt-in" style={{ paddingTop: 2, color: 'rgba(255,255,255,.85)' }}><b>{myHandle}</b> {postComments['housewatch']}</div>
+              )}
               <div className="ts" style={{ padding:'2px 14px 12px' }}>2 HOURS AGO</div>
             </div>
           )
@@ -839,7 +864,7 @@ export default function FeedScreen() {
 
         {/* Kabir */}
         <SeedPost
-          id="kabir-seed" charId="kabir" onViewChar={setViewingChar}
+          id="kabir-seed" myComment={postComments['kabir-seed']} charId="kabir" onViewChar={setViewingChar}
           bg="linear-gradient(135deg,#2a6f8f,#0a2a40)"
           caption="&quot;Is ghar mein sab serious ho jaate hain jab camera on hota hai. Main serious tab hota hoon jab camera off hota hai.&quot; 😭👀"
           fullCaption="Camera ka psychology. Day 1 observation thread kal. 😭"
@@ -847,12 +872,12 @@ export default function FeedScreen() {
           imageUrl="/generated/creator-house-posts/seed-kabir.png"
           likedPosts={likedPosts} commentedPosts={commentedPosts} onLike={likePost} onComment={setCommentPost}
           commentOpen={commentPost} comments={getCHPostComments().kabir}
-          onHandleComment={handleComment} playingCharName={playingChar?.name ?? 'you'} onCommentSent={markCommented}
+          onHandleComment={handleComment} playingCharName={playingChar?.name ?? 'you'} onCommentSent={markCommented} myHandle={myHandle}
         />
 
         {/* Dev */}
         <SeedPost
-          id="dev-seed" charId="dev" onViewChar={setViewingChar}
+          id="dev-seed" myComment={postComments['dev-seed']} charId="dev" onViewChar={setViewingChar}
           bg="linear-gradient(135deg,#3a7a4a,#0a2a1a)"
           caption="5AM. Gym done. Creator House Day 1 different hai. Numbers aayenge. Always do. 💪📈"
           fullCaption="Grind never stops. Villa ya gym — same mindset. #CreatorHouse #Fitness"
@@ -860,12 +885,12 @@ export default function FeedScreen() {
           imageUrl="/generated/creator-house-posts/seed-dev.png"
           likedPosts={likedPosts} commentedPosts={commentedPosts} onLike={likePost} onComment={setCommentPost}
           commentOpen={commentPost} comments={getCHPostComments().dev}
-          onHandleComment={handleComment} playingCharName={playingChar?.name ?? 'you'} onCommentSent={markCommented}
+          onHandleComment={handleComment} playingCharName={playingChar?.name ?? 'you'} onCommentSent={markCommented} myHandle={myHandle}
         />
 
         {/* Ananya */}
         <SeedPost
-          id="ananya-seed" charId="ananya" onViewChar={setViewingChar}
+          id="ananya-seed" myComment={postComments['ananya-seed']} charId="ananya" onViewChar={setViewingChar}
           bg="linear-gradient(135deg,#8a4ab0,#3a1660)"
           caption="2.1M views raat mein. Subah uthke dekha toh ro padi. Phir Ria ko bataya. Usne bola... 'nice.' 🥺✨"
           fullCaption="2.1M. Ro padi. Tumhara pyaar 🥺✨"
@@ -873,7 +898,7 @@ export default function FeedScreen() {
           imageUrl="/generated/creator-house-posts/seed-ananya.png"
           likedPosts={likedPosts} commentedPosts={commentedPosts} onLike={likePost} onComment={setCommentPost}
           commentOpen={commentPost} comments={getCHPostComments().ananya}
-          onHandleComment={handleComment} playingCharName={playingChar?.name ?? 'you'} onCommentSent={markCommented}
+          onHandleComment={handleComment} playingCharName={playingChar?.name ?? 'you'} onCommentSent={markCommented} myHandle={myHandle}
         />
 
           <div style={{ height: 20 }} />

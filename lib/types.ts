@@ -334,6 +334,8 @@ export interface GameState {
   charFame?: Record<string, number>
   /** Post IDs the player has liked — prevents re-liking after reload. */
   likedPosts?: string[]
+  /** Player comments posted on feed posts, keyed by postId — rendered under the post. */
+  postComments?: Record<string, string>
   /** Live-generated player posts (caption + reactions), keyed by `${sit.id}-${letter}`. */
   aiPosts?: Record<string, AiPost>
 
