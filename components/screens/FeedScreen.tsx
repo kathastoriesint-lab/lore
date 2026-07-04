@@ -742,8 +742,7 @@ export default function FeedScreen() {
         {/* Small "N new posts" chip — fades out the moment you scroll */}
         {newCount > 0 && (
           <div style={{ position: 'sticky', top: 8, zIndex: 20, display: 'flex', justifyContent: 'center', pointerEvents: 'none', height: 0, opacity: feedScrolled ? 0 : 1, transform: feedScrolled ? 'translateY(-6px)' : 'none', transition: 'opacity .22s ease, transform .22s ease' }}>
-            <button onClick={scrollFeedTop} style={{ pointerEvents: feedScrolled ? 'none' : 'auto', display: 'flex', alignItems: 'center', gap: 6, background: 'linear-gradient(120deg,#ff2d78,#b8195a)', border: 'none', borderRadius: 999, padding: '6px 13px', color: '#fff', fontWeight: 700, fontSize: 12.5, boxShadow: '0 6px 18px rgba(255,45,120,.36)', cursor: 'pointer', fontFamily: 'var(--sans)', animation: 'cmtIn .35s cubic-bezier(.32,.72,0,1) both' }}>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M12 19V5M5 12l7-7 7 7" /></svg>
+            <button onClick={scrollFeedTop} style={{ pointerEvents: feedScrolled ? 'none' : 'auto', background: 'linear-gradient(120deg,#ff2d78,#b8195a)', border: 'none', borderRadius: 999, padding: '6px 15px', color: '#fff', fontWeight: 700, fontSize: 12.5, boxShadow: '0 6px 18px rgba(255,45,120,.36)', cursor: 'pointer', fontFamily: 'var(--sans)', animation: 'cmtIn .35s cubic-bezier(.32,.72,0,1) both' }}>
               {newCount} new post{newCount > 1 ? 's' : ''}
             </button>
           </div>
