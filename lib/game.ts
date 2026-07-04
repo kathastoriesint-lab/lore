@@ -496,8 +496,12 @@ export async function getAIReply(
 const META_LEAK = /\b(The user said|stay in character|Output shape|word count|under \d+ words|trust band|low trust\.|hook required|Roman script|Let'?s do\b)/i
 function sanitizeReply(raw: string): string {
   if (!raw || !META_LEAK.test(raw)) return raw
-  const spans = [...raw.matchAll(/"([^"]{8,})"/g)].map(m => m[1])
-    .filter(t => !META_LEAK.test(t))
+  // Proper quote pairing (split, take odd segments) — a length-filtered regex
+  // can pair a closing quote with the next opening one and capture the meta
+  // text BETWEEN quotes instead of the message inside them.
+  const spans = raw.split('"').filter((_, i) => i % 2 === 1)
+    .map(t => t.trim())
+    .filter(t => t.length >= 8 && !META_LEAK.test(t))
   return spans.sort((a, b) => b.length - a.length)[0] ?? ''
 }
 
