@@ -501,6 +501,17 @@ export default function FeedScreen() {
       localStorage.setItem('lore_feed_seen_choices', String(game.choices.length))
     }
   }, [screen, game.choices.length])
+  // The "N new posts" chip shows at the top, then fades the moment you scroll.
+  const [feedScrolled, setFeedScrolled] = useState(false)
+  useEffect(() => {
+    if (screen !== 'feed') return
+    const sc = document.getElementById('feed-scroll')
+    if (!sc) return
+    const onScroll = () => setFeedScrolled(sc.scrollTop > 6)
+    onScroll()
+    sc.addEventListener('scroll', onScroll, { passive: true })
+    return () => sc.removeEventListener('scroll', onScroll)
+  }, [screen])
   const [revealCount, setRevealCount] = useState(0)
   const [liveLikes, setLiveLikes] = useState(0)
   const [gainShown, setGainShown] = useState(false)
@@ -588,19 +599,6 @@ export default function FeedScreen() {
     while (n < completedPosts.length && !isOld(completedPosts[n])) n++
     return n
   }, [completedPosts, latestStep])
-  const newAvatars = useMemo(() => {
-    const seen = new Set<string>(); const out: { url?: string; init: string; color: string }[] = []
-    for (const p of completedPosts.slice(0, newCount)) {
-      const av = p.type === 'authored'
-        ? { url: (p.owner as { avatarUrl?: string }).avatarUrl, init: p.owner.init, color: p.owner.color ?? '#1a1a2e', id: p.owner.handle }
-        : { url: `/avatars/${p.char.id}.png`, init: p.char.init, color: '#1a2a3a', id: p.char.id }
-      if (seen.has(av.id)) continue
-      seen.add(av.id); out.push(av)
-      if (out.length >= 3) break
-    }
-    return out
-  }, [completedPosts, newCount])
-
   const scrollFeedTop = useCallback(() => {
     document.getElementById('feed-scroll')?.scrollTo({ top: 0, behavior: 'smooth' })
   }, [])
@@ -741,18 +739,11 @@ export default function FeedScreen() {
       {/* Scrollable feed */}
       <div id="feed-scroll" className="scroll" style={{ flex: 1 }}>
 
-        {/* "X new posts" pill — sticky at the top; the avatars are who just posted */}
+        {/* Small "N new posts" chip — fades out the moment you scroll */}
         {newCount > 0 && (
-          <div style={{ position: 'sticky', top: 8, zIndex: 20, display: 'flex', justifyContent: 'center', pointerEvents: 'none' }}>
-            <button onClick={scrollFeedTop} style={{ pointerEvents: 'auto', display: 'flex', alignItems: 'center', gap: 9, background: 'linear-gradient(120deg,#ff2d78,#b8195a)', border: 'none', borderRadius: 999, padding: '7px 15px 7px 11px', color: '#fff', fontWeight: 800, fontSize: 13, boxShadow: '0 8px 24px rgba(255,45,120,.42)', cursor: 'pointer', fontFamily: 'var(--sans)', animation: 'cmtIn .4s cubic-bezier(.32,.72,0,1) both' }}>
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M12 19V5M5 12l7-7 7 7" /></svg>
-              <span style={{ display: 'flex' }}>
-                {newAvatars.map((a, i) => (
-                  <span key={i} style={{ width: 22, height: 22, borderRadius: '50%', marginLeft: i ? -8 : 0, border: '2px solid #ff2d78', background: a.url ? `center/cover url(${a.url})` : a.color, display: 'grid', placeItems: 'center', fontSize: 9, fontWeight: 800, color: '#fff', zIndex: 3 - i }}>
-                    {!a.url && a.init}
-                  </span>
-                ))}
-              </span>
+          <div style={{ position: 'sticky', top: 8, zIndex: 20, display: 'flex', justifyContent: 'center', pointerEvents: 'none', height: 0, opacity: feedScrolled ? 0 : 1, transform: feedScrolled ? 'translateY(-6px)' : 'none', transition: 'opacity .22s ease, transform .22s ease' }}>
+            <button onClick={scrollFeedTop} style={{ pointerEvents: feedScrolled ? 'none' : 'auto', display: 'flex', alignItems: 'center', gap: 6, background: 'linear-gradient(120deg,#ff2d78,#b8195a)', border: 'none', borderRadius: 999, padding: '6px 13px', color: '#fff', fontWeight: 700, fontSize: 12.5, boxShadow: '0 6px 18px rgba(255,45,120,.36)', cursor: 'pointer', fontFamily: 'var(--sans)', animation: 'cmtIn .35s cubic-bezier(.32,.72,0,1) both' }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M12 19V5M5 12l7-7 7 7" /></svg>
               {newCount} new post{newCount > 1 ? 's' : ''}
             </button>
           </div>
