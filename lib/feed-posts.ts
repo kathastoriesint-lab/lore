@@ -25,6 +25,39 @@ export const feedLikes = (index: number, isCricket: boolean) => {
 const asArray = <T,>(value: T | T[] | null | undefined): T[] =>
   value == null ? [] : Array.isArray(value) ? value : [value]
 
+// ── Feed image fill ───────────────────────────────────────────────────────────
+// No cricket character or fan-account post should render as a blank gradient.
+// When a reaction / authored post carries no image, fall back to a relevant
+// existing library shot — reused across the run, varied by beat index so the same
+// account/character doesn't repeat the identical photo. Cricket only (CH untouched).
+const GP = '/generated/cricket-posts/'
+const FEED_FILL_BY_CHAR: Record<string, string[]> = {
+  rohit:  ['seed-rohit', 'cr-s19-rohit', 'cr-s30-shared'],
+  hardik: ['cr-s22-hardik', 'cr-s13-hardik'],
+  surya:  ['seed-surya', 'cr-s4-player'],
+  bumrah: ['seed-bumrah', 'cr-s13-surya'],
+  tilak:  ['seed-tilak'],
+  mahela: ['cr-s16-mipaltan', 'cr-s10-player'],
+  naman:  ['cr2-s12-rivalry', 'cr-s26-player'],
+  robin:  ['cr-s20-paltanpulse', 'cr-s24-mipaltan'],
+  coach:  ['cr-s10-player', 'cr2-s5-selection', 'cr-s3-player'],
+  friend: ['cr-s20-paltanpulse', 'cr-s24-mipaltan', 'seed-cricketroom', 'cr-s8-player'],
+}
+const FEED_FILL_BY_ACCT: Record<string, string[]> = {
+  paltanpulse:       ['seed-paltanpulse', 'cr-s5-paltanpulse', 'cr-s13-paltanpulse', 'cr2-s2-fan'],
+  cricketroom_india: ['seed-cricketroom', 'cr-s2-cricketroom'],
+  cricketroom:       ['seed-cricketroom', 'cr-s2-cricketroom'],
+  futurexi:          ['seed-futurexi'],
+  memeovers:         ['cr-s25-fail', 'cr-s8-player'],
+  mumbaiindians:     ['cr-s1-mipaltan', 'cr-s24-mipaltan'],
+  mipaltan:          ['cr-s1-mipaltan', 'cr-s24-mipaltan'],
+}
+function feedFillImg(handle: string | undefined, char: string | undefined, step: number): string | undefined {
+  const pool = handle ? FEED_FILL_BY_ACCT[handle] : char ? FEED_FILL_BY_CHAR[char] : undefined
+  if (!pool || !pool.length) return undefined
+  return GP + pool[((step % pool.length) + pool.length) % pool.length] + '.png'
+}
+
 export type FeedPost =
   | { type: 'npc'; postId: string; sit: Situation; stepIndex: number; postOffset: number; ageMinutes?: number; choice: 'A'|'B'; reaction: { char: string; caption: string }; char: Character }
   | {
@@ -73,7 +106,12 @@ export function derivePosts(game: GameState): FeedPost[] {
     const ch = sit.choices[letter === 'A' ? 0 : 1]
 
     const reaction = sit.feedReaction?.[letter]
-    if (reaction && (reaction.account || reaction.imageUrl)) {
+    // Fill an image-less cricket reaction from the library so it renders as a real
+    // photo post (avatar + photo card) instead of a blank gradient.
+    const reactImg = reaction
+      ? (reaction.imageUrl ?? (isCricket ? feedFillImg(reaction.account?.handle, reaction.char, i) : undefined))
+      : undefined
+    if (reaction && (reaction.account || reactImg)) {
       // Fan-account reactions (and photo reactions) use the full authored-post
       // rendering — avatar chip, photo card, like/comment row.
       const owner = reaction.account
@@ -82,7 +120,7 @@ export function derivePosts(game: GameState): FeedPost[] {
             const c = allChars[chCharForGender(reaction.char!, game.playerGender) as CharId]
             return c ? { id: c.id, cls: c.cls, init: c.init, handle: c.handle, avatarUrl: `/avatars/${c.id}.png`, color: CHAR_COLORS_HEX[c.id] ?? '#1a1a2e', isPlayer: false, likeTarget: c.id as CharId } : null
           })()
-      if (owner) posts.push({ type: 'authored', postId: `react-${sit.id}-${letter}`, sit, stepIndex: i, postOffset: 2, choice: letter, caption: reaction.caption, imageUrl: reaction.imageUrl, owner, reactions: [] })
+      if (owner) posts.push({ type: 'authored', postId: `react-${sit.id}-${letter}`, sit, stepIndex: i, postOffset: 2, choice: letter, caption: reaction.caption, imageUrl: reactImg, owner, reactions: [] })
     } else if (reaction && !isCricket && reaction.char) {
       // Render the gender-correct creator (crush/ally swap for female players).
       const char = allChars[chCharForGender(reaction.char, game.playerGender) as CharId]
@@ -114,7 +152,11 @@ export function derivePosts(game: GameState): FeedPost[] {
           // Live-generated player post overrides the authored caption/reactions
           // (same key the compose flow writes: `${sit.id}-${letter}`).
           const ai = owner.isPlayer ? game.aiPosts?.[`${sit.id}-${letter}`] : undefined
-          posts.push({ type: 'authored', postId: `post-${sit.id}-${letter}-${postIndex}`, sit, stepIndex: i, postOffset: postIndex * 2, choice: letter, caption: ai?.caption ?? authoredPost.caption, imageUrl: ai?.imageUrl ?? authoredPost.imageUrl, owner, label: authoredPost.label, reactions: ai?.reactions?.length ? ai.reactions : (authoredPost.reactions ?? []), comments: authoredPost.comments })
+          // Fill an image-less account/character post (never the player's own composed post).
+          const postFill = (isCricket && !owner.isPlayer && !authoredPost.imageUrl)
+            ? feedFillImg(authoredPost.source === 'account' ? owner.handle : undefined, authoredPost.source === 'character' ? authoredPost.char : undefined, i)
+            : undefined
+          posts.push({ type: 'authored', postId: `post-${sit.id}-${letter}-${postIndex}`, sit, stepIndex: i, postOffset: postIndex * 2, choice: letter, caption: ai?.caption ?? authoredPost.caption, imageUrl: ai?.imageUrl ?? authoredPost.imageUrl ?? postFill, owner, label: authoredPost.label, reactions: ai?.reactions?.length ? ai.reactions : (authoredPost.reactions ?? []), comments: authoredPost.comments })
         }
       })
     }
