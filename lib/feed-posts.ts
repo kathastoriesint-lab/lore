@@ -26,13 +26,16 @@ const asArray = <T,>(value: T | T[] | null | undefined): T[] =>
   value == null ? [] : Array.isArray(value) ? value : [value]
 
 export type FeedPost =
-  | { type: 'npc'; postId: string; sit: Situation; stepIndex: number; postOffset: number; choice: 'A'|'B'; reaction: { char: string; caption: string }; char: Character }
+  | { type: 'npc'; postId: string; sit: Situation; stepIndex: number; postOffset: number; ageMinutes?: number; choice: 'A'|'B'; reaction: { char: string; caption: string }; char: Character }
   | {
       type: 'authored'
       postId: string
       sit: Situation
       stepIndex: number
       postOffset: number
+      /** Canonical age of this post in minutes — the SINGLE source for both the
+       *  feed sort order and the displayed timestamp, so they never disagree. */
+      ageMinutes?: number
       choice: 'A'|'B'
       caption: string
       imageUrl?: string
@@ -118,7 +121,13 @@ export function derivePosts(game: GameState): FeedPost[] {
 
     if (ch) meters = applyDeltas(meters, ch.deltas)
   }
-  return posts.reverse()
+  // Stamp each post's canonical age (synthetic 45 min per beat, + its in-beat
+  // offset). This single value drives BOTH the feed sort and the shown "N min
+  // ago" label, so the two can never disagree.
+  const currentStep = Math.max(0, game.choices.length - 1)
+  return posts
+    .map(p => ({ ...p, ageMinutes: Math.max(0, (currentStep - p.stepIndex) * 45 + p.postOffset) }))
+    .reverse()
 }
 
 export interface KeyDecision {
@@ -150,6 +159,7 @@ export function deriveOvernightPosts(game: GameState): FeedPost[] {
     const acc = OVERNIGHT_ACCOUNTS[key]
     out.push({
       type: 'authored', postId: 'overnight-' + id, sit: sitFallback, stepIndex: 9000 + out.length, postOffset: 0,
+      ageMinutes: seamAge + out.length,
       choice: 'A', caption, imageUrl,
       owner: { id: acc.id, cls: acc.cls, init: acc.init, handle: acc.handle, color: acc.color, isPlayer: false },
       label: acc.name + ' · overnight', reactions: [],
@@ -159,6 +169,13 @@ export function deriveOvernightPosts(game: GameState): FeedPost[] {
   const gates = game.gateResults ?? {}
   const rm = game.runMemory ?? {}
   const week = game.week ?? 1
+  // Overnight = "last night" — it belongs at the seam between this week's fresh
+  // beats and last week's. Peg its age to that seam so it sorts + labels
+  // consistently: when the week just opened (no beats played yet) it's the
+  // freshest post at the very top; as you play into the week it sinks to the seam.
+  const currentStep = Math.max(0, game.choices.length - 1)
+  const wkStart = game.situationQueue.findIndex(id => weekForSituationId(id) === week)
+  const seamAge = Math.max(0, (currentStep - (wkStart > 0 ? wkStart : currentStep)) * 45 + 22)
 
   // After SEL-W1 (week 2 open): the sheet verdict is public news.
   if (week >= 2 && sel['SEL-W1']) {
@@ -215,7 +232,7 @@ export function deriveBeatBuzz(game: GameState): FeedPost[] {
     const acc = BUZZ_FEED[(n + k) % BUZZ_FEED.length]
     out.push({
       type: 'authored', postId: `buzz-${latestSit.id}-${acc.handle}`, sit: latestSit,
-      stepIndex: n - 1, postOffset: 3 + out.length, choice: letter,
+      stepIndex: n - 1, postOffset: 3 + out.length, ageMinutes: 2 + out.length, choice: letter,
       caption: acc.lines[n % acc.lines.length], imageUrl: acc.img,
       owner: { id: '__account', cls: '', init: acc.init, handle: acc.handle, color: acc.color, isPlayer: false },
       label: '', reactions: [],

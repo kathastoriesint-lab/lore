@@ -6,7 +6,6 @@ import type { PostCommentOption } from '@/lib/data'
 import { getCricketChars, getCHChars, getCHPostComments } from '@/lib/content'
 import { applyDeltas, resolveTokens, fameToFollowers } from '@/lib/game'
 import { derivePosts, deriveOvernightPosts, deriveBeatBuzz, type FeedPost } from '@/lib/feed-posts'
-import { weekForSituationId } from '@/lib/season'
 import MeterHUD from '@/components/MeterHUD'
 import LiveEntryCard from '@/components/LiveEntryCard'
 import CommentComposer from '@/components/CommentComposer'
@@ -30,14 +29,13 @@ const feedLikes = (index: number, isCricket: boolean) => {
   return base[index % base.length].toLocaleString('en-IN')
 }
 
-const postAgeLabel = (stepIndex: number, completedChoices: number, offsetMinutes = 0, uppercase = false) => {
-  const currentStep = Math.max(0, completedChoices - 1)
-  const ageMinutes = Math.max(0, (currentStep - stepIndex) * 45 + offsetMinutes)
+const postAgeLabel = (ageMinutes = 0, uppercase = false) => {
+  const a = Math.max(0, Math.round(ageMinutes))
   let label: string
-  if (ageMinutes === 0) label = 'just now'
-  else if (ageMinutes < 60) label = `${ageMinutes} min ago`
-  else if (ageMinutes < 24 * 60) label = `${Math.floor(ageMinutes / 60)}h ago`
-  else label = `${Math.floor(ageMinutes / (24 * 60))}d ago`
+  if (a === 0) label = 'just now'
+  else if (a < 60) label = `${a} min ago`
+  else if (a < 24 * 60) label = `${Math.floor(a / 60)}h ago`
+  else label = `${Math.floor(a / (24 * 60))}d ago`
   return uppercase ? label.toUpperCase() : label
 }
 
@@ -569,15 +567,13 @@ export default function FeedScreen() {
   // older weeks follow.
   const completedPosts = useMemo<FeedPost[]>(
     () => {
-      const derived = derivePosts(game)          // already newest-first
-      const buzz = deriveBeatBuzz(game)          // a few fresh reactions to the latest beat
-      const overnight = deriveOvernightPosts(game)
-      const withBuzz = buzz.length ? [...buzz, ...derived] : derived
-      if (!overnight.length) return withBuzz
-      const wk = game.week ?? 1
-      const wkStart = game.situationQueue.findIndex(id => weekForSituationId(id) === wk)
-      const split = wkStart <= 0 ? 0 : withBuzz.filter(p => p.stepIndex >= wkStart).length
-      return [...withBuzz.slice(0, split), ...overnight, ...withBuzz.slice(split)]
+      // One flat list, sorted newest-first by each post's canonical age (stamped
+      // at build time in derivePosts / deriveBeatBuzz / deriveOvernightPosts). The
+      // sort key IS the value the post's "N min ago" label reads, so the on-feed
+      // order and the shown timestamps can never disagree. Stable sort keeps
+      // same-age posts in build order (newest-first).
+      const all = [...derivePosts(game), ...deriveBeatBuzz(game), ...deriveOvernightPosts(game)]
+      return all.sort((a, b) => (a.ageMinutes ?? 0) - (b.ageMinutes ?? 0))
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [game.choices, game.char, isCricket, game.aiPosts, game.week, game.selections, game.gateResults],
@@ -815,8 +811,8 @@ export default function FeedScreen() {
           const fresh = i < newCount && freshOn      // in the new cluster, not yet dismissed
           const isOldPost = i >= newCount            // below the caught-up marker
           const clusterCls = `${fresh ? ' fresh' : ''}${isOldPost ? ' old' : ''}`
-          const timeLabel = postAgeLabel(post.stepIndex, game.choices.length, post.postOffset)
-          const timeLabelUpper = postAgeLabel(post.stepIndex, game.choices.length, post.postOffset, true)
+          const timeLabel = postAgeLabel(post.ageMinutes)
+          const timeLabelUpper = postAgeLabel(post.ageMinutes, true)
           if (post.type === 'authored') {
             const pc = post.owner
             const liked = likedPosts.has(post.postId)
