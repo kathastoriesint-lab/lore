@@ -5,7 +5,7 @@ import type { CharId, Choice, ChoicePost, Meters, CricketMeters, Reaction, Chara
 import type { PostCommentOption } from '@/lib/data'
 import { getCricketChars, getCHChars, getCHPostComments } from '@/lib/content'
 import { applyDeltas, resolveTokens, fameToFollowers } from '@/lib/game'
-import { derivePosts, deriveOvernightPosts, type FeedPost } from '@/lib/feed-posts'
+import { derivePosts, deriveOvernightPosts, deriveBeatBuzz, type FeedPost } from '@/lib/feed-posts'
 import { weekForSituationId } from '@/lib/season'
 import MeterHUD from '@/components/MeterHUD'
 import LiveEntryCard from '@/components/LiveEntryCard'
@@ -175,6 +175,7 @@ interface CricketSeedProps {
   onComment: (id: string | null) => void
   commentOpen: string | null
   onHandleComment: (charId: string, postId: string, opt: PostCommentOption) => void
+  onCommentSent: (postId: string, text: string) => void
   playingCharName: string
   onViewChar: (id: CharId) => void
 }
@@ -207,15 +208,33 @@ const CRICKET_COMMENTS: Record<string, PostCommentOption[]> = {
   ],
 }
 
-function CricketSeedFeed({ likedPosts, commentedPosts, postComments, myHandle, onLike, onComment, commentOpen, onHandleComment, playingCharName, onViewChar }: CricketSeedProps) {
+// Short personas so the AI comment-suggester speaks in-world for cricket posts.
+const CRICKET_PERSONA: Record<string, string> = {
+  hardik: 'the MI captain — decisive, team-first, no time for ego; approval is earned',
+  rohit: 'the senior legend — unhurried, sparing with words, watches who you are becoming',
+  surya: 'the warm, expressive senior who loves to teach; calls you champion/bhai',
+  bumrah: 'the pace spearhead — minimal, technical, gives feedback once',
+  tilak: 'your closest peer in the squad — friendly but measuring',
+  naman: 'your direct rival for one middle-order slot — guarded, competitive',
+  mahela: 'the head coach / selectorial brain — precise, numbers over adjectives',
+}
+// Fan-page / non-character accounts — commentable, AI-suggested, but they NEVER
+// DM you back (canDM=false). DMs strike only from real story characters.
+const FANPAGES: Record<string, { id: string; name: string; handle: string; persona: string }> = {
+  paltan:      { id: 'paltanpulse',      name: 'Paltan Pulse', handle: 'paltanpulse',      persona: 'a rabid Mumbai Indians fan & gossip page — hype, banter, hot takes' },
+  cricketroom: { id: 'cricketroom_india', name: 'Cricket Room', handle: 'cricketroom_india', persona: 'a big neutral cricket news & opinion page' },
+  futurexi:    { id: 'futurexi',         name: 'Future XI',    handle: 'futurexi',         persona: "a talent-scouting page hyping India's next generation" },
+}
+
+function CricketSeedFeed({ likedPosts, commentedPosts, postComments, myHandle, onLike, onComment, commentOpen, onHandleComment, onCommentSent, playingCharName, onViewChar }: CricketSeedProps) {
   const cricketChars = { ...getCHChars(), ...getCricketChars() }
+  void onHandleComment; void playingCharName
 
   const seedPost = (id: string, charKey: string, bg: string, caption: string, fullCaption: string, likes: string, time: string, imageUrl?: string) => {
     const char = cricketChars[charKey]
     if (!char) return null
     const liked = likedPosts.has(id)
     const commented = commentedPosts.has(id)
-    const comments = CRICKET_COMMENTS[charKey] ?? []
     return (
       <div key={id} className="post">
         <div className="post-head">
@@ -238,20 +257,21 @@ function CricketSeedFeed({ likedPosts, commentedPosts, postComments, myHandle, o
             </button>
           }
           comment={
-            comments.length > 0 && !commented
+            !commented
               ? <button onClick={() => onComment(commentOpen === id ? null : id)}><CommentIcon active={commentOpen===id} /></button>
               : <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.3)" strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
           }
           likes={compactCount(likeNum(likes))}
           comments={sideCounts(likeNum(likes)).comments}
         />
-        {commentOpen === id && comments.length > 0 && !commented && (
-          <div className="comment-sheet">
-            <div className="comment-sheet-label">Comment as {playingCharName}</div>
-            {comments.map((opt, j) => (
-              <button key={j} className="comment-option" onClick={() => onHandleComment(charKey, id, opt)}>{opt.text}</button>
-            ))}
-          </div>
+        {commentOpen === id && !commented && (
+          <CommentComposer
+            character={{ id: char.id, name: char.name, handle: char.handle }}
+            post={{ caption: fullCaption, imageUrl }}
+            persona={CRICKET_PERSONA[charKey]}
+            canDM
+            onDone={t => onCommentSent(id, t)}
+          />
         )}
         <div className="caption"><b>{char.handle}</b> {fullCaption}</div>
         {postComments[id] && (
@@ -305,16 +325,13 @@ function CricketSeedFeed({ likedPosts, commentedPosts, postComments, myHandle, o
               likes={compactCount(94102)} comments={sideCounts(94102).comments}
             />
             {commentOpen === 'paltan-seed' && !hwCommented && (
-              <div className="comment-sheet">
-                <div className="comment-sheet-label">Comment as {playingCharName}</div>
-                {[
-                  { text:'Paltan tum sahi ho 💙 Dekho mujhe', deltas:{ form:5, fame:2, trust:2 }, toast:'Paltan noticed you. Fame +5' },
-                  { text:'Nervous thoda, excited zyada 🏏', deltas:{ form:3, fame:1, trust:3 }, toast:'Relatable energy. Fame +3' },
-                  { text:'Abhi sirf kaam. Baaki sab baad mein 💙', deltas:{ form:2, fame:0, trust:4 }, toast:'Trust move. Image +4' },
-                ] .map((opt, i) => (
-                  <button key={i} className="comment-option" onClick={() => onHandleComment('paltan', 'paltan-seed', opt)}>{opt.text}</button>
-                ))}
-              </div>
+              <CommentComposer
+                character={FANPAGES.paltan}
+                post={{ caption: 'Remember the name. #Paltan 💙' }}
+                persona={FANPAGES.paltan.persona}
+                canDM={false}
+                onDone={t => onCommentSent('paltan-seed', t)}
+              />
             )}
             <div className="caption"><b>paltanpulse</b> Remember the name. #Paltan 💙</div>
             {postComments['paltan-seed'] && (
@@ -356,10 +373,26 @@ function CricketSeedFeed({ likedPosts, commentedPosts, postComments, myHandle, o
                   <svg viewBox="0 0 24 24" fill={crLiked?'var(--accent)':'none'} stroke={crLiked?'var(--accent)':'#fff'} strokeWidth="1.8" strokeLinecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
                 </button>
               }
-              comment={<CommentIcon />}
+              comment={
+                !commentedPosts.has('cricketroom-seed')
+                  ? <button onClick={() => onComment(commentOpen === 'cricketroom-seed' ? null : 'cricketroom-seed')}><CommentIcon active={commentOpen==='cricketroom-seed'} /></button>
+                  : <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.3)" strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              }
               likes={compactCount(29441)} comments={sideCounts(29441).comments}
             />
+            {commentOpen === 'cricketroom-seed' && !commentedPosts.has('cricketroom-seed') && (
+              <CommentComposer
+                character={FANPAGES.cricketroom}
+                post={{ caption: "Trust takes time. Hype doesn't." }}
+                persona={FANPAGES.cricketroom.persona}
+                canDM={false}
+                onDone={t => onCommentSent('cricketroom-seed', t)}
+              />
+            )}
             <div className="caption"><b>cricketroom_india</b> Trust takes time. Hype doesn't.</div>
+            {postComments['cricketroom-seed'] && (
+              <div className="caption cmt-in" style={{ paddingTop: 2, color: 'rgba(255,255,255,.85)' }}><b>{myHandle}</b> {postComments['cricketroom-seed']}</div>
+            )}
             <div className="ts" style={{ padding:'2px 14px 12px' }}>45 MINUTES AGO</div>
           </div>
         )
@@ -390,10 +423,26 @@ function CricketSeedFeed({ likedPosts, commentedPosts, postComments, myHandle, o
                   <svg viewBox="0 0 24 24" fill={fxLiked?'var(--accent)':'none'} stroke={fxLiked?'var(--accent)':'#fff'} strokeWidth="1.8" strokeLinecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
                 </button>
               }
-              comment={<CommentIcon />}
+              comment={
+                !commentedPosts.has('futurexi-seed')
+                  ? <button onClick={() => onComment(commentOpen === 'futurexi-seed' ? null : 'futurexi-seed')}><CommentIcon active={commentOpen==='futurexi-seed'} /></button>
+                  : <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.3)" strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              }
               likes={compactCount(182204)} comments={sideCounts(182204).comments}
             />
+            {commentOpen === 'futurexi-seed' && !commentedPosts.has('futurexi-seed') && (
+              <CommentComposer
+                character={FANPAGES.futurexi}
+                post={{ caption: 'This is only the beginning. 🏏' }}
+                persona={FANPAGES.futurexi.persona}
+                canDM={false}
+                onDone={t => onCommentSent('futurexi-seed', t)}
+              />
+            )}
             <div className="caption"><b>futurexi</b> This is only the beginning. 🏏</div>
+            {postComments['futurexi-seed'] && (
+              <div className="caption cmt-in" style={{ paddingTop: 2, color: 'rgba(255,255,255,.85)' }}><b>{myHandle}</b> {postComments['futurexi-seed']}</div>
+            )}
             <div className="ts" style={{ padding:'2px 14px 12px' }}>2 HOURS AGO</div>
           </div>
         )
@@ -509,12 +558,14 @@ export default function FeedScreen() {
   const completedPosts = useMemo<FeedPost[]>(
     () => {
       const derived = derivePosts(game)          // already newest-first
+      const buzz = deriveBeatBuzz(game)          // a few fresh reactions to the latest beat
       const overnight = deriveOvernightPosts(game)
-      if (!overnight.length) return derived
+      const withBuzz = buzz.length ? [...buzz, ...derived] : derived
+      if (!overnight.length) return withBuzz
       const wk = game.week ?? 1
       const wkStart = game.situationQueue.findIndex(id => weekForSituationId(id) === wk)
-      const split = wkStart <= 0 ? 0 : derived.filter(p => p.stepIndex >= wkStart).length
-      return [...derived.slice(0, split), ...overnight, ...derived.slice(split)]
+      const split = wkStart <= 0 ? 0 : withBuzz.filter(p => p.stepIndex >= wkStart).length
+      return [...withBuzz.slice(0, split), ...overnight, ...withBuzz.slice(split)]
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [game.choices, game.char, isCricket, game.aiPosts, game.week, game.selections, game.gateResults],
@@ -833,6 +884,7 @@ export default function FeedScreen() {
             postComments={postComments} myHandle={myHandle}
             onLike={likePost} onComment={setCommentPost}
             commentOpen={commentPost} onHandleComment={handleComment}
+            onCommentSent={markCommented}
             playingCharName={game.playerName || 'You'}
             onViewChar={setViewingChar}
           />
@@ -893,12 +945,13 @@ export default function FeedScreen() {
                 likes={compactCount(94102)} comments={sideCounts(94102).comments}
               />
               {commentPost === 'housewatch' && !hwCommented && (
-                <div className="comment-sheet">
-                  <div className="comment-sheet-label">Comment as {playingChar?.name ?? 'you'}</div>
-                  {getCHPostComments().housewatch.map((opt, i) => (
-                    <button key={i} className="comment-option" onClick={() => handleComment('housewatch', 'housewatch', opt)}>{opt.text}</button>
-                  ))}
-                </div>
+                <CommentComposer
+                  character={{ id: 'housewatch_india', name: 'House Watch', handle: 'housewatch_india' }}
+                  post={{ caption: 'Pehla din. Thread kal. 👀 #CreatorHouse' }}
+                  persona="a savage reality-TV gossip & watch page — screenshots everything, stirs drama"
+                  canDM={false}
+                  onDone={t => markCommented('housewatch', t)}
+                />
               )}
               <div className="caption"><b>housewatch_india</b> Pehla din. Thread kal. 👀 #CreatorHouse</div>
               {postComments['housewatch'] && (

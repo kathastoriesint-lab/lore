@@ -175,6 +175,48 @@ export function deriveOvernightPosts(game: GameState): FeedPost[] {
   return out
 }
 
+// ── Beat buzz ────────────────────────────────────────────────────────────────
+// After the LATEST beat, a couple of extra characters react on the feed — so
+// landing on the feed after a beat shows a burst of NEW posts from x, y, z, not
+// just the one authored reaction (founder). Deterministic from the beat index
+// (replay-safe); latest beat only, so the feed doesn't bloat. Real characters
+// only — these render as npc posts (reactable + AI-commentable; canDM applies).
+const BUZZ_POOL = ['surya', 'rohit', 'bumrah', 'tilak', 'naman'] as const
+const BUZZ_LINES: Record<string, string[]> = {
+  surya: ['Yeh temperament dekha? 😄 Isko field padhna aata hai.', 'Champion material. Andar sab notice kar rahe hain 🔥', 'Bhai isko nets mein dekho — alag hi calm hai.'],
+  rohit: ['Hmm. Dekh raha hoon. 🏏', 'Jaldi mat karo iske baare mein. Innings lambi hai.', 'Tempo samajhta hai. Baaki time batayega.'],
+  bumrah: ['Nets mein isne mujhe surprise kiya. Facts.', 'Ego kam, seekhne ki bhookh zyada. Achha sign.', 'Ball ke peeche aankhein sahi hain iski.'],
+  tilak: ['Process pe raha toh yeh lamba khelega 💙', 'Same energy jo humein chahiye thi. 🔥', 'Bas hype se door raha toh set hai.'],
+  naman: ['Slot ek hai. Kaam bolega. 🤝', 'Sab hype kar rahe hain. Main scoreboard dekhta hoon.', 'Dekhte hain kitna asli hai.'],
+}
+
+export function deriveBeatBuzz(game: GameState): FeedPost[] {
+  if (game.world !== 'cricket') return []
+  const n = game.choices.length
+  if (n === 0) return []
+  const sits = getCricketSituations()
+  const sitMap = Object.fromEntries(sits.map(s => [s.id, s]))
+  const latestSit = sitMap[game.situationQueue[n - 1]]
+  if (!latestSit) return []
+  const chars = getCricketChars()
+  const letter = game.choices[n - 1] as 'A' | 'B'
+  const authoredChar = latestSit.feedReaction?.[letter]?.char
+  const out: FeedPost[] = []
+  for (let k = 0; out.length < 2 && k < BUZZ_POOL.length; k++) {
+    const id = BUZZ_POOL[(n + k) % BUZZ_POOL.length]
+    if (id === authoredChar) continue
+    const char = chars[id]
+    if (!char) continue
+    const lines = BUZZ_LINES[id] ?? ['👀']
+    out.push({
+      type: 'npc', postId: `buzz-${latestSit.id}-${id}`, sit: latestSit,
+      stepIndex: n - 1, postOffset: 3 + out.length, choice: letter,
+      reaction: { char: id, caption: lines[n % lines.length] }, char,
+    })
+  }
+  return out
+}
+
 // Replay the run → a newest-first timeline of the choices the player made,
 // with a one-line meter-delta outcome (honest — derived straight from deltas).
 export function deriveKeyDecisions(game: GameState): KeyDecision[] {

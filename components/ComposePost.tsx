@@ -35,7 +35,7 @@ interface Props {
 // Screen A — the post writer (design handoff). Pick a vibe; the caption is written
 // by gpt-4o and types itself out (~42 cps) with a blinking caret; a big "Share to
 // feed" button commits it. Mirrors the handoff state machine.
-export default function ComposePost({ playerName, avatarUrl, imageUrl, ctx, fallbackCaption, why, onShare, onBack }: Props) {
+export default function ComposePost({ playerName, avatarUrl, imageUrl, ctx, fallbackCaption, onShare, onBack }: Props) {
   const [tone, setTone] = useState<Tone | null>(null)
   const [generating, setGenerating] = useState(false)
   const [genText, setGenText] = useState('')
@@ -92,35 +92,16 @@ export default function ComposePost({ playerName, avatarUrl, imageUrl, ctx, fall
 
   return (
     <div className="pw-screen">
-      {/* App bar */}
+      {/* App bar — title only, no step chrome */}
       <div className="pw-bar">
         <button className="pw-back" onClick={onBack} aria-label="Back">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
         </button>
         <span className="pw-title">New post</span>
-        <span className="pw-step">Step 2 of 4 · Post</span>
+        <span style={{ width: 38 }} />
       </div>
 
       <div className="pw-body">
-        {/* Why you're posting — the moment + stakes */}
-        {why && (
-          <div className="pw-why">
-            <div className="pw-why-ic">
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 11l18-5v12L3 14v-3z" /><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6" /></svg>
-            </div>
-            <div className="pw-why-body">
-              <div className="pw-why-eye">{why.eyebrow}</div>
-              <div className="pw-why-line">{why.line}</div>
-              {why.sub && (
-                <div className="pw-why-sub">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></svg>
-                  {why.sub}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
         {/* Author */}
         <div className="pw-head">
           <div className="pw-av" style={avatarUrl ? { backgroundImage: `url(${avatarUrl})` } : undefined}>{!avatarUrl && (playerName?.[0] ?? 'N').toUpperCase()}</div>
@@ -135,18 +116,14 @@ export default function ComposePost({ playerName, avatarUrl, imageUrl, ctx, fall
 
         {/* Caption */}
         <div className="pw-cap">
-          {capEmpty && <span className="pw-ph">Vibe pick karo — AI tumhare liye caption likh dega ✨</span>}
+          {capEmpty && <span className="pw-ph">Ek vibe chuno — AI caption likh dega ✨</span>}
           {capThinking && <span className="pw-think">likh raha hoon<i /><i className="d2" /><i className="d3" /></span>}
           {capShow && <span>{capText}{generating && <span className="pw-caret" />}</span>}
         </div>
 
         <div className="pw-div" />
 
-        {/* Vibe picker */}
-        <div className="pw-tonelbl">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3l2.2 5.6L20 9l-4.5 3.7L17 19l-5-3.3L7 19l1.5-6.3L4 9l5.8-.4z" /></svg>
-          Write with AI — pick a vibe
-        </div>
+        {/* Vibe picker — buttons are self-explanatory, no label needed */}
         <div className="pw-tones">
           {TONES.map(t => (
             <button key={t.key} className={`pw-tone${tone === t.key ? ' sel' : ''}`} onClick={() => genCaption(t.key)} disabled={generating}>
@@ -156,19 +133,15 @@ export default function ComposePost({ playerName, avatarUrl, imageUrl, ctx, fall
             </button>
           ))}
         </div>
-        {ready && <div className="pw-regen">↻ Doosra vibe try karo — naya caption aayega</div>}
+        {ready && <div className="pw-regen">↻ Doosra vibe</div>}
       </div>
 
-      {/* Sticky footer */}
+      {/* Sticky footer — just the action */}
       <div className="pw-foot">
         <button className={`pw-share${(ready && !posting) ? '' : ' off'}`} onClick={() => { if (!ready || posting) return; setPosting(true); onShare(caption, reactionsRef.current?.caption === caption ? reactionsRef.current.reactions : undefined) }}>
           {posting ? 'Posting…' : shareLabel}
           {ready && !posting && <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6" /></svg>}
         </button>
-        <div className="pw-footnote">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2L3 14h7l-1 8 10-12h-7z" /></svg>
-          Share karte hi feed pe live — {ctx.world === 'cricket' ? 'poori Paltan' : 'ghar'} real-time react karega.
-        </div>
       </div>
     </div>
   )

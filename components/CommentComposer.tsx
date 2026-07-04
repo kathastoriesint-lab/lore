@@ -18,18 +18,23 @@ interface Props {
   character: { id: string; name: string; handle: string }
   post: { caption: string; imageUrl?: string }
   onDone: (text: string) => void
+  /** Override the auto-derived persona (used for cricket chars + fan-page accounts). */
+  persona?: string
+  /** Whether a reaction to this comment can DM the player. FALSE for fan pages /
+   *  non-character accounts — DMs strike ONLY from real story characters (founder). */
+  canDM?: boolean
 }
 
-// On a character's post: 2 AI suggestions + a free-type box. Sending fires the
-// character's DM, sentiment-matched (negative always; positive once per character),
-// with the post embedded in the thread.
-export default function CommentComposer({ character, post, onDone }: Props) {
+// On a post: 2 AI comment suggestions + a free-type box. Sending a comment on a
+// REAL character's post fires that character's DM (sentiment-matched); fan-page /
+// non-character posts are commentable but never DM you back (canDM=false).
+export default function CommentComposer({ character, post, onDone, persona: personaProp, canDM = true }: Props) {
   const { notifyDM, game } = useApp()
   const [suggestions, setSuggestions] = useState<string[]>([])
   const [suggestState, setSuggestState] = useState<'loading' | 'ready' | 'empty'>('loading')
   const [draft, setDraft] = useState('')
   const [sent, setSent] = useState(false)
-  const persona = (() => {
+  const persona = personaProp ?? (() => {
     if (character.id === 'kabir' || character.id === 'ananya') {
       const isCrush = game.playerGender === 'male' ? character.id === 'ananya' : character.id === 'kabir'
       return isCrush ? CRUSH_PERSONA : ALLY_PERSONA
@@ -73,7 +78,8 @@ export default function CommentComposer({ character, post, onDone }: Props) {
     try { fired = new Set(JSON.parse(localStorage.getItem('lore_comment_dm_v1') || '[]')) } catch {}
     const alwaysFire = sentiment === 'negative' || sentiment === 'spicy'
     const firstPositive = sentiment === 'positive' && !fired.has(character.id)
-    if (reply && (alwaysFire || firstPositive)) {
+    // canDM gates the whole DM path: fan pages never text you back.
+    if (canDM && reply && (alwaysFire || firstPositive)) {
       fired.add(character.id)
       try { localStorage.setItem('lore_comment_dm_v1', JSON.stringify([...fired])) } catch {}
       setTimeout(() => notifyDM(character.id as CharId, reply, { caption: post.caption, imageUrl: post.imageUrl, handle: character.handle }), 700)
