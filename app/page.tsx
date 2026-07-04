@@ -798,19 +798,53 @@ export default function App() {
   const buildStorySummary = useCallback(() => {
     if (game.world !== 'cricket' || game.choices.length === 0) return null
     const sitMap = Object.fromEntries(getCricketSituations().map(s => [s.id, s]))
-    const lines: string[] = []
     const queue = game.situationQueue
+
+    // History — the choices they've made (past).
+    const lines: string[] = []
     game.choices.forEach((letter, idx) => {
-      const sitId = queue[idx]
-      const sit = sitId ? sitMap[sitId] : null
-      if (!sit) return
-      const choiceIdx = letter === 'A' ? 0 : 1
-      const choice = sit.choices[choiceIdx]
-      if (!choice) return
-      lines.push(`- ${sit.title}: chose "${choice.t.slice(0, 60)}"`)
+      const sit = queue[idx] ? sitMap[queue[idx]] : null
+      const choice = sit?.choices[letter === 'A' ? 0 : 1]
+      if (sit && choice) lines.push(`- ${sit.title}: chose "${choice.t.slice(0, 60)}"`)
     })
-    return lines.length > 0 ? lines.join('\n') : null
-  }, [game.world, game.choices, game.situationQueue])
+
+    // CURRENT SITUATION — the present-tense truth the character MUST reply from.
+    // The single most load-bearing fact is whether they're playing or benched.
+    const name = game.playerName || 'the kid'
+    const now: string[] = []
+    const week = game.week ?? weekForSituationId(queue[game.situation] ?? queue[queue.length - 1] ?? '') ?? 1
+    now.push(`It is Week ${week} of 3.`)
+    const sels = game.selections ?? {}
+    const benched = game.benchedWeeks ?? []
+    const latestSelId = ['SEL-W3', 'SEL-W2', 'SEL-W1'].find(k => sels[k])
+    if (latestSelId) {
+      const v = sels[latestSelId]
+      if (v === 'benched') {
+        now.push(`SQUAD STATUS: ${name} is BENCHED — 12th man, NOT in the playing XI this week. Their job right now is drinks, fielding sub, throw-downs, and staying ready. There is no innings for them to bat in the next match — advice must fit that (do the 12th-man job well, stay sharp, wait for the chance), not "how to bat tomorrow".`)
+      } else if (v === 'lifeline') {
+        now.push(`SQUAD STATUS: ${name} is in the playing XI ON THE CAPTAIN'S LIFELINE — picked despite the numbers, on a short leash, and they owe Hardik. They ARE batting in the next match.`)
+      } else {
+        const recalled = benched.length > 0
+        now.push(`SQUAD STATUS: ${name} is in the PLAYING XI${recalled ? ' — RECALLED after being dropped earlier' : ''}. They ARE batting in the next match.`)
+      }
+    } else {
+      now.push(`SQUAD STATUS: no squad announcement yet — still in the mix, nothing decided.`)
+    }
+    if (benched.length) now.push(`They have been benched in week(s): ${benched.join(', ')}.`)
+    const form = asCricket(game.meters).form
+    now.push(`Form ${form}/100. Captain's trust in them ${captainTrust(dmTrust)}/100.`)
+    const rm = game.runMemory ?? {}
+    if (rm.debutRuns != null) now.push(`Their debut knock so far: ${rm.debutRuns}(${rm.debutBalls ?? '?'}).`)
+    if (rm.clutchRuns != null) now.push(`Eliminator knock: ${rm.clutchRuns}(${rm.clutchBalls ?? '?'}).`)
+    if (rm.matchImpact) now.push(`Last match impact: ${rm.matchImpact}.`)
+    const curSit = sitMap[queue[game.situation]]
+    if (curSit) now.push(`Where the story is right now: "${curSit.title}".`)
+
+    const parts: string[] = []
+    parts.push('CURRENT SITUATION — this is TRUE RIGHT NOW. Ground every reply in it, ESPECIALLY whether they are playing or benched. Never give batting advice to a benched 12th man; help them with the situation they are actually in.\n' + now.map(l => '- ' + l).join('\n'))
+    if (lines.length) parts.push('WHAT HAS HAPPENED (their choices so far):\n' + lines.join('\n'))
+    return parts.join('\n\n')
+  }, [game.world, game.choices, game.situationQueue, game.selections, game.benchedWeeks, game.meters, game.week, game.runMemory, game.situation, dmTrust])
 
   const sendDM = useCallback(async (charId: CharId, text: string) => {
     // DMs are live in both cricket and Creator House.
