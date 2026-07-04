@@ -176,6 +176,10 @@ export default function LiveScreen() {
 
   // Choice state
   const [chosen, setChosen] = useState<0 | 1 | null>(null)
+  // Beat-entry gate (cricket): a beat NEVER starts by itself. After a choice the
+  // engine advances, but the reader holds behind this cinematic title card until
+  // the player taps in — the story can't play in the background (founder, Jul 4).
+  const [introGate, setIntroGate] = useState(true)
   // Cinematic live-typing reveal — messages arrive (typing dots → typewriter), narration
   // is tap-paced. Mirrors the "Cinematic Live Typing" design-handoff state machine.
   const [revealed, setRevealed] = useState<CinItem[]>([])
@@ -228,6 +232,7 @@ export default function LiveScreen() {
   useEffect(() => {
     const blocks = displaySit?.reader
     if (!blocks || chosen !== null) return
+    if (isCricket && introGate) return  // beat waits behind the title card
     setRevealed([]); setReaderBusy(false); setReaderShowTap(false); setReaderComplete(false); setReaderFinalHint(false)
 
     const resolve = (t?: string) => resolveTokens(t ?? '', game.playerName, game.playerGender)
@@ -326,7 +331,7 @@ export default function LiveScreen() {
     init = setTimeout(revealNext, 550)
     return () => { if (tw) clearInterval(tw); if (dwell) clearTimeout(dwell); if (init) clearTimeout(init) }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [displaySit?.id, variantKey, isCricket, chosen, game.playerName, game.playerGender])
+  }, [displaySit?.id, variantKey, isCricket, chosen, introGate, game.playerName, game.playerGender])
 
   // Effective react — derived from displaySit so it stays pinned during post-choice flow
   const effectiveReact = displaySit ? displaySit.react : null
@@ -335,6 +340,7 @@ export default function LiveScreen() {
   useEffect(() => {
     if (inFlowRef.current) return  // advanceSituation fires during flow — don't reset UI
     setChosen(null)
+    setIntroGate(true)
     setSheetOpen(false)
     setShowImpact(false)
     setShowPost(false)
@@ -406,6 +412,7 @@ export default function LiveScreen() {
     timersRef.current.forEach(clearTimeout)
     timersRef.current = []
     setChosen(null)
+    setIntroGate(true)
     setSheetOpen(false)
     setShowImpact(false)
     setShowPost(false)
@@ -896,6 +903,28 @@ export default function LiveScreen() {
                 )
               })}
             </div>
+          </div>
+        )
+      })()}
+
+      {/* BEAT TITLE CARD — every beat opens on this cinematic gate (week, beat
+          number, title). The reader starts on YOUR tap, never by itself. Sits
+          UNDER the break/system overlays (z45 < z50). */}
+      {isCricket && introGate && sit && !isFinale && chosen === null && !game.pendingSelection && !isDayLocked && (() => {
+        const wk = weekForSituationId(sit.id)
+        return (
+          <div
+            onClick={(e) => { e.stopPropagation(); setIntroGate(false) }}
+            style={{ position: 'absolute', inset: 0, zIndex: 45, background: 'var(--bg)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: '0 34px', textAlign: 'center' }}>
+            <div style={{ position: 'absolute', top: '16%', left: '50%', transform: 'translateX(-50%)', width: 260, height: 260, borderRadius: '50%', background: 'radial-gradient(ellipse, rgba(0,48,135,.22) 0%, transparent 70%)', pointerEvents: 'none' }} />
+            <div className="cin-si" style={{ alignItems: 'center' }}>
+              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.24em', color: 'var(--accent)' }}>WEEK {wk}</div>
+              <div style={{ fontFamily: 'var(--serif)', fontSize: 82, fontWeight: 700, lineHeight: 1.05, color: '#fff', margin: '6px 0 0' }}>{situation + 1}</div>
+              <div style={{ fontSize: 15, color: 'var(--ink3)' }}>of {queue.length}</div>
+              <div style={{ fontFamily: 'var(--serif)', fontSize: 27, fontWeight: 600, color: 'var(--ink2)', lineHeight: 1.3, marginTop: 12 }}>{r(sit.title)}</div>
+              {sit.tag && <div style={{ fontSize: 9.5, fontWeight: 800, letterSpacing: '.14em', textTransform: 'uppercase', color: 'var(--ink3)', marginTop: 9 }}>{r(sit.tag)}</div>}
+            </div>
+            <div style={{ position: 'absolute', bottom: 92, left: 0, right: 0, fontSize: 9.5, fontWeight: 800, letterSpacing: '.18em', color: 'var(--ink3)', animation: 'cinBlink 2.4s step-end infinite' }}>TAP KARKE SHURU KARO</div>
           </div>
         )
       })()}
