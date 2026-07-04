@@ -64,3 +64,20 @@ export function postDone() {
   blip(780, 0.12, 'triangle', 0.07, 0.05)
   blip(1040, 0.16, 'sine', 0.06, 0.11)
 }
+
+/** Squad verdict — SELECTED: a bright rising major triad, celebratory. */
+export function selected() {
+  if (!enabled) return
+  blip(523, 0.13, 'triangle', 0.08, 0)     // C5
+  blip(659, 0.14, 'triangle', 0.08, 0.10)  // E5
+  blip(784, 0.16, 'triangle', 0.07, 0.20)  // G5
+  blip(1047, 0.34, 'sine', 0.07, 0.32)     // C6 — the lift, lingering
+}
+
+/** Squad verdict — BENCHED: a low descending fall, the gut-punch. */
+export function benched() {
+  if (!enabled) return
+  blip(294, 0.22, 'sine', 0.09, 0)     // D4
+  blip(220, 0.28, 'sine', 0.09, 0.16)  // A3
+  blip(147, 0.52, 'sine', 0.08, 0.34)  // D3 — low, lingering
+}

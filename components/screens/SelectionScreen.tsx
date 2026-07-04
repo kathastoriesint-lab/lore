@@ -3,6 +3,8 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useApp } from '@/lib/context'
 import { buildSelection } from '@/lib/cricket-selection'
 import { getCricketChars } from '@/lib/content'
+import * as haptics from '@/lib/haptics'
+import * as sound from '@/lib/sound'
 
 // Squad Selection — the weekly ceremony, per the founder's "Squad Announcement
 // redesign" prototype (1b): names DROP one by one on their own (no taps), the
@@ -61,11 +63,17 @@ export default function SelectionScreen() {
 
   const startReveal = () => {
     setPhase('sheet'); setStep(0); setResolved(false)
+    sound.prime()  // warm the audio context under this tap so the verdict cue can play
     // rows 1..n-1 drop on their own; the final slot holds with dots, then resolves
     for (let i = 1; i <= lastIdx; i++) {
       timersRef.current.push(setTimeout(() => setStep(i), i * NAME_MS))
     }
-    timersRef.current.push(setTimeout(() => setResolved(true), lastIdx * NAME_MS + NAME_MS + VERDICT_HOLD_MS))
+    timersRef.current.push(setTimeout(() => {
+      setResolved(true)
+      // The verdict lands → haptic + sound, keyed to the outcome.
+      if (youIn) { haptics.success(); sound.selected() }        // selected: triumphant
+      else { haptics.impact('heavy'); sound.benched() }         // benched: heavy thud + low fall
+    }, lastIdx * NAME_MS + NAME_MS + VERDICT_HOLD_MS))
   }
 
   const advance = () => {
