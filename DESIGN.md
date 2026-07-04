@@ -100,3 +100,44 @@ never decoration. Follow this and the app reads premium and cohesive.
 
 Quick test before shipping a screen: squint. If you see more than two colours
 fighting for attention, you broke rule 5.
+
+## Motion
+
+**Principle: motion is wayfinding, not decoration.** It answers "where did that screen go?" — nothing more. If a user would notice an animation, it's too much.
+
+### Tokens (defined in `:root`, `app/globals.css`)
+
+| Token | Value | Use |
+|---|---|---|
+| `--t-press` | .12s | Button/card press scale |
+| `--t-tab` | .16s | Tab crossfade |
+| `--t-load` | .24s | Content fade-in on load (images) |
+| `--t-screen` | .28s | Screen push/pop slide |
+| `--t-el` | .34s | In-screen element entrances (bubbles, rows) |
+| `--ease-nav` | cubic-bezier(.32,.72,0,1) | Screen navigation |
+| `--ease-out` | cubic-bezier(.32,.72,0,1) | Presses, small moves |
+
+No duration above .45s anywhere. No new easings in component files — tokens only.
+
+### Navigation motion model
+
+| Navigation | Motion |
+|---|---|
+| Going deeper (inbox→thread, feed→live, →selection) | Push: slide `--t-screen`, outgoing parallax −22% |
+| Back / hardware back | Reverse slide |
+| Tab peers (Feed ↔ Messages ↔ Profile) | Crossfade `--t-tab` — never a push |
+| Story-triggered chat (choice→DM) | Bottom sheet (`.screen.sheet`) |
+| Overlays (choice splash, break screen, day-lock) | Fade/rise in place |
+
+The exiting screen must stay visible for the full slide (`visibility` transitions with a delay matching `--t-screen`). An instantly-hidden exit reads as a hard cut — this was the root cause of the app-wide "abrupt" feel, do not regress it.
+
+### Do NOT animate
+
+- Reader tap-reveals — the story loop must stay instant; latency there is friction, not polish
+- Meter numbers / goal-bar values (ticks are data, not theater)
+- Tab badges, unread counts
+- Initial feed render (only session-appended posts get an entrance)
+
+### Reduced motion
+
+`@media (prefers-reduced-motion: reduce)` collapses all transitions/animations to ~0ms (including delays). Any new animation must be CSS-driven or respect this query.

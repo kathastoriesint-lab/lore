@@ -1087,10 +1087,14 @@ export default function App() {
   )
 }
 
+const TAB_SCREENS: ReadonlySet<Screen> = new Set<Screen>(['feed', 'dm-inbox', 'profile'])
+
 function Slot({ id, cur, prev, children, sheet }: { id: Screen; cur: Screen; prev: Screen | null; children: React.ReactNode; sheet?: boolean }) {
   // sheet: the screen ENTERS AS A BOTTOM SHEET (choice-to-dm morph prototype) —
   // vertical expansion instead of the lateral slide, so choice → chat reads as
   // one continuous surface.
-  const cls = `${sheet ? 'screen sheet' : 'screen'}${cur === id ? ' active' : prev === id ? ' behind' : ''}`
+  // tabfade: peer tabs crossfade — the lateral push is reserved for hierarchy.
+  const tab = TAB_SCREENS.has(cur) && prev !== null && TAB_SCREENS.has(prev) && (id === cur || id === prev)
+  const cls = `${sheet ? 'screen sheet' : 'screen'}${tab ? ' tabfade' : ''}${cur === id ? ' active' : prev === id ? ' behind' : ''}`
   return <section className={cls} id={`s-${id}`}>{children}</section>
 }

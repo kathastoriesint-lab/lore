@@ -134,14 +134,7 @@ function SeedPost({ id, charId, onViewChar, bg, caption, fullCaption, likes, tim
         </div>
         <button className="icon-btn"><svg viewBox="0 0 24 24" width="20" height="20" fill="#fff"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
       </div>
-      <div className="post-img grain" style={{
-        background: imageUrl ? 'none' : bg,
-        backgroundImage: imageUrl ? `url(${imageUrl})` : undefined,
-        backgroundSize: imageUrl ? 'cover' : undefined,
-        backgroundPosition: imageUrl ? 'center top' : undefined,
-      }}>
-        {!imageUrl && <p className="overlay-txt" style={{ fontSize:14 }}>{caption}</p>}
-      </div>
+      <PostImg imageUrl={imageUrl} bg={bg} pos="center top" caption={caption} />
       <ActionRow
         like={
           <button onClick={() => !liked && onLike(id, char.id, 3)} style={{ opacity: liked ? 0.6 : 1, cursor: liked ? 'default' : 'pointer' }}>
@@ -237,14 +230,7 @@ function CricketSeedFeed({ likedPosts, commentedPosts, postComments, myHandle, o
           </div>
           <button className="icon-btn"><svg viewBox="0 0 24 24" width="20" height="20" fill="#fff"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
         </div>
-        <div className="post-img grain" style={{
-          background: imageUrl ? 'none' : bg,
-          backgroundImage: imageUrl ? `url(${imageUrl})` : undefined,
-          backgroundSize: imageUrl ? 'cover' : undefined,
-          backgroundPosition: imageUrl ? 'center' : undefined,
-        }}>
-          {!imageUrl && <p className="overlay-txt" style={{ fontSize:14 }}>{caption}</p>}
-        </div>
+        <PostImg imageUrl={imageUrl} bg={bg} caption={caption} />
         <ActionRow
           like={
             <button onClick={() => !liked && onLike(id, char.id as CharId, 3)} style={{ opacity: liked ? 0.6 : 1, cursor: liked ? 'default' : 'pointer' }}>
@@ -413,6 +399,34 @@ function CricketSeedFeed({ likedPosts, commentedPosts, postComments, myHandle, o
         )
       })()}
     </>
+  )
+}
+
+// Post images fade in when the bitmap is actually ready — no more pop-in.
+function PostImg({ imageUrl, bg, pos, caption }: { imageUrl?: string; bg?: string; pos?: string; caption?: string }) {
+  const [ready, setReady] = useState(!imageUrl)
+  useEffect(() => {
+    if (!imageUrl) { setReady(true); return }
+    setReady(false)
+    let live = true
+    const im = new Image()
+    im.onload = () => { if (live) setReady(true) }
+    im.onerror = () => { if (live) setReady(true) }
+    im.src = imageUrl
+    if (im.complete) setReady(true)
+    return () => { live = false }
+  }, [imageUrl])
+  return (
+    <div className="post-img grain" style={{
+      background: imageUrl ? 'none' : bg,
+      backgroundImage: imageUrl ? `url(${imageUrl})` : undefined,
+      backgroundSize: imageUrl ? 'cover' : undefined,
+      backgroundPosition: imageUrl ? (pos ?? 'center') : undefined,
+      opacity: ready ? 1 : 0,
+      transition: 'opacity var(--t-load) ease',
+    }}>
+      {!imageUrl && <p className="overlay-txt" style={{ fontSize: 14 }}>{caption}</p>}
+    </div>
   )
 }
 
@@ -683,7 +697,7 @@ export default function FeedScreen() {
             const likesStr = compactCount(likesVal)
             const shownReactions = ai ? (isRevealing ? post.reactions.slice(0, revealCount) : post.reactions) : post.reactions.slice(0, 1)
             return (
-              <div key={post.postId} id={`fp-${aiKey}`} className="post" style={isNew ? { borderTop: '2px solid rgba(255,45,120,.3)', background: 'rgba(255,45,120,.04)' } : {}}>
+              <div key={post.postId} id={`fp-${aiKey}`} className={`post${isNew ? ' cmt-in' : ''}`} style={isNew ? { borderTop: '2px solid rgba(255,45,120,.3)', background: 'rgba(255,45,120,.04)' } : {}}>
                 <div className="post-head">
                   <div className={pc.cls ? `av ${pc.cls}` : 'av'} style={{ width:34, height:34, fontSize:14, background: pc.avatarUrl ? undefined : pc.color, backgroundImage: pc.avatarUrl ? `url(${pc.avatarUrl})` : undefined, backgroundSize:'cover', backgroundPosition:'center' }}>
                     {!pc.avatarUrl && pc.init}

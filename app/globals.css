@@ -8,7 +8,7 @@
   --tabbar:64px;
   --r-sm:10px;--r-md:14px;--r-2xl:24px;
   --sh-sheet:0 -20px 50px rgba(0,0,0,.6);--sh-cta:0 8px 24px rgba(255,45,120,.35);
-  --scrim-blur:rgba(8,8,15,.82);--ease-out:cubic-bezier(.32,.72,0,1);--t-press:.12s;
+  --scrim-blur:rgba(8,8,15,.82);--ease-out:cubic-bezier(.32,.72,0,1);--ease-nav:cubic-bezier(.32,.72,0,1);--t-press:.12s;--t-tab:.16s;--t-load:.24s;--t-screen:.28s;--t-el:.34s;
   --serif:"Fraunces",Georgia,serif;
   --sans:"Poppins",system-ui,sans-serif;
   --grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
@@ -43,10 +43,20 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 
 /* ── Screens ── */
 .screen{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--bg);
-  transform:translateX(100%);transition:transform .28s cubic-bezier(.32,.72,0,1);will-change:transform;z-index:1;
+  transform:translateX(100%);will-change:transform;z-index:1;
+  /* visibility flips AFTER the slide (delay = duration) — the exiting screen
+     must stay visible while it animates or every nav reads as a hard cut */
+  transition:transform var(--t-screen) var(--ease-nav),visibility 0s linear var(--t-screen);
   pointer-events:none;visibility:hidden}
-.screen.active{transform:translateX(0);z-index:2;pointer-events:all;visibility:visible}
+.screen.active{transform:translateX(0);z-index:2;pointer-events:all;visibility:visible;
+  transition:transform var(--t-screen) var(--ease-nav),visibility 0s}
 .screen.behind{transform:translateX(-22%);z-index:1;pointer-events:none;visibility:hidden}
+
+/* T2 — tab peers (feed/messages/profile) crossfade instead of pushing:
+   lateral slide implies hierarchy; tabs are siblings */
+.screen.tabfade{transform:none;opacity:0;transition:opacity var(--t-tab) ease,visibility 0s linear var(--t-tab)}
+.screen.tabfade.active{transform:none;opacity:1;transition:opacity var(--t-tab) ease,visibility 0s}
+.screen.tabfade.behind{transform:none;opacity:0}
 
 .scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .scroll::-webkit-scrollbar{display:none}
@@ -1188,5 +1198,11 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 @keyframes netPop{from{transform:scale(.6) translateY(10px);opacity:0}60%{transform:scale(1.06)}to{transform:none;opacity:1}}
 
 /* Choice → DM sheet morph: the thread rises in as a sheet, not a lateral slide */
-.screen.sheet{transform:translateY(100%);transition:transform .44s cubic-bezier(.22,.9,.3,1)}
-.screen.sheet.active{transform:translateY(0)}
+.screen.sheet{transform:translateY(100%);transition:transform .44s cubic-bezier(.22,.9,.3,1),visibility 0s linear .44s}
+.screen.sheet.active{transform:translateY(0);transition:transform .44s cubic-bezier(.22,.9,.3,1),visibility 0s}
+
+/* T3 — reduced motion: transforms/slides collapse to instant, opacity-only */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;
+    transition-duration:.01ms !important;transition-delay:0s !important;scroll-behavior:auto !important}
+}
