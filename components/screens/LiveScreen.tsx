@@ -236,26 +236,47 @@ export default function LiveScreen() {
       const m = av?.match(/\/avatars\/(\w+)\.png/)
       return m ? `/avatars/${chCharForGender(m[1], game.playerGender)}.png` : av
     }
-    const stream = blocks.map(blk => blk.t === 'cue'
+    const mapped = blocks.map(blk => blk.t === 'cue'
       ? { t: 'msg' as const, who: resolve(blk.who), av: swapAv(blk.avatar), text: resolve(blk.text) }
       : blk.t === 'img'
         ? { t: 'img' as const, src: blk.src, cap: blk.text ? resolve(blk.text) : '', h: blk.h, pos: blk.pos }
         : { t: 'nar' as const, text: resolve(blk.text), big: blk.big })
 
+    // 2-3 CLICKS PER BEAT (founder rule): the scene reveals in CHUNKS, not
+    // block-by-block. Consecutive narration (+free imgs) lands together, max 2
+    // nar lines per tap; each character message stands alone (dots → typewriter).
+    // The trailing big stake line does NOT render here — it headlines the
+    // full-screen choice splash instead.
+    const hasStake = !!mapped[mapped.length - 1]?.big
+    const body = hasStake ? mapped.slice(0, -1) : mapped
+    type StreamItem = typeof mapped[number]
+    const chunks: StreamItem[][] = []
+    {
+      let cur: StreamItem[] = []; let nars = 0
+      for (const it of body) {
+        if (it.t === 'msg') {
+          if (cur.length) { chunks.push(cur); cur = []; nars = 0 }
+          chunks.push([it])
+        } else {
+          cur.push(it)
+          if (it.t === 'nar' && ++nars >= 2) { chunks.push(cur); cur = []; nars = 0 }
+        }
+      }
+      if (cur.length) chunks.push(cur)
+    }
+
     let idx = -1
     const rev: CinItem[] = []
     let tw: ReturnType<typeof setInterval> | null = null
     let dwell: ReturnType<typeof setTimeout> | null = null
-    let auto: ReturnType<typeof setTimeout> | null = null
     let init: ReturnType<typeof setTimeout> | null = null
     const scroll = () => { const el = scrollRef.current; if (el) requestAnimationFrame(() => { el.scrollTop = el.scrollHeight }) }
     const commit = () => setRevealed([...rev])
     const setLast = (patch: Partial<CinItem>) => { rev[rev.length - 1] = { ...rev[rev.length - 1], ...patch }; commit() }
 
     const afterSettle = () => {
-      // Every beat is tap-gated — nothing auto-chains. The next beat (narration OR a
-      // character message) arrives only when the player taps, never before.
-      void auto
+      // The final chunk flows straight into the choice splash — no dead tap.
+      if (idx >= chunks.length - 1) { setReaderComplete(true); scroll(); return }
       setReaderShowTap(true); scroll()
     }
     const typeLast = (full: string) => {
@@ -270,36 +291,38 @@ export default function LiveScreen() {
     const finishTyping = () => {
       if (tw) { clearInterval(tw); tw = null }
       if (dwell) { clearTimeout(dwell); dwell = null }
-      const it = stream[idx]
+      const chunk = chunks[idx]
+      const msg = chunk?.find(x => x.t === 'msg')
       const last = rev[rev.length - 1]
-      if (last && last.phase !== 'done' && it && it.t === 'msg') setLast({ typed: it.text, phase: 'done' })
+      if (last && last.phase !== 'done' && msg) setLast({ typed: msg.text, phase: 'done' })
       setReaderBusy(false); scroll(); afterSettle()
     }
     function revealNext() {
       setReaderShowTap(false)
       idx++
-      if (idx >= stream.length) { setReaderComplete(true); scroll(); return }
-      const it = stream[idx]
-      if (it.t === 'msg') {
-        rev.push({ kind: 'msg', who: it.who, avatar: it.av, typed: '', phase: 'dots', text: it.text })
-        commit(); setReaderBusy(true); scroll()
-        dwell = setTimeout(() => { setLast({ phase: 'typing' }); scroll(); typeLast(it.text) }, 700 + Math.min(600, it.text.length * 8))
-      } else if (it.t === 'img') {
-        // Images are free — they reveal WITH the next block instead of costing
-        // their own tap (a photo isn't a story beat; it's staging for one).
-        rev.push({ kind: 'img', src: it.src, cap: it.cap, h: it.h, pos: it.pos })
-        commit(); scroll()
-        revealNext()
-        return
-      } else {
-        rev.push({ kind: 'nar', text: it.text, big: it.big })
-        commit(); setReaderBusy(false); scroll(); afterSettle()
+      if (idx >= chunks.length) { setReaderComplete(true); scroll(); return }
+      const chunk = chunks[idx]
+      let sawMsg = false
+      for (const it of chunk) {
+        if (it.t === 'msg') {
+          sawMsg = true
+          rev.push({ kind: 'msg', who: it.who, avatar: it.av, typed: '', phase: 'dots', text: it.text })
+          commit(); setReaderBusy(true); scroll()
+          dwell = setTimeout(() => { setLast({ phase: 'typing' }); scroll(); typeLast(it.text) }, 700 + Math.min(600, it.text.length * 8))
+        } else if (it.t === 'img') {
+          rev.push({ kind: 'img', src: it.src, cap: it.cap, h: it.h, pos: it.pos })
+          commit()
+        } else {
+          rev.push({ kind: 'nar', text: it.text, big: it.big })
+          commit()
+        }
       }
+      if (!sawMsg) { setReaderBusy(false); scroll(); afterSettle() }
     }
 
     readerCtlRef.current = { revealNext, finishTyping }
     init = setTimeout(revealNext, 550)
-    return () => { if (tw) clearInterval(tw); if (dwell) clearTimeout(dwell); if (auto) clearTimeout(auto); if (init) clearTimeout(init) }
+    return () => { if (tw) clearInterval(tw); if (dwell) clearTimeout(dwell); if (init) clearTimeout(init) }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [displaySit?.id, variantKey, isCricket, chosen, game.playerName, game.playerGender])
 
@@ -818,6 +841,55 @@ export default function LiveScreen() {
 
       {/* Selection gate — the free-flow squad moment. The next beat waits behind
           the team sheet; the player can detour to build their case first. */}
+      {/* THE FAISLA SPLASH — the choice gets its own full-screen moment
+          (founder call): eyebrow, the stake line, the question in serif,
+          then the two cards. Weight comes from isolation, not decoration. */}
+      {displaySit && displaySit.reader && readerDone && chosen === null && (() => {
+        const stakeBlk = displaySit.reader[displaySit.reader.length - 1]
+        const stake = stakeBlk?.big ? r(stakeBlk.text ?? '') : null
+        const tagClean = (displaySit.tag ?? '').replace(/^[^A-Za-z0-9]*/, '').trim()
+        return (
+          <div style={{
+            position: 'absolute', inset: 0, zIndex: 45, background: 'var(--bg)',
+            display: 'flex', flexDirection: 'column', justifyContent: 'center',
+            padding: '32px 24px', animation: 'evVoteIn .45s cubic-bezier(.32,.72,0,1) both',
+          }}>
+            <div style={{
+              position: 'absolute', top: 0, left: 0, right: 0, height: 320, pointerEvents: 'none',
+              background: 'radial-gradient(ellipse 130% 60% at 50% -10%, color-mix(in srgb, var(--accent) 10%, transparent) 0%, transparent 70%)',
+            }} />
+            <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: '.16em', color: 'var(--accent)', position: 'relative' }}>
+              FAISLA · {tagClean}
+            </div>
+            {stake && (
+              <div style={{ fontSize: 14.5, color: 'var(--ink2)', lineHeight: 1.55, marginTop: 14, position: 'relative' }}>{stake}</div>
+            )}
+            <div style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 31, lineHeight: 1.15, color: '#fff', margin: '10px 0 24px', position: 'relative' }}>
+              {r(displaySit.q)}
+            </div>
+            <div className="cin-choices" style={{ display: 'flex', flexDirection: 'column', gap: 11, position: 'relative' }}>
+              {choiceDisplayOrder(displaySit).map((trueIdx, i) => {
+                const c = displaySit!.choices[trueIdx]
+                return (
+                  <button key={trueIdx} className="cin-ch" onClick={() => handleChoice(trueIdx as 0 | 1)}>
+                    <span style={{
+                      width: 34, height: 34, borderRadius: '50%', border: '1.5px solid var(--line)',
+                      display: 'grid', placeItems: 'center', flexShrink: 0, marginRight: 12,
+                      fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 15, color: 'var(--ink2)',
+                    }}>{String.fromCharCode(65 + i)}</span>
+                    <div className="cin-ch-main">
+                      <div className="cin-cht">{r(c.t)}</div>
+                      <div className="cin-chs">{r(c.s)}</div>
+                    </div>
+                    <span className="cin-chgo"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6" /></svg></span>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        )
+      })()}
+
       {isCricket && game.pendingSelection && chosen === null && !inFlowRef.current && (() => {
         // "The gate" (founder prototype 1a): dramatize the DEFICIT — where you
         // stand vs the two numbers that decide the sheet, a plain-words readline,
@@ -1238,28 +1310,6 @@ export default function LiveScreen() {
                 ))
               )}
             </div>
-
-            {/* Choice cards (design handoff) — "Tum kya karte ho" + stacked cards with a
-                chevron button. Shown once the scene is fully revealed (tap-gated). */}
-            {displaySit.reader && readerDone && chosen === null && (
-              <div style={{ marginTop: 18, display: 'flex', flexDirection: 'column', gap: 11 }}>
-                <div className="cin-chlabel">Tum kya karte ho</div>
-                <div className="cin-choices">
-                  {choiceDisplayOrder(displaySit).map(trueIdx => {
-                    const c = displaySit!.choices[trueIdx]
-                    return (
-                      <button key={trueIdx} className="cin-ch" onClick={() => handleChoice(trueIdx as 0 | 1)}>
-                        <div className="cin-ch-main">
-                          <div className="cin-cht">{r(c.t)}</div>
-                          <div className="cin-chs">{r(c.s)}</div>
-                        </div>
-                        <span className="cin-chgo"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6" /></svg></span>
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-            )}
 
             {/* Character reaction */}
             {!readerBlocks && effectiveReact && (() => {

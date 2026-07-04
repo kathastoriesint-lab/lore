@@ -34,7 +34,7 @@ const StatusBar = () => (
 )
 
 export default function DMThreadScreen() {
-  const { goBack, navigate, showToast, dmChar, dmHistory, dmTrust, sendDM, game, dmStorySession, screen } = useApp()
+  const { goBack, navigate, showToast, dmChar, dmHistory, dmTrust, sendDM, game, dmStorySession, screen, dmBadgeCount } = useApp()
 
   const allChars = { ...getCHChars(), ...getCricketChars() }
   const charId = dmChar as CharId | null
@@ -648,8 +648,9 @@ export default function DMThreadScreen() {
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
           <span>Feed</span>
         </button>
-        <button className="tab active" onClick={() => navigate('dm-inbox')}>
+        <button className="tab active" onClick={() => navigate('dm-inbox')} style={{ position: 'relative' }}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          {dmBadgeCount > 0 && <div className="badge-num" style={{ top: 0, right: 8 }}>{dmBadgeCount > 9 ? '9+' : dmBadgeCount}</div>}
           <span>Messages</span>
         </button>
         <button className="tab" onClick={() => navigate('profile')}>
