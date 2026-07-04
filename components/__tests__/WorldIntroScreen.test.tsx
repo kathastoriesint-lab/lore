@@ -48,7 +48,6 @@ function makeCtx(overrides: Partial<AppCtx> = {}): AppCtx {
     openDMThread: vi.fn(),
     resetGame: vi.fn(),
     resolveSelection: vi.fn(),
-    completeNetSession: vi.fn(),
     skipWeekWait: vi.fn(),
     dmStorySession: null,
     startDmStorySession: vi.fn(),

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import {
   SEASON_WEEKS, weekForSituationId, isWeekEnd, snapToWeekStart,
-  NET_SESSIONS, INTERLUDE_CAPS, SENIORS, DM_DAILY_BUDGET,
+  INTERLUDE_CAPS, SENIORS, DM_DAILY_BUDGET,
 } from '@/lib/season'
 import { SELECTION_TRIGGERS } from '@/lib/cricket-selection'
 
@@ -51,15 +51,6 @@ describe('season structure (v2 — 3 match weeks)', () => {
 })
 
 describe('grind loop (selection windows)', () => {
-  it('keeps the diminishing nets schedule and caps', () => {
-    expect(INTERLUDE_CAPS.netSessions).toBe(3)
-    expect(INTERLUDE_CAPS.netGains).toEqual([4, 2, 1])
-    expect(NET_SESSIONS.length).toBeGreaterThanOrEqual(3)
-    NET_SESSIONS.forEach(s => {
-      expect(s.safe.label).toBeTruthy()
-      expect(s.risky.threshold).toBeGreaterThan(0)
-    })
-  })
 
   it('DM economy: daily free-chat budget is defined and sane', () => {
     expect(DM_DAILY_BUDGET).toBeGreaterThanOrEqual(5)

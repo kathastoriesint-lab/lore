@@ -88,7 +88,7 @@ export default function GoalCard({ variant = 'full' }: { variant?: Variant }) {
             ? `Form +${rule.start.form - form} aur Hardik +${rule.start.captain - captain} — dono is sheet se pehle`
             : !captainOk
               ? `Hardik ko ${rule.start.captain} tak le jao — is hafte ki sheet ke liye`
-              : `Form ${rule.start.form} chahiye — nets ya agla beat`}
+              : `Form ${rule.start.form} chahiye — agla beat sab badal sakta hai`}
       </div>
 
       {/* FORM */}
@@ -118,7 +118,7 @@ export default function GoalCard({ variant = 'full' }: { variant?: Variant }) {
             ? 'Dono bars clear. Sheet pe naam pakka lag raha hai.'
             : !captainOk
               ? `Captain ka bharosa ${captain} (${captainTier(captain)}). DM pe baat karo — wahi build hota hai. Lifeline bar: ${rule.lifeline.captain}.`
-              : 'Form kam hai — nets ya match mein runs. Ya captain ko itna jeeto ki woh naam laga de.'}
+              : 'Form kam hai — ab captain ko itna jeeto ki woh naam laga de.'}
         </div>
       )}
 

@@ -1292,11 +1292,11 @@ export const CRICKET_SITUATIONS: Situation[] = [
         "runWrite": "debut",
         "outcomeGate": {
           "metric": "form",
-          "threshold": 54,
+          "threshold": 44,
           "assists": [
             {
               "charId": "bumrah",
-              "min": 36,
+              "min": 34,
               "thresholdDelta": -4
             }
           ],
@@ -1361,11 +1361,11 @@ export const CRICKET_SITUATIONS: Situation[] = [
         "runWrite": "debut",
         "outcomeGate": {
           "metric": "form",
-          "threshold": 54,
+          "threshold": 44,
           "assists": [
             {
               "charId": "bumrah",
-              "min": 36,
+              "min": 34,
               "thresholdDelta": -4
             }
           ],
@@ -1624,7 +1624,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
         "when": {
           "charTrust": {
             "charId": "surya",
-            "gte": 48
+            "gte": 44
           }
         },
         "text": "Scroll ke beech 1 post sab shaant kar deta hai — SKY ka."
@@ -1636,7 +1636,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
         "when": {
           "charTrust": {
             "charId": "surya",
-            "gte": 48
+            "gte": 44
           }
         },
         "text": "Timeline chill. Kid ko main dekh raha hoon. Tum log match dekho. 💙"
@@ -1763,7 +1763,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
             "when": {
               "charTrust": {
                 "charId": "surya",
-                "gte": 48
+                "gte": 44
               }
             },
             "text": "Phir 9:40 pe 1 post — jo poore pile-on ke upar baith jaata hai."
@@ -1775,7 +1775,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
             "when": {
               "charTrust": {
                 "charId": "surya",
-                "gte": 48
+                "gte": 44
               }
             },
             "text": "1 match. 16 saal. Thoda saans le lo timeline. Kid ko main dekh raha hoon. 💙"
@@ -1875,7 +1875,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
         "when": {
           "charTrust": {
             "charId": "friend",
-            "gte": 78
+            "gte": 76
           }
         },
         "text": "Shaam 5:20. Maddy: 'Bro, aaj raat tere baare mein kuch drop hoga.' 6 ghante ka head start — isliye haath nahi kaanpta."
@@ -2514,7 +2514,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
         "when": {
           "charTrust": {
             "charId": "rohit",
-            "gte": 46
+            "gte": 44
           }
         },
         "title": "Rohit Ka 6 AM",
@@ -3060,7 +3060,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
         "runWrite": "clutch",
         "outcomeGate": {
           "metric": "form",
-          "threshold": 60,
+          "threshold": 58,
           "assists": [
             {
               "charId": "naman",
@@ -3069,7 +3069,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
             },
             {
               "charId": "bumrah",
-              "min": 40,
+              "min": 36,
               "thresholdDelta": -2
             }
           ],
@@ -3132,7 +3132,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
         "runWrite": "clutch",
         "outcomeGate": {
           "metric": "form",
-          "threshold": 60,
+          "threshold": 58,
           "assists": [
             {
               "charId": "naman",
@@ -3141,7 +3141,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
             },
             {
               "charId": "bumrah",
-              "min": 40,
+              "min": 36,
               "thresholdDelta": -2
             }
           ],
@@ -3414,7 +3414,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
         "when": {
           "charTrust": {
             "charId": "rohit",
-            "gte": 55
+            "gte": 48
           }
         },
         "text": "List se pehle 1 baat. Jo is season seekha, woh kisi list mein nahi aata. Woh tere paas reh gaya."

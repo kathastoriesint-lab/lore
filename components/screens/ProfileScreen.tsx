@@ -18,7 +18,7 @@ const UNLOCK_SHORT: Record<number, string> = {
 }
 
 export default function ProfileScreen() {
-  const { game, navigate, dmTrust } = useApp()
+  const { goBack, game, navigate, dmTrust } = useApp()
   const isCricket = game.world === 'cricket'
   const r = (t: string) => resolveTokens(t, game.playerName, game.playerGender)
 
@@ -90,7 +90,12 @@ export default function ProfileScreen() {
           <div style={{ position: 'absolute', inset: 0, height: 150, background: 'linear-gradient(180deg, transparent 40%, var(--bg))' }} />
           <div style={{ position: 'relative', padding: '14px 18px 0' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ fontSize: 9.5, fontWeight: 800, letterSpacing: '.06em', color: eyebrowColor }}>{eyebrow}</span>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                <button onClick={goBack} aria-label="Back" style={{ width: 34, height: 34, borderRadius: '50%', background: 'rgba(255,255,255,.1)', border: 'none', cursor: 'pointer', display: 'grid', placeItems: 'center' }}>
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+                </button>
+                <span style={{ fontSize: 9.5, fontWeight: 800, letterSpacing: '.06em', color: eyebrowColor }}>{eyebrow}</span>
+              </span>
               <button onClick={() => navigate('profile-global')} aria-label="Account & settings"
                 style={{ width: 34, height: 34, borderRadius: '50%', background: 'rgba(255,255,255,.1)', border: 'none', cursor: 'pointer', display: 'grid', placeItems: 'center' }}>
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="#fff"><circle cx="5" cy="12" r="2" /><circle cx="12" cy="12" r="2" /><circle cx="19" cy="12" r="2" /></svg>

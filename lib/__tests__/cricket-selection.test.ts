@@ -21,28 +21,30 @@ describe('captain helpers', () => {
 })
 
 describe('resolveSelectionVerdict', () => {
-  it('W1: winnable on story + nets alone', () => {
-    expect(resolveSelectionVerdict(1, 52, 38)).toBe('started')     // form-focused path
-    expect(resolveSelectionVerdict(1, 45, 45)).toBe('lifeline')    // captain covers the gap
-    expect(resolveSelectionVerdict(1, 40, 23)).toBe('benched')     // neglectful path
+  // Bars retuned Jul 4 for the choices-only form economy (nets removed):
+  // good play reaches ~45/54/60 form at the three sheets.
+  it('W1: winnable on story choices alone', () => {
+    expect(resolveSelectionVerdict(1, 45, 38)).toBe('started')     // good-play path
+    expect(resolveSelectionVerdict(1, 41, 42)).toBe('lifeline')    // captain covers the gap
+    expect(resolveSelectionVerdict(1, 37, 23)).toBe('benched')     // neglectful path
   })
   it('W2: punishes form-only players on the captain bar', () => {
-    expect(resolveSelectionVerdict(2, 68, 44)).toBe('benched')     // 68 form, no room — the lesson
-    expect(resolveSelectionVerdict(2, 58, 50)).toBe('started')
-    expect(resolveSelectionVerdict(2, 50, 58)).toBe('lifeline')    // captain stakes his name
+    expect(resolveSelectionVerdict(2, 60, 42)).toBe('benched')     // form there, no room — the lesson
+    expect(resolveSelectionVerdict(2, 54, 46)).toBe('started')
+    expect(resolveSelectionVerdict(2, 48, 54)).toBe('lifeline')    // captain stakes his name
   })
   it('W3: demands both — or the recall grind', () => {
-    expect(resolveSelectionVerdict(3, 64, 58)).toBe('started')
-    expect(resolveSelectionVerdict(3, 52, 64)).toBe('lifeline')
+    expect(resolveSelectionVerdict(3, 60, 54)).toBe('started')
+    expect(resolveSelectionVerdict(3, 50, 60)).toBe('lifeline')
     expect(resolveSelectionVerdict(3, 55, 40)).toBe('benched')
     // benched at W2, ground form to the recall bar → forces the door open
-    expect(resolveSelectionVerdict(3, 64, 40, [2])).toBe('started')
-    expect(resolveSelectionVerdict(3, 63, 40, [2])).toBe('benched') // one short
+    expect(resolveSelectionVerdict(3, 56, 40, [2])).toBe('started')
+    expect(resolveSelectionVerdict(3, 55, 40, [2])).toBe('benched') // one short
   })
   it('isRecall marks only the forced-door path', () => {
-    expect(isRecall(3, 64, 40, [2])).toBe(true)
-    expect(isRecall(3, 70, 60, [2])).toBe(false)  // cleanly started — not a recall story
-    expect(isRecall(3, 64, 40, [])).toBe(false)   // never benched
+    expect(isRecall(3, 56, 40, [2])).toBe(true)
+    expect(isRecall(3, 62, 58, [2])).toBe(false)  // cleanly started — not a recall story
+    expect(isRecall(3, 56, 40, [])).toBe(false)   // never benched
   })
 })
 
@@ -72,7 +74,7 @@ describe('buildSelection ceremony', () => {
     const s = buildSelection('SEL-W1', game(52), { hardik: 40 })!
     expect(s.verdict).toBe('started')
     expect(s.teamSheet.some(r => r.you)).toBe(true)
-    expect(s.readout).toMatchObject({ form: 52, formNeed: 48, captain: 40, captainNeed: 34 })
+    expect(s.readout).toMatchObject({ form: 52, formNeed: 44, captain: 40, captainNeed: 34 })
   })
   it('benched: the rival takes the slot', () => {
     const s = buildSelection('SEL-W1', game(40), { hardik: 23 })!
@@ -100,8 +102,8 @@ describe('buildSelection ceremony', () => {
 describe('resolveCricketEnding (India verdict)', () => {
   it('the four endings resolve on form × captain × bench history', () => {
     expect(resolveCricketEnding(70, 60, 0)).toBe('indiaCall')
-    expect(resolveCricketEnding(63, 62, 0)).toBe('captainsBet')   // DM-focused worked path
-    expect(resolveCricketEnding(72, 46, 1)).toBe('statsMachine')  // form-only worked path
+    expect(resolveCricketEnding(55, 62, 0)).toBe('captainsBet')   // DM-focused worked path
+    expect(resolveCricketEnding(60, 46, 1)).toBe('statsMachine')  // recall-arc worked path
     expect(resolveCricketEnding(42, 15, 2)).toBe('notYet')        // neglectful worked path
   })
   it('bench history follows you', () => {
@@ -110,7 +112,7 @@ describe('resolveCricketEnding (India verdict)', () => {
     expect(resolveCricketEnding(70, 58, 1)).toBe('indiaCall')     // one bench is survivable
   })
   it('captain without form is a bet, not a call-up', () => {
-    expect(resolveCricketEnding(52, 57, 0)).toBe('captainsBet')
+    expect(resolveCricketEnding(50, 57, 0)).toBe('captainsBet')
     expect(resolveCricketEnding(45, 57, 0)).toBe('notYet')        // form too thin even for the bet
     expect(resolveCricketEnding(45, 62, 0)).toBe('captainsBet')   // unless he's all-in
   })

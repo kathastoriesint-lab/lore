@@ -39,13 +39,13 @@ export interface SelectionRule {
   recallForm?: number
 }
 
-// Tuning intent (starts: form 40 · hardik 30; nets +4/+2/+1 per window; DM chat
-// +2/char capped; trust moments +4–6): W1 winnable on story+nets alone; W2 fails
+// Tuning intent (starts: form 40 · hardik 30; form moves ONLY via choices; DM chat
+// +4/char per window): W1 winnable on story choices alone; W2 fails
 // form-only players on the captain bar (the lesson); W3 demands both.
 export const SELECTION_RULES: SelectionRule[] = [
-  { week: 1, start: { form: 48, captain: 34 }, lifeline: { formMin: 42, captain: 42 } },
-  { week: 2, start: { form: 56, captain: 46 }, lifeline: { formMin: 48, captain: 56 } },
-  { week: 3, start: { form: 62, captain: 55 }, lifeline: { formMin: 50, captain: 62 }, recallForm: 64 },
+  { week: 1, start: { form: 44, captain: 34 }, lifeline: { formMin: 38, captain: 40 } },
+  { week: 2, start: { form: 52, captain: 44 }, lifeline: { formMin: 46, captain: 52 } },
+  { week: 3, start: { form: 58, captain: 52 }, lifeline: { formMin: 48, captain: 58 }, recallForm: 56 },
 ]
 
 /** Beat whose completion opens each selection window (ceremony plays before the
@@ -161,7 +161,7 @@ export function buildSelection(id: string, game: GameState, dmTrust: Record<stri
     `Form ${form}, zaroorat ${rule.start.form}. Ya captain ka bharosa ${rule.lifeline.captain} — woh bhi nahi tha. Kaam karo.`
 
   const aftermath =
-    verdict === 'started' && recall ? 'Recall. Ghar mein sab jaante hain yeh kaise hua — nets se, chup-chaap. Ab prove karo yeh one-off nahi tha.' :
+    verdict === 'started' && recall ? 'Recall. Ghar mein sab jaante hain yeh kaise hua — chup-chaap kaam se. Ab prove karo yeh one-off nahi tha.' :
     verdict === 'started' ? 'Naam sheet pe hai. Ab sheet se bahar ki duniya shuru hoti hai.' :
     verdict === 'lifeline' ? 'Captain ne tumhare liye apni credibility kharch ki. Yeh karz hai — aur poora ghar dekh raha hai.' :
     `${rival} khelega. Tum drinks le jaoge. Jo is hafte bench pe karoge — wohi agli sheet decide karega.`

@@ -302,7 +302,6 @@ export type Screen =
   | 'live'
   | 'selection'
   | 'eviction'
-  | 'nets'
   | 'dm-inbox'
   | 'dm-thread'
   | 'profile'
@@ -344,7 +343,6 @@ export interface GameState {
   /** Per-selection-window activity usage (the optional grind before each squad
    *  announcement). Reset when a selection window opens. */
   interlude?: {
-    netsUsed: number
     captionPosted: boolean
     repliesUsed: number
     chatTrustEarned: Record<string, number>

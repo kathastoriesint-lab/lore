@@ -50,7 +50,7 @@ export interface AppCtx {
   /** Transient DM notification banner (app-wide), shown when the world DMs you. */
   dmNotif: { id: string; name: string; cls: string } | null
   /** Inject a character DM AND raise the app-wide notification banner. */
-  notifyDM: (charId: CharId, text: string, embed?: DMMessage['embed'], meta?: DMTimeMeta) => void
+  notifyDM: (charId: CharId, text: string, embed?: DMMessage['embed'], meta?: DMTimeMeta, opts?: { story?: boolean }) => void
   /** Transient "+N followers" receipt pill shown on the feed during a reveal. */
   followerReceipt: { delta: number } | null
   showFollowerReceipt: (delta: number) => void
@@ -74,8 +74,6 @@ export interface AppCtx {
   resetGame: () => Promise<void>
   /** Resolve the pending squad selection: persist the verdict + advance the week. */
   resolveSelection: () => void
-  /** Apply a nets Form gain and consume one of the interlude's net sessions. */
-  completeNetSession: (formGain: number) => void
   /** Play out an authored trust moment in a DM thread (once per interlude). */
   /** Story-chat session (choice → DM): which thread is scoped + replies sent. */
   dmStorySession: { char: CharId; sent: number } | null

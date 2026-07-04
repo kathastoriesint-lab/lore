@@ -14,7 +14,7 @@ const WORLD_META: Record<string, { name: string; cover: string; livePink: boolea
 }
 
 export default function GlobalProfileScreen() {
-  const { game, navigate, saveProfile, showToast, resetGame } = useApp()
+  const { goBack, game, navigate, saveProfile, showToast, resetGame } = useApp()
   const [auth, setAuth] = useState<AuthInfo | null>(null)
   const [stats, setStats] = useState<ProfileStats>({ worlds: 0, choices: 0, streak: 0 })
   const [editing, setEditing] = useState(false)
@@ -80,6 +80,9 @@ export default function GlobalProfileScreen() {
 
         {/* ── Identity ── */}
         <div style={{ padding: '24px 22px 22px', position: 'relative', background: 'radial-gradient(120% 80% at 50% 0%, rgba(255,45,120,.14), transparent 70%)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <button onClick={goBack} aria-label="Back" style={{ position: 'absolute', top: 14, left: 14, width: 34, height: 34, borderRadius: '50%', background: 'rgba(255,255,255,.1)', border: 'none', cursor: 'pointer', display: 'grid', placeItems: 'center' }}>
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
           <div style={{ position: 'relative' }}>
             <div style={{ width: 92, height: 92, borderRadius: '50%', background: game.avatarUrl ? `url(${game.avatarUrl}) center/cover` : 'linear-gradient(135deg,#ff2d78,#ff8a3d)', display: 'grid', placeItems: 'center', fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 38, color: '#fff', boxShadow: '0 8px 24px rgba(255,45,120,.3)' }}>
               {!game.avatarUrl && initial}

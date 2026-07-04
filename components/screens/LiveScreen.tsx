@@ -498,24 +498,24 @@ export default function LiveScreen() {
       return
     }
 
-    // Cricket: no result sheet — parity with Creator House. A DM outcome drops
-    // you into that senior's thread; a post lands on the feed. FORM + CAPTAIN'S
-    // TRUST changes surface at the top (goal card) and the impact shows on the
-    // feed — not in a receipt sheet. The last beat routes to the ending arc.
+    // Cricket: ONE character DMs you per beat — never more (founder rule).
+    // Delivery is the ARRIVAL SHEET (avatar, typing, "Reply to X"), not an
+    // auto-navigation: the first bubble rides the sheet, the rest land quietly
+    // in the thread behind it. Reply → scoped story chat; swipe down → read later.
     const primary = dmsToInject[0]?.char as CharId | undefined
+    const primaryDms = primary ? dmsToInject.filter(dm => dm.char === primary) : []
     const dmMeta = sit ? { day: sit.day, phase: phaseFromTag(sit.tag), note: r(sit.title) } : undefined
-    dmsToInject.forEach((dm, i) => {
+    primaryDms.forEach((dm, i) => {
       addTimer(() => {
-        if (dm.char === primary) injectCharDM(dm.char, r(dm.text), undefined, dmMeta)
-        else notifyDM(dm.char, r(dm.text), undefined, dmMeta)
+        if (i === 0) notifyDM(dm.char, r(dm.text), undefined, dmMeta, { story: true })
+        else injectCharDM(dm.char, r(dm.text), undefined, dmMeta)
       }, 150 + i * 220)
     })
     const lastBeat = situation >= queue.length - 1
     addTimer(() => {
       doReset()
       if (lastBeat) return              // let the ending arc render on Live
-      if (primary) { startDmStorySession(primary); openDMThread(primary) }
-      else navigate('feed')
+      if (!primary) navigate('feed')    // post outcomes still land on the feed
     }, 520)
   }, [sit, situation, queue.length, game.meters, makeChoice, advanceSituation, navigate, injectCharDM, notifyDM, openDMThread, doReset, isCricket, dmTrust])
 
@@ -828,14 +828,13 @@ export default function LiveScreen() {
         const captain = captainTrust(dmTrust)
         const formGap = Math.max(0, rule.start.form - form)
         const capGap = Math.max(0, rule.start.captain - captain)
-        const netsClosed = (game.interlude?.netsUsed ?? 0) >= 3
         const readline = formGap === 0 && capGap === 0
           ? <>Dono cheez clear hai. Naam banta hai — ab sheet lag jaane do.</>
           : formGap > 0 && capGap === 0
-            ? <>Captain ka bharosa clear hai. Bas <b style={{ color: 'var(--ink)' }}>form {formGap} kam</b> — 1 achhi nets session, aur naam pakka.</>
+            ? <>Captain ka bharosa clear hai. <b style={{ color: 'var(--ink)' }}>Form {formGap} kam</b> — woh maidan pe bana tha; ab captain ka bharosa hi naam laga sakta hai.</>
             : formGap === 0
               ? <>Form ready hai. Bas <b style={{ color: 'var(--ink)' }}>captain ka bharosa {capGap} kam</b> — DM kholo, seedhi baat karo.</>
-              : <>Form <b style={{ color: 'var(--ink)' }}>{formGap} kam</b>, captain ka bharosa <b style={{ color: 'var(--ink)' }}>{capGap} kam</b>. Nets aur DM — dono abhi khule hain.</>
+              : <>Form <b style={{ color: 'var(--ink)' }}>{formGap} kam</b> aur bharosa <b style={{ color: 'var(--ink)' }}>{capGap} kam</b>. Ek darwaza khula hai — captain ka DM.</>
         const track = (val: number, need: number, color: string) => (
           <div style={{ position: 'relative', height: 7, borderRadius: 5, background: 'rgba(255,255,255,.08)' }}>
             <div style={{ width: `${Math.min(100, val)}%`, height: '100%', borderRadius: 5, background: color, transition: 'width .8s cubic-bezier(.32,.72,0,1)' }} />
@@ -870,7 +869,7 @@ export default function LiveScreen() {
             Naam sheet pe aayega ya nahi.
           </div>
           <div style={{ fontSize: 12.5, color: 'var(--ink3)', textAlign: 'center', margin: '0 10px 20px' }}>
-            Sheet band hone se pehle <b style={{ color: 'var(--ink2)' }}>abhi bhi 2 mauke</b> bache hain.
+            Sheet band hone se pehle <b style={{ color: 'var(--ink2)' }}>abhi 1 mauka</b> bacha hai.
           </div>
 
           {/* Tumhara case */}
@@ -901,18 +900,9 @@ export default function LiveScreen() {
 
           {/* The two levers — fame doesn't make the sheet, so it isn't here */}
           <div style={{ fontSize: 9.5, fontWeight: 800, letterSpacing: '.12em', textTransform: 'uppercase', color: 'var(--ink3)', margin: '18px 2px 10px', display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{ color: '#FFB020' }}>◆</span>NAAM SIRF 2 CHEEZEIN BANATI HAIN
+            <span style={{ color: '#FFB020' }}>◆</span>SHEET SE PEHLE EK MAUKA
           </div>
           <div style={{ display: 'flex', gap: 9 }}>
-            <button onClick={() => !netsClosed && navigate('nets')} disabled={netsClosed} style={{
-              flex: 1, background: 'var(--surf)', border: '1px solid var(--line)', borderRadius: 15, padding: '13px 10px',
-              cursor: netsClosed ? 'default' : 'pointer', textAlign: 'center', fontFamily: 'var(--sans)', opacity: netsClosed ? 0.5 : 1,
-            }}>
-              <div style={{ fontSize: 20, lineHeight: 1 }}>🏏</div>
-              <div style={{ fontSize: 12.5, fontWeight: 800, color: '#fff', marginTop: 7 }}>Nets</div>
-              <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: '.04em', textTransform: 'uppercase', marginTop: 4, color: '#FFB020' }}>Form badhao</div>
-              <div style={{ fontSize: 8.5, fontWeight: 500, color: 'var(--ink3)', marginTop: 2 }}>{netsClosed ? 'aaj closed' : formGap > 0 ? `abhi ${formGap} short` : 'cleared ✓'}</div>
-            </button>
             <button onClick={() => openDMThread('hardik')} style={{
               flex: 1, background: 'var(--surf)', border: '1px solid var(--line)', borderRadius: 15, padding: '13px 10px',
               cursor: 'pointer', textAlign: 'center', fontFamily: 'var(--sans)',
@@ -939,14 +929,34 @@ export default function LiveScreen() {
         )
       })()}
 
-      {/* MATCH CALENDAR — the next match-week drops next morning. The evening is
-          alive (companion DMs, nets, feed); the full slate earns an early unlock. */}
+      {/* MATCH CALENDAR — the next match-week drops next morning. The evening
+          pushes you to PEOPLE, contextually: captain for trust, a senior for
+          advice, the feed for the world. Doing it earns the early unlock. */}
       {isCricket && !game.pendingSelection && (game.weekUnlockAt ?? 0) > Date.now() && chosen === null && !inFlowRef.current && (() => {
         const il = game.interlude
+        const chatted = il?.charsChatted ?? []
+        const wk = game.week ?? 1
+        const capGapNow = Math.max(0, ruleFor(Math.min(wk + 1, 3)).start.captain - captainTrust(dmTrust))
+        // The advice senior rotates with the story: W1 Bumrah (your first over),
+        // W2 Rohit (form + tempo), W3 Naman (the eliminator rivalry).
+        const advisor = (wk <= 1 ? 'bumrah' : wk === 2 ? 'rohit' : 'naman') as CharId
+        const advisorName = getCricketChars()[advisor]?.name?.split(' ')[0] ?? 'Senior'
         const slate = [
-          { label: '🏏 3 nets sessions', done: (il?.netsUsed ?? 0) >= 3, to: 'nets' as const },
-          { label: '💬 2 logon se baat', done: (il?.charsChatted?.length ?? 0) >= 2, to: 'dm-inbox' as const },
-          { label: '📱 Feed pe react karo', done: (il?.repliesUsed ?? 0) >= 1 || !!il?.captionPosted, to: 'feed' as const },
+          {
+            label: capGapNow > 0 ? `🧢 Hardik se baat karo — bharosa ${capGapNow} kam` : '🧢 Hardik se baat karo — bharosa pakka rakho',
+            done: chatted.includes('hardik'),
+            go: () => openDMThread('hardik'),
+          },
+          {
+            label: `💬 ${advisorName} se advice lo — agle match ke liye`,
+            done: chatted.filter(c => c !== 'hardik').length >= 1,
+            go: () => openDMThread(advisor),
+          },
+          {
+            label: '📱 Feed pe react karo — duniya kya keh rahi hai',
+            done: (il?.repliesUsed ?? 0) >= 1 || !!il?.captionPosted,
+            go: () => navigate('feed'),
+          },
         ]
         const allDone = slate.every(x => x.done)
         const unlockAt = new Date(game.weekUnlockAt!)
@@ -965,7 +975,7 @@ export default function LiveScreen() {
                 AAJ KA KAAM POORA → KAL SUBAH KA WAIT SKIP
               </div>
               {slate.map(row => (
-                <button key={row.label} onClick={() => navigate(row.to)} style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', background: 'none', border: 'none', padding: '7px 0', cursor: 'pointer', textAlign: 'left' }}>
+                <button key={row.label} onClick={row.go} style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', background: 'none', border: 'none', padding: '7px 0', cursor: 'pointer', textAlign: 'left' }}>
                   <span style={{ fontSize: 14 }}>{row.done ? '✅' : '⬜'}</span>
                   <span style={{ fontSize: 13, fontWeight: 600, color: row.done ? 'var(--ink3)' : 'var(--ink)', textDecoration: row.done ? 'line-through' : 'none' }}>{row.label}</span>
                   {!row.done && <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--accent)', fontWeight: 700 }}>jao →</span>}

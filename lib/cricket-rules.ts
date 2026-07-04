@@ -16,9 +16,11 @@ export type CricketEnding = 'indiaCall' | 'captainsBet' | 'statsMachine' | 'notY
  *   notYet       — everything else; forced when benched twice without the captain (< 60)
  */
 export function resolveCricketEnding(form: number, captain: number, benched = 0): CricketEnding {
+  // Rescaled for the choices-only form economy (nets removed Jul 4):
+  // best-play final form ≈ 60-63, neglect ≈ 39-42.
   if (benched >= 2 && captain < 60) return 'notYet'
-  if (form >= 66 && captain >= 55 && benched <= 1) return 'indiaCall'
-  if (captain >= 55 && (form >= 50 || captain >= 60)) return 'captainsBet'
-  if (form >= 66) return 'statsMachine'
+  if (form >= 58 && captain >= 55 && benched <= 1) return 'indiaCall'
+  if (captain >= 55 && (form >= 48 || captain >= 60)) return 'captainsBet'
+  if (form >= 58) return 'statsMachine'
   return 'notYet'
 }

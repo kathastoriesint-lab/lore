@@ -54,7 +54,7 @@ export default function SelectionScreen() {
     : sel.verdict === 'lifeline'
       ? 'Form sheet ne mana kiya. Captain ne apna naam laga diya.'
       : sel.recall
-        ? 'Bench se wapas — nets ne darwaza khol diya.'
+        ? 'Bench se wapas — kaam ne darwaza khol diya.'
         : sel.week === 1
           ? 'No.5 · IPL debut, 16 saal. Kal raat Wankhede ki lights tumhare naam.'
           : 'Naam sheet pe hai. Kaam abhi baaki hai.'
@@ -232,7 +232,7 @@ export default function SelectionScreen() {
             </div>
           ))}
           <div style={{ fontSize: 11, color: 'var(--ink3)', textAlign: 'center', marginTop: 10 }}>
-            Captain ka bharosa DMs mein banta hai. Form nets aur match mein.
+            Captain ka bharosa DMs mein banta hai. Form maidan pe.
           </div>
         </div>
       )}

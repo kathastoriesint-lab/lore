@@ -51,7 +51,7 @@ export default function DMThreadScreen() {
 
   // Story-chat session (choice → DM): scope this visit to a few replies, then
   // hand the player back to the feed. Free visits are unscoped.
-  const STORY_CHAT_REPLIES = 3
+  const STORY_CHAT_REPLIES = 5
   const storySession = dmStorySession && dmStorySession.char === charId ? dmStorySession : null
   const storyRepliesLeft = storySession ? Math.max(0, STORY_CHAT_REPLIES - storySession.sent) : null
   const storyDone = storySession !== null && storyRepliesLeft === 0
@@ -172,7 +172,9 @@ export default function DMThreadScreen() {
   useEffect(() => {
     if (!charId) { revealRef.current = 0; setRevealCount(0); setAnim(null); return }
     const total = (dmHistory[charId] ?? []).length
-    const start = Math.min(total, Math.max(getSeen(charId), total - 4))
+    // WhatsApp rule: history is simply THERE. At most the single latest unseen
+    // message plays the cinematic arrival on open; live arrivals still animate.
+    const start = Math.min(total, Math.max(getSeen(charId), total - 1))
     revealRef.current = start
     setRevealCount(start)
     setAnim(null)
@@ -640,6 +642,21 @@ export default function DMThreadScreen() {
         </div>
         </>
       )}
+      {/* Bottom tabs — the thread stays inside the app's 3-tab shell */}
+      <div className="tabbar">
+        <button className="tab" onClick={() => navigate('feed')}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+          <span>Feed</span>
+        </button>
+        <button className="tab active" onClick={() => navigate('dm-inbox')}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <span>Messages</span>
+        </button>
+        <button className="tab" onClick={() => navigate('profile')}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          <span>Profile</span>
+        </button>
+      </div>
     </div>
   )
 }

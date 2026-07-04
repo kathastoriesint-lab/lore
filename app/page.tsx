@@ -26,17 +26,15 @@ import LoginScreen from '@/components/screens/LoginScreen'
 import CricketIntroScreen from '@/components/screens/CricketIntroScreen'
 import CricketCarouselScreen from '@/components/screens/CricketCarouselScreen'
 import SelectionScreen from '@/components/screens/SelectionScreen'
-import NetsScreen from '@/components/screens/NetsScreen'
 import EvictionScreen from '@/components/screens/EvictionScreen'
 import FeedbackButton from '@/components/FeedbackButton'
 import DMArrivalSheet from '@/components/DMArrivalSheet'
 import ErrorBoundary from '@/components/ErrorBoundary'
 import { analytics, getDeviceId } from '@/lib/analytics'
-import { isWeekEnd, weekForSituationId, FRESH_INTERLUDE, SEASON_WEEKS, DM_DAILY_BUDGET } from '@/lib/season'
+import { isWeekEnd, weekForSituationId, FRESH_INTERLUDE, SEASON_WEEKS, DM_DAILY_BUDGET, INTERLUDE_CAPS } from '@/lib/season'
 import { SELECTION_TRIGGERS, resolveSelectionVerdict, isRecall, captainTrust, selectionWeek } from '@/lib/cricket-selection'
 import { resolveVariantIndex, applyVariant, variantCtxFor, resolveGateOutcome } from '@/lib/variants'
 import { EVICTION_TRIGGERS, buildEviction } from '@/lib/creator-house'
-import { buildEveningPings } from '@/lib/companion'
 import { recordWorldEntered, bumpChoices, touchDayStreak } from '@/lib/profile-stats'
 import { scheduleMatchDayNotification, cancelMatchDayNotification } from '@/lib/native-notify'
 
@@ -88,7 +86,7 @@ export default function App() {
   // Live "make a post" (gpt-4o) — the freshly-posted key to stream on the feed,
   // the app-wide DM notification banner, and the transient follower receipt.
   const [pendingPostReveal, setPendingPostReveal] = useState<string | null>(null)
-  const [dmNotif, setDmNotif] = useState<{ id: string; name: string; cls: string; text: string } | null>(null)
+  const [dmNotif, setDmNotif] = useState<{ id: string; name: string; cls: string; text: string; story?: boolean } | null>(null)
   const [followerReceipt, setFollowerReceipt] = useState<{ delta: number } | null>(null)
   const [hudReaction, setHudReaction] = useState<{ base: number; gain: number; key: string } | null>(null)
 
@@ -292,6 +290,26 @@ export default function App() {
     })
   }, [])
 
+  // Android hardware back = one screen back in-app; at the root, minimize
+  // instead of killing the app mid-session. (Closed-test blocker + founder ask.)
+  const navHistoryRef = useRef(navHistory); navHistoryRef.current = navHistory
+  useEffect(() => {
+    let remove: (() => void) | undefined
+    ;(async () => {
+      try {
+        const { Capacitor } = await import('@capacitor/core')
+        if (!Capacitor.isNativePlatform()) return
+        const { App: CapApp } = await import('@capacitor/app')
+        const h = await CapApp.addListener('backButton', () => {
+          if (navHistoryRef.current.length > 1) goBack()
+          else CapApp.minimizeApp()
+        })
+        remove = () => h.remove()
+      } catch { /* web / plugin unavailable */ }
+    })()
+    return () => remove?.()
+  }, [goBack])
+
   const saveAndSet = useCallback((next: GameState) => {
     setGame(next)
     // Merge relationship/social progress so it persists with every write
@@ -469,21 +487,15 @@ export default function App() {
 
   const advanceSituation = useCallback(() => {
     // MATCH CALENDAR side effects computed OUTSIDE the state updater (StrictMode-
-    // safe): crossing a cricket week boundary fires the evening companion pings.
+    // safe): week-boundary bookkeeping (companion pings removed — one-DM rule).
     {
       const g = gameRef.current
       const q = g.situationQueue
       let calOff = false
       try { calOff = localStorage.getItem('lore_cal_off') === '1' } catch {}
-      if (g.world === 'cricket' && !calOff && g.situation + 1 < q.length && isWeekEnd(q, g.situation)) {
-        const finishedWeek = weekForSituationId(q[g.situation])
-        const pings = buildEveningPings(finishedWeek, g)
-        const sitMapC = Object.fromEntries(getCricketSituations().map(x => [x.id, x]))
-        const dayNow = sitMapC[q[g.situation]]?.day ?? 1
-        pings.forEach((p, i) => {
-          setTimeout(() => notifyDMRef.current?.(p.char, p.text, undefined, { day: dayNow, phase: 'NIGHT', note: 'Raat — din khatam' }), 2500 + i * 1800)
-        })
-      }
+      // Evening companion pings removed (founder: never more than one DM push;
+      // day-end guidance lives as contextual nudges on the match-calendar screen).
+      void calOff; void q
     }
     setGame(prev => {
       const nextIdx = prev.situation + 1
@@ -604,20 +616,6 @@ export default function App() {
         flags: recall ? { ...prev.flags, recalled: 1 } : prev.flags,
       }
       analytics.track('selection_verdict', 'cricket', { selection: selId, week, verdict, recall, form, captain_trust: captain })
-      saveGameState({ ...next, ...extrasSnapshot() })
-      return next
-    })
-  }, [extrasSnapshot])
-
-  // Nets micro-session: Form gain on the cricket fame-slot + consume a session.
-  const completeNetSession = useCallback((formGain: number) => {
-    setGame(prev => {
-      const interlude = prev.interlude ?? { ...FRESH_INTERLUDE, chatTrustEarned: {} }
-      const next: GameState = {
-        ...prev,
-        meters: { ...asCricket(prev.meters), form: Math.max(0, Math.min(100, asCricket(prev.meters).form + formGain)) },
-        interlude: { ...interlude, netsUsed: interlude.netsUsed + 1 },
-      }
       saveGameState({ ...next, ...extrasSnapshot() })
       return next
     })
@@ -878,7 +876,7 @@ export default function App() {
       if (windowActive && delta > 0) {
         const interlude = gameRef.current.interlude ?? { ...FRESH_INTERLUDE, chatTrustEarned: {} }
         const earned = interlude.chatTrustEarned[charId] ?? 0
-        applied = Math.min(delta, Math.max(0, 2 - earned))
+        applied = Math.min(delta, Math.max(0, INTERLUDE_CAPS.chatTrustPerChar - earned))
         if (applied > 0) {
           setGame(prev => {
             const il = prev.interlude ?? { ...FRESH_INTERLUDE, chatTrustEarned: {} }
@@ -925,12 +923,13 @@ export default function App() {
 
   // Inject a DM AND raise the app-wide notification banner. Used by the feed
   // reveal so a "the world reacts" DM surfaces as a notification on any screen.
-  const notifyDM = useCallback((charId: CharId, text: string, embed?: DMMessage['embed'], meta?: DMTimeMeta) => {
+  const notifyDM = useCallback((charId: CharId, text: string, embed?: DMMessage['embed'], meta?: DMTimeMeta, opts?: { story?: boolean }) => {
     injectCharDM(charId, text, embed, meta)
     const c = ({ ...getCHChars(), ...getCricketChars() })[charId]
     // The arrival sheet "types in" this text; it stays until the player taps Reply
     // or dismisses ("read later") — no auto-timeout, the DM demands a beat.
-    setDmNotif({ id: charId, name: c?.name ?? 'Someone', cls: c?.cls ?? '', text })
+    // story: this arrival is a BEAT outcome — replying opens a scoped story chat.
+    setDmNotif({ id: charId, name: c?.name ?? 'Someone', cls: c?.cls ?? '', text, story: opts?.story })
   }, [injectCharDM])
   const notifyDMRef = useRef(notifyDM); notifyDMRef.current = notifyDM
 
@@ -1023,7 +1022,7 @@ export default function App() {
       advanceSituation, navigate, goBack, showToast, setChar, startGame, startCricketGame,
       makeChoice, sendDM, openDMThread, resetGame, likePost, applyFeedDeltas, injectCharDM, setViewingChar,
       pendingPostReveal, setPendingPostReveal, upsertAiPost, dmNotif, notifyDM, followerReceipt, showFollowerReceipt, hudReaction, setHudReaction,
-      resolveSelection, completeNetSession, skipWeekWait, resolveEviction,
+      resolveSelection, skipWeekWait, resolveEviction,
       dmStorySession, startDmStorySession,
     }}>
       <div className="stage">
@@ -1040,7 +1039,6 @@ export default function App() {
             <Slot id="narrator"    cur={screen} prev={prev}><NarratorScreen /></Slot>
             <Slot id="live"        cur={screen} prev={prev}><LiveScreen /></Slot>
             <Slot id="selection"   cur={screen} prev={prev}><SelectionScreen /></Slot>
-            <Slot id="nets"        cur={screen} prev={prev}><NetsScreen /></Slot>
             <Slot id="eviction"    cur={screen} prev={prev}><EvictionScreen /></Slot>
             <Slot id="dm-inbox"    cur={screen} prev={prev}><DMInboxScreen /></Slot>
             <Slot id="dm-thread"   cur={screen} prev={prev} sheet={game.world === 'cricket'}><DMThreadScreen /></Slot>
@@ -1055,7 +1053,7 @@ export default function App() {
           {dmNotif && (
             <DMArrivalSheet
               notif={dmNotif}
-              onOpen={() => { const id = dmNotif.id as CharId; setDmNotif(null); openDMThread(id) }}
+              onOpen={() => { const id = dmNotif.id as CharId; const isStory = !!dmNotif.story; setDmNotif(null); if (isStory) startDmStorySession(id); openDMThread(id) }}
               onDismiss={() => setDmNotif(null)}
             />
           )}

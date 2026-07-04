@@ -22,17 +22,18 @@ const StatusBar = () => (
 const CRICKET_DM_ORDER: CharId[] = ['hardik', 'rohit', 'surya', 'bumrah', 'tilak', 'naman', 'mahela', 'coach', 'friend']
 
 // Character subtexts shown under name in DM list
+// One/two-word identity per character — shown as a chip on EVERY row.
 const CHAR_SUBTEXT: Partial<Record<string, string>> = {
-  hardik:  'Captain · Mumbai Indians',
-  rohit:   'Senior batsman · MI legend',
-  surya:   'T20 specialist · Dressing room warmth',
-  bumrah:  'Pace spearhead · The standard',
-  tilak:   'Young batsman · Your mirror',
-  coach:   'Childhood coach · Cricket conscience',
-  friend:  'School friend · Real life',
-  naman:   'Young Table · Competition',
-  robin:   'Young Table · Keeper-batter',
-  mahela:  'Head Coach · Selection calls',
+  hardik:  'Captain',
+  rohit:   'Senior Batsman',
+  surya:   'T20 Specialist',
+  bumrah:  'Fast Bowler',
+  tilak:   'Young Batsman',
+  coach:   'Childhood Coach',
+  friend:  'Best Friend',
+  naman:   'Rival',
+  robin:   'Keeper-Batter',
+  mahela:  'Head Coach',
 }
 
 // Read/write opened state from localStorage (persists across navigation)
@@ -144,7 +145,7 @@ export default function DMInboxScreen() {
             ? '📌 STORY MISSION — baat shuru karo'
             : lastMsg
               ? (lastMsg.length > 42 ? lastMsg.slice(0, 42) + '…' : lastMsg)
-              : CHAR_SUBTEXT[charId] ?? char.role.split(' · ')[0]
+              : isCricket ? 'Message karke baat shuru karo' : CHAR_SUBTEXT[charId] ?? char.role.split(' · ')[0]
           // WhatsApp-style stamp: story clock if the thread's last message is from
           // the latest story day, else "Day N". (No more constant "now".)
           const lastTimed = [...history].reverse().find(m => typeof m.t === 'number')
@@ -159,7 +160,14 @@ export default function DMInboxScreen() {
                 <span style={{ opacity:0 }}>{char.init}</span>
               </div>
               <div className="info">
-                <div className="nm">{char.name}</div>
+                <div className="nm" style={{ display:'flex', alignItems:'center', gap:7 }}>
+                  {char.name}
+                  {CHAR_SUBTEXT[charId] && (
+                    <span style={{ fontSize:9, fontWeight:800, letterSpacing:'.05em', textTransform:'uppercase', color:'var(--ink3)', border:'1px solid var(--line)', borderRadius:30, padding:'2px 8px', flexShrink:0 }}>
+                      {CHAR_SUBTEXT[charId]}
+                    </span>
+                  )}
+                </div>
                 <div className="prev" style={{ color: isMission ? 'var(--accent)' : isUnread ? 'var(--ink)' : undefined, fontWeight: (isMission || isUnread) ? 600 : undefined }}>
                   {preview}
                 </div>
