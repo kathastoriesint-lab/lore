@@ -571,6 +571,50 @@ export default function FeedScreen() {
     [game.choices, game.char, isCricket, game.aiPosts, game.week, game.selections, game.gateResults],
   )
 
+  // "New posts" = the leading cluster from the LATEST beat (your post + its
+  // reactions + the fan buzz). A "X new posts" pill sits at the top of the feed;
+  // a "You're all caught up" divider closes the cluster before the older posts.
+  const latestStep = useMemo(() => {
+    let m = -1
+    for (const p of completedPosts) if (p.stepIndex < 9000 && p.stepIndex > m) m = p.stepIndex
+    return m
+  }, [completedPosts])
+  // The new cluster = the leading run of posts that AREN'T from an older beat.
+  // Overnight-storm posts (stepIndex >= 9000) count as current, so a week-opening
+  // storm sitting at the front doesn't cut the run short.
+  const newCount = useMemo(() => {
+    const isOld = (p: FeedPost) => p.stepIndex < 9000 && p.stepIndex < latestStep
+    let n = 0
+    while (n < completedPosts.length && !isOld(completedPosts[n])) n++
+    return n
+  }, [completedPosts, latestStep])
+  const newAvatars = useMemo(() => {
+    const seen = new Set<string>(); const out: { url?: string; init: string; color: string }[] = []
+    for (const p of completedPosts.slice(0, newCount)) {
+      const av = p.type === 'authored'
+        ? { url: (p.owner as { avatarUrl?: string }).avatarUrl, init: p.owner.init, color: p.owner.color ?? '#1a1a2e', id: p.owner.handle }
+        : { url: `/avatars/${p.char.id}.png`, init: p.char.init, color: '#1a2a3a', id: p.char.id }
+      if (seen.has(av.id)) continue
+      seen.add(av.id); out.push(av)
+      if (out.length >= 3) break
+    }
+    return out
+  }, [completedPosts, newCount])
+
+  const scrollFeedTop = useCallback(() => {
+    document.getElementById('feed-scroll')?.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [])
+
+  const caughtUp = (
+    <div key="feed-caughtup" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 11, padding: '32px 24px 28px' }}>
+      <div style={{ width: 54, height: 54, borderRadius: '50%', border: '2px solid var(--trust)', display: 'grid', placeItems: 'center', color: 'var(--trust)', boxShadow: '0 0 22px color-mix(in srgb, var(--trust) 30%, transparent)' }}>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
+      </div>
+      <div style={{ fontFamily: 'var(--serif)', fontSize: 22, fontWeight: 600, color: '#fff' }}>You&apos;re all caught up</div>
+      <div style={{ fontSize: 12.5, color: 'var(--ink3)', textAlign: 'center', maxWidth: '30ch', lineHeight: 1.5 }}>Pichhle 24 ghante ke saare posts dekh liye. Neeche purane posts.</div>
+    </div>
+  )
+
   const handleComment = useCallback((postKey: string, postId: string, opt: PostCommentOption) => {
     setCommentPost(null)
     addPostComment(postId, opt.text)
@@ -697,6 +741,23 @@ export default function FeedScreen() {
       {/* Scrollable feed */}
       <div id="feed-scroll" className="scroll" style={{ flex: 1 }}>
 
+        {/* "X new posts" pill — sticky at the top; the avatars are who just posted */}
+        {newCount > 0 && (
+          <div style={{ position: 'sticky', top: 8, zIndex: 20, display: 'flex', justifyContent: 'center', pointerEvents: 'none' }}>
+            <button onClick={scrollFeedTop} style={{ pointerEvents: 'auto', display: 'flex', alignItems: 'center', gap: 9, background: 'linear-gradient(120deg,#ff2d78,#b8195a)', border: 'none', borderRadius: 999, padding: '7px 15px 7px 11px', color: '#fff', fontWeight: 800, fontSize: 13, boxShadow: '0 8px 24px rgba(255,45,120,.42)', cursor: 'pointer', fontFamily: 'var(--sans)', animation: 'cmtIn .4s cubic-bezier(.32,.72,0,1) both' }}>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M12 19V5M5 12l7-7 7 7" /></svg>
+              <span style={{ display: 'flex' }}>
+                {newAvatars.map((a, i) => (
+                  <span key={i} style={{ width: 22, height: 22, borderRadius: '50%', marginLeft: i ? -8 : 0, border: '2px solid #ff2d78', background: a.url ? `center/cover url(${a.url})` : a.color, display: 'grid', placeItems: 'center', fontSize: 9, fontWeight: 800, color: '#fff', zIndex: 3 - i }}>
+                    {!a.url && a.init}
+                  </span>
+                ))}
+              </span>
+              {newCount} new post{newCount > 1 ? 's' : ''}
+            </button>
+          </div>
+        )}
+
         {/* Relationship fallout posts — only when an individual trust crosses below 30 */}
         {isCricket && relationshipAlerts.map((alert, i) => {
           const timeLabel = i === 0 ? 'just now' : `${i + 1} min ago`
@@ -732,9 +793,11 @@ export default function FeedScreen() {
           )
         })}
 
-        {/* Accumulated posts — newest first: player's own posts + NPC reactions */}
-        {completedPosts.map((post, i) => {
-          const isNew = i === 0
+        {/* Accumulated posts — newest first: player's own posts + NPC reactions.
+            The "You're all caught up" divider is spliced in after the new cluster. */}
+        {(() => {
+          const els = completedPosts.map((post, i) => {
+          const isNew = post.stepIndex === latestStep
           const timeLabel = postAgeLabel(post.stepIndex, game.choices.length, post.postOffset)
           const timeLabelUpper = postAgeLabel(post.stepIndex, game.choices.length, post.postOffset, true)
           if (post.type === 'authored') {
@@ -886,9 +949,17 @@ export default function FeedScreen() {
               <div className="ts" style={{ padding:'2px 14px 12px' }}>{timeLabelUpper}</div>
             </div>
           )
-        })}
+          })
+          // divider sits right after the new cluster; if EVERY completed post is
+          // new, it renders before the evergreen seed posts instead (below).
+          if (newCount > 0 && newCount < els.length) els.splice(newCount, 0, caughtUp)
+          return els
+        })()}
 
         {/* Story Drop moved out of the scroll — now a docked LiveEntryCard above the tab bar */}
+
+        {/* All completed posts were new → caught-up divider before the evergreen seeds */}
+        {newCount > 0 && newCount >= completedPosts.length && completedPosts.length > 0 && caughtUp}
 
         {/* Seed posts — world-specific */}
         {isCricket ? (
