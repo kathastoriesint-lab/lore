@@ -473,7 +473,7 @@ export async function getAIReply(
       for (const line of lines) {
         if (!line.startsWith('data: ')) continue
         const data = line.slice(6).trim()
-        if (data === '[DONE]') return result || pickMock(charId)
+        if (data === '[DONE]') return sanitizeReply(result) || pickMock(charId)
         try {
           const json = JSON.parse(data)
           const token = json.choices?.[0]?.delta?.content
@@ -481,11 +481,24 @@ export async function getAIReply(
         } catch { /* skip */ }
       }
     }
-    return result || pickMock(charId)
+    return sanitizeReply(result) || pickMock(charId)
   } catch {
     clearTimeout(timer)
     return pickMock(charId)
   }
+}
+
+// The character brain occasionally LEAKS its private style rules into the
+// visible reply ("The user said 'bye sir'. Need under 22 words? low trust…"),
+// usually on terse closers where there's nothing to respond to. Detect the
+// meta-narration signatures and salvage the actual message (the model quotes
+// it) — or return '' so the mock fallback speaks instead.
+const META_LEAK = /\b(The user said|stay in character|Output shape|word count|under \d+ words|trust band|low trust\.|hook required|Roman script|Let'?s do\b)/i
+function sanitizeReply(raw: string): string {
+  if (!raw || !META_LEAK.test(raw)) return raw
+  const spans = [...raw.matchAll(/"([^"]{8,})"/g)].map(m => m[1])
+    .filter(t => !META_LEAK.test(t))
+  return spans.sort((a, b) => b.length - a.length)[0] ?? ''
 }
 
 function pickMock(charId: CharId): string {

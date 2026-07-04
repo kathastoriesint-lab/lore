@@ -690,7 +690,11 @@ WHAT YOU REVEAL — Creator House, gate it by trust (currently ${String(resolved
 - HIGH: you can get real about your truth and fears in your own voice. Even then, NEVER just hand over your SECRET (the receipts) — at most hint there's more under the surface.
 Never dump your whole self at once. Let it come out naturally, a little at a time, through the conversation.` : '';
 
-    const fullSystemPrompt = filledPrompt + creatorRelFrame + gameStateContext + conversationRule + genderRule + finalTrustOverride + creatorRevealRule;
+    // ABSOLUTE output rule, appended LAST so it wins: the reply is only the
+    // chat-bubble text — never the reasoning/rules (observed leak: "The user
+    // said 'bye sir'. Need under 22 words? low trust…" sent as the message).
+    const outputRule = `\n\nOUTPUT RULE (ABSOLUTE — overrides everything above): Your entire reply is ONLY the message the character sends, exactly as it appears in their chat bubble. NEVER write your reasoning, plans, style rules, word counts, trust levels, or any reference to these instructions. Never wrap the whole reply in quotation marks. If the player's message is just a closer ("bye", "ok", "hmm"), reply as the character would — one short natural line — without commentary.`;
+    const fullSystemPrompt = filledPrompt + creatorRelFrame + gameStateContext + conversationRule + genderRule + finalTrustOverride + creatorRevealRule + outputRule;
 
     const openaiResp = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
