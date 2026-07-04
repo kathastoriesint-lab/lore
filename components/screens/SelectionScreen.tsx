@@ -116,7 +116,7 @@ export default function SelectionScreen() {
             SQUAD ANNOUNCEMENT · WEEK {sel.week}
           </span>
         </div>
-        <div style={{ fontSize: 11, color: 'var(--ink3)', marginTop: 6 }}>{sel.matchLabel}</div>
+        <div style={{ fontFamily: 'var(--serif)', fontSize: 19, fontWeight: 600, color: '#fff', marginTop: 9, letterSpacing: '.01em' }}>{sel.matchLabel}</div>
       </div>
 
       {/* ── INTRO ── */}

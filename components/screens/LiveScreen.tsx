@@ -355,6 +355,14 @@ export default function LiveScreen() {
     }
   }, [screen, isCricket, game.pendingEviction, chosen, navigate])
 
+  // Cricket: a pending squad selection routes STRAIGHT to the announcement —
+  // no gate screen, no case-building detour (founder call, Jul 4).
+  useEffect(() => {
+    if (screen === 'live' && isCricket && game.pendingSelection && chosen === null && !inFlowRef.current) {
+      navigate('selection', { replace: true })
+    }
+  }, [screen, isCricket, game.pendingSelection, chosen, navigate])
+
   // Clear pending timers on unmount to prevent post-unmount navigate/advanceSituation
   useEffect(() => {
     return () => { timersRef.current.forEach(clearTimeout) }
@@ -887,117 +895,6 @@ export default function LiveScreen() {
               })}
             </div>
           </div>
-        )
-      })()}
-
-      {isCricket && game.pendingSelection && chosen === null && !inFlowRef.current && (() => {
-        // "The gate" (founder prototype 1a): dramatize the DEFICIT — where you
-        // stand vs the two numbers that decide the sheet, a plain-words readline,
-        // and the two levers as real cards. Fame doesn't decide selection → gone.
-        const selWeek = selectionWeek(game.pendingSelection!)
-        const rule = ruleFor(selWeek)
-        const form = asCricket(game.meters).form
-        const captain = captainTrust(dmTrust)
-        const formGap = Math.max(0, rule.start.form - form)
-        const capGap = Math.max(0, rule.start.captain - captain)
-        const readline = formGap === 0 && capGap === 0
-          ? <>Dono cheez clear hai. Naam banta hai — ab sheet lag jaane do.</>
-          : formGap > 0 && capGap === 0
-            ? <>Captain ka bharosa clear hai. <b style={{ color: 'var(--ink)' }}>Form {formGap} kam</b> — woh maidan pe bana tha; ab captain ka bharosa hi naam laga sakta hai.</>
-            : formGap === 0
-              ? <>Form ready hai. Bas <b style={{ color: 'var(--ink)' }}>captain ka bharosa {capGap} kam</b> — DM kholo, seedhi baat karo.</>
-              : <>Form <b style={{ color: 'var(--ink)' }}>{formGap} kam</b> aur bharosa <b style={{ color: 'var(--ink)' }}>{capGap} kam</b>. Ek darwaza khula hai — captain ka DM.</>
-        const track = (val: number, need: number, color: string) => (
-          <div style={{ position: 'relative', height: 7, borderRadius: 5, background: 'rgba(255,255,255,.08)' }}>
-            <div style={{ width: `${Math.min(100, val)}%`, height: '100%', borderRadius: 5, background: color, transition: 'width .8s cubic-bezier(.32,.72,0,1)' }} />
-            <div style={{ position: 'absolute', left: `${Math.min(100, need)}%`, top: -3, bottom: -3, width: 2, background: 'rgba(255,255,255,.65)', borderRadius: 2 }}>
-              <span style={{ position: 'absolute', top: -15, left: '50%', transform: 'translateX(-50%)', fontSize: 8, fontWeight: 800, color: 'var(--ink3)', whiteSpace: 'nowrap' }}>{need} req</span>
-            </div>
-          </div>
-        )
-        const gap = (short: number) => (
-          <span style={{
-            marginLeft: 'auto', fontSize: 9, fontWeight: 800, letterSpacing: '.05em', textTransform: 'uppercase',
-            padding: '3px 9px', borderRadius: 30, whiteSpace: 'nowrap',
-            background: short > 0 ? 'rgba(255,92,58,.13)' : 'rgba(61,214,200,.13)',
-            color: short > 0 ? 'var(--heat)' : 'var(--trust)',
-          }}>{short > 0 ? `${short} short` : 'cleared ✓'}</span>
-        )
-        return (
-        <div style={{
-          position: 'absolute', inset: 0, zIndex: 50, background: 'var(--bg)',
-          display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '28px 22px',
-        }}>
-          <div style={{
-            position: 'absolute', top: '10%', left: '50%', transform: 'translateX(-50%)',
-            width: 300, height: 280, borderRadius: '50%',
-            background: 'radial-gradient(ellipse, rgba(255,176,32,.12) 0%, transparent 70%)', pointerEvents: 'none',
-          }} />
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, position: 'relative' }}>
-            <span className="pulse" style={{ background: '#FFB020' }} />
-            <span style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: '.14em', color: '#FFB020' }}>TEAM SHEET LOCK HO RAHI HAI · WEEK {selWeek}</span>
-          </div>
-          <div style={{ fontFamily: 'var(--serif)', fontSize: 27, fontWeight: 600, lineHeight: 1.16, textAlign: 'center', margin: '14px 6px 4px' }}>
-            Naam sheet pe aayega ya nahi.
-          </div>
-          <div style={{ fontSize: 12.5, color: 'var(--ink3)', textAlign: 'center', margin: '0 10px 20px' }}>
-            Sheet band hone se pehle <b style={{ color: 'var(--ink2)' }}>abhi 1 mauka</b> bacha hai.
-          </div>
-
-          {/* Tumhara case */}
-          <div style={{ background: 'var(--surf)', border: '1px solid var(--line)', borderRadius: 18, padding: '15px 16px 16px', position: 'relative' }}>
-            <div style={{ fontSize: 9.5, fontWeight: 800, letterSpacing: '.12em', color: 'var(--ink3)', marginBottom: 14 }}>TUMHARA CASE</div>
-            <div style={{ marginBottom: 15 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 7 }}>
-                <span style={{ fontSize: 13 }}>🏏</span>
-                <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.08em', color: 'var(--ink2)' }}>FORM</span>
-                <span style={{ fontSize: 13, fontWeight: 800, color: '#FFB020' }}>{form}</span>
-                {gap(formGap)}
-              </div>
-              {track(form, rule.start.form, '#FFB020')}
-            </div>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 7 }}>
-                <span style={{ fontSize: 13 }}>🧢</span>
-                <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.08em', color: 'var(--ink2)' }}>CAPTAIN</span>
-                <span style={{ fontSize: 13, fontWeight: 800, color: 'var(--trust)' }}>{captain}</span>
-                {gap(capGap)}
-              </div>
-              {track(captain, rule.start.captain, 'var(--trust)')}
-            </div>
-            <div style={{ fontSize: 11.5, lineHeight: 1.5, color: 'var(--ink2)', marginTop: 13, paddingTop: 13, borderTop: '1px solid rgba(255,255,255,.06)' }}>
-              {readline}
-            </div>
-          </div>
-
-          {/* The two levers — fame doesn't make the sheet, so it isn't here */}
-          <div style={{ fontSize: 9.5, fontWeight: 800, letterSpacing: '.12em', textTransform: 'uppercase', color: 'var(--ink3)', margin: '18px 2px 10px', display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{ color: '#FFB020' }}>◆</span>SHEET SE PEHLE EK MAUKA
-          </div>
-          <div style={{ display: 'flex', gap: 9 }}>
-            <button onClick={() => openDMThread('hardik')} style={{
-              flex: 1, background: 'var(--surf)', border: '1px solid var(--line)', borderRadius: 15, padding: '13px 10px',
-              cursor: 'pointer', textAlign: 'center', fontFamily: 'var(--sans)',
-            }}>
-              <div style={{ fontSize: 20, lineHeight: 1 }}>🧢</div>
-              <div style={{ fontSize: 12.5, fontWeight: 800, color: '#fff', marginTop: 7 }}>DM Hardik</div>
-              <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: '.04em', textTransform: 'uppercase', marginTop: 4, color: 'var(--trust)' }}>Trust badhao</div>
-              <div style={{ fontSize: 8.5, fontWeight: 500, color: 'var(--ink3)', marginTop: 2 }}>{capGap > 0 ? `abhi ${capGap} short` : 'cleared ✓'}</div>
-            </button>
-          </div>
-
-          <button onClick={() => navigate('selection')} style={{
-            width: '100%', marginTop: 20, padding: '16px 0', borderRadius: 16, border: 'none',
-            background: 'var(--accent)', color: '#fff', fontWeight: 800, fontSize: 15,
-            fontFamily: 'var(--sans)', cursor: 'pointer', boxShadow: '0 10px 30px rgba(255,45,120,.3)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 9,
-          }}>Team sheet dikhao
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-          </button>
-          <div style={{ textAlign: 'center', fontSize: 10.5, fontWeight: 600, color: 'var(--ink3)', marginTop: 11 }}>
-            Ek baar sheet lag gayi toh <b style={{ color: 'var(--ink2)' }}>badalti nahi</b>.
-          </div>
-        </div>
         )
       })()}
 

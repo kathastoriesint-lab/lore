@@ -526,6 +526,11 @@ export default function FeedScreen() {
     const seed = Math.round(target * 0.03)
     setRevealCount(0); setLiveLikes(seed); setClimbing(true); setGainShown(false)
     const timers: ReturnType<typeof setTimeout>[] = []
+    // Land the player ON their new post — not wherever the feed was scrolled —
+    // so the streaming reactions/likes play in view.
+    timers.push(setTimeout(() => {
+      document.getElementById(`fp-${key}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 350))
     const rafs: number[] = []
     // After a beat: pop the gain chip, animate the HUD followers, climb the likes (RAF
     // ease-out), stream comments one at a time, then fire the DM notification.
@@ -650,7 +655,7 @@ export default function FeedScreen() {
             const likesStr = compactCount(likesVal)
             const shownReactions = ai ? (isRevealing ? post.reactions.slice(0, revealCount) : post.reactions) : post.reactions.slice(0, 1)
             return (
-              <div key={post.postId} className="post" style={isNew ? { borderTop: '2px solid rgba(255,45,120,.3)', background: 'rgba(255,45,120,.04)' } : {}}>
+              <div key={post.postId} id={`fp-${aiKey}`} className="post" style={isNew ? { borderTop: '2px solid rgba(255,45,120,.3)', background: 'rgba(255,45,120,.04)' } : {}}>
                 <div className="post-head">
                   <div className={pc.cls ? `av ${pc.cls}` : 'av'} style={{ width:34, height:34, fontSize:14, background: pc.avatarUrl ? undefined : pc.color, backgroundImage: pc.avatarUrl ? `url(${pc.avatarUrl})` : undefined, backgroundSize:'cover', backgroundPosition:'center' }}>
                     {!pc.avatarUrl && pc.init}
