@@ -286,7 +286,7 @@ export default function App() {
     toastTimer.current = setTimeout(() => setToast(null), 2000)
   }, [])
 
-  const navigate = useCallback((to: Screen, opts?: { replace?: boolean }) => {
+  const navigate = useCallback((to: Screen, opts?: { replace?: boolean; fromStory?: boolean }) => {
     // first_screen_opened: the first user-initiated navigation of the session
     // (replace:true navs are app routing, not user choice). With the session
     // ordinal this answers "second session — which surface did they open first",
@@ -302,7 +302,15 @@ export default function App() {
       analytics.trackScreen(to, game.world ?? null, prev)
       return to
     })
-    setNavHistory(prev => opts?.replace ? [...prev.slice(0, -1), to] : [...prev, to])
+    setNavHistory(prev => {
+      // Exiting beat mode: a story outcome (choice → feed/DM) drops the trailing
+      // 'live' from the back stack, so Back returns to the app (Feed/Messages),
+      // NOT the beat. You re-enter the story by tapping the story card again.
+      const base = (opts?.fromStory && prev[prev.length - 1] === 'live') ? prev.slice(0, -1) : prev
+      if (opts?.replace) return [...base.slice(0, -1), to]
+      if (base[base.length - 1] === to) return base // no consecutive dup
+      return [...base, to]
+    })
   }, [game.world])
 
   // Auto-persist relationship/social progress shortly after it changes.
@@ -717,9 +725,20 @@ export default function App() {
     await recordChoice(game.situation, letter)
   }, [applyChoiceRelationshipEffects, game])
 
-  const openDMThread = useCallback(async (charId: CharId) => {
+  const openDMThread = useCallback(async (charId: CharId, opts?: { fromStory?: boolean }) => {
     setDmChar(charId)
-    navigate('dm-thread')
+    if (opts?.fromStory) {
+      // Story-routed DM = a REAL DM: Back goes to the Messages inbox, not the
+      // beat. Drop 'live' from the stack and seat 'dm-inbox' as the back target.
+      setNavHistory(prev => {
+        const base = prev[prev.length - 1] === 'live' ? prev.slice(0, -1) : prev
+        const withInbox: Screen[] = base[base.length - 1] === 'dm-inbox' ? base : [...base, 'dm-inbox']
+        return [...withInbox, 'dm-thread']
+      })
+      setScreen('dm-thread')
+    } else {
+      navigate('dm-thread')
+    }
     setDmBadgeCount(0) // clear badge on open
     analytics.track('dm_opened', game.world, { char_id: charId })
     if (!dmDbLoadedRef.current.has(charId)) {
@@ -1100,7 +1119,7 @@ export default function App() {
           {dmNotif && (
             <DMArrivalSheet
               notif={dmNotif}
-              onOpen={() => { const id = dmNotif.id as CharId; const isStory = !!dmNotif.story; setDmNotif(null); if (isStory) startDmStorySession(id); openDMThread(id) }}
+              onOpen={() => { const id = dmNotif.id as CharId; const isStory = !!dmNotif.story; setDmNotif(null); if (isStory) startDmStorySession(id); openDMThread(id, { fromStory: isStory }) }}
               onDismiss={() => setDmNotif(null)}
             />
           )}

@@ -64,7 +64,7 @@ export interface AppCtx {
   injectCharDM: (charId: CharId, text: string, embed?: DMMessage['embed'], meta?: DMTimeMeta) => void
   setViewingChar: (id: CharId | null) => void
   advanceSituation: () => void
-  navigate: (s: Screen, opts?: { replace?: boolean }) => void
+  navigate: (s: Screen, opts?: { replace?: boolean; fromStory?: boolean }) => void
   goBack: () => void
   showToast: (msg: string) => void
   saveProfile: (name: string, gender: 'male' | 'female', avatarUrl?: string) => Promise<void>
@@ -73,7 +73,7 @@ export interface AppCtx {
   startCricketGame: () => void
   makeChoice: (idx: number) => Promise<void>
   sendDM: (charId: CharId, text: string) => Promise<void>
-  openDMThread: (charId: CharId) => void
+  openDMThread: (charId: CharId, opts?: { fromStory?: boolean }) => void
   resetGame: () => Promise<void>
   /** Resolve the pending squad selection: persist the verdict + advance the week. */
   resolveSelection: () => void
