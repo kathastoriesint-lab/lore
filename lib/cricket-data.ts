@@ -398,7 +398,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       },
       {
         "t": "img",
-        "src": "/generated/cricket-posts/cr2-s3-presser.png",
+        "src": "/generated/cricket-posts/cr2-s3-feed.png",
         "h": 210
       },
       {
@@ -545,7 +545,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       "A": {
         "char": "naman",
         "caption": "Press room mein 2 naye naam the aaj. Slot 1 hai. Kaam bolega. 🤝",
-        "imageUrl": "/generated/cricket-posts/cr2-s3-feed.png"
+        "imageUrl": "/generated/cricket-posts/cr-s2-paltanpulse.png"
       },
       "B": {
         "char": "friend",
@@ -1016,7 +1016,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       },
       {
         "t": "img",
-        "src": "/generated/cricket-posts/cr2-s6-hotel.png",
+        "src": "/generated/cricket-posts/cr-s17-player.png",
         "h": 210
       },
       {
@@ -1136,7 +1136,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
           },
           {
             "t": "img",
-            "src": "/generated/cricket-posts/cr2-s6-benched.png",
+            "src": "/generated/cricket-posts/cr-s9-shared.png",
             "h": 210
           },
           {
@@ -1439,7 +1439,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
           },
           {
             "t": "img",
-            "src": "/generated/cricket-posts/cr2-s7-benched.png",
+            "src": "/generated/cricket-posts/cr-s27-player.png",
             "h": 210
           },
           {
@@ -1882,7 +1882,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
       },
       {
         "t": "img",
-        "src": "/generated/cricket-posts/cr2-s9-fall.png",
+        "src": "/generated/cricket-posts/cr-s26-fail-mipaltan.png",
         "h": 210
       },
       {
@@ -2824,7 +2824,7 @@ export const CRICKET_SITUATIONS: Situation[] = [
           },
           {
             "t": "img",
-            "src": "/generated/cricket-posts/cr2-s12-net64.png",
+            "src": "/generated/cricket-posts/seed-tilak.png",
             "h": 210
           },
           {

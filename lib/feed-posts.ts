@@ -181,7 +181,7 @@ export function deriveOvernightPosts(game: GameState): FeedPost[] {
   if (week >= 2 && sel['SEL-W1']) {
     if (sel['SEL-W1'] === 'started') mk('paltanpulse', 'w1', `TEAM SHEET OUT: 16 saal ka debut aaj raat Wankhede pe. No.5 — ${name}. Neend kis kis ki udi? 🔥`, '/generated/cricket-posts/cr2-s5-sheet.png')
     else if (sel['SEL-W1'] === 'lifeline') mk('cricketroom', 'w1', `Sources: coaching room ne form sheet dikhayi, captain ne apna naam. Aaj raat ka No.5 — ${name} — Hardik ki personal call hai.`, '/generated/cricket-posts/cr2-s5-selection.png')
-    else mk('paltanpulse', 'w1', `WHERE IS ${name.toUpperCase()}?? MI buys a prodigy and BENCHES him?? #JusticeFor${name.replace(/\s+/g, '')} 😤`, '/generated/cricket-posts/cr-s27-player.png')
+    else mk('paltanpulse', 'w1', `WHERE IS ${name.toUpperCase()}?? MI buys a prodigy and BENCHES him?? #JusticeFor${name.replace(/\s+/g, '')} 😤`, '/generated/cricket-posts/cr2-s5-benched.png')
   }
   // After the debut gate (S7) resolves and week 3 opens: the knock is history.
   if (week >= 3 && gates['CR2-S7']) {
