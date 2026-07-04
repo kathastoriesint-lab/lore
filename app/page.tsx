@@ -526,10 +526,8 @@ export default function App() {
         let calOff = false
         try { calOff = localStorage.getItem('lore_cal_off') === '1' } catch {}
         if (!calOff) {
-          const next7am = new Date()
-          next7am.setDate(next7am.getDate() + 1)
-          next7am.setHours(7, 0, 0, 0)
-          next.weekUnlockAt = next7am.getTime()
+          // 6-hour break between match-weeks (founder, Jul 4 — was next-7am)
+          next.weekUnlockAt = Date.now() + 6 * 60 * 60 * 1000
           next.interlude = { ...FRESH_INTERLUDE, chatTrustEarned: {}, charsChatted: [] }
           // The 7am pull-back: local push when the next match-week opens.
           scheduleMatchDayNotification(next.weekUnlockAt, (prev.week ?? 1) + 1).catch(() => {})

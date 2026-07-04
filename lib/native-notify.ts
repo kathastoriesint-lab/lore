@@ -37,8 +37,8 @@ export async function cancelLockNotification(): Promise<void> {
 
 const MATCHDAY_NOTIF_ID = 1002
 
-// 7am match-day push — THE return trigger the match calendar assumes. Fires at
-// weekUnlockAt ("team sheet aaj lagti hai"); cancelled if the player earns a skip.
+// Break-over push — THE return trigger the 6h week break assumes. Fires at
+// weekUnlockAt; cancelled if the player earns a skip (both break DMs done).
 export async function scheduleMatchDayNotification(unlockAt: number, week: number): Promise<void> {
   if (!Capacitor.isNativePlatform()) return
   try {
@@ -50,8 +50,8 @@ export async function scheduleMatchDayNotification(unlockAt: number, week: numbe
     await LocalNotifications.schedule({
       notifications: [{
         id: MATCHDAY_NOTIF_ID,
-        title: 'Team sheet aaj lagti hai 🏏',
-        body: `Week ${week} — tumhara naam hoga? Story ab khuli hai.`,
+        title: 'Break khatam — agla match 🏏',
+        body: `Week ${week} shuru. Dressing room wapas aao — story khul gayi hai.`,
         schedule: { at: new Date(unlockAt) },
       }],
     })

@@ -900,68 +900,62 @@ export default function LiveScreen() {
         )
       })()}
 
-      {/* MATCH CALENDAR — the next match-week drops next morning. The evening
-          pushes you to PEOPLE, contextually: captain for trust, a senior for
-          advice, the feed for the world. Doing it earns the early unlock. */}
+      {/* WEEK BREAK — the story pauses ~6h; the pause routes you to PEOPLE:
+          two DM doors, exactly (founder) — captain ka bharosa, senior ke tips.
+          Both done → the wait skips. */}
       {isCricket && !game.pendingSelection && (game.weekUnlockAt ?? 0) > Date.now() && chosen === null && !inFlowRef.current && (() => {
         const il = game.interlude
         const chatted = il?.charsChatted ?? []
-        const wk = game.week ?? 1
-        const capGapNow = Math.max(0, ruleFor(Math.min(wk + 1, 3)).start.captain - captainTrust(dmTrust))
-        // The advice senior rotates with the story: W1 Bumrah (your first over),
-        // W2 Rohit (form + tempo), W3 Naman (the eliminator rivalry).
-        const advisor = (wk <= 1 ? 'bumrah' : wk === 2 ? 'rohit' : 'naman') as CharId
+        // game.week already points at the UPCOMING week here (set at selection).
+        const wk = Math.min(Math.max(game.week ?? 1, 1), 3)
+        const capGapNow = Math.max(0, ruleFor(wk).start.captain - captainTrust(dmTrust))
+        // Tips senior = whoever pays off in the NEXT match: Bumrah before the
+        // debut (his advice lowers the S7 knock gate), Rohit before the
+        // eliminator week (his trust unlocks the 6AM mentorship).
+        const advisor = (wk <= 2 ? 'bumrah' : 'rohit') as CharId
         const advisorName = getCricketChars()[advisor]?.name?.split(' ')[0] ?? 'Senior'
-        const slate = [
-          {
-            label: capGapNow > 0 ? `🧢 Hardik se baat karo — bharosa ${capGapNow} kam` : '🧢 Hardik se baat karo — bharosa pakka rakho',
-            done: chatted.includes('hardik'),
-            go: () => openDMThread('hardik'),
-          },
-          {
-            label: `💬 ${advisorName} se advice lo — agle match ke liye`,
-            done: chatted.filter(c => c !== 'hardik').length >= 1,
-            go: () => openDMThread(advisor),
-          },
-          {
-            label: '📱 Feed pe react karo — duniya kya keh rahi hai',
-            done: (il?.repliesUsed ?? 0) >= 1 || !!il?.captionPosted,
-            go: () => navigate('feed'),
-          },
-        ]
-        const allDone = slate.every(x => x.done)
+        const hardikDone = chatted.includes('hardik')
+        const tipsDone = chatted.filter(c => c !== 'hardik').length >= 1
+        const allDone = hardikDone && tipsDone
         const unlockAt = new Date(game.weekUnlockAt!)
+        const hh = unlockAt.getHours() % 12 || 12
+        const mm = unlockAt.getMinutes().toString().padStart(2, '0')
+        const card = (icon: string, name: string, sub: string, hint: string, done: boolean, go: () => void) => (
+          <button onClick={go} style={{
+            display: 'flex', alignItems: 'center', gap: 13, width: '100%', textAlign: 'left',
+            background: 'var(--surf)', border: `1px solid ${done ? 'color-mix(in srgb, var(--trust) 40%, transparent)' : 'var(--line)'}`,
+            borderRadius: 16, padding: '15px 16px', cursor: 'pointer', marginBottom: 10,
+          }}>
+            <span style={{ fontSize: 24, lineHeight: 1 }}>{icon}</span>
+            <span style={{ flex: 1, minWidth: 0 }}>
+              <span style={{ display: 'block', fontSize: 14.5, fontWeight: 800, color: '#fff' }}>{name}</span>
+              <span style={{ display: 'block', fontSize: 11.5, color: 'var(--ink3)', marginTop: 2 }}>{sub}</span>
+            </span>
+            {done
+              ? <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--trust)', flexShrink: 0 }}>DONE ✓</span>
+              : <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.04em', color: 'var(--accent)', flexShrink: 0 }}>{hint} →</span>}
+          </button>
+        )
         return (
           <div style={{ position: 'absolute', inset: 0, zIndex: 50, background: 'var(--bg)', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '32px 24px' }}>
             <div style={{ position: 'absolute', top: '12%', left: '50%', transform: 'translateX(-50%)', width: 280, height: 280, borderRadius: '50%', background: 'radial-gradient(ellipse, rgba(0,48,135,.25) 0%, transparent 70%)', pointerEvents: 'none' }} />
-            <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.16em', color: '#5B8DEF', textAlign: 'center' }}>MATCH CALENDAR</div>
+            <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.16em', color: '#5B8DEF', textAlign: 'center' }}>WEEK {Math.max(wk - 1, 1)} KHATAM · BREAK</div>
             <div style={{ fontFamily: 'var(--serif)', fontSize: 27, fontWeight: 600, lineHeight: 1.35, textAlign: 'center', margin: '14px 0 6px' }}>
-              Agla match kal subah.
+              Agla match {hh}:{mm} baje.
             </div>
             <div style={{ fontSize: 12.5, color: 'var(--ink3)', textAlign: 'center', marginBottom: 22 }}>
-              Story {unlockAt.getHours()} baje khulegi — par raat abhi zinda hai. DMs mein log wait kar rahe hain.
+              Tab tak dressing room khula hai — 2 log tumhara wait kar rahe hain.
             </div>
-            <div style={{ background: 'var(--surf)', border: '1px solid var(--line)', borderRadius: 16, padding: '14px 16px' }}>
-              <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.1em', color: 'var(--fame)', marginBottom: 10 }}>
-                AAJ KA KAAM POORA → KAL SUBAH KA WAIT SKIP
-              </div>
-              {slate.map(row => (
-                <button key={row.label} onClick={row.go} style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', background: 'none', border: 'none', padding: '7px 0', cursor: 'pointer', textAlign: 'left' }}>
-                  <span style={{ fontSize: 14 }}>{row.done ? '✅' : '⬜'}</span>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: row.done ? 'var(--ink3)' : 'var(--ink)', textDecoration: row.done ? 'line-through' : 'none' }}>{row.label}</span>
-                  {!row.done && <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--accent)', fontWeight: 700 }}>jao →</span>}
-                </button>
-              ))}
-            </div>
-            {allDone ? (
-              <button onClick={() => { skipWeekWait(); }} style={{ width: '100%', marginTop: 14, padding: '15px 0', borderRadius: 16, border: 'none', background: 'var(--accent)', color: '#fff', fontWeight: 800, fontSize: 15, fontFamily: 'var(--sans)', cursor: 'pointer', boxShadow: '0 8px 28px rgba(255,45,120,.35)' }}>
-                Kaam poora — agla match ABHI khelo →
+            {card('🧢', 'Hardik Pandya',
+              capGapNow > 0 ? `Captain ka bharosa — abhi ${capGapNow} kam` : 'Captain ka bharosa pakka rakho',
+              'TRUST', hardikDone, () => openDMThread('hardik'))}
+            {card('💡', advisorName,
+              `Agle match ke liye tips — ${advisorName} se seedhi baat`,
+              'TIPS', tipsDone, () => openDMThread(advisor))}
+            {allDone && (
+              <button onClick={() => { skipWeekWait(); }} style={{ width: '100%', marginTop: 6, padding: '15px 0', borderRadius: 16, border: 'none', background: 'var(--accent)', color: '#fff', fontWeight: 800, fontSize: 15, fontFamily: 'var(--sans)', cursor: 'pointer', boxShadow: '0 8px 28px rgba(255,45,120,.35)' }}>
+                Dono ho gaya — agla match ABHI khelo →
               </button>
-            ) : (
-              <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
-                <button onClick={() => navigate('dm-inbox')} style={{ flex: 1, padding: '13px 0', borderRadius: 12, border: 'none', background: 'var(--accent)', color: '#fff', fontWeight: 800, fontSize: 13.5, fontFamily: 'var(--sans)', cursor: 'pointer' }}>Messages dekho →</button>
-                <button onClick={() => navigate('feed')} style={{ flex: 1, padding: '13px 0', borderRadius: 12, border: '1px solid var(--line)', background: 'var(--surf)', color: 'var(--ink)', fontWeight: 700, fontSize: 13.5, fontFamily: 'var(--sans)', cursor: 'pointer' }}>Feed</button>
-              </div>
             )}
           </div>
         )
