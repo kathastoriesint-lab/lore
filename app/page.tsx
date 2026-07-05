@@ -36,7 +36,7 @@ import * as sound from '@/lib/sound'
 import { isWeekEnd, weekForSituationId, FRESH_INTERLUDE, SEASON_WEEKS, DM_DAILY_BUDGET, INTERLUDE_CAPS } from '@/lib/season'
 import { SELECTION_TRIGGERS, resolveSelectionVerdict, isRecall, captainTrust, selectionWeek } from '@/lib/cricket-selection'
 import { resolveVariantIndex, applyVariant, variantCtxFor, resolveGateOutcome } from '@/lib/variants'
-import { EVICTION_TRIGGERS, buildEviction } from '@/lib/creator-house'
+import { EVICTION_TRIGGERS, buildEviction, chStorySummary } from '@/lib/creator-house'
 import { recordWorldEntered, bumpChoices, touchDayStreak } from '@/lib/profile-stats'
 import { scheduleMatchDayNotification, cancelMatchDayNotification } from '@/lib/native-notify'
 
@@ -800,8 +800,14 @@ export default function App() {
   }, [])
 
   // Build a brief narrative summary of the player's journey so far
+  // Creator House DM story-context (pure impl in lib/creator-house.ts, unit-tested).
+  const buildCHStorySummary = useCallback(() => chStorySummary(game, dmTrust), [game, dmTrust])
+
   const buildStorySummary = useCallback(() => {
-    if (game.world !== 'cricket' || game.choices.length === 0) return null
+    // Creator House always grounds the DM in the arc (day, followers, romance,
+    // evictions) — meaningful from Day 1, even before the first choice.
+    if (game.world !== 'cricket') return buildCHStorySummary()
+    if (game.choices.length === 0) return null
     const sitMap = Object.fromEntries(getCricketSituations().map(s => [s.id, s]))
     const queue = game.situationQueue
 
@@ -849,7 +855,7 @@ export default function App() {
     parts.push('CURRENT SITUATION — this is TRUE RIGHT NOW. Ground every reply in it, ESPECIALLY whether they are playing or benched. Never give batting advice to a benched 12th man; help them with the situation they are actually in.\n' + now.map(l => '- ' + l).join('\n'))
     if (lines.length) parts.push('WHAT HAS HAPPENED (their choices so far):\n' + lines.join('\n'))
     return parts.join('\n\n')
-  }, [game.world, game.choices, game.situationQueue, game.selections, game.benchedWeeks, game.meters, game.week, game.runMemory, game.situation, dmTrust])
+  }, [game.world, game.choices, game.situationQueue, game.selections, game.benchedWeeks, game.meters, game.week, game.runMemory, game.situation, dmTrust, buildCHStorySummary])
 
   const sendDM = useCallback(async (charId: CharId, text: string) => {
     // DMs are live in both cricket and Creator House.

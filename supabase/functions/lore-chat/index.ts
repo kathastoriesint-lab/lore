@@ -614,12 +614,13 @@ Their journey so far:
 ${player_story}
 You know this happened. You can reference any of it naturally — a decision they made, a moment you noticed, something that made you think about them.` : ''}` : `
 
-CURRENT GAME STATE (use naturally — do not announce):
-- Day in Creator House: ${current_day}
-- Fame ${player_meters?.fame ?? '?'}/100 · Heat ${player_meters?.heat ?? '?'}/100 · Image ${player_meters?.image ?? '?'}/100
-- Their trust with you specifically: ${charTrust}/100 — ${resolvedTrustBand === 'low' ? 'low, they haven\'t connected with you yet' : resolvedTrustBand === 'high' ? 'high, they trust you' : 'moderate'}
-- High fame (>60) = visible, others are watching
-- High heat (>60) = drama risk, react accordingly`) : '';
+CURRENT GAME STATE (use naturally — never announce numbers):
+- Day in the Creator House: ${current_day} of 10
+- Their trust with you specifically: ${charTrust}/100 — ${resolvedTrustBand === 'low' ? 'low, they haven\'t really connected with you yet' : resolvedTrustBand === 'high' ? 'high, they trust you' : 'moderate'}
+${player_story ? `
+WHERE THE STORY IS — this is TRUE RIGHT NOW inside the house. React to it, never invent plot:
+${player_story}
+You know all of this happened. Reference it naturally when it fits — the day, the follower stakes, the romance, who's been evicted, a choice they just made.` : ''}`) : '';
 
     const lowTrustFlow = isCricketChar && resolvedTrustBand === 'low';
 

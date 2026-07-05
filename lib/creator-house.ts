@@ -8,8 +8,8 @@
 // Voice: roman-Hinglish, the way real users talk.
 
 import type { CharId, GameState, Situation } from './types'
-import { getCHSituations } from './content'
-import { allyLoyalty, allyId } from './game'
+import { getCHSituations, getCHChars } from './content'
+import { allyLoyalty, allyId, resolveTokens, fameToFollowers } from './game'
 import { computeBond } from './relationships'
 
 export interface HouseVote { voter: CharId; target: CharId; line: string }
@@ -55,6 +55,56 @@ export const EVICTION_SAFETY: Record<string, { day: number; threshold: number; f
  *  who defends you at the vote. Replaces the old TRUST/image meter. */
 export function evictionTrust(game: GameState): number {
   return computeBond(allyId(game.playerGender), 'creator-house', game.choices, game.playerName, game.playerGender, game.dmTrust ?? {}).bond
+}
+
+/**
+ * DM story-context for Creator House — the twin of cricket's buildStorySummary.
+ * Grounds an AI DM reply in the villa arc: the day, the follower stakes, the
+ * romance "spine", who's been evicted, and the choices so far. Returns a prompt
+ * string (never null) — meaningful from Day 1, even before the first choice, so
+ * housemates always reply aware of where the story actually is.
+ */
+export function chStorySummary(game: GameState, dmTrust: Record<string, number> = {}): string {
+  const sits = getCHSituations()
+  const sitMap: Record<string, Situation> = Object.fromEntries(sits.map(s => [s.id, s]))
+  const queue = game.situationQueue.length ? game.situationQueue : sits.map(s => s.id)
+  const gender = game.playerGender
+  const name = game.playerName || 'the newcomer'
+  const rt = (t: string) => resolveTokens(t, name, gender)
+  const crushCid: CharId = gender === 'female' ? 'kabir' : 'ananya'
+  const ally = allyId(gender)
+  const chars = getCHChars()
+  const crushName = chars[crushCid]?.name ?? 'their crush'
+  const allyName = chars[ally]?.name ?? 'their closest ally'
+
+  // WHAT HAS HAPPENED — the choices so far (tokens resolved to real names).
+  const lines: string[] = []
+  game.choices.forEach((letter, idx) => {
+    const sit = queue[idx] ? sitMap[queue[idx]] : null
+    const choice = sit?.choices[letter === 'A' ? 0 : 1]
+    if (sit && choice) lines.push(`- ${rt(sit.title)}: chose "${rt(choice.t).slice(0, 60)}"`)
+  })
+
+  // CURRENT SITUATION — the present-tense truth the character MUST reply from.
+  const now: string[] = []
+  const day = Math.min(10, Math.ceil((game.situation + 1) / 3))
+  now.push(`It is Day ${day} of 10 in the Creator House — a reality content villa where FOLLOWERS are survival (every public vote is a follower; run low and you get evicted).`)
+  const followers = fameToFollowers(game.meters.fame)
+  now.push(`${name} has about ${followers.toLocaleString('en-IN')} followers right now.`)
+  const crushBond = Math.round(computeBond(crushCid, 'creator-house', game.choices, name, gender, dmTrust).bond)
+  now.push(`ROMANCE (the "spine"): ${name} and ${crushName} share a real history — they met 3 years ago, before the show. Closeness with ${crushName} right now: ${crushBond}/100. This tension runs under everything.`)
+  if (game.flags?.allyEvicted) {
+    now.push(`EVICTION: ${allyName} — ${name}'s closest ally — has already been EVICTED and is GONE. Never speak as if ${allyName} is still in the house.`)
+  } else if (game.flags?.savedAlly) {
+    now.push(`EVICTION: on the danger night ${name} spent their own standing to SHIELD ${allyName}; Dev was evicted instead. ${allyName} is still here and owes ${name}.`)
+  }
+  const curSit = sitMap[queue[game.situation]]
+  if (curSit) now.push(`Where the story is RIGHT NOW: "${rt(curSit.title)}"${curSit.tag ? ` — ${curSit.tag}` : ''}.`)
+
+  const parts: string[] = []
+  parts.push(`CURRENT SITUATION — this is TRUE RIGHT NOW inside the Creator House. Ground every reply in it: the day, the follower stakes, the romance with ${crushName}, and who has been evicted. You are a housemate texting between filming — react to where the story actually is, never invent plot.\n` + now.map(l => '- ' + l).join('\n'))
+  if (lines.length) parts.push(`WHAT HAS HAPPENED (${name}'s choices so far):\n` + lines.join('\n'))
+  return parts.join('\n\n')
 }
 
 export type RiskStatus = 'safe' | 'risk' | 'critical'
