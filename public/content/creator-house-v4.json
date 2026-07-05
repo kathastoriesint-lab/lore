@@ -241,24 +241,23 @@
    "tag": "🌙 DAY 1 · RAAT",
    "title": "Terrace, Raat",
    "body": [
-    "1 baja hai. Ghar ka shor thand chuka hai, cameras andar so gaye hain. Tu terrace pe hai — pehli baar akele, pehli baar khulke saans le raha hai.",
+    "1 baja hai. Ghar ka shor thand chuka hai, cameras andar so gaye hain. Tu terrace pe hai — pehli baar akele, pehli baar khulke saans le {p|raha/rahi} hai.",
     "Darwaaza halka sa khulta hai. {crush}. Do mug coffee, ek tere liye. Koi ring light nahi, koi audience nahi. Sirf sheher ki roshni door tak faili hui.",
-    "{crush} railing pe tere bagal mein aa ke khada ho jaata hai. \"Yahaan camera nahi hai,\" woh dheere se bolta hai. \"Toh… tu sach mein kaisa hai?\""
+    "{crush} railing pe tere bagal mein aa ke {x|khada/khadi} ho {x|jaata/jaati} hai. \"Yahaan camera nahi hai,\" woh dheere se {x|bolta/bolti} hai. \"Toh… tu sach mein {p|kaisa/kaisi} hai?\""
    ],
    "react": {
     "char": "ananya",
     "text": "Neeche sab so gaye. Idhar aa jao terrace pe… bas 2 min. No camera, promise. ✨"
    },
-   "q": "{crush} ke saath is pal ko kaise handle karega?",
+   "q": "{crush} ke saath is pal ko kaise handle {p|karega/karegi}?",
    "reader": [
     {
      "t": "nar",
-     "text": "Raat ke 1 baje villa ekdum shaant hai. Neeche koi ring light nahi jal rahi, koi phone up nahi hai. Pehli baar tujhe lagta hai jaise tu perform nahi kar raha."
+     "text": "Raat ke 1 baje villa ekdum shaant hai. Neeche koi ring light nahi jal rahi, koi phone up nahi hai. Pehli baar tujhe lagta hai jaise tu perform nahi kar {p|raha/rahi}."
     },
     {
      "t": "img",
-     "src": "/generated/creator-house-posts/scene-terrace-night.png",
-     "h": 250
+     "src": "/generated/creator-house-posts/scene-terrace-night.png"
     },
     {
      "t": "nar",
@@ -268,11 +267,11 @@
      "t": "cue",
      "who": "{crush}",
      "avatar": "/avatars/ananya.png",
-     "text": "Le, teri coffee. Main bhaag {p|raha/rahi} {p|tha/thi} neeche wale circus se. 😅 Din bhar sab apna 'content face' pehne ghoom rahe the… tera bhi wahi tha na? 🥺"
+     "text": "Le, teri coffee. Main bhaag {x|raha/rahi} {x|tha/thi} neeche wale circus se. 😅 Din bhar sab apna 'content face' pehne ghoom rahe the… tera bhi wahi tha na? 🥺"
     },
     {
      "t": "nar",
-     "text": "{crush} coffee ka sip {p|leta/leti} hai aur door dekhne {p|lagta/lagti} hai. Phir dheere se — jaise ye sawaal kisi aur se nahi {p|poochta/poochti} — tere taraf {p|mudta/mudti} hai."
+     "text": "{crush} coffee ka sip {x|leta/leti} hai aur door dekhne {x|lagta/lagti} hai. Phir dheere se — jaise ye sawaal kisi aur se nahi {x|poochta/poochti} — tere taraf {x|mudta/mudti} hai."
     },
     {
      "t": "cue",
@@ -283,13 +282,13 @@
     {
      "t": "nar",
      "big": true,
-     "text": "Koi audience nahi. Sirf tu, woh, aur ye sawaal. Ise sach mein sunega — ya cool banke aage badh jaayega?"
+     "text": "Koi audience nahi. Sirf tu, woh, aur ye sawaal. Ise sach mein {p|sunega/sunegi} — ya cool banke aage badh {p|jaayega/jaayegi}?"
     }
    ],
    "choices": [
     {
-     "t": "Khul ja — sach mein sun",
-     "s": "Mask utaar de. Coffee, sach, aur ek adhoora sa kuch jo teen saal se hai. (crush +6, fame -1)",
+     "t": "Khul jaao, sach main suno",
+     "s": "Mask utaar de. Coffee, sach, aur ek adhoora sa kuch jo teen saal se hai. (crush +6, fame −1)",
      "deltas": {
       "fame": -1
      },
@@ -298,22 +297,22 @@
      },
      "dm": [
       {
-       "char": "{crush}",
-       "text": "Tu ruk gaya. Sabse aasaan tha topic ghumaana, joke maar dena. Tune nahi kiya. 🥺"
+       "char": "ananya",
+       "text": "Tu {p|ruk gaya/ruk gayi}. Sabse aasaan tha topic ghumaana, joke maar dena. Tune nahi kiya. 🥺"
       },
       {
-       "char": "{crush}",
-       "text": "Pata hai teen saal main {p|sochta/sochti} {p|raha/rahi} — agar us raat kuch alag hota toh? Aur ab tu yahaan {x|khada/khadi} hai, mere saamne, poori tarah real."
+       "char": "ananya",
+       "text": "Pata hai teen saal main {x|sochta/sochti} {x|raha/rahi} — agar us raat kuch alag hota toh? Aur ab tu yahaan {p|khada/khadi} hai, mere saamne, poori tarah real."
       },
       {
-       "char": "{crush}",
+       "char": "ananya",
        "text": "Aaj raat kisi ko mat batana. Ye wala tu… ye sirf mere liye tha. Good night. ✨"
       }
      ]
     },
     {
-     "t": "Cool ban — aage badh ja",
-     "s": "Halke mein le, deep mat ja. Guard upar, banda safe. (crush -2, fame +1)",
+     "t": "Bolo ki ab kyun aa rahe ho — 3 saal pehle kahaan {x|the/thi}?",
+     "s": "Sach, par pehle hisaab. Teen saal ka sawaal seedha rakh de. (crush −2, fame +1)",
      "deltas": {
       "fame": 1
      },
@@ -322,16 +321,16 @@
      },
      "dm": [
       {
-       "char": "{crush}",
-       "text": "Haha okay, points for the comeback. 😅"
+       "char": "ananya",
+       "text": "Seedha vaar. 😅 …theek hai. Is sawaal ka haq banta hai tera."
       },
       {
-       "char": "{crush}",
-       "text": "Maine socha shayad… chhodo. Camera off tha, socha asli waala milega. Mera hi vehem tha shayad."
+       "char": "ananya",
+       "text": "3 saal pehle main {x|dar gaya/dar gayi} {x|tha/thi}. Tune kabhi bola nahi, maine kabhi poocha nahi — aur waqt haath se nikal gaya."
       },
       {
-       "char": "{crush}",
-       "text": "Anyway good night. Kal phir se sab apne masks pehen lenge — tere paas toh already ready hai. 🙂"
+       "char": "ananya",
+       "text": "Ab kyun? …pata nahi. Par tu {p|poochta/poochti} {p|raha/rahi}, matlab kuch abhi bhi bacha hai. Bas… aaj raat nahi. Good night. 🙂"
       }
      ]
     }
@@ -351,7 +350,7 @@
       "handle": "housewatch_india",
       "avatarText": "H"
      },
-     "caption": "koi terrace pe gaya, coffee li, aur 5 min mein wapas neeche. cold. ya bas thaka hua? raat abhi jawaan hai 🌙"
+     "caption": "1 baje terrace pe do log — coffee se shuru, phir kuch purana ubhar aaya. dono ke chehre badle hue wapas aaye. halka nahi tha ye 👀🌙 #CreatorHouse"
     }
    }
   },
