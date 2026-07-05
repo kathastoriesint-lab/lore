@@ -143,7 +143,10 @@ export default function LiveScreen() {
   const situation = game.situation
   const queue = game.situationQueue
   const rawSit = queue[situation] ? allSituations[queue[situation]] ?? null : null
-  const variantCtx = rawSit && isCricket ? variantCtxFor(game, dmTrust, weekForSituationId(rawSit.id)) : null
+  // Variants resolve in BOTH worlds now. Cricket keys on week verdict/trust/gates;
+  // Creator House keys on flags (e.g. savedAlly → who got evicted). A beat with no
+  // variants resolves to itself, so this is a no-op for every un-varianted beat.
+  const variantCtx = rawSit ? variantCtxFor(game, dmTrust, isCricket ? weekForSituationId(rawSit.id) : undefined) : null
   const sit = rawSit && variantCtx ? resolveSituationVariant(rawSit, variantCtx) : rawSit
   // Which variant resolved (−1 = base). The reveal machine must re-arm when this
   // changes: a selection verdict landing mid-beat (SEL ceremony) swaps the beat's
