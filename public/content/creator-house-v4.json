@@ -363,13 +363,13 @@
    "body": [
     "Sab so gaye hain. Kitchen ki ek light jal rahi hai aur Zoya wahin khadi hai — do chai ke mug, ek tumhare liye. \"Baitho na. Camera bhi so gaya ab.\"",
     "Woh sweet hai, bahut sweet. \"Main tumhe pasand karti hoon, sach mein. Isliye keh rahi hoon — is ghar mein har koi tumhare peeche kuch na kuch bol raha hai. Mujhe sab pata chalta hai. Main tumhe bata sakti hoon… agar hum ek-doosre ke saath hon.\"",
-    "Phir woh halka sa jhukti hai: \"Waise… Ria ke baare mein tumhe kya laga? Sach-sach. Yeh baat bas hum dono ke beech rahegi.\" Uski aankhein muskura rahi hain, par sun woh ek naam ke liye rahi hai."
+    "Phir woh halka sa jhukti hai: \"Waise… Ria ke baare mein tumhe kya laga? Sach-sach.\" Uski aankhein muskura rahi hain, par sun woh ek naam ke liye rahi hai."
    ],
    "react": {
     "char": "zoya",
     "text": "Main tumhaari side hoon babe. Bas thoda… trust toh dono taraf se hota hai na? 💅"
    },
-   "q": "Zoya ke saath khelte ho ya distance rakhte ho?",
+   "q": "Zoya ke saath {p|khelte/khelti} ho ya distance {p|rakhte/rakhti} ho?",
    "reader": [
     {
      "t": "nar",
@@ -396,15 +396,16 @@
      "text": "Uski aankhein hass rahi hain. Par tumhe pata hai — Zoya ki har baat ka ek screenshot hota hai. Jo aaj tum bologe, kal woh kisi aur ke phone mein ho sakta hai."
     },
     {
-     "t": "nar",
-     "big": true,
-     "text": "Intel milega — par uske badle woh tumhaara ek raaz maang rahi hai. Khelte ho, ya door rehte ho?"
+     "t": "cue",
+     "who": "Zoya",
+     "avatar": "/avatars/zoya.png",
+     "text": "Aur babe… ek aakhri baat. 🤫 Kal raat, terrace, 1 baje — tum aur {crush}, coffee. Maine dekha. Kisi ko bataya nahi… abhi tak."
     }
    ],
    "choices": [
     {
      "t": "Play along — thoda intel lo",
-     "s": "Uska trust jeeto. Par ab tum uske karzdaar ho.",
+     "s": "Uska trust jeeto. Par ab tum uske karzdaar ho — aur woh terrace waali baat uske paas hai. (fame +2, zoya +3)",
      "deltas": {
       "fame": 2
      },
@@ -422,13 +423,13 @@
       },
       {
        "char": "zoya",
-       "text": "Ab tum meri team ho. Jo bhi ghar mein hota hai, sabse pehle tumhe pata chalega. Bas ek din main bhi tumse ek chhoti si help maangungi. 💅"
+       "text": "Aur woh terrace waali baat? 🤫 Hamare beech. Main tumhaari side hoon ab. Bas ek din main bhi tumse ek chhoti si help maangungi. 💅"
       }
      ]
     },
     {
      "t": "Distance rakho — kuch mat bolo",
-     "s": "Safe raho. Zoya ko yeh pasand nahi aayega.",
+     "s": "Safe raho. Par Zoya ke paas ab woh terrace waala patta hai — aur woh khush nahi. (fame −1, zoya −2)",
      "deltas": {
       "fame": -1
      },
@@ -446,7 +447,7 @@
       },
       {
        "char": "zoya",
-       "text": "Bas ek chhoti si baat babe — jo log meri chai nahi peete na, unke baare mein log baaki cheezein bahut jaldi maan lete hain. Sochna. ✨"
+       "text": "Bas ek baat babe — jinke terrace pe 1 baje \"coffee dates\" hote hain 👀, unke secrets zyada der secret nahi rehte. Sochna. ✨"
       }
      ]
     }
