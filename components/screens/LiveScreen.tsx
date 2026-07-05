@@ -493,7 +493,7 @@ export default function LiveScreen() {
     // sitSnapshotRef keeps the render pinned to the current situation's content.
     advanceSituation()
 
-    addTimer(() => { scrollRef.current?.scrollTo({ top: 400, behavior: 'smooth' }) }, 200)
+    addTimer(() => { scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' }) }, 200)
 
     // If this choice publishes a player post, open the compose sheet (gpt-4o
     // caption → Post → stream on the feed) — the insta-post moment, both worlds.
@@ -865,8 +865,6 @@ export default function LiveScreen() {
           (founder call): eyebrow, the stake line, the question in serif,
           then the two cards. Weight comes from isolation, not decoration. */}
       {displaySit && displaySit.reader && readerDone && chosen === null && (() => {
-        const stakeBlk = displaySit.reader[displaySit.reader.length - 1]
-        const stake = stakeBlk?.big ? r(stakeBlk.text ?? '') : null
         const tagClean = (displaySit.tag ?? '').replace(/^[^A-Za-z0-9]*/, '').trim()
         return (
           <div style={{
@@ -881,10 +879,7 @@ export default function LiveScreen() {
             <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: '.16em', color: 'var(--accent)', position: 'relative' }}>
               FAISLA · {tagClean}
             </div>
-            {stake && (
-              <div style={{ fontSize: 14.5, color: 'var(--ink2)', lineHeight: 1.55, marginTop: 14, position: 'relative' }}>{stake}</div>
-            )}
-            <div style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 31, lineHeight: 1.15, color: '#fff', margin: '10px 0 24px', position: 'relative' }}>
+            <div style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 31, lineHeight: 1.15, color: '#fff', margin: '16px 0 24px', position: 'relative' }}>
               {r(displaySit.q)}
             </div>
             <div className="cin-choices" style={{ display: 'flex', flexDirection: 'column', gap: 11, position: 'relative' }}>

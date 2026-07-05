@@ -565,6 +565,13 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 
 /* ── Shared MeterHUD ── */
 .meter-hud{flex:0 0 auto;background:rgba(8,8,15,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:8px 16px 10px;position:relative;z-index:4}
+/* Immersive feed: the meters widget collapses on scroll, restores at the top. */
+.hud-collapse{flex:0 0 auto;max-height:130px;overflow:hidden;opacity:1;transition:max-height .32s cubic-bezier(.4,0,.2,1),opacity .22s ease}
+.hud-collapse.collapsed{max-height:0;opacity:0}
+/* Corner play button shown in place of the docked story card once you scroll in. */
+.feed-play-fab{position:absolute;right:16px;bottom:80px;z-index:6;width:52px;height:52px;border-radius:50%;border:none;cursor:pointer;display:grid;place-items:center;color:#fff;background:var(--accent);box-shadow:0 8px 22px rgba(0,0,0,.45);animation:fabIn .28s cubic-bezier(.34,1.56,.64,1) both}
+.feed-play-fab svg{margin-left:2px}
+@keyframes fabIn{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
 .mhud-top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
 .mhud-identity{flex:1;min-width:0}
 .mhud-name{font-size:12px;font-weight:700;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}

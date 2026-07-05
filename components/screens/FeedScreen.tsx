@@ -503,11 +503,18 @@ export default function FeedScreen() {
   // past it — and STAYS gone (with the fresh highlight cleared) until the next
   // drop. Design ref: one scroll dismisses it.
   const [newsDismissed, setNewsDismissed] = useState(false)
+  // Immersive feed: once you scroll in, the meters widget + story card collapse
+  // (just a corner play button remains) so a full post fills the viewport. Both
+  // restore at the top. Two-way, with a little hysteresis to avoid flicker.
+  const [feedScrolled, setFeedScrolled] = useState(false)
   useEffect(() => {
     if (screen !== 'feed') return
     const sc = document.getElementById('feed-scroll')
     if (!sc) return
-    const onScroll = () => { if (sc.scrollTop > 24) setNewsDismissed(true) }
+    const onScroll = () => {
+      if (sc.scrollTop > 24) setNewsDismissed(true)
+      setFeedScrolled(prev => prev ? sc.scrollTop > 20 : sc.scrollTop > 64)
+    }
     sc.addEventListener('scroll', onScroll, { passive: true })
     return () => sc.removeEventListener('scroll', onScroll)
   }, [screen])
@@ -750,7 +757,9 @@ export default function FeedScreen() {
       {/* Shared HUD. Creator House: followers only (MeterHUD Row 1) — the 3 meters and
           the trust-based eviction status are gone per the goals redesign (crush status
           lives in her DM; the contextual objective gets its own card later). */}
-      <MeterHUD />
+      <div className={`hud-collapse${feedScrolled ? ' collapsed' : ''}`}>
+        <MeterHUD />
+      </div>
 
       {/* Scrollable feed */}
       <div id="feed-scroll" className="scroll" style={{ flex: 1 }}>
@@ -1106,8 +1115,15 @@ export default function FeedScreen() {
         {isCricket && <div style={{ height: 20 }} />}
       </div>
 
-      {/* Docked story entrypoint — replaces the old in-scroll Story Drop + Live tab */}
-      <LiveEntryCard />
+      {/* Docked story entrypoint — replaces the old in-scroll Story Drop + Live tab.
+          Once you scroll into the feed it shrinks to just a corner play button. */}
+      {game.char && feedScrolled ? (
+        <button className="feed-play-fab" onClick={() => navigate(game.char ? 'live' : 'narrator')} aria-label="Continue story">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
+        </button>
+      ) : (
+        <LiveEntryCard />
+      )}
 
       {/* Tab bar — Feed · Messages · Profile (Live is entered via the card above) */}
       <div className="tabbar">

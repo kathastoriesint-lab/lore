@@ -207,20 +207,11 @@ export default function DMThreadScreen() {
       setAnim({ idx: i, phase: 'dots', chars: 0 })
       t(() => {
         if (cancelled) return
+        // Regular loading: after the typing dots the bubble appears in FULL — no
+        // per-letter typewrite (founder call: it got tiring in longer chats).
         revealRef.current = i + 1; setRevealCount(i + 1)
-        const full = m.text
-        const t0 = performance.now()
-        const iv = setInterval(() => {
-          if (cancelled) { clearInterval(iv); return }
-          const n = Math.min(full.length, Math.floor((performance.now() - t0) / 1000 * 40) + 1)
-          setAnim({ idx: i, phase: 'typing', chars: n })
-          if (n >= full.length) {
-            clearInterval(iv)
-            setAnim(null); setSeen(charId, i + 1)
-            t(step, 300)
-          }
-        }, 30)
-        timers.push(iv as unknown as ReturnType<typeof setTimeout>)
+        setAnim(null); setSeen(charId, i + 1)
+        t(step, 300)
       }, 700)
     }
     step()
