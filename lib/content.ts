@@ -40,8 +40,18 @@ let cricket: CricketContent = cricketBundled as unknown as CricketContent
 
 const LKG_KEY = 'lore_content_cricket' // last-known-good cache
 
-// Lightweight shape check — rejects a malformed/partial remote publish so a bad
-// upload can't break every client that fetches it.
+// Shape check — rejects a malformed/partial remote publish so a bad upload can't
+// break every client that fetches it. Requires every bundle key the accessors
+// dereference (not just version/situations): a publish missing e.g. `narrChars`
+// or `dmHooks` would pass a shallow check yet crash a screen at render, and — if
+// its version ≥ bundled — would override the good bundled content. Rejecting it
+// keeps the known-good bundled/LKG content live.
+function hasKeys(x: Record<string, unknown>, objs: readonly string[], arrs: readonly string[]): boolean {
+  for (const k of objs) if (!x[k] || typeof x[k] !== 'object' || Array.isArray(x[k])) return false
+  for (const k of arrs) if (!Array.isArray(x[k])) return false
+  return true
+}
+
 export function isValidCricketContent(c: unknown): c is CricketContent {
   if (!c || typeof c !== 'object') return false
   const x = c as Record<string, unknown>
@@ -51,8 +61,9 @@ export function isValidCricketContent(c: unknown): c is CricketContent {
     (s) => !!s && typeof (s as { id?: unknown }).id === 'string' && Array.isArray((s as { choices?: unknown }).choices),
   )
   if (!okSituations) return false
-  if (!x.chars || typeof x.chars !== 'object') return false
-  if (!x.endingData || typeof x.endingData !== 'object') return false
+  if (!hasKeys(x,
+    ['chars', 'dmTrustStart', 'trustGoals', 'lowTrustFeed', 'socialAccounts', 'endingData', 'dmHooks', 'dmMock'],
+    ['narrLines', 'narrChars'])) return false
   return true
 }
 
@@ -137,7 +148,9 @@ export function isValidCHContent(c: unknown): c is CHContent {
     (s) => !!s && typeof (s as { id?: unknown }).id === 'string' && Array.isArray((s as { choices?: unknown }).choices),
   )
   if (!okSituations) return false
-  if (!x.chars || typeof x.chars !== 'object') return false
+  if (!hasKeys(x,
+    ['chars', 'dmHooks', 'dmMock', 'dmTrust', 'postComments', 'dossiers'],
+    ['narrLines', 'narrChars', 'dmOrder'])) return false
   return true
 }
 
