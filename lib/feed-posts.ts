@@ -29,8 +29,9 @@ const asArray = <T,>(value: T | T[] | null | undefined): T[] =>
 // No cricket character or fan-account post should render as a blank gradient.
 // When a reaction / authored post carries no image, fall back to a relevant
 // existing library shot — reused across the run, varied by beat index so the same
-// account/character doesn't repeat the identical photo. Cricket only (CH untouched).
+// account/character doesn't repeat the identical photo. Both worlds.
 const GP = '/generated/cricket-posts/'
+const CHP = '/generated/creator-house-posts/'
 const FEED_FILL_BY_CHAR: Record<string, string[]> = {
   rohit:  ['seed-rohit', 'cr-s19-rohit', 'cr-s30-shared'],
   hardik: ['cr-s22-hardik', 'cr-s13-hardik'],
@@ -52,10 +53,24 @@ const FEED_FILL_BY_ACCT: Record<string, string[]> = {
   mumbaiindians:     ['cr-s1-mipaltan', 'cr-s24-mipaltan'],
   mipaltan:          ['cr-s1-mipaltan', 'cr-s24-mipaltan'],
 }
-function feedFillImg(handle: string | undefined, char: string | undefined, step: number): string | undefined {
-  const pool = handle ? FEED_FILL_BY_ACCT[handle] : char ? FEED_FILL_BY_CHAR[char] : undefined
+// Creator House fill pools. The gossip/commentary accounts (housewatch_india,
+// creator.tea) never carry an authored image, so they'd render on a blank blue
+// gradient — back them with the generated gossip/buzz stills. Character reactions
+// reuse that character's own seed shot (keyed by the gender-resolved id).
+const CH_FILL_BY_ACCT: Record<string, string[]> = {
+  housewatch_india: ['ch-feed-housewatch-1', 'ch-feed-housewatch-2', 'ch-feed-buzz-1', 'ch-feed-buzz-2'],
+  'creator.tea':    ['ch-feed-tea-1', 'ch-feed-tea-2'],
+}
+const CH_FILL_BY_CHAR: Record<string, string[]> = {
+  ria: ['seed-ria'], kabir: ['seed-kabir'], ananya: ['seed-ananya'], dev: ['seed-dev'], zoya: ['seed-zoya'],
+}
+function feedFillImg(handle: string | undefined, char: string | undefined, step: number, isCricket: boolean): string | undefined {
+  const prefix = isCricket ? GP : CHP
+  const acctMap = isCricket ? FEED_FILL_BY_ACCT : CH_FILL_BY_ACCT
+  const charMap = isCricket ? FEED_FILL_BY_CHAR : CH_FILL_BY_CHAR
+  const pool = handle ? acctMap[handle] : char ? charMap[char] : undefined
   if (!pool || !pool.length) return undefined
-  return GP + pool[((step % pool.length) + pool.length) % pool.length] + '.png'
+  return prefix + pool[((step % pool.length) + pool.length) % pool.length] + '.png'
 }
 
 export type FeedPost =
@@ -109,8 +124,8 @@ export function derivePosts(game: GameState): FeedPost[] {
     // Image fill: a fan-account reaction renders as a photo card; a real CHARACTER's
     // reaction stays an npc post (so it keeps its comment composer → the character's
     // DM back, plus trust-on-like) and now carries the photo too, not a blank gradient.
-    const acctFill = reaction?.account && isCricket && !reaction.imageUrl ? feedFillImg(reaction.account.handle, undefined, i) : undefined
-    const charFill = reaction?.char && isCricket && !reaction.imageUrl ? feedFillImg(undefined, reaction.char, i) : undefined
+    const acctFill = reaction?.account && !reaction.imageUrl ? feedFillImg(reaction.account.handle, undefined, i, isCricket) : undefined
+    const charFill = reaction?.char && !reaction.imageUrl ? feedFillImg(undefined, chCharForGender(reaction.char, game.playerGender), i, isCricket) : undefined
     if (reaction && reaction.account) {
       // Fan / media account reaction → authored card (photo, commentable, never DMs).
       const owner = { id: '__account', cls: '', init: reaction.account.avatarText ?? reaction.account.name[0]?.toUpperCase() ?? 'F', handle: reaction.account.handle, color: '#003087', isPlayer: false }
@@ -144,8 +159,8 @@ export function derivePosts(game: GameState): FeedPost[] {
           // (same key the compose flow writes: `${sit.id}-${letter}`).
           const ai = owner.isPlayer ? game.aiPosts?.[`${sit.id}-${letter}`] : undefined
           // Fill an image-less account/character post (never the player's own composed post).
-          const postFill = (isCricket && !owner.isPlayer && !authoredPost.imageUrl)
-            ? feedFillImg(authoredPost.source === 'account' ? owner.handle : undefined, authoredPost.source === 'character' ? authoredPost.char : undefined, i)
+          const postFill = (!owner.isPlayer && !authoredPost.imageUrl)
+            ? feedFillImg(authoredPost.source === 'account' ? owner.handle : undefined, authoredPost.source === 'character' && authoredPost.char ? chCharForGender(authoredPost.char, game.playerGender) : undefined, i, isCricket)
             : undefined
           posts.push({ type: 'authored', postId: `post-${sit.id}-${letter}-${postIndex}`, sit, stepIndex: i, postOffset: postIndex * 2, choice: letter, caption: ai?.caption ?? authoredPost.caption, imageUrl: ai?.imageUrl ?? authoredPost.imageUrl ?? postFill, owner, label: authoredPost.label, reactions: ai?.reactions?.length ? ai.reactions : (authoredPost.reactions ?? []), comments: authoredPost.comments })
         }
