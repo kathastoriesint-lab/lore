@@ -746,12 +746,6 @@ export default function FeedScreen() {
             </svg>
           </button>
         </div>
-        <div className="feed-live" style={isCricket ? { color: '#FFB020' } : {}}>
-          <div className="pulse" style={isCricket ? { background: '#FFB020' } : {}} />
-          {isCricket
-            ? `LIVE — MUMBAI INDIANS · WEEK ${game.week ?? 1} OF 3`
-            : `LIVE — CREATOR HOUSE · DAY ${Math.min(10, Math.ceil((game.situation + 1) / 3))} OF 10`}
-        </div>
       </div>
 
       {/* Shared HUD. Creator House: followers only (MeterHUD Row 1) — the 3 meters and
