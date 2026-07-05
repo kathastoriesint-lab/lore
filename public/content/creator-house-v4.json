@@ -591,9 +591,9 @@
    ],
    "react": {
     "char": "kabir",
-    "text": "Bhai online tera naam chal raha hai, par ghabra mat. Kuch daal — aisa jo sirf TU daal sakta hai. Main yahin hoon. 🔥"
+    "text": "Bhai online tera naam chal raha hai, par ghabra mat. Kuch daal — aisa jo sirf TU daal {p|sakta/sakti} hai. Main yahin hoon. 🔥"
    },
-   "q": "Danger raat mein kaisa post daalte ho?",
+   "q": "Danger raat mein kaisa post {p|daalte/daalti} ho?",
    "reader": [
     {
      "t": "nar",
@@ -607,7 +607,7 @@
      "t": "cue",
      "who": "{ally}",
      "avatar": "/avatars/kabir.png",
-     "text": "Suno. Sab bahar tere naam pe bakwaas kar rahe hain. Toh unko jawab de — ek post. Aisa jo sirf tu de sakta hai. 🔥"
+     "text": "Suno. Sab bahar tere naam pe bakwaas kar rahe hain. Toh unko jawab de — ek post. Aisa jo sirf tu de {p|sakta/sakti} hai. 🔥"
     },
     {
      "t": "nar",
@@ -616,7 +616,7 @@
     {
      "t": "nar",
      "big": true,
-     "text": "Yeh post tumhaara audience read hai. Kal subah follower count batayega tum bache ya nahi. Kaise khelte ho?"
+     "text": "Yeh post tumhaara audience read hai. Kal subah follower count batayega tum {p|bache/bachi} ya nahi. Kaise {p|khelte/khelti} ho?"
     }
    ],
    "choices": [
@@ -628,15 +628,15 @@
      },
      "post": {
       "source": "player",
-      "caption": "Sach bolun? Aaj raat dar lag raha hai jaane ka. Par main yahan apna asli self le ke aaya hoon — chahe kal rahoon ya na. Agar meri kahaani tumhe touch karti hai, saath raho. 🤍 #CreatorHouse #DangerNight",
+      "caption": "Sach bolun? Aaj raat dar lag raha hai jaane ka. Par main yahan apna asli self le ke {p|aaya/aayi} hoon — chahe kal rahoon ya na. Agar meri kahaani tumhe touch karti hai, saath raho. 🤍 #CreatorHouse #DangerNight",
       "reactions": [
        {
         "char": "kabir",
-        "text": "Bhai ye mazaak nahi tha, seedha dil mein laga. Sun — tu kahin nahi jaa raha. Numbers gir bhi jaayein, main yahin khada hoon. Aaj so ja, main jaag raha hoon. 🔥"
+        "text": "Bhai ye mazaak nahi tha, seedha dil mein laga. Sun — tu kahin nahi jaa {p|raha/rahi}. Numbers gir bhi jaayein, main yahin {p|khada/khadi} hoon. Aaj so ja, main jaag {p|raha/rahi} hoon. 🔥"
        },
        {
         "char": "ananya",
-        "text": "Yeh… itna real tha ki main ro padi. 🥺 Please mat jaana."
+        "text": "Yeh… itna real tha ki main {x|ro pada/ro padi}. 🥺 Please mat jaana."
        },
        {
         "char": "__fan",
@@ -654,11 +654,11 @@
      },
      "post": {
       "source": "player",
-      "caption": "Agar aaj meri last night hai is ghar mein… toh main aise nahi jaaunga. 🎬 Watch this. Sound ON. Yeh reel ya toonga viral kar dega ya main history ban jaaunga. Tumhaara ek share = ek vote. LET'S GO 🔥🚀 #CreatorHouse #DangerNight",
+      "caption": "Agar aaj meri last night hai is ghar mein… toh main aise nahi {p|jaaunga/jaaungi}. 🎬 Watch this. Sound ON. Yeh reel ya toh viral kar degi ya main history ban {p|jaaunga/jaaungi}. Tumhaara ek share = ek vote. LET'S GO 🔥🚀 #CreatorHouse #DangerNight",
       "reactions": [
        {
         "char": "kabir",
-        "text": "AREY YE KYA THA 😭🔥 poora daao laga diya bhai. Sun — chahe chal jaaye ya na, tu kahin nahi jaa raha. Numbers refresh mat karta reh, so ja. Main dekhta hoon. 🔥"
+        "text": "AREY YE KYA THA 😭🔥 poora daao laga diya bhai. Sun — chahe chal jaaye ya na, tu kahin nahi jaa {p|raha/rahi}. Numbers refresh mat karta reh, so ja. Main {p|dekhta/dekhti} hoon. 🔥"
        },
        {
         "char": "ria",
@@ -699,19 +699,19 @@
    "tag": "⚡ DAY 3 · SUBAH",
    "title": "{crush} Ka Collab",
    "body": [
-    "Subah. {crush} tumhe corner mein pakad {p|leta/leti} hai — phone haath mein, screen pe ek half-edited reel. \"Ek idea hai. Hum dono. Ek collab. Tumhaara reach, meri edit, chemistry toh dikh hi rahi hai.\"",
-    "Numbers ke hisaab se — {crush} ke followers tumse kam hain. Par yeh reel? Yeh explode kar sakta hai. Dono ke liye. Aur ghar ke andar sab dekh lenge ki tum kiske saath khade ho.",
+    "Subah. {crush} tumhe corner mein pakad {x|leta/leti} hai — phone haath mein, screen pe ek half-edited reel. \"Ek idea hai. Hum dono. Ek collab. Tumhaara reach, meri edit, chemistry toh dikh hi rahi hai.\"",
+    "Numbers ke hisaab se — {crush} ke followers tumse kam hain. Par yeh reel? Yeh explode kar sakta hai. Dono ke liye. Aur ghar ke andar sab dekh lenge ki tum kiske saath {p|khade/khadi} ho.",
     "{crush} ki aankhein excited hain, thodi dari hui bhi. \"Sirf haan-na chahiye. Zyaada mat socho.\""
    ],
    "react": {
     "char": "ananya",
     "text": "Agar hum yeh saath karte hain… log baatein banayenge. Par mujhe farak nahi padta. Tumhe padta hai? 🥺"
    },
-   "q": "{crush} ke collab offer ka kya karte ho?",
+   "q": "{crush} ke collab offer ka kya {p|karte/karti} ho?",
    "reader": [
     {
      "t": "nar",
-     "text": "Subah. {crush} tumhe ek taraf le {p|jaata/jaati} hai — phone pe ek reel adhoora ruka hua, cut hone ka intezaar karta."
+     "text": "Subah. {crush} tumhe ek taraf le {x|jaata/jaati} hai — phone pe ek reel adhoora ruka hua, cut hone ka intezaar karta."
     },
     {
      "t": "cue",
@@ -792,7 +792,6 @@
    ],
    "feedReaction": {
     "A": {
-     "char": "__fan",
      "account": {
       "name": "House Watch",
       "handle": "housewatch_india",
@@ -913,46 +912,49 @@
    "tag": "⚡ DAY 3 · DOPAHAR",
    "title": "Zoya Ka Hisaab",
    "body": [
-    "Dopahar mein phone garam ho jaata hai. Zoya ne ek story daali hai — bina naam liye, par sab samajh gaye. \"Kuch log itni jaldi 'connection' dikhate hain… lagta hai clout ke liye hai, feelings ke liye nahi. Bas keh rahi hoon. 💅\"",
-    "Screenshots already ghoom rahe hain. Comments mein tumhaara aur {crush} ka naam ek saath ghisela ja raha hai. Yeh Zoya ka classic move hai — deniable, meethi shakal, chaaku andar.",
-    "Zoya paas se guzarti hai, muskurate hue. \"Oh, tujhe bura laga? Maine toh kisi ka naam bhi nahi liya. 💅\""
+    "Dopahar. Phone ek saath sabke haathon mein vibrate karta hai. Zoya ne ek post daala hai — 'no name', par sab jaante hain kiski baat hai.",
+    "Screenshots. {crush} ke private messages — kisi aur ko bheje hue. Aur unme ek line jo tumhaare pet mein utar jaati hai: 'usse close rakhna hai, votes aa rahe hain. Bas strategy hai.'",
+    "Terrace. Coffee. 3 saal ka 'connection'. Sab ek pal mein doosri roshni mein aa jaata hai. Kya woh sach tha… ya tum ek move {p|the/thi}?"
    ],
    "react": {
     "char": "zoya",
-    "text": "Main toh bas ek general baat bol rahi thi babe. Agar chubhi… toh shayad sach hogi. 💅👀"
+    "text": "Maine kuch nahi kaha babe 💅 bas screenshots bolte hain. Ab tum decide karo kya karna hai. 👀"
    },
-   "q": "Zoya ki leak ka kya karte ho?",
+   "q": "Zoya ki leak ka kya {p|karte/karti} ho?",
    "reader": [
     {
      "t": "nar",
-     "text": "Dopahar. Phone vibrate karta hai. Zoya ki ek 'no-name' story — par ghar ka har banda jaanta hai kiski baat ho rahi hai."
+     "text": "Dopahar. Zoya ka ek \"no-name\" post — par ghar ka har banda jaanta hai kiski baat hai. Neeche comments mein tumhaara aur {crush} ka naam ghisa ja raha hai."
     },
     {
-     "t": "cue",
-     "who": "Zoya",
-     "avatar": "/avatars/zoya.png",
-     "text": "Kuch log 'connection' clout ke liye dikhate hain, feelings ke liye nahi. Bas keh rahi hoon. Naam thodi liya maine. 💅"
+     "t": "img",
+     "src": "/generated/creator-house-posts/ch-crush-leak.png",
+     "h": 280
     },
     {
      "t": "nar",
-     "text": "Screenshots ghoom rahe hain. Comments mein tumhaara aur {crush} ka naam saath mein ghisa ja raha hai."
+     "text": "Screenshot mein {crush} ke apne shabd — kisi aur ko: \"usse close rakhna hai, numbers double ho rahe hain.\" Tumhaari saans ruk jaati hai."
     },
     {
      "t": "cue",
      "who": "Zoya",
      "avatar": "/avatars/zoya.png",
-     "text": "Oh, chubh gaya? Maine toh naam bhi nahi liya babe. Jise lage uski baat hai. ✨👀"
+     "text": "Oh no, chubh gaya? 🙈 Maine toh sirf sach dikhaya babe. Ab pata chala na — is ghar mein \"feelings\" bhi ek game hoti hain. 👀"
+    },
+    {
+     "t": "nar",
+     "text": "Heat lag chuki hai, aur camera ke saamne. Tumhaara game bhi daao pe, aur dil bhi. Zoya muskura rahi hai — ek teer, do nishaane."
     },
     {
      "t": "nar",
      "big": true,
-     "text": "Heat lag chuki hai — aur camera ke saamne. Ise blast karke viral karo, ya andar-andar bujha do?"
+     "text": "Sabke saamne tumhe used dikhaya gaya. Ise blast karke apna sach rakho — ya andar-andar sambhaalo?"
     }
    ],
    "choices": [
     {
      "t": "Saamne se clap back karo",
-     "s": "Public jawab. Loud, sharp, viral.",
+     "s": "Public. Apni izzat khud rakho, chahe drama ho. (fame +3, zoya −1)",
      "deltas": {
       "fame": 3
      },
@@ -961,27 +963,31 @@
      },
      "post": {
       "source": "player",
-      "caption": "Jinki apni koi story nahi hoti, woh dusron ki banate hain. Meri 'clout' meri mehnat hai, kisi ke screenshot se nahi. Namaste. 🙏🔥 #CreatorHouse",
+      "imageUrl": "/generated/creator-house-posts/ch-crush-leak.png",
+      "caption": "Screenshots bina context ke sirf aadha sach hote hain. 🎬 Jise strategy samajh rahe ho, woh meri kahaani hai — aur main use kisi ke edit se define nahi hone {p|dunga/dungi}. #CreatorHouse",
       "reactions": [
        {
         "char": "zoya",
-        "text": "Ooh, itna react? Chhoti si baat pe itna gussa… interesting babe. 💅👀"
+        "text": "Ooh, fighting spirit 💅 par screenshots screenshots hote hain babe 👀"
        },
        {
         "char": "ria",
-        "text": "Clapping back gives it oxygen, darling. But the delivery… okay, that landed. 👀"
+        "text": "Bold. Par ab poora ghar tumhaari \"kahaani\" ko differently dekhega. 👑"
        },
        {
-        "char": "__fan",
-        "name": "housewatch_india",
-        "text": "NAMASTE ke saath bola?? 😭🔥 zoya ko public mein rakh diya, ye clip viral pakka"
+        "account": {
+         "name": "House Watch",
+         "handle": "housewatch_india",
+         "avatarText": "H"
+        },
+        "text": "usne screenshots ka jawaab HEAD ON diya 😭🔥 season ka biggest twist #CreatorHouse"
        }
       ]
      }
     },
     {
-     "t": "Chup se control karo",
-     "s": "{ally} ke saath quiet mein defuse karo.",
+     "t": "Chup se sambhaalo — {ally} ke paas jaao",
+     "s": "React mat karo, wahi Zoya chahti hai. Andar process karo. (fame −1, ally +2)",
      "deltas": {
       "fame": -1
      },
@@ -992,32 +998,35 @@
      "dm": [
       {
        "char": "kabir",
-       "text": "Bhai react mat kar, wahi toh chahti hai woh. 😭 Silence se jyada kuch nahi jalta uske liye."
+       "text": "Bhai react mat kar, wahi toh chahti hai woh 😭 Silence se zyada kuch nahi jalta uske liye."
       },
       {
        "char": "kabir",
-       "text": "Screenshots ka scene main dekh {x|leta/leti} hoon — kaun forward kar raha hai, pata laga leta hoon."
+       "text": "Aur woh screenshot… sun. Ho sakta hai shuru mein strategy rahi ho. Par maine {crush} ki aankhein dekhi hain jab woh teri baat {x|karta/karti} hai. Woh ab fake nahi."
       },
       {
        "char": "kabir",
-       "text": "Tu bas normal reh. Do din mein log bhool jaayenge. Main hoon na peeche. 🔥"
+       "text": "Zoya ne aag lagayi. Tu paani mat ban, aur aag bhi mat. Bas… {crush} se khud poochh, screen ke bahar."
       }
      ]
     }
    ],
    "feedReaction": {
     "A": {
-     "char": "__fan",
+     "account": {
+      "name": "Creator Tea",
+      "handle": "creator.tea",
+      "avatarText": "C"
+     },
+     "caption": "ZOYA ne screenshots daale, unhone clap back kiya 🍿 team-used vs team-strategy… ghar do hisso mein baant gaya #CreatorHouse"
+    },
+    "B": {
      "account": {
       "name": "House Watch",
       "handle": "housewatch_india",
       "avatarText": "H"
      },
-     "caption": "ZOYA ne story daali, unhone NAMASTE ke saath jawaab diya 😭🔥 ye beef officially on hai #CreatorHouse"
-    },
-    "B": {
-     "char": "ria",
-     "caption": "No reaction? Interesting. Silence bhi ek strategy hai… ya darr. Time batayega. 🤍 #CreatorHouse"
+     "caption": "screenshots viral, par woh banda? poker face 🧊 andar kuch pak raha hai ya sab sambhaal liya? 👀 #CreatorHouse"
     }
    }
   },
@@ -1028,19 +1037,19 @@
    "tag": "🌙 DAY 3 · RAAT",
    "title": "Do Dil, Do Raaste",
    "body": [
-    "Raat. Sab so gaye hain. {crush} chhat pe {p|milta/milti} hai tumhe — Zoya wale drama ke baad thoda toota hua, thoda himmat karke. \"Din bhar sochta raha. Ye jo humaare beech hai… mujhe iska pata karna hai. Sach mein.\"",
-    "\"Par mujhe pata hai tumhaara standing abhi hilaa hua hai. Agar hum aur kareeb aaye, toh log aur baatein banayenge. Tumhaare followers ko farak padega.\" {crush} ruk {p|jaata/jaati} hai. \"Toh main bas ye jaanna chahta hoon — main pehle aata hoon, ya game?\"",
+    "Raat. Sab so gaye hain. {crush} chhat pe {x|milta/milti} hai tumhe — Zoya wale drama ke baad thoda toota hua, thoda himmat karke. \"Din bhar {x|sochta/sochti} {x|raha/rahi}. Ye jo humaare beech hai… mujhe iska pata karna hai. Sach mein.\"",
+    "\"Par mujhe pata hai tumhaara standing abhi hilaa hua hai. Agar hum aur kareeb aaye, toh log aur baatein banayenge. Tumhaare followers ko farak padega.\" {crush} ruk {x|jaata/jaati} hai. \"Toh main bas ye jaanna {x|chahta/chahti} hoon — main pehle {x|aata/aati} hoon, ya game?\"",
     "Koi camera nahi. Koi caption nahi. Sirf tum, {crush}, aur ek sawaal jo tum tal nahi sakte."
    ],
    "react": {
     "char": "ananya",
-    "text": "Main koi drama nahi chahti. Bas ek sachcha jawab. Main tumhaare liye ruk sakti hoon… tum ruk sakte ho? 🥺"
+    "text": "Main koi drama nahi chahti. Bas ek sachcha jawab. Main tumhaare liye ruk {x|sakta/sakti} hoon… tum ruk {p|sakte/sakti} ho? 🥺"
    },
-   "q": "{crush} ki baat ka kya jawab dete ho?",
+   "q": "{crush} ki baat ka kya jawab {p|dete/deti} ho?",
    "reader": [
     {
      "t": "nar",
-     "text": "Raat. Chhat khaali hai, sab so gaye. {crush} tumhaara intezaar kar {p|raha/rahi} tha — Zoya ke drama ke baad thoda toota, thoda himmat jod ke."
+     "text": "Raat. Chhat khaali hai, sab so gaye. {crush} tumhaara intezaar kar {x|raha/rahi} tha — Zoya ke drama ke baad thoda toota, thoda himmat jod ke."
     },
     {
      "t": "cue",
@@ -1050,13 +1059,13 @@
     },
     {
      "t": "nar",
-     "text": "Par {crush} ye bhi jaanta hai — tumhaara game abhi kamzor hai. Kareeb aaye toh followers ko chubhega."
+     "text": "Par {crush} ye bhi {x|jaanta/jaanti} hai — tumhaara game abhi kamzor hai. Kareeb aaye toh followers ko chubhega."
     },
     {
      "t": "cue",
      "who": "{crush}",
      "avatar": "/avatars/ananya.png",
-     "text": "Main bas ek cheez jaanna chahta hoon… main pehle aata hoon, ya tumhaara game? ✨"
+     "text": "Main bas ek cheez jaanna {x|chahta/chahti} hoon… main pehle {x|aata/aati} hoon, ya tumhaara game? ✨"
     },
     {
      "t": "nar",
@@ -1105,11 +1114,11 @@
       },
       {
        "char": "ananya",
-       "text": "Main galat nahi thi ki himmat ki… bas timing shayad galat thi. Ya bandaa."
+       "text": "Main galat nahi {x|tha/thi} ki himmat ki… bas timing shayad galat thi. Ya bandaa."
       },
       {
        "char": "ananya",
-       "text": "Theek hai. Main peeche hat jaati hoon. Apna game khelo — main dekhungi. 🥺"
+       "text": "Theek hai. Main peeche hat {x|jaata/jaati} hoon. Apna game khelo — main {x|dekhunga/dekhungi}. 🥺"
       }
      ]
     }
@@ -1120,7 +1129,6 @@
      "caption": "kuch cheezein followers se zyaada keemti hoti hain. aaj samajh aaya. 🌙✨ #nofilter"
     },
     "B": {
-     "char": "__fan",
      "account": {
       "name": "House Watch",
       "handle": "housewatch_india",
@@ -1231,6 +1239,9 @@
         "text": "left the bestie on the danger board to save their OWN number?? cold blooded 😭 #CreatorHouse"
        }
       ]
+     },
+     "flagDeltas": {
+      "allyEvicted": 1
      }
     }
    ],
@@ -1409,14 +1420,14 @@
    "title": "{crush} Ka Faisla",
    "body": [
     "Danger raat khatam. Ghar so raha hai. Tumhara phone jalta hai — {crush}.",
-    "\"Terrace pe hoon. Akeli. Agar tum aana chaaho toh… main yahin hoon.\" Woh nahi keh {p|raha/rahi} ki aao. Woh sirf keh {p|raha/rahi} hai ki darwaza khula hai.",
-    "Jo tumne ab tak chuna hai — usne dekha hai. Ab woh apna faisla tum pe chhod {p|raha/rahi} hai. Jaaoge?"
+    "\"Terrace pe hoon. Akeli. Agar tum aana chaaho toh… main yahin hoon.\" Woh nahi keh {x|raha/rahi} ki aao. Woh sirf keh {x|raha/rahi} hai ki darwaza khula hai.",
+    "Jo tumne ab tak chuna hai — usne dekha hai. Ab woh apna faisla tum pe chhod {x|raha/rahi} hai. Jaaoge?"
    ],
    "react": {
     "char": "ananya",
-    "text": "Terrace pe hoon. Akeli. 🥺 Aana chaaho toh aao. Main tumhe majboor nahi kar rahi… bas keh rahi hoon."
+    "text": "Terrace pe hoon. {x|Akela/Akeli}. 🥺 Aana chaaho toh aao. Main tumhe majboor nahi kar {x|raha/rahi}… bas keh {x|raha/rahi} hoon."
    },
-   "q": "{crush} terrace pe hai. Jaoge, ya jaane doge?",
+   "q": "{crush} terrace pe hai. {p|Jaoge/Jaogi}, ya jaane {p|doge/dogi}?",
    "reader": [
     {
      "t": "nar",
@@ -1426,7 +1437,7 @@
      "t": "cue",
      "who": "{crush}",
      "avatar": "/avatars/ananya.png",
-     "text": "So gaye kya? Main terrace pe hoon… akeli. Neeche itna drama tha, upar bas hawa hai aur main. 🥺"
+     "text": "So gaye kya? Main terrace pe hoon… {x|akela/akeli}. Neeche itna drama tha, upar bas hawa hai aur main. 🥺"
     },
     {
      "t": "img",
@@ -1437,16 +1448,16 @@
      "t": "cue",
      "who": "{crush}",
      "avatar": "/avatars/ananya.png",
-     "text": "Dekho, main tumhe force nahi kar rahi. Bas… agar tum aana chaaho, toh main yahin hoon. Aur agar nahi, toh bhi theek hai. ✨"
+     "text": "Dekho, main tumhe force nahi kar {x|raha/rahi}. Bas… agar tum aana chaaho, toh main yahin hoon. Aur agar nahi, toh bhi theek hai. ✨"
     },
     {
      "t": "nar",
-     "text": "Yeh woh {crush} nahi hai jo camera ke saamne guarded rehti hai. Yeh woh hai jisne apna guard neeche rakha hai — sirf tumhare liye. Aur ise pata hai tumne ab tak kya-kya chuna."
+     "text": "Yeh woh {crush} nahi hai jo camera ke saamne guarded {x|rehta/rehti} hai. Yeh woh hai jisne apna guard neeche rakha hai — sirf tumhare liye. Aur ise pata hai tumne ab tak kya-kya chuna."
     },
     {
      "t": "nar",
      "big": true,
-     "text": "Woh apna faisla tumhare haath mein de rahi hai. Seedhiyaan chadhoge — ya phone neeche rakh ke so jaaoge? Kya karoge?"
+     "text": "Woh apna faisla tumhare haath mein de rahi hai. Seedhiyaan {p|chadhoge/chadhogi} — ya phone neeche rakh ke so {p|jaaoge/jaaogi}? Kya {p|karoge/karogi}?"
     }
    ],
    "choices": [
@@ -1466,11 +1477,11 @@
       },
       {
        "char": "ananya",
-       "text": "Pata hai, main poori raat khud se keh rahi thi — mat bol isko, kya sochega. Par tum aa gaye, bina maine kuch poore se kahe. Toh shayad main akeli nahi thi jo ye mehsoos kar rahi thi."
+       "text": "Pata hai, main poori raat khud se keh {x|raha/rahi} thi — mat bol isko, kya sochega. Par tum aa gaye, bina maine kuch poore se kahe. Toh shayad main akeli nahi thi jo ye mehsoos kar rahi thi."
       },
       {
        "char": "ananya",
-       "text": "Yeh ghar sabko ek performance bana deta hai. Us chhat pe, tumhare saath… main sirf main thi. Bohot arse baad. 3 saal baad, shayad. Thank you. ✨"
+       "text": "Yeh ghar sabko ek performance bana deta hai. Us chhat pe, tumhare saath… main sirf main {x|tha/thi}. Bohot arse baad. 3 saal baad, shayad. Thank you. ✨"
       }
      ]
     },
@@ -1490,11 +1501,11 @@
       },
       {
        "char": "ananya",
-       "text": "Main thodi der aur baith jaungi yahin. Hawa achhi hai. Tum apna rest lo."
+       "text": "Main thodi der aur baith {x|jaunga/jaungi} yahin. Hawa achhi hai. Tum apna rest lo."
       },
       {
        "char": "ananya",
-       "text": "…sach kahun? Ek pal ke liye maine sach mein socha tha ki tum aaoge. Meri galti. Main akele baithne ki aadi hoon waise bhi. Good night. 🥺"
+       "text": "…sach kahun? Ek pal ke liye maine sach mein socha tha ki tum {p|aaoge/aaogi}. Meri galti. Main akele baithne ki aadi hoon waise bhi. Good night. 🥺"
       }
      ]
     }
@@ -1518,14 +1529,14 @@
    "title": "Ria, Bina Mask",
    "body": [
     "2 AM. Tumhare paas Zoya ke leak kiye screenshots hain — aur unme Ria ka poora sach hai. Woh 2.1M ka glamour udhaar ke paise pe khada hai. Sponsor ka bakaya, brand ki dhamki, sab kuch.",
-    "Ek post. Ek expose. Aur subah tak Ria ki poori image — jo image tumhe din 1 se chhoti mehsoos karati rahi hai — sabke saamne toot jaayegi. Followers tumhare paas aa jaayenge.",
+    "Ek post. Ek expose. Aur subah tak Ria ki poori image — jo tumhe din 1 se chhoti mehsoos karati rahi hai — sabke saamne toot jaayegi. Followers tumhare paas aa jaayenge.",
     "Ya tum ye screenshots delete kar do. Clean raho. Zoya ki gandagi mein haath na daalo. Faisla tumhara."
    ],
    "react": {
     "char": "zoya",
     "text": "hii babe 💅 maine tere liye chhod diye ye screenshots. ab tera kaam. post kar de… sab dekhega. 👀"
    },
-   "q": "Ria ka sach — expose karoge, ya clean rahoge?",
+   "q": "Ria ka sach — expose {p|karoge/karogi}, ya clean {p|rahoge/rahogi}?",
    "reader": [
     {
      "t": "nar",
@@ -1539,7 +1550,7 @@
     },
     {
      "t": "img",
-     "src": "/avatars/ria.png",
+     "src": "/generated/creator-house-posts/ch-ria-leak.png",
      "h": 260,
      "pos": "center top"
     },
@@ -1556,13 +1567,13 @@
     {
      "t": "nar",
      "big": true,
-     "text": "Ek post — Ria khatam, followers tumhare. Ya screenshots delete — clean haath, chhoti reach. Kya karoge?"
+     "text": "Ek post — Ria khatam, followers tumhare. Ya screenshots delete — clean haath, chhoti reach. Kya {p|karoge/karogi}?"
     }
    ],
    "choices": [
     {
      "t": "Expose karo — sach post kar do",
-     "s": "Ria ka mask utaar do. Followers aayenge. Par ye ruthless hai.",
+     "s": "Ria ka mask utaar do. Followers aayenge. Par ye ruthless hai. (fame +4, crush −2)",
      "deltas": {
       "fame": 4
      },
@@ -1571,7 +1582,7 @@
      },
      "post": {
       "source": "player",
-      "caption": "Is ghar mein sabke 'aesthetic' ke peeche kuch aur hota hai. Aaj kuch cheezein sabke saamne rakhta hoon. Truth over image. 👀 #CreatorHouse #Receipts",
+      "caption": "Is ghar mein sabke 'aesthetic' ke peeche kuch aur hota hai. Aaj kuch cheezein sabke saamne {p|rakhta/rakhti} hoon. Truth over image. 👀 #CreatorHouse #Receipts",
       "reactions": [
        {
         "char": "ria",
@@ -1582,8 +1593,11 @@
         "text": "AND SCENE 💅✨ dekha babe? maine kaha tha. tune woh kiya jo mujhe karna tha — aur ilzaam tere sar. genius. 👀"
        },
        {
-        "char": "__fan",
-        "name": "housewatch_india",
+        "account": {
+         "name": "House Watch",
+         "handle": "housewatch_india",
+         "avatarText": "H"
+        },
         "text": "NOT THE RECEIPTS 😭😭 ria's whole empire on borrowed money?? this house just went NUCLEAR #CreatorHouse #Exposed"
        }
       ]
@@ -1591,7 +1605,7 @@
     },
     {
      "t": "Clean raho — screenshots delete karo",
-     "s": "Zoya ke khel mein haath mat daalo. Reach kam, dignity poori.",
+     "s": "Zoya ke khel mein haath mat daalo. Reach kam, dignity poori. (fame −1, ally +3)",
      "deltas": {
       "fame": -1
      },
@@ -1609,7 +1623,7 @@
       },
       {
        "char": "kabir",
-       "text": "Followers baad mein bhi aa jaayenge yaar. Par jo tu aaj raat tha — woh Zoya kabhi nahi ban sakti. Main tujhe iske liye respect karta hoon. Sach. 🔥"
+       "text": "Followers baad mein bhi aa jaayenge yaar. Par jo tu aaj raat {p|tha/thi} — woh Zoya kabhi nahi ban sakti. Main tujhe respect {p|karta/karti} hoon. Sach. 🔥"
       }
      ]
     }
@@ -1621,13 +1635,79 @@
       "handle": "housewatch_india",
       "avatarText": "🏠"
      },
-     "caption": "the house is at WAR 🍿 team-exposed vs team-ria… iske baad koi normal nahi reh sakta. dropping everything to watch this 👀🔥 #CreatorHouse #Receipts"
+     "caption": "the house is at WAR 🍿 team-exposed vs team-ria… iske baad koi normal nahi reh sakta 👀🔥 #CreatorHouse #Receipts"
     },
     "B": {
      "char": "ria",
-     "caption": "Someone had my life in their hands last night. They chose to walk away clean. I don't forget things like that. Neither the kindness, nor the fact that they could. 🤍 #CreatorHouse"
+     "caption": "Someone had my life in their hands last night. They chose to walk away clean. I don't forget things like that. 🤍 #CreatorHouse"
     }
-   }
+   },
+   "variants": [
+    {
+     "when": {
+      "flag": {
+       "key": "allyEvicted",
+       "gte": 1
+      }
+     },
+     "choices": [
+      {
+       "t": "Expose karo — sach post kar do",
+       "s": "Ria ka mask utaar do. Followers aayenge. Par ye ruthless hai. (fame +4, crush −2)",
+       "deltas": {
+        "fame": 4
+       },
+       "relationshipDeltas": {
+        "ananya": -2
+       },
+       "post": {
+        "source": "player",
+        "caption": "Is ghar mein sabke 'aesthetic' ke peeche kuch aur hota hai. Aaj kuch cheezein sabke saamne {p|rakhta/rakhti} hoon. Truth over image. 👀 #CreatorHouse #Receipts",
+        "reactions": [
+         {
+          "char": "ria",
+          "text": "So this is who you are. Fine. You want my throne? You'll learn how heavy it is. 👑"
+         },
+         {
+          "char": "zoya",
+          "text": "AND SCENE 💅✨ tune woh kiya jo mujhe karna tha — aur ilzaam tere sar. genius. 👀"
+         },
+         {
+          "account": {
+           "name": "House Watch",
+           "handle": "housewatch_india",
+           "avatarText": "H"
+          },
+          "text": "NOT THE RECEIPTS 😭😭 this house just went NUCLEAR #CreatorHouse #Exposed"
+         }
+        ]
+       }
+      },
+      {
+       "t": "Clean raho — screenshots delete karo",
+       "s": "Zoya ke khel mein haath mat daalo. Reach kam, dignity poori. (fame −1)",
+       "deltas": {
+        "fame": -1
+       },
+       "relationshipDeltas": {},
+       "dm": [
+        {
+         "char": "kabir",
+         "text": "(bahar se, voice note) Bhai yahin baithe dekha — Zoya ne folder daala tha. 😳"
+        },
+        {
+         "char": "kabir",
+         "text": "Aur tune delete kar diya. Followers chhod diye, izzat rakhi. Ghar se bahar hoke bhi keh raha hoon — tu wahi banda hai."
+        },
+        {
+         "char": "kabir",
+         "text": "Jeet ke aana. Mere liye bhi. 🔥"
+        }
+       ]
+      }
+     ]
+    }
+   ]
   },
   {
    "id": "D5-1",
@@ -1687,7 +1767,7 @@
      },
      "post": {
       "source": "player",
-      "caption": "Das din. Ek ghar. Aur main abhi bhi khada hoon — akela, apne dum pe. Kal finale. Baaki sab noise hai. 🏆 #CreatorHouse #FinaleEve",
+      "caption": "Das din. Ek ghar. Aur main abhi bhi {p|khada/khadi} hoon — akela, apne dum pe. Kal finale. Baaki sab noise hai. 🏆 #CreatorHouse #FinaleEve",
       "reactions": [
        {
         "char": "ria",
@@ -1757,13 +1837,13 @@
    "body": [
     "Studio lights. 1.1 lakh log live. Ria, {ally}, {crush} — sab stage pe, sab tumhare saath. Host lifafa kholti hai.",
     "\"Aur is season ka result…\" — pause. Poora India saans roke baitha hai.",
-    "Naam tumhara hai. Ye das din is ek pal mein simat gaye. Ab bas — tum ise kaise lete ho?"
+    "Naam tumhara hai. Ye das din is ek pal mein simat gaye. Ab bas — tum ise kaise {p|lete/leti} ho?"
    ],
    "react": {
     "char": "ria",
     "text": "Naam tumhara aaya. Maine kuch nahi sikhaya — tumne khud kamaaya. Ab dikhao tum kaun ho. 🤍"
    },
-   "q": "Result aa gaya — ise kaise lete ho?",
+   "q": "Result aa gaya — ise kaise {p|lete/leti} ho?",
    "reader": [
     {
      "t": "nar",
@@ -1782,12 +1862,12 @@
     },
     {
      "t": "nar",
-     "text": "Taaliyan. Camera tumhare chehre pe zoom hota hai. {ally} ki aankhein bhar aayi. {crush} bas dekh raha hai — jaise sab kuch is ek pal ka tha."
+     "text": "Taaliyan. Camera tumhare chehre pe zoom hota hai. {ally} ki aankhein bhar aayi. {crush} bas dekh {x|raha/rahi} hai — jaise sab kuch is ek pal ka tha."
     },
     {
      "t": "nar",
      "big": true,
-     "text": "Das din. Ek mic. Ab jo bologe — wahi log yaad rakhenge. Ye tumhara hai. Kaise lete ho?"
+     "text": "Das din. Ek mic. Ab jo bologe — wahi log yaad rakhenge. Ye tumhara hai. Kaise {p|lete/leti} ho?"
     }
    ],
    "choices": [
@@ -1804,7 +1884,7 @@
      "dm": [
       {
        "char": "kabir",
-       "text": "OYE WINNER 😭🔥 stage pe aise khada tha jaise ghar tera hi tha. mereko pata tha bhai."
+       "text": "OYE WINNER 😭🔥 stage pe aise {p|khada/khadi} tha jaise ghar tera hi tha. mereko pata tha bhai."
       },
       {
        "char": "kabir",
@@ -1849,13 +1929,91 @@
       "handle": "housewatch_india",
       "avatarText": "HW"
      },
-     "caption": "AUR WINNER HAI… 🏆 stage pe aisa control jaise trophy pehle se hi inki thi. no shaking, no begging. season over. main character confirmed. 👑 #CreatorHouse #Finale"
+     "caption": "AUR WINNER HAI… 🏆 stage pe aisa control jaise trophy pehle se hi inki thi. season over. main character confirmed. 👑 #CreatorHouse #Finale"
     },
     "B": {
      "char": "kabir",
-     "caption": "mera banda jeet gaya 😭🔥 aur trophy uthake sabse pehle humaara naam liya. yahi banda tha jo jeetne ke laayak tha. #Finale #CreatorHouse"
+     "caption": "mera banda jeet gaya 😭🔥 aur trophy uthake sabse pehle humaara naam liya. yahi banda jeetne ke laayak tha. #Finale #CreatorHouse"
     }
-   }
+   },
+   "variants": [
+    {
+     "when": {
+      "flag": {
+       "key": "allyEvicted",
+       "gte": 1
+      }
+     },
+     "reader": [
+      {
+       "t": "nar",
+       "text": "Live finale. Studio lights, 1.1 lakh log online. Stage pe Ria aur {crush} — {ally} is safar mein aakhir tak nahi pahuncha, par uski jagah tum aaj bhi mehsoos {p|karte/karti} ho."
+      },
+      {
+       "t": "img",
+       "src": "/generated/creator-house-posts/seed-villa.png",
+       "h": 240
+      },
+      {
+       "t": "cue",
+       "who": "Host",
+       "avatar": "/avatars/ria.png",
+       "text": "Aur is season ka winner… hai… ye naam. Congratulations. Stage tumhara hai. 🎤"
+      },
+      {
+       "t": "nar",
+       "text": "Taaliyan. {crush} ki aankhein bhar aayi — woh dekh {x|raha/rahi} hai jaise sab kuch is ek pal ka tha."
+      },
+      {
+       "t": "nar",
+       "big": true,
+       "text": "Das din. Ek mic. Ye tumhara hai. Kaise {p|lete/leti} ho?"
+      }
+     ],
+     "choices": [
+      {
+       "t": "Own it",
+       "s": "Ye tumne kamaaya. Poora malik banke lo.",
+       "deltas": {
+        "fame": 3
+       },
+       "relationshipDeltas": {
+        "ananya": 1
+       },
+       "dm": [
+        {
+         "char": "ananya",
+         "text": "Tumne ise apna banake liya. 🥺 Aur main? Maine tumhe uss raat dekha tha — before everyone else."
+        },
+        {
+         "char": "kabir",
+         "text": "(bahar se) OYE WINNER 😭🔥 ghar se nikal gaya par tujhe jeette dekh liya. haq se liya tune. that's my banda."
+        }
+       ]
+      },
+      {
+       "t": "Grateful / humble",
+       "s": "Ye akele ka nahi tha. Sab ko lekar lo.",
+       "deltas": {
+        "fame": 2
+       },
+       "relationshipDeltas": {
+        "ananya": 2
+       },
+       "dm": [
+        {
+         "char": "ananya",
+         "text": "Tumne mujhe apne moment me kheencha. 🥺 Winner ho tum — par insaan pehle. Yahi yaad rahega mujhe."
+        },
+        {
+         "char": "kabir",
+         "text": "(bahar se) bhai stage pe humaara naam liya tune 😭 main bahar se ro diya. that's why tu jeeta."
+        }
+       ]
+      }
+     ]
+    }
+   ]
   }
  ],
  "chars": {

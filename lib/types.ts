@@ -35,7 +35,8 @@ export interface GameFlags {
   roleAcceptance: number  // 0–5: earned from role-first choices
   homeGrounding: number   // 0–5: earned from family/coach choices
   // Creator House
-  savedAlly?: number      // 0/1: shielded the ally on the 2nd danger night (D4-1) → Dev evicted; else the ally is
+  savedAlly?: number      // 0/1: shielded the ally on the 2nd danger night (D4-1) → Dev evicted
+  allyEvicted?: number    // 0/1: did NOT shield → the ally is evicted (drives D4-3/D5-2 ally-gone variants)
   allyLoyalty: number     // 0–3: how loyal player has been to ally
   rivalryScore: number    // 0–3: how escalated the rival relationship is
   // Cricket v2 story markers (0/1; optional — absence = 0). Written by beats,
