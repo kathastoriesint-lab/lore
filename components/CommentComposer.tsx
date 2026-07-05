@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import { useApp } from '@/lib/context'
 import type { CharId } from '@/lib/types'
+import { getCommentSuggestions, getCommentReaction } from '@/lib/game'
 
 // Personas that shape each creator's DM reaction. The crush + ally are ROLE-based
 // (the same dynamic whether the crush is Ananya or Kabir) and resolved per player
@@ -62,14 +63,9 @@ export default function CommentComposer({ character, post, onDone, persona: pers
 
   useEffect(() => {
     let alive = true
-    fetch('/api/lore-post', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ mode: 'comment-suggest', world: game.world, character: { name: character.name, persona }, caption: post.caption }),
-    })
-      .then(r => (r.ok ? r.json() : null))
-      .then(d => {
+    getCommentSuggestions(game.world, { name: character.name, persona }, post.caption)
+      .then(sug => {
         if (!alive) return
-        const sug = Array.isArray(d?.suggestions) ? d.suggestions : []
         setSuggestions(sug)
         setSuggestState(sug.length ? 'ready' : 'empty')
       })
@@ -82,11 +78,8 @@ export default function CommentComposer({ character, post, onDone, persona: pers
     setSent(true)
     let sentiment = 'boring'; let reply = ''
     try {
-      const res = await fetch('/api/lore-post', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mode: 'comment-react', world: game.world, character: { name: character.name, persona }, caption: post.caption, comment: text.trim() }),
-      })
-      if (res.ok) { const d = await res.json(); sentiment = d.sentiment || 'boring'; reply = d.reply || '' }
+      const d = await getCommentReaction(game.world, { name: character.name, persona }, post.caption, text.trim())
+      sentiment = d.sentiment || 'boring'; reply = d.reply || ''
     } catch { /* no reply on failure */ }
     // Trigger rules by tone:
     //   spicy / negative → always DM (drama is the point)

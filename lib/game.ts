@@ -417,6 +417,54 @@ export async function getReplySuggestions(
   }
 }
 
+// ── Feed comment AI (suggestions + reactions) ────────────────────────────────
+// Routed through the SAME lore-chat Edge Function as DMs, so comments use the
+// Supabase OpenAI key — no dependency on a Vercel-side OPENAI_API_KEY. Both fall
+// back gracefully (empty / boring) so the comment loop never breaks.
+export async function getCommentSuggestions(
+  world: string,
+  character: { name?: string; persona?: string },
+  caption: string,
+): Promise<string[]> {
+  const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!
+  try {
+    const resp = await fetch(`${SUPABASE_URL}/functions/v1/lore-chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': await loreChatAuth() },
+      body: JSON.stringify({ mode: 'comment-suggest', world, character, caption }),
+    })
+    if (!resp.ok) return []
+    const json = await resp.json()
+    return Array.isArray(json.suggestions) ? json.suggestions.filter((s: unknown) => typeof s === 'string') : []
+  } catch {
+    return []
+  }
+}
+
+export async function getCommentReaction(
+  world: string,
+  character: { name?: string; persona?: string },
+  caption: string,
+  comment: string,
+): Promise<{ sentiment: string; reply: string }> {
+  const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!
+  try {
+    const resp = await fetch(`${SUPABASE_URL}/functions/v1/lore-chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': await loreChatAuth() },
+      body: JSON.stringify({ mode: 'comment-react', world, character, caption, comment }),
+    })
+    if (!resp.ok) return { sentiment: 'boring', reply: '' }
+    const json = await resp.json()
+    return {
+      sentiment: typeof json.sentiment === 'string' ? json.sentiment : 'boring',
+      reply: typeof json.reply === 'string' ? json.reply : '',
+    }
+  } catch {
+    return { sentiment: 'boring', reply: '' }
+  }
+}
+
 // ── AI reply via Supabase Edge Function ──────────────────────────────────────
 export async function getAIReply(
   charId: CharId,

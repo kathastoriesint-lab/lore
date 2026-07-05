@@ -390,6 +390,10 @@ serve(async (req) => {
       current_day = 1,          // which day it is
       next_situation = null,    // suggest_replies mode: title + question of the upcoming game situation
       choices_made = null,      // suggest_replies mode: how many choices the player has made (for starting context)
+      world = null,             // comment modes: 'cricket' | 'creator-house'
+      character = null,         // comment modes: { name, persona } of the post's owner
+      caption = null,           // comment modes: the post caption being reacted to
+      comment = null,           // comment-react mode: the player's comment text
     } = await req.json();
 
     const OPENAI_KEY = Deno.env.get("OPENAI_API_KEY");
@@ -552,6 +556,76 @@ STYLE:
         return new Response(JSON.stringify({ suggestions }), { headers: { ...cors, "Content-Type": "application/json" } });
       } catch {
         return new Response(JSON.stringify({ suggestions: [] }), { headers: { ...cors, "Content-Type": "application/json" } });
+      }
+    }
+
+    // ── Feed comment SUGGESTIONS mode ────────────────────────────────────────
+    // Two short comments the PLAYER could leave on someone else's post. Routed
+    // here (not the Vercel /api/lore-post route) so comments use the same
+    // Supabase OpenAI key as DMs. Returns { suggestions: string[] }.
+    if (mode === "comment-suggest") {
+      const poster = `${character?.name || "someone"}${character?.persona ? ` (${character.persona})` : ""}`;
+      const isCricketPost = world === "cricket";
+      const csSystem = isCricketPost
+        ? `You are a 16-year-old Mumbai Indians debutant scrolling your cricket feed. Write EXACTLY 2 short, distinct comments YOU would leave on this post, in natural Gen-Z Indian-cricket Hinglish (Roman script). Match the relationship to who posted: to a SENIOR or coach -> respectful, warm, a little starstruck, NEVER cheeky or disrespectful; to a fan/media page -> grateful or a humble hype-back; to a peer or rival -> friendly banter with a small edge. Comment #1 = genuine/warm; #2 = lighter, more personality. Each under ~10 words, at most one emoji, no hashtags. Return ONLY a JSON array of exactly 2 strings.`
+        : `You write short Instagram comments a viewer would leave on a reality-show creator's photo. Gen-Z Hinglish (Roman script). Return EXACTLY 2 short, distinct comments: #1 hype/supportive, #2 cheeky/spicy/teasing. Each under ~10 words, at most one emoji, no hashtags. Return ONLY a JSON array of exactly 2 strings.`;
+      const csUser = `Post by ${poster}. Caption: "${caption ?? ""}". Write the 2 comments.`;
+      const csResp = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${OPENAI_KEY}` },
+        body: JSON.stringify({
+          model: "gpt-5.4-mini",
+          messages: [{ role: "system", content: csSystem }, { role: "user", content: csUser }],
+          max_completion_tokens: 120, temperature: 0.9,
+        }),
+      });
+      if (!csResp.ok) return new Response(JSON.stringify({ suggestions: [] }), { headers: { ...cors, "Content-Type": "application/json" } });
+      const csJson = await csResp.json();
+      const csRaw = csJson.choices?.[0]?.message?.content?.trim() ?? "[]";
+      try {
+        const cleaned = csRaw.replace(/^```(?:json)?\s*/, "").replace(/\s*```$/, "");
+        const parsed = JSON.parse(cleaned);
+        const suggestions = Array.isArray(parsed)
+          ? parsed.filter((s) => typeof s === "string" && s.trim()).map((s) => s.trim()).slice(0, 2)
+          : (Array.isArray(parsed?.suggestions) ? parsed.suggestions.filter((s: unknown) => typeof s === "string").slice(0, 2) : []);
+        return new Response(JSON.stringify({ suggestions }), { headers: { ...cors, "Content-Type": "application/json" } });
+      } catch {
+        return new Response(JSON.stringify({ suggestions: [] }), { headers: { ...cors, "Content-Type": "application/json" } });
+      }
+    }
+
+    // ── Feed comment REACTION mode ───────────────────────────────────────────
+    // The post owner's reaction to the player's comment: a tone bucket + an
+    // in-character DM reply. Returns { sentiment, reply }.
+    if (mode === "comment-react") {
+      const cmt = (comment ?? "").trim();
+      if (!cmt) return new Response(JSON.stringify({ error: "no comment" }), { status: 400, headers: { ...cors, "Content-Type": "application/json" } });
+      const isCricketPost = world === "cricket";
+      const crSystem = isCricketPost
+        ? `You ARE ${character?.name || "a cricketer"} (${character?.persona || "a Mumbai Indians player"}). A young MI teammate/debutant just commented on your post. First classify their comment toward you as EXACTLY one of: "positive" (genuine respect/support/warmth), "negative" (rude/cocky/disrespectful to a senior), "spicy" (cheeky banter, playful not cruel), "boring" (generic low-effort). Then write the short DM you'd send back in your voice, Gen-Z Indian-cricket Hinglish, 1-2 short lines: positive -> warm senior-to-junior; negative -> a measured put-down or cool distance; spicy -> amused, give it back; boring -> curt. Output strict JSON {"sentiment":"positive|negative|spicy|boring","reply":string}.`
+        : `You ARE ${character?.name || "a creator"}, a contestant on the Indian reality show "Creator House". Persona: ${character?.persona || "a creator"}. A viewer just commented on your post. First classify their comment as EXACTLY one of: "positive" (genuine support/hype/love), "negative" (rude/insulting/hurtful), "spicy" (provocative/teasing/shady/flirty), "boring" (generic low-effort). Then write the DM you'd send reacting to it, in your voice, Gen-Z Hinglish, 1-2 short lines: positive -> warm/grateful/flirty per persona; negative -> confrontational or hurt; spicy -> intrigued/playful/heat; boring -> barely bothered, curt. Output strict JSON {"sentiment":"positive|negative|spicy|boring","reply":string}.`;
+      const crUser = `Your post caption: "${caption ?? ""}". The comment: "${cmt}". React as a DM.`;
+      const crResp = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${OPENAI_KEY}` },
+        body: JSON.stringify({
+          model: "gpt-5.4-mini",
+          messages: [{ role: "system", content: crSystem }, { role: "user", content: crUser }],
+          max_completion_tokens: 160, temperature: 0.9,
+        }),
+      });
+      if (!crResp.ok) return new Response(JSON.stringify({ error: "openai" }), { status: 502, headers: { ...cors, "Content-Type": "application/json" } });
+      const crJson = await crResp.json();
+      const crRaw = crJson.choices?.[0]?.message?.content?.trim() ?? "{}";
+      try {
+        const cleaned = crRaw.replace(/^```(?:json)?\s*/, "").replace(/\s*```$/, "");
+        const parsed = JSON.parse(cleaned);
+        const sentiment = ["positive", "negative", "spicy", "boring"].includes(parsed?.sentiment) ? parsed.sentiment : "boring";
+        const reply = typeof parsed?.reply === "string" ? parsed.reply.trim() : "";
+        if (!reply) return new Response(JSON.stringify({ error: "empty" }), { status: 502, headers: { ...cors, "Content-Type": "application/json" } });
+        return new Response(JSON.stringify({ sentiment, reply }), { headers: { ...cors, "Content-Type": "application/json" } });
+      } catch {
+        return new Response(JSON.stringify({ error: "parse" }), { status: 502, headers: { ...cors, "Content-Type": "application/json" } });
       }
     }
 
