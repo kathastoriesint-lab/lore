@@ -807,6 +807,106 @@
    }
   },
   {
+   "id": "D3-NOM",
+   "day": 3,
+   "slot": "Afternoon",
+   "tag": "⚡ DAY 3 · NOMINATIONS",
+   "title": "Nominations",
+   "body": [
+    "Ghar ki lights badal jaati hain — red. Production ki awaaz gunjti hai: 'Nominations ka waqt.' Sab ek line mein, dil dhak-dhak.",
+    "Ek-ek karke naam khulte hain. Aur phir do naam screen pe ruk jaate hain — is hafte khatre mein.",
+    "{ally} halka sa {p|hasta/hasti} hai, par tumhe pata hai — andar se hil {p|gaya/gayi} hai. Dev chup, hamesha ki tarah. Tumhaara banda danger mein hai."
+   ],
+   "react": {
+    "char": "kabir",
+    "text": "Bhai main danger mein hoon 😳 par tu tension mat le, main handle kar {p|lunga/lungi}. Tu apna game dekh."
+   },
+   "q": "{ally} khatre mein hai — abhi kya {p|karte/karti} ho?",
+   "reader": [
+    {
+     "t": "nar",
+     "text": "Ghar ki lights red ho jaati hain. Production: \"Is hafte ki nominations.\" Sab line mein, koi hil nahi raha."
+    },
+    {
+     "t": "cue",
+     "who": "Dev",
+     "avatar": "/avatars/dev.png",
+     "text": "(shaant) Jo hona hai ho jaayega. Main apni journey se khush hoon."
+    },
+    {
+     "t": "nar",
+     "text": "Screen pe do naam ruk jaate hain — Dev aur {ally}. {ally} ki nazar ek pal ke liye tumse takraati hai."
+    },
+    {
+     "t": "cue",
+     "who": "{ally}",
+     "avatar": "/avatars/kabir.png",
+     "text": "Dekh… main theek hoon. Sach. Tu mere liye apna number mat girana, {p|samjha/samjhi}? Ye meri ladai hai. 🙂"
+    },
+    {
+     "t": "nar",
+     "big": true,
+     "text": "Tumhaara sabse apna banda is hafte ja sakta hai. Abhi — reassure {p|karte/karti} ho, ya apna game {p|bachate/bachati} ho?"
+    }
+   ],
+   "choices": [
+    {
+     "t": "{ally} ko bharosa do — \"main hoon\"",
+     "s": "Emotional commitment. Woh {p|jaanta/jaanti} hai tum saath ho. (ally +3)",
+     "deltas": {
+      "fame": 0
+     },
+     "relationshipDeltas": {
+      "kabir": 3
+     },
+     "dm": [
+      {
+       "char": "kabir",
+       "text": "Bhai… tune abhi jo kaha na. 🥺 Is ghar mein koi aisa nahi bolta."
+      },
+      {
+       "char": "kabir",
+       "text": "Chahe main jaun ya rahoon — tu mera banda hai. Par sun, apna number soch samajh ke kharch karna. Main keh raha hoon."
+      }
+     ]
+    },
+    {
+     "t": "Cool raho — apna game bachao",
+     "s": "Yahan har koi apni ladta hai. Standing pehle. (ally −2)",
+     "deltas": {
+      "fame": 1
+     },
+     "relationshipDeltas": {
+      "kabir": -2
+     },
+     "dm": [
+      {
+       "char": "kabir",
+       "text": "Haan haan, samajh gaya. Har koi apni ladta hai. 🙂"
+      },
+      {
+       "char": "kabir",
+       "text": "Koi baat nahi bhai. Dekhte hain kal raat kaun kiske liye khada hota hai."
+      }
+     ]
+    }
+   ],
+   "feedReaction": {
+    "A": {
+     "char": "kabir",
+     "caption": "is ghar mein ek banda mila jo mere liye khada raha, bina soche 🥺 baaki sab apna number dekh rahe the #CreatorHouse #Nominations"
+    },
+    "B": {
+     "account": {
+      "name": "House Watch",
+      "handle": "housewatch_india",
+      "avatarText": "H"
+     },
+     "caption": "nominations aate hi loyalties saaf dikhne lagti hain 👀 kaun kiske liye number kharch karega, kal raat pata chalega 🍿 #CreatorHouse"
+    }
+   }
+  },
+  {
    "id": "D3-2",
    "day": 3,
    "slot": "Afternoon",
@@ -1099,7 +1199,10 @@
        "char": "kabir",
        "text": "Main jokes bahut maarta hoon na, isliye log samajhte hain mujhe kuch farak nahi padta. Aaj padta hai. Tu mera banda hai. Ye main marte dum tak yaad rakhunga. 🔥"
       }
-     ]
+     ],
+     "flagDeltas": {
+      "savedAlly": 1
+     }
     },
     {
      "t": "Khud ko protect karo — usse girne do",
@@ -1145,6 +1248,158 @@
      "caption": "Danger night reveals everyone. Some shield their friends. Some shield their numbers. I respect the honest ones. 👑 #CreatorHouse"
     }
    }
+  },
+  {
+   "id": "D4-ELIM",
+   "day": 4,
+   "slot": "Very Late",
+   "tag": "🌙 DAY 4 · EVICTION",
+   "title": "Eviction",
+   "body": [
+    "Doosri danger raat ka faisla aa gaya. Sab ek line mein, saans ruki hui. Production ki awaaz: 'Is hafte ghar chhodenge…'",
+    "Ek nanha sa pause. Poora ghar jaise ek saath saans rok leta hai."
+   ],
+   "react": {
+    "char": "zoya",
+    "text": "Har eviction ek lakeer kheench deta hai — pehle aur baad. Aaj ke baad ghar wahi nahi rahega. 💅"
+   },
+   "q": "Naam aa gaya. Ise kaise {p|lete/leti} ho?",
+   "reader": [
+    {
+     "t": "nar",
+     "text": "Production: \"Is hafte ghar chhodenge…\" — aur screen pe naam jalta hai: {ally}."
+    },
+    {
+     "t": "nar",
+     "text": "Tumhaara banda. Woh jo har raat tere saath {p|khada/khadi} tha. Aaj tumne apna number bachaya — aur ye keemat aayi."
+    },
+    {
+     "t": "cue",
+     "who": "{ally}",
+     "avatar": "/avatars/kabir.png",
+     "text": "Are yaar, ro mat. 😅 Maine bola tha na — har koi apni ladta hai. Tu jeet, mere liye bhi. Bas… yaad rakhna main tere liye {p|khada/khadi} tha."
+    },
+    {
+     "t": "nar",
+     "big": true,
+     "text": "Darwaaza band. Ghar mein ek {ally}-shaped khaali jagah. Tune game bachaya — par kis keemat par?"
+    }
+   ],
+   "choices": [
+    {
+     "t": "{ally} ko last hug do",
+     "s": "Guilt aur pyaar. Woh {p|gaya/gayi}, tu {p|bacha/bachi}.",
+     "deltas": {
+      "fame": 0
+     },
+     "relationshipDeltas": {},
+     "dm": [
+      {
+       "char": "kabir",
+       "text": "(bahar se, voice note) Bhai jeet ke aana. Trophy meri bhi hai 🥺 aur next time apne bande ke liye number gira dena. Love you yaar."
+      }
+     ]
+    },
+    {
+     "t": "Chup-chaap dekho jaate hue",
+     "s": "Kuch keh nahi paaye. Sirf dekha.",
+     "deltas": {
+      "fame": 0
+     },
+     "relationshipDeltas": {},
+     "dm": [
+      {
+       "char": "zoya",
+       "text": "Dekha? Loyalty se ghar nahi jeeta jaata. Tumne sahi kiya… shayad. 💅"
+      }
+     ]
+    }
+   ],
+   "feedReaction": {
+    "A": {
+     "account": {
+      "name": "House Watch",
+      "handle": "housewatch_india",
+      "avatarText": "H"
+     },
+     "caption": "ek aur eviction, ek aur ghar-hilaane waali raat 🥀 kuch bandhan yahin toot jaate hain #CreatorHouse #EvictionNight"
+    },
+    "B": {
+     "account": {
+      "name": "House Watch",
+      "handle": "housewatch_india",
+      "avatarText": "H"
+     },
+     "caption": "ek aur eviction, ek aur ghar-hilaane waali raat 🥀 kuch bandhan yahin toot jaate hain #CreatorHouse #EvictionNight"
+    }
+   },
+   "variants": [
+    {
+     "when": {
+      "flag": {
+       "key": "savedAlly",
+       "gte": 1
+      }
+     },
+     "reader": [
+      {
+       "t": "nar",
+       "text": "Production: \"Is hafte ghar chhodenge…\" — aur screen pe naam jalta hai: Dev."
+      },
+      {
+       "t": "nar",
+       "text": "Tumne kal raat apna poora number {ally} pe laga diya tha. Woh bach {p|gaya/gayi}. Aur Dev — wildcard, hamesha kinaare pe — chala jaata hai."
+      },
+      {
+       "t": "cue",
+       "who": "Dev",
+       "avatar": "/avatars/dev.png",
+       "text": "(shaant, ek muskaan) Koi shikaayat nahi. Achhi journey thi. {ally}, apne bande ka khyaal rakhna. 🙏"
+      },
+      {
+       "t": "cue",
+       "who": "{ally}",
+       "avatar": "/avatars/kabir.png",
+       "text": "Bhai… tune sach mein apna number gira ke mujhe bachaya 😭 Main ye zindagi bhar nahi {p|bhoolunga/bhoolungi}."
+      },
+      {
+       "t": "nar",
+       "big": true,
+       "text": "Dev chala gaya. {ally} bach {p|gaya/gayi} — tumhaari wajah se. Aaj ka bandhan aur gehra ho gaya."
+      }
+     ],
+     "choices": [
+      {
+       "t": "{ally} ko gale lagao",
+       "s": "Tumne use bachaya. Ye bond ab pukka.",
+       "deltas": {
+        "fame": 0
+       },
+       "relationshipDeltas": {},
+       "dm": [
+        {
+         "char": "kabir",
+         "text": "Bhai jo tune kiya na… main tere liye kuch bhi. Ride or die. Ab finale tak saath 🔥"
+        }
+       ]
+      },
+      {
+       "t": "Dev ko respect se vida karo",
+       "s": "Wildcard gaya, sar utha ke.",
+       "deltas": {
+        "fame": 0
+       },
+       "relationshipDeltas": {},
+       "dm": [
+        {
+         "char": "dev",
+         "text": "(bahar se) Tune apne dost ke liye jo kiya, woh rare hai. Jeet ke dikhana. Take care. 🙏"
+        }
+       ]
+      }
+     ]
+    }
+   ]
   },
   {
    "id": "D4-2",
@@ -1639,6 +1894,15 @@
    "init": "K",
    "fame": 55,
    "role": "Comedy · 26 · Your Ally / Crush"
+  },
+  "dev": {
+   "id": "dev",
+   "name": "Dev",
+   "handle": "devlifts",
+   "cls": "c-dev",
+   "init": "D",
+   "fame": 30,
+   "role": "Fitness · 27 · Wild Card"
   }
  },
  "endingData": {}
