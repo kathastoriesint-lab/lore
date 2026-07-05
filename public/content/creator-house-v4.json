@@ -475,14 +475,14 @@
    "title": "Ria, Camera Ke Saamne",
    "body": [
     "Dopahar. Sab ke saamne, camera on. Ria tumhaare paas aati hai — perfectly lit, perfectly calm. \"Main soch rahi thi hum ek collab karein. Mera reach tumhaare content ko ek hi din mein double kar dega.\"",
-    "Woh muskura ke ek line jodti hai: \"Bas ek chhoti si baat — caption aur credit main handle karungi. Aur agli baar jab main kisi cheez pe stand loon, tum mere saath khadi rahogi. Fair hai na?\"",
-    "Poora ghar dekh raha hai. Yeh reach ek tohfa hai — par Ria kabhi muft mein kuch nahi deti. Haan bolo, toh tum uske under aa jaate ho. Naa bolo, toh camera pe tumne queen bee ko reject kiya."
+    "Woh muskura ke ek line jodti hai: \"Bas ek chhoti si baat — caption aur credit main handle karungi. Aur agli baar jab main kisi cheez pe stand loon, tum mere saath {p|khade rahoge/khadi rahogi}. Fair hai na?\"",
+    "Poora ghar dekh raha hai. Yeh reach ek tohfa hai — par Ria kabhi muft mein kuch nahi deti. Haan bolo, toh tum uske under aa {p|jaate/jaati} ho. Naa bolo, toh camera pe tumne queen bee ko reject kiya."
    ],
    "react": {
     "char": "ria",
     "text": "Main sabko collab offer nahi karti. Tumhe kar rahi hoon. Socho — offer sirf ek baar aata hai. 👑"
    },
-   "q": "Ria ka collab lete ho ya independent rehte ho?",
+   "q": "Ria ka collab {p|lete/leti} ho ya independent {p|rehte/rehti} ho?",
    "reader": [
     {
      "t": "nar",
@@ -495,10 +495,6 @@
      "text": "Ek collab karte hain. Mera reach tumhaare numbers ek din mein double kar dega. Simple maths hai. 👑"
     },
     {
-     "t": "nar",
-     "text": "Phir, halki si smile ke saath — woh smile jo tareef kam, warning zyada lagti hai:"
-    },
-    {
      "t": "cue",
      "who": "Ria",
      "avatar": "/avatars/ria.png",
@@ -507,17 +503,12 @@
     {
      "t": "nar",
      "text": "Reach asli hai — ek collab aur tumhaari follower line upar chali jayegi. Par yeh Ria ka ghar hai, aur uska tohfa hamesha ek zanjeer ke saath aata hai."
-    },
-    {
-     "t": "nar",
-     "big": true,
-     "text": "Collab lo aur uske karzdaar ban jao — ya camera pe queen ko naa bolo. Poora ghar dekh raha hai."
     }
    ],
    "choices": [
     {
      "t": "Collab le lo — reach le lo",
-     "s": "Follower jump pakka. Par ab tum Ria ke karze mein ho.",
+     "s": "Follower jump pakka. Par ab tum Ria ke karze mein ho. (fame +4, ria +2)",
      "deltas": {
       "fame": 4
      },
@@ -537,8 +528,11 @@
         "text": "Oho, itni jaldi Ria ki team? 💅 noted babe."
        },
        {
-        "char": "__fan",
-        "name": "creator.tea",
+        "account": {
+         "name": "Creator Tea",
+         "handle": "creator.tea",
+         "avatarText": "C"
+        },
         "text": "day 2 aur already queen ki chhatri ke neeche 🌂 smart ya scared? 👀"
        }
       ]
@@ -546,7 +540,7 @@
     },
     {
      "t": "Naa bolo — independent raho",
-     "s": "Apna naam, apni sharton pe. Reach chhoti, respect apni.",
+     "s": "Apna naam, apni sharton pe. Reach chhoti, respect apni. (fame −1, ria −3)",
      "deltas": {
       "fame": -1
      },
@@ -560,7 +554,7 @@
       },
       {
        "char": "ria",
-       "text": "Bahadur ho, ya naye ho — abhi decide nahi kar paayi."
+       "text": "Bahadur ho, ya {p|naye/nayi} ho — abhi decide nahi kar paayi."
       },
       {
        "char": "ria",
