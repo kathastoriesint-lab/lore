@@ -14,13 +14,13 @@
    ],
    "react": {
     "char": "kabir",
-    "text": "Arre viral wala aa gaya 😭 ab dekhte hain hype real hai ya edit tha 🔥"
+    "text": "Arre viral {p|wala/wali} aa {p|gaya/gayi} 😭 ab dekhte hain hype real hai ya edit tha 🔥"
    },
-   "q": "Kaise enter karte ho Creator House mein?",
+   "q": "Kaise enter {p|karte/karti} ho Creator House mein?",
    "reader": [
     {
      "t": "nar",
-     "text": "Gate ke us paar villa dhoop mein chamak raha hai. Tum andar kadam {p|rakhte/rakhti} ho — aur ek pal ko ruk {p|jaate/jaati} ho. Aisa ghar tumne sirf feed pe scroll karte hue dekha tha."
+     "text": "Gate ke us paar villa dhoop mein chamak raha hai. Tum andar kadam {p|rakhte/rakhti} ho — aur ek pal ko ruk {p|jaate/jaati} ho. Aisa ghar tumne sirf feed pe scroll {p|karte/karti} hue dekha tha."
     },
     {
      "t": "img",
@@ -58,7 +58,7 @@
      "dm": [
       {
        "char": "zoya",
-       "text": "Chup-chaap wale? Interesting. Main aise logon ko jaldi padh leti hun. 😏"
+       "text": "Chup-chaap {p|wale/wali}? Interesting. Main aise logon ko jaldi padh leti hun. 😏"
       },
       {
        "char": "zoya",
@@ -75,7 +75,7 @@
      "post": {
       "source": "player",
       "imageUrl": "/generated/creator-house-posts/seed-villa.png",
-      "caption": "Creator House unlocked. 🔥 Koi chupke se nahi aata — main toh bilkul nahi. Day 1, let’s gooo. #CreatorHouse #Day1",
+      "caption": "Creator House unlocked. 🔥 Koi chupke se nahi {p|aata/aati} — main toh bilkul nahi. Day 1, let’s gooo. #CreatorHouse #Day1",
       "reactions": [
        {
         "char": "ria",
@@ -127,7 +127,7 @@
     "char": "kabir",
     "text": "Ria ne khud ko bar bana liya 😭 chal ise parody maarte hain, ghar hil jaayega 🔥"
    },
-   "q": "Pehli reel mein kya karega?",
+   "q": "Pehli reel mein kya {p|karega/karegi}?",
    "reader": [
     {
      "t": "nar",
@@ -140,7 +140,7 @@
     },
     {
      "t": "cue",
-     "who": "ria",
+     "who": "Ria",
      "avatar": "/avatars/ria.png",
      "text": "Main pehle. Aisi cheezein experience se aati hain, sabke bas ki nahi. Baaki sab meri reel ke baad decide kar lena kya karna hai. 👑"
     },
@@ -205,16 +205,16 @@
      },
      "dm": [
       {
-       "char": "{ally}",
+       "char": "kabir",
        "text": "Yaar tune Ria ko poora ignore kar diya aur apna banaya 😭 respect"
       },
       {
        "char": "{ally}",
-       "text": "Sabse easy tha uspe cheap shot maarna. Tune nahi maara. Tu apne dum pe khela."
+       "text": "Sabse easy tha uspe cheap shot maarna. Tune nahi maara. Tu apne dum pe {p|khela/kheli}."
       },
       {
        "char": "{ally}",
-       "text": "Idhar sabko lagta hai main sirf jokes hun. Tu shayad pehla hai jisne kaam pe focus kiya, drama pe nahi. Ye yaad rahega. 🔥"
+       "text": "Idhar sabko lagta hai main sirf jokes hun. Tu shayad {p|pehla/pehli} hai jisne kaam pe focus kiya, drama pe nahi. Ye yaad rahega. 🔥"
       }
      ]
     }
