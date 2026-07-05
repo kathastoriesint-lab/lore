@@ -109,6 +109,17 @@ const TRUST_NUDGES: Partial<Record<CharId, {
 
 
 
+// Creator House: the crush-vote leak screenshot (D3-2) shows the CRUSH's own name
+// and face, so it flips with the player's crush — male player → Ananya (the base
+// `ch-crush-leak.png`), female player → Kabir (the `-kabir` variant). It's the only
+// gender-specific SCENE image (avatars flip separately via chCharForGender); applied
+// to both the reader img and the "blast" post it can become.
+function chGenderSceneImg(src: string | undefined, gender: 'male' | 'female'): string | undefined {
+  return src && gender === 'female' && src.endsWith('ch-crush-leak.png')
+    ? src.replace('ch-crush-leak.png', 'ch-crush-leak-kabir.png')
+    : src
+}
+
 export default function LiveScreen() {
   const { navigate, game, screen, makeChoice, advanceSituation, injectCharDM, openDMThread, dmTrust, dmBadgeCount, startGame, upsertAiPost, setPendingPostReveal, notifyDM , skipWeekWait , startDmStorySession, dmNotif } = useApp()
   // Tracks when we're mid-choice-flow so the situation-change effect doesn't clear showPost
@@ -251,7 +262,7 @@ export default function LiveScreen() {
     const mapped = blocks.map(blk => blk.t === 'cue'
       ? { t: 'msg' as const, who: resolve(blk.who), av: swapAv(blk.avatar), text: resolve(blk.text) }
       : blk.t === 'img'
-        ? { t: 'img' as const, src: blk.src, cap: blk.text ? resolve(blk.text) : '', h: blk.h, pos: blk.pos }
+        ? { t: 'img' as const, src: chGenderSceneImg(blk.src, game.playerGender), cap: blk.text ? resolve(blk.text) : '', h: blk.h, pos: blk.pos }
         : { t: 'nar' as const, text: resolve(blk.text), big: blk.big })
 
     // 2-3 CLICKS PER BEAT (founder rule): the scene reveals in CHUNKS, not
@@ -510,7 +521,7 @@ export default function LiveScreen() {
         setCompose({
           key: `${sit.id}-${letter}`,
           initialCaption: r(playerSpec.caption),
-          imageUrl: playerSpec.imageUrl || sit.reader?.find(b => b.t === 'img')?.src,
+          imageUrl: chGenderSceneImg(playerSpec.imageUrl || sit.reader?.find(b => b.t === 'img')?.src, game.playerGender),
           why: {
             eyebrow: `AB DUNIYA KO BATAO${ch.postTag ? ' · ' + r(ch.postTag) : ''}`,
             line: whyLine,
