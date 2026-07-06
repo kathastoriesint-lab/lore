@@ -63,8 +63,20 @@ export function stampTime(
     }
   }
 
-  if (last && typeof last.t === 'number') {
-    return { day: last.day ?? 1, phase: last.phase ?? 'MORNING', t: last.t + 1 }
+  // Free-chat (a typed reply): anchor AFTER the STORY-latest message (max day,t),
+  // not merely the array-last one. Messages can be injected out of arrival order
+  // (that's why the thread sorts by day,t) — if array-last precedes the real latest,
+  // a typed reply gets a timestamp that sorts into the MIDDLE and the message before
+  // it appears to jump below it (reported bug).
+  const storyLast = history.reduce<DMMessage | undefined>((best, m) => {
+    if (typeof m.t !== 'number') return best
+    if (!best) return m
+    const md = m.day ?? 1, bd = best.day ?? 1
+    return (md > bd || (md === bd && (m.t as number) > (best.t as number))) ? m : best
+  }, undefined)
+
+  if (storyLast && typeof storyLast.t === 'number') {
+    return { day: storyLast.day ?? 1, phase: storyLast.phase ?? 'MORNING', t: storyLast.t + 1 }
   }
 
   return { day: 1, phase: 'MORNING', t: 9 * 60 }
