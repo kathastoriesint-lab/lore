@@ -444,13 +444,13 @@ export default function App() {
     analytics.track('world_entered', 'creator-house', { world_id: 'creator-house' })
     recordWorldEntered('creator-house')
     if (typeof window !== 'undefined') {
-      localStorage.removeItem('lore_feed_seen')
+      localStorage.setItem('lore_feed_seen', '1')   // feed is met after the first choice (like cricket)
       localStorage.removeItem('lore_dm_openers_v1') // fresh run re-seeds openers
       localStorage.removeItem('lore_dm_cap'); localStorage.removeItem('lore_dm_seen_v1')        // fresh run clears DM throttle
     }
-    // Land on the Feed (the world hub) — Live is entered from the Feed/Messages
-    // banner, not as the first screen.
-    navigate('feed')
+    // First open lands ON THE STORY (beat 1) — same as cricket. The feed is met
+    // after your first choice creates something on it, not as the first screen.
+    navigate('live')
   }, [game.playerName, game.playerGender, saveAndSet, navigate])
 
   const startCricketGame = useCallback(() => {

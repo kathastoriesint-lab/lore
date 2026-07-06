@@ -205,17 +205,20 @@ function buildBaseEviction(id: string, game: GameState): EvictionNight | null {
   if (id === 'EV-D4') {
     // Day-4 eviction — the ally. Only reached when the player did NOT shield them
     // (page.tsx gates the trigger on !savedAlly), so this always evicts the ally.
+    // Two nominees (ally + Zoya) so the vote is a real choice like EV-D3 — the result
+    // is scripted (the ally goes) but the ceremony reads like a real eviction night.
     const allyName = male ? 'Kabir' : 'Ananya'
+    const other: CharId = male ? 'ananya' : 'kabir'   // the other housemate votes to save the ally
     return {
       id, day: 4,
-      intro: 'Doosri danger raat ka faisla. Lights down, ek hi spotlight — aur ek naam.',
-      nominees: [ally],
+      intro: 'Doosri danger raat ka faisla. Do naam khatre mein — lights down, ek spotlight.',
+      nominees: [ally, 'zoya'],
       evicted: ally,
       houseVotes: [
-        { voter: 'ria',  target: ally, line: 'Danger night sabko nanga kar deti hai. Kuch log akele reh jaate hain.' },
-        { voter: 'zoya', target: ally, line: 'Public support nahi mila na? Numbers jhooth nahi bolte. 💅' },
+        { voter: 'ria',  target: ally,   line: 'Danger night mein numbers bolte hain. Support nahi bana na... 😬' },
+        { voter: other,  target: 'zoya', line: `Zoya ka naam jaana chahiye. Main soch-samajh ke vote de ${male ? 'rahi' : 'raha'} hoon.` },
       ],
-      audience: { [ally]: 100 },
+      audience: { [ally]: 58, zoya: 42 },
       goodbye: 'Ro mat yaar 😅. Har koi apni ladta hai. Tu jeet — mere liye bhi.',
       aftermath: `${allyName} chala gaya. Ghar mein ek ${allyName}-shaped khaali jagah.`,
     }

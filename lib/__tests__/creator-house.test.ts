@@ -51,6 +51,16 @@ describe('Creator House — ally bond drives eviction (psychological only)', () 
     expect(ev.audience.dev!).toBeGreaterThanOrEqual(ev.audience.player!)
   })
 
+  it('EV-D4 (the ally eviction) offers a REAL vote — two nominees, like EV-D3', () => {
+    const ev = buildEviction('EV-D4', gameWithBond(60))!   // ally = kabir (male player)
+    expect(ev.evicted).toBe('kabir')                       // the ally always goes (scripted)
+    expect(ev.nominees).toContain('kabir')
+    expect(ev.nominees).toContain('zoya')
+    const votable = ev.nominees.filter(id => id !== 'player')
+    expect(votable.length).toBeGreaterThanOrEqual(2)       // the yourvote phase is a real choice, not one option
+    expect(ev.playerEvicted).toBeFalsy()
+  })
+
   it('evictionRisk readout matches the day + retuned threshold', () => {
     const r = evictionRisk(60, 1)!     // day 1 → next eviction is Day 3
     expect(r.day).toBe(3)
