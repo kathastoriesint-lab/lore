@@ -143,7 +143,7 @@ export function buildSelection(id: string, game: GameState, dmTrust: Record<stri
   const teamSheet = [...XI_TOP.map(name => ({ name })), fifth]
 
   const intro = {
-    1: 'Team sheet raat ko lagti hai. Corridor khaali hai. Do naam ek slot — tum, ya Naman.',
+    1: 'Team sheet raat ko lagti hai. Do naam ek slot — tum, ya Naman.',
     2: 'Selection meeting. Mahela ke saamne form sheet, Hardik ke saamne kuch aur. Darwaza bandh hota hai.',
     3: 'Eliminator. Jeeto ya ghar jao. XI subah announce hogi — aur selectors stand mein honge.',
   }[week] ?? 'Team sheet drops now.'

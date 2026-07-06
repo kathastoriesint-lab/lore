@@ -1011,26 +1011,44 @@ export default function LiveScreen() {
           </button>
         )
         return (
-          <div style={{ position: 'absolute', inset: 0, zIndex: 50, background: 'var(--bg)', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '32px 24px' }}>
-            <div style={{ position: 'absolute', top: '12%', left: '50%', transform: 'translateX(-50%)', width: 280, height: 280, borderRadius: '50%', background: 'radial-gradient(ellipse, rgba(0,48,135,.25) 0%, transparent 70%)', pointerEvents: 'none' }} />
-            <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.16em', color: '#5B8DEF', textAlign: 'center' }}>WEEK {Math.max(wk - 1, 1)} KHATAM · BREAK</div>
-            <div style={{ fontFamily: 'var(--serif)', fontSize: 27, fontWeight: 600, lineHeight: 1.35, textAlign: 'center', margin: '14px 0 6px' }}>
-              Agla match {hh}:{mm} baje.
+          <div style={{ position: 'absolute', inset: 0, zIndex: 50, background: 'var(--bg)', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ flex: 1, position: 'relative', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '32px 24px' }}>
+              <div style={{ position: 'absolute', top: '12%', left: '50%', transform: 'translateX(-50%)', width: 280, height: 280, borderRadius: '50%', background: 'radial-gradient(ellipse, rgba(0,48,135,.25) 0%, transparent 70%)', pointerEvents: 'none' }} />
+              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.16em', color: '#5B8DEF', textAlign: 'center' }}>WEEK {Math.max(wk - 1, 1)} KHATAM · BREAK</div>
+              <div style={{ fontFamily: 'var(--serif)', fontSize: 27, fontWeight: 600, lineHeight: 1.35, textAlign: 'center', margin: '14px 0 6px' }}>
+                Agla match {hh}:{mm} baje.
+              </div>
+              <div style={{ fontSize: 12.5, color: 'var(--ink3)', textAlign: 'center', marginBottom: 22 }}>
+                Tab tak dressing room khula hai — 2 log tumhara wait kar rahe hain.
+              </div>
+              {card('🧢', 'Hardik Pandya',
+                capGapNow > 0 ? `Captain ka bharosa — abhi ${capGapNow} kam` : 'Captain ka bharosa pakka rakho',
+                'TRUST', hardikDone, () => openDMThread('hardik'))}
+              {card('💡', advisorName,
+                `Agle match ke liye tips — ${advisorName} se seedhi baat`,
+                'TIPS', tipsDone, () => openDMThread(advisor))}
+              {allDone && (
+                <button onClick={() => { skipWeekWait(); }} style={{ width: '100%', marginTop: 6, padding: '15px 0', borderRadius: 16, border: 'none', background: 'var(--accent)', color: '#fff', fontWeight: 800, fontSize: 15, fontFamily: 'var(--sans)', cursor: 'pointer', boxShadow: '0 8px 28px rgba(255,45,120,.35)' }}>
+                  Dono ho gaya — agla match ABHI khelo →
+                </button>
+              )}
             </div>
-            <div style={{ fontSize: 12.5, color: 'var(--ink3)', textAlign: 'center', marginBottom: 22 }}>
-              Tab tak dressing room khula hai — 2 log tumhara wait kar rahe hain.
-            </div>
-            {card('🧢', 'Hardik Pandya',
-              capGapNow > 0 ? `Captain ka bharosa — abhi ${capGapNow} kam` : 'Captain ka bharosa pakka rakho',
-              'TRUST', hardikDone, () => openDMThread('hardik'))}
-            {card('💡', advisorName,
-              `Agle match ke liye tips — ${advisorName} se seedhi baat`,
-              'TIPS', tipsDone, () => openDMThread(advisor))}
-            {allDone && (
-              <button onClick={() => { skipWeekWait(); }} style={{ width: '100%', marginTop: 6, padding: '15px 0', borderRadius: 16, border: 'none', background: 'var(--accent)', color: '#fff', fontWeight: 800, fontSize: 15, fontFamily: 'var(--sans)', cursor: 'pointer', boxShadow: '0 8px 28px rgba(255,45,120,.35)' }}>
-                Dono ho gaya — agla match ABHI khelo →
+            {/* Keep the bottom nav during the break so Feed / Messages / Profile stay reachable */}
+            <div className="tabbar">
+              <button className="tab" onClick={() => navigate('feed')}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 10.5L12 3l9 7.5" /><path d="M5 9.5V21h14V9.5" /></svg>
+                <span>Feed</span>
               </button>
-            )}
+              <button className="tab" onClick={() => navigate('dm-inbox')} style={{ position: 'relative' }}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
+                {dmBadgeCount > 0 && <div className="badge-num" style={{ top: 0, right: 8 }}>{dmBadgeCount > 9 ? '9+' : dmBadgeCount}</div>}
+                <span>Messages</span>
+              </button>
+              <button className="tab" onClick={() => navigate('profile')}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><circle cx="12" cy="8" r="4" /><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7" /></svg>
+                <span>Profile</span>
+              </button>
+            </div>
           </div>
         )
       })()}
