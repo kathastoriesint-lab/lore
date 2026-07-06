@@ -1,5 +1,5 @@
 {
-  "version": 12,
+  "version": 13,
   "situations": [
     {
       "id": "D1-1",
@@ -1275,62 +1275,47 @@
     },
     {
       "id": "D4-ELIM",
+      "title": "Khaali Kursi",
+      "tag": "🌙 DAY 4 · AFTERMATH",
       "day": 4,
-      "slot": "Very Late",
-      "tag": "🌙 DAY 4 · EVICTION",
-      "title": "Eviction",
-      "body": [
-        "Doosri danger raat ka faisla aa gaya. Sab ek line mein, saans ruki hui. Production ki awaaz: 'Is hafte ghar chhodenge…'",
-        "Ek nanha sa pause. Poora ghar jaise ek saath saans rok leta hai."
-      ],
-      "react": {
-        "char": "zoya",
-        "text": "Har eviction ek lakeer kheench deta hai — pehle aur baad. Aaj ke baad ghar wahi nahi rahega. 💅"
-      },
-      "q": "Naam aa gaya. Ise kaise {p|lete/leti} ho?",
       "reader": [
         {
           "t": "nar",
-          "text": "Production: \"Is hafte ghar chhodenge…\" — aur screen pe naam jalta hai: {ally}."
+          "text": "Ceremony ke lights bujh gaye. {ally} ja {p|chuka/chuki} hai — woh banda jo har raat tere saath {p|khada/khadi} tha."
         },
         {
           "t": "nar",
-          "text": "Tumhaara banda. Woh jo har raat tere saath {p|khada/khadi} tha. Aaj tumne apna number bachaya — aur ye keemat aayi."
-        },
-        {
-          "t": "cue",
-          "who": "{ally}",
-          "avatar": "/avatars/kabir.png",
-          "text": "Are yaar, ro mat. 😅 Maine bola tha na — har koi apni ladta hai. Tu jeet, mere liye bhi. Bas… yaad rakhna main tere liye {p|khada/khadi} tha."
+          "text": "Ghar mein ek {ally}-shaped khaali jagah. Tune apna number bachaya — aur ye keemat chukayi."
         },
         {
           "t": "nar",
           "big": true,
-          "text": "Darwaaza band. Ghar mein ek {ally}-shaped khaali jagah. Tune game bachaya — par kis keemat par?"
+          "text": "Ab do raaste — usse ek aakhri baar reach karo, ya chup-chaap aage badho."
         }
       ],
       "choices": [
         {
-          "t": "{ally} ko last hug do",
-          "s": "Guilt aur pyaar. Woh {p|gaya/gayi}, tu {p|bacha/bachi}.",
+          "t": "{ally} ko aakhri message karo",
+          "s": "Woh ja {p|chuka/chuki} — par tumhaara message reach hoga.",
           "deltas": {
             "fame": 0
           },
-          "relationshipDeltas": {},
+          "relationshipDeltas": {
+            "kabir": 2
+          },
           "dm": [
             {
               "char": "kabir",
-              "text": "(bahar se, voice note) Bhai jeet ke aana. Trophy meri bhi hai 🥺 aur next time apne bande ke liye number gira dena. Love you yaar."
+              "text": "(bahar se, voice note) Bhai ro mat 😅 Maine bola tha na — har koi apni ladta hai. Tu jeet, mere liye bhi. Trophy meri bhi hai 🥺 Aur next time apne bande ke liye number gira dena. Love you yaar."
             }
           ]
         },
         {
-          "t": "Chup-chaap dekho jaate hue",
-          "s": "Kuch keh nahi paaye. Sirf dekha.",
+          "t": "Chup-chaap aage badho",
+          "s": "Game pehle. Baaki sab baad mein.",
           "deltas": {
-            "fame": 0
+            "fame": 1
           },
-          "relationshipDeltas": {},
           "dm": [
             {
               "char": "zoya",
@@ -1339,24 +1324,6 @@
           ]
         }
       ],
-      "feedReaction": {
-        "A": {
-          "account": {
-            "name": "House Watch",
-            "handle": "housewatch_india",
-            "avatarText": "H"
-          },
-          "caption": "ek aur eviction, ek aur ghar-hilaane waali raat 🥀 kuch bandhan yahin toot jaate hain #CreatorHouse #EvictionNight"
-        },
-        "B": {
-          "account": {
-            "name": "House Watch",
-            "handle": "housewatch_india",
-            "avatarText": "H"
-          },
-          "caption": "ek aur eviction, ek aur ghar-hilaane waali raat 🥀 kuch bandhan yahin toot jaate hain #CreatorHouse #EvictionNight"
-        }
-      },
       "variants": [
         {
           "when": {
@@ -1365,41 +1332,38 @@
               "gte": 1
             }
           },
+          "title": "Bacha Liya",
           "reader": [
             {
               "t": "nar",
-              "text": "Production: \"Is hafte ghar chhodenge…\" — aur screen pe naam jalta hai: Dev."
+              "text": "Danger raat ka faisla aane wala tha. Par is baar screen pe koi naam nahi jala. Production: \"Is hafte {ally} SAFE hai.\""
             },
             {
               "t": "nar",
-              "text": "Tumne kal raat apna poora number {ally} pe laga diya tha. Woh bach {p|gaya/gayi}. Aur Dev — wildcard, hamesha kinaare pe — chala jaata hai."
-            },
-            {
-              "t": "cue",
-              "who": "Dev",
-              "avatar": "/avatars/dev.png",
-              "text": "(shaant, ek muskaan) Koi shikaayat nahi. Achhi journey thi. {ally}, apne bande ka khyaal rakhna. 🙏"
+              "text": "Tune kal apna poora number {ally} pe laga diya tha — reels, tags, story. Ghar ne dekha. Woh bach {p|gaya/gayi}. Tumhaari wajah se."
             },
             {
               "t": "cue",
               "who": "{ally}",
               "avatar": "/avatars/kabir.png",
-              "text": "Bhai… tune sach mein apna number gira ke mujhe bachaya 😭 Main ye zindagi bhar nahi {p|bhoolunga/bhoolungi}."
+              "text": "Bhai… tune sach mein apna number gira ke mujhe bachaya 😭 Main ye zindagi bhar nahi bhoolunga. Ride or die — ab finale tak saath. 🔥"
             },
             {
               "t": "nar",
               "big": true,
-              "text": "Dev chala gaya. {ally} bach {p|gaya/gayi} — tumhaari wajah se. Aaj ka bandhan aur gehra ho gaya."
+              "text": "{ally} bach {p|gaya/gayi} — tumhaari wajah se. Aaj ka bandhan aur gehra ho gaya."
             }
           ],
           "choices": [
             {
               "t": "{ally} ko gale lagao",
-              "s": "Tumne use bachaya. Ye bond ab pukka.",
+              "s": "Aaj ka bond permanent hai.",
               "deltas": {
                 "fame": 0
               },
-              "relationshipDeltas": {},
+              "relationshipDeltas": {
+                "kabir": 4
+              },
               "dm": [
                 {
                   "char": "kabir",
@@ -1408,22 +1372,53 @@
               ]
             },
             {
-              "t": "Dev ko respect se vida karo",
-              "s": "Wildcard gaya, sar utha ke.",
+              "t": "\"Ab hisaab barabar\" bolo",
+              "s": "Halka mazaak, gehra bharosa.",
               "deltas": {
-                "fame": 0
+                "fame": 1
               },
-              "relationshipDeltas": {},
+              "relationshipDeltas": {
+                "kabir": 2
+              },
               "dm": [
                 {
-                  "char": "dev",
-                  "text": "(bahar se) Tune apne dost ke liye jo kiya, woh rare hai. Jeet ke dikhana. Take care. 🙏"
+                  "char": "kabir",
+                  "text": "Haha barabar kahaan bhai — main hamesha teri udhaari mein rahunga. Tu finale jeet, party mere taraf se 🍾"
                 }
               ]
             }
-          ]
+          ],
+          "q": "{ally} bach {p|gaya/gayi} — ab kya {p|karte/karti} ho?"
         }
-      ]
+      ],
+      "slot": "Very Late",
+      "body": [
+        "Doosri danger raat ka faisla aa gaya. Sab ek line mein, saans ruki hui. Production ki awaaz: 'Is hafte ghar chhodenge…'",
+        "Ek nanha sa pause. Poora ghar jaise ek saath saans rok leta hai."
+      ],
+      "react": {
+        "char": "zoya",
+        "text": "Har eviction ek lakeer kheench deta hai — pehle aur baad. Aaj ke baad ghar wahi nahi rahega. 💅"
+      },
+      "q": "Ab jab woh ja {p|chuka/chuki} hai — tumhaara agla kadam?",
+      "feedReaction": {
+        "A": {
+          "account": {
+            "name": "House Watch",
+            "handle": "housewatch_india",
+            "avatarText": "H"
+          },
+          "caption": "danger night ka faisla aa gaya 🥀 kuch bach gaye, kuch nahi… ghar aaj bhaari hai #CreatorHouse"
+        },
+        "B": {
+          "account": {
+            "name": "House Watch",
+            "handle": "housewatch_india",
+            "avatarText": "H"
+          },
+          "caption": "danger night ka faisla aa gaya 🥀 kuch bach gaye, kuch nahi… ghar aaj bhaari hai #CreatorHouse"
+        }
+      }
     },
     {
       "id": "D4-2",

@@ -600,7 +600,10 @@ export default function App() {
         const finishedId = queue[prev.situation]
         const evId = EVICTION_TRIGGERS[finishedId]
         const seen = prev.evictionsSeen ?? []
-        if (evId && !seen.includes(evId)) {
+        // EV-D4 (the ally's eviction) only fires when the player did NOT shield them.
+        // Shielded → the ally is saved, and the D4-ELIM beat plays the "saved" moment.
+        const gated = evId === 'EV-D4' && !!prev.flags?.savedAlly
+        if (evId && !seen.includes(evId) && !gated) {
           next.pendingEviction = evId
           next.evictionsSeen = [...seen, evId]
           analytics.track('eviction_night', 'creator-house', { eviction: evId, after: finishedId })

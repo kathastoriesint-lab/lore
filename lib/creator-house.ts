@@ -32,6 +32,7 @@ export interface EvictionNight {
 // situationId that, once completed, triggers an eviction night before the next beat.
 export const EVICTION_TRIGGERS: Record<string, string> = {
   'D3-3': 'EV-D3',
+  'D4-1': 'EV-D4',   // Kabir's cinematic eviction — fired only when NOT shielded (see page.tsx)
   'D7-2': 'EV-D7',
 }
 
@@ -198,6 +199,25 @@ function buildBaseEviction(id: string, game: GameState): EvictionNight | null {
       audience: { dev: 58, zoya: 42 },
       goodbye: 'Brand deals aate rahenge. Discipline kabhi nahi rukti. Main wapas aaunga. 💪',
       aftermath: 'Subah Dev ki khaali kursi sabse pehle dikhti hai. Koi kuch nahi bolta.',
+    }
+  }
+
+  if (id === 'EV-D4') {
+    // Day-4 eviction — the ally. Only reached when the player did NOT shield them
+    // (page.tsx gates the trigger on !savedAlly), so this always evicts the ally.
+    const allyName = male ? 'Kabir' : 'Ananya'
+    return {
+      id, day: 4,
+      intro: 'Doosri danger raat ka faisla. Lights down, ek hi spotlight — aur ek naam.',
+      nominees: [ally],
+      evicted: ally,
+      houseVotes: [
+        { voter: 'ria',  target: ally, line: 'Danger night sabko nanga kar deti hai. Kuch log akele reh jaate hain.' },
+        { voter: 'zoya', target: ally, line: 'Public support nahi mila na? Numbers jhooth nahi bolte. 💅' },
+      ],
+      audience: { [ally]: 100 },
+      goodbye: 'Ro mat yaar 😅. Har koi apni ladta hai. Tu jeet — mere liye bhi.',
+      aftermath: `${allyName} chala gaya. Ghar mein ek ${allyName}-shaped khaali jagah.`,
     }
   }
 
