@@ -18,6 +18,7 @@ interface Props {
 export default function DMArrivalSheet({ notif, onOpen, onDismiss }: Props) {
   const [stage, setStage] = useState<'typing' | 'typed' | 'ready'>('typing')
   const [text, setText] = useState('')
+  const [avBroken, setAvBroken] = useState(false)  // missing avatar → initials, never a broken-image icon
   const [writing, setWriting] = useState(false)
   const twRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const bootRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -53,7 +54,9 @@ export default function DMArrivalSheet({ notif, onOpen, onDismiss }: Props) {
         <div className="dma-row">
           <span className="dma-av">
             <span className="ring" />
-            <img src={`/avatars/${notif.id}.png`} alt="" />
+            {avBroken
+              ? <span className="dma-av-fb">{(notif.name?.[0] ?? '?').toUpperCase()}</span>
+              : <img src={`/avatars/${notif.id}.png`} alt="" onError={() => setAvBroken(true)} />}
             <span className="on" />
           </span>
           <div style={{ flex: 1, minWidth: 0 }}>

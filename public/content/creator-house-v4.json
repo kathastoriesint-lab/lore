@@ -1,5 +1,5 @@
 {
-  "version": 9,
+  "version": 10,
   "situations": [
     {
       "id": "D1-1",
@@ -209,11 +209,11 @@
               "text": "Yaar tune Ria ko poora ignore kar diya aur apna banaya 😭 respect"
             },
             {
-              "char": "{ally}",
+              "char": "kabir",
               "text": "Sabse easy tha uspe cheap shot maarna. Tune nahi maara. Tu apne dum pe {p|khela/kheli}."
             },
             {
-              "char": "{ally}",
+              "char": "kabir",
               "text": "Idhar sabko lagta hai main sirf jokes hun. Tu shayad {p|pehla/pehli} hai jisne kaam pe focus kiya, drama pe nahi. Ye yaad rahega. 🔥"
             }
           ]

@@ -421,6 +421,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .dma-row{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px}
 .dma-av{position:relative;flex:none}
 .dma-av img{width:46px;height:46px;border-radius:50%;object-fit:cover;display:block;border:2px solid var(--accent)}
+.dma-av-fb{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;color:#fff;background:linear-gradient(135deg,#ff2d78,#ff8a3d);border:2px solid var(--accent)}
 .dma-av .ring{position:absolute;inset:-2px;border-radius:50%;border:2px solid var(--accent);animation:dmaRing 1.9s ease-out infinite;pointer-events:none}
 .dma-av .on{position:absolute;right:-1px;bottom:-1px;width:13px;height:13px;border-radius:50%;background:var(--trust);border:2px solid #15101a}
 .dma-who{font:700 14px var(--sans);color:#fff;display:flex;align-items:center;gap:7px}
