@@ -296,7 +296,11 @@ export default function LiveScreen() {
     let tw: ReturnType<typeof setInterval> | null = null
     let dwell: ReturnType<typeof setTimeout> | null = null
     let init: ReturnType<typeof setTimeout> | null = null
-    const scroll = () => { const el = scrollRef.current; if (el) requestAnimationFrame(() => { el.scrollTop = el.scrollHeight }) }
+    // The beat's FIRST chunk anchors to the top (the opening line must never be
+    // clipped when a tall image overflows the viewport); later chunks follow the
+    // newest content down as the player taps through. Top-anchoring is also robust
+    // to the scene image loading in late (scroll-to-bottom races its final height).
+    const scroll = () => { const el = scrollRef.current; if (el) requestAnimationFrame(() => { el.scrollTop = idx <= 0 ? 0 : el.scrollHeight }) }
     const commit = () => setRevealed([...rev])
     const setLast = (patch: Partial<CinItem>) => { rev[rev.length - 1] = { ...rev[rev.length - 1], ...patch }; commit() }
 
