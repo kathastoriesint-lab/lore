@@ -4,8 +4,9 @@ import { IntroCarousel, type IntroSlide } from './IntroCarousel'
 
 // Creator House intro — three full-bleed cinematic title cards (villa → the room
 // that's always watching → your story), player-forward framing ("Feed pe naam
-// banega ya bikhrega — tum decide karoge"), matching the app-onboarding language.
-// Rendered after world-select; the CTA routes into the first beat (or resumes).
+// banega ya bikhrega — tum decide karoge"). Rendered after world-select (from the
+// Worlds hub, or after the name step on a fresh run); the CTA routes into the first
+// beat (or resumes an in-progress run).
 
 const SLIDES: IntroSlide[] = [
   { img: '/avatars/seed-villa.png', eyebrow: 'Creator House · Season 1', title: 'Chhe creators. Ek villa. Das din.' },

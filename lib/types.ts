@@ -310,7 +310,6 @@ export type Screen =
   | 'profile-global'
   | 'char-profile'
   | 'onboarding'
-  | 'app-onboarding'
   | 'login'
 
 export interface GameState {

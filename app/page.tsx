@@ -22,7 +22,6 @@ import ProfileScreen from '@/components/screens/ProfileScreen'
 import GlobalProfileScreen from '@/components/screens/GlobalProfileScreen'
 import CharProfileScreen from '@/components/screens/CharProfileScreen'
 import OnboardingScreen from '@/components/screens/OnboardingScreen'
-import AppOnboardingScreen from '@/components/screens/AppOnboardingScreen'
 import LoginScreen from '@/components/screens/LoginScreen'
 import CricketIntroScreen from '@/components/screens/CricketIntroScreen'
 import CricketCarouselScreen from '@/components/screens/CricketCarouselScreen'
@@ -253,7 +252,7 @@ export default function App() {
         // users skip straight into the app. Guests can still choose "keep playing
         // as guest" on the login screen to continue without an account.
         const authed = !!session?.user && !session.user.is_anonymous
-        navigate(!authed ? 'login' : (s.playerName ? 'worlds' : 'app-onboarding'), { replace: true })
+        navigate(!authed ? 'login' : (s.playerName ? 'worlds' : 'onboarding'), { replace: true })
       } catch {
         analytics.init(null)
         navigate('worlds', { replace: true })
@@ -378,7 +377,7 @@ export default function App() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [game.world, game.situationQueue.length])
 
-  const saveProfile = useCallback(async (name: string, gender: 'male' | 'female', avatarUrl?: string, skipNav?: boolean) => {
+  const saveProfile = useCallback(async (name: string, gender: 'male' | 'female', avatarUrl?: string) => {
     const updated: GameState = { ...game, playerName: name, playerGender: gender, avatarUrl }
     setGame(updated)
     await saveGameState({ ...updated, ...extrasSnapshot() }, getDeviceId())
@@ -394,8 +393,6 @@ export default function App() {
         })
       }
     }
-    // App onboarding drives its own hand-off routing (into the world's intro).
-    if (skipNav) return
     const pending = typeof window !== 'undefined' ? localStorage.getItem('lore_pending_world') : null
     if (pending === 'creator-house') {
       localStorage.removeItem('lore_pending_world')
@@ -1154,7 +1151,6 @@ export default function App() {
           <ErrorBoundary>
           <div className="viewport">
             <Slot id="onboarding"    cur={screen} prev={prev}><OnboardingScreen /></Slot>
-            <Slot id="app-onboarding" cur={screen} prev={prev}><AppOnboardingScreen /></Slot>
             <Slot id="login"         cur={screen} prev={prev}><LoginScreen /></Slot>
             <Slot id="worlds"        cur={screen} prev={prev}><WorldsScreen /></Slot>
             <Slot id="world-intro"   cur={screen} prev={prev}><WorldIntroScreen /></Slot>

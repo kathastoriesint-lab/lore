@@ -67,7 +67,7 @@ export interface AppCtx {
   navigate: (s: Screen, opts?: { replace?: boolean; fromStory?: boolean }) => void
   goBack: () => void
   showToast: (msg: string) => void
-  saveProfile: (name: string, gender: 'male' | 'female', avatarUrl?: string, skipNav?: boolean) => Promise<void>
+  saveProfile: (name: string, gender: 'male' | 'female', avatarUrl?: string) => Promise<void>
   setChar: (id: CharId) => void
   startGame: () => void
   startCricketGame: () => void

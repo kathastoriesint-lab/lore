@@ -4,8 +4,8 @@ import { IntroCarousel, type IntroSlide } from './IntroCarousel'
 
 // Cricket intro — three full-bleed cinematic title cards (Wankhede → the dressing
 // room that's watching → your story), player-forward framing ("Sheet pe naam aayega
-// ya nahi — tum decide karoge"), matching the app-onboarding language. Rendered
-// after world-select; the CTA routes into the first beat (or resumes / name-entry).
+// ya nahi — tum decide karoge"). Rendered after world-select; the CTA routes into
+// the first beat (or resumes an in-progress run / name-entry on a fresh player).
 
 const SLIDES: IntroSlide[] = [
   { img: '/avatars/cricket-wankhede.png', eyebrow: 'Mumbai Indians · Season 1', title: 'Solah saal. Ek contract.' },

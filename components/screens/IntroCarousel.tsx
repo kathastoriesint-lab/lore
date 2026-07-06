@@ -2,7 +2,7 @@
 import { useRef, useState, useEffect, type CSSProperties } from 'react'
 
 // Shared world-intro treatment — full-bleed cinematic title cards (villa/stadium
-// stills under a serif headline), the same language as the app-onboarding splash.
+// stills under a serif headline), the same cinematic language as the login hero.
 // Both Creator House (WorldIntroScreen) and cricket (CricketCarouselScreen) render
 // their three player-forward cards through this. Tap or swipe to advance; the last
 // card carries the world CTA. `accent` tints the eyebrow + progress + CTA per world.
