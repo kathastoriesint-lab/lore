@@ -1,5 +1,5 @@
 {
-  "version": 10,
+  "version": 11,
   "situations": [
     {
       "id": "D1-1",
@@ -51,7 +51,7 @@
       "choices": [
         {
           "t": "Quiet entry — observe first",
-          "s": "Let the house come to you. (fame +1)",
+          "s": "Let the house come to you.",
           "deltas": {
             "fame": 1
           },
@@ -68,7 +68,7 @@
         },
         {
           "t": "Loud entry — sabka dhyan kheencho",
-          "s": "Confident, noisy, unforgettable. (fame +3)",
+          "s": "Confident, noisy, unforgettable.",
           "deltas": {
             "fame": 3
           },
@@ -163,7 +163,7 @@
       "choices": [
         {
           "t": "Ria ki energy match kar — parody reel post kar de",
-          "s": "Uske format ki dhajjiyan uda de. Viral pakka, Ria khush nahi. (fame +3, ria -2)",
+          "s": "Uske format ki dhajjiyan uda de. Viral pakka, Ria khush nahi.",
           "deltas": {
             "fame": 3
           },
@@ -196,7 +196,7 @@
         },
         {
           "t": "Apni lane pakad — {ally} ko hype kar",
-          "s": "Ria ke game mein mat khel. {ally} ke saath apna original angle. (fame +1, ally +3)",
+          "s": "Ria ke game mein mat khel. {ally} ke saath apna original angle.",
           "deltas": {
             "fame": 1
           },
@@ -288,7 +288,7 @@
       "choices": [
         {
           "t": "Khul jaao, sach main suno",
-          "s": "Mask utaar de. Coffee, sach, aur ek adhoora sa kuch jo teen saal se hai. (crush +6, fame −1)",
+          "s": "Mask utaar de. Coffee, sach, aur ek adhoora sa kuch jo teen saal se hai.",
           "deltas": {
             "fame": -1
           },
@@ -312,7 +312,7 @@
         },
         {
           "t": "Bolo ki ab kyun aa rahe ho — 3 saal pehle kahaan {x|the/thi}?",
-          "s": "Sach, par pehle hisaab. Teen saal ka sawaal seedha rakh de. (crush −2, fame +1)",
+          "s": "Sach, par pehle hisaab. Teen saal ka sawaal seedha rakh de.",
           "deltas": {
             "fame": 1
           },
@@ -405,7 +405,7 @@
       "choices": [
         {
           "t": "Play along — thoda intel lo",
-          "s": "Uska trust jeeto. Par ab tum uske karzdaar ho — aur woh terrace waali baat uske paas hai. (fame +2, zoya +3)",
+          "s": "Uska trust jeeto. Par ab tum uske karzdaar ho — aur woh terrace waali baat uske paas hai.",
           "deltas": {
             "fame": 2
           },
@@ -429,7 +429,7 @@
         },
         {
           "t": "Distance rakho — kuch mat bolo",
-          "s": "Safe raho. Par Zoya ke paas ab woh terrace waala patta hai — aur woh khush nahi. (fame −1, zoya −2)",
+          "s": "Safe raho. Par Zoya ke paas ab woh terrace waala patta hai — aur woh khush nahi.",
           "deltas": {
             "fame": -1
           },
@@ -508,7 +508,7 @@
       "choices": [
         {
           "t": "Collab le lo — reach le lo",
-          "s": "Follower jump pakka. Par ab tum Ria ke karze mein ho. (fame +4, ria +2)",
+          "s": "Follower jump pakka. Par ab tum Ria ke karze mein ho.",
           "deltas": {
             "fame": 4
           },
@@ -540,7 +540,7 @@
         },
         {
           "t": "Naa bolo — independent raho",
-          "s": "Apna naam, apni sharton pe. Reach chhoti, respect apni. (fame −1, ria −3)",
+          "s": "Apna naam, apni sharton pe. Reach chhoti, respect apni.",
           "deltas": {
             "fame": -1
           },
@@ -851,7 +851,7 @@
       "choices": [
         {
           "t": "{ally} ko bharosa do — \"main hoon\"",
-          "s": "Emotional commitment. Woh {p|jaanta/jaanti} hai tum saath ho. (ally +3)",
+          "s": "Emotional commitment. Woh {p|jaanta/jaanti} hai tum saath ho.",
           "deltas": {
             "fame": 0
           },
@@ -871,7 +871,7 @@
         },
         {
           "t": "Cool raho — apna game bachao",
-          "s": "Yahan har koi apni ladta hai. Standing pehle. (ally −2)",
+          "s": "Yahan har koi apni ladta hai. Standing pehle.",
           "deltas": {
             "fame": 1
           },
@@ -954,7 +954,7 @@
       "choices": [
         {
           "t": "Saamne se clap back karo",
-          "s": "Public. Apni izzat khud rakho, chahe drama ho. (fame +3, zoya −1)",
+          "s": "Public. Apni izzat khud rakho, chahe drama ho.",
           "deltas": {
             "fame": 3
           },
@@ -987,7 +987,7 @@
         },
         {
           "t": "Chup se sambhaalo — {ally} ke paas jaao",
-          "s": "React mat karo, wahi Zoya chahti hai. Andar process karo. (fame −1, ally +2)",
+          "s": "React mat karo, wahi Zoya chahti hai. Andar process karo.",
           "deltas": {
             "fame": -1
           },
@@ -1573,7 +1573,7 @@
       "choices": [
         {
           "t": "Expose karo — sach post kar do",
-          "s": "Ria ka mask utaar do. Followers aayenge. Par ye ruthless hai. (fame +4, crush −2)",
+          "s": "Ria ka mask utaar do. Followers aayenge. Par ye ruthless hai.",
           "deltas": {
             "fame": 4
           },
@@ -1605,7 +1605,7 @@
         },
         {
           "t": "Clean raho — screenshots delete karo",
-          "s": "Zoya ke khel mein haath mat daalo. Reach kam, dignity poori. (fame −1, ally +3)",
+          "s": "Zoya ke khel mein haath mat daalo. Reach kam, dignity poori.",
           "deltas": {
             "fame": -1
           },
@@ -1653,7 +1653,7 @@
           "choices": [
             {
               "t": "Expose karo — sach post kar do",
-              "s": "Ria ka mask utaar do. Followers aayenge. Par ye ruthless hai. (fame +4, crush −2)",
+              "s": "Ria ka mask utaar do. Followers aayenge. Par ye ruthless hai.",
               "deltas": {
                 "fame": 4
               },
@@ -1685,7 +1685,7 @@
             },
             {
               "t": "Clean raho — screenshots delete karo",
-              "s": "Zoya ke khel mein haath mat daalo. Reach kam, dignity poori. (fame −1)",
+              "s": "Zoya ke khel mein haath mat daalo. Reach kam, dignity poori.",
               "deltas": {
                 "fame": -1
               },
