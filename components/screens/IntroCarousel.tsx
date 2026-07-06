@@ -1,5 +1,7 @@
 'use client'
 import { useRef, useState, useEffect, type CSSProperties } from 'react'
+import * as haptics from '@/lib/haptics'
+import * as sound from '@/lib/sound'
 
 // Shared world-intro treatment — full-bleed cinematic title cards (villa/stadium
 // stills under a serif headline), the same cinematic language as the login hero.
@@ -33,9 +35,19 @@ export function IntroCarousel({
     reduced.current = typeof window !== 'undefined' && !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
   }, [])
 
-  const buzz = (ms = 8) => { try { navigator.vibrate?.(ms) } catch { /* unsupported */ } }
-  const goTo = (i: number) => { const n = Math.max(0, Math.min(TOTAL - 1, i)); if (n !== cur) buzz(6); setCur(n) }
-  const advance = () => { buzz(10); isLast ? onEnter() : setCur(cur + 1) }
+  // Cross-into-the-world CTA: firmer haptic + the warm entry tone.
+  const doEnter = () => { haptics.select(); sound.enterWorld(); onEnter() }
+  const goTo = (i: number) => {
+    const n = Math.max(0, Math.min(TOTAL - 1, i))
+    if (n !== cur) { haptics.tap(); sound.prime(); sound.uiTick() }
+    setCur(n)
+  }
+  // Tap surface: prime the audio ctx under the gesture, then advance or enter.
+  const advance = () => {
+    sound.prime()
+    if (isLast) { doEnter(); return }
+    haptics.tap(); sound.uiTick(); setCur(cur + 1)
+  }
 
   const s = slides[cur]
   const anim = reduced.current ? undefined : 'tiUp .7s cubic-bezier(.32,.72,0,1) both'
@@ -83,7 +95,7 @@ export function IntroCarousel({
         <div key={`t${cur}`} style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 38, lineHeight: 1.08, letterSpacing: '-.01em', maxWidth: 330, marginTop: 12, animation: anim ? 'tiUp .7s cubic-bezier(.32,.72,0,1) .18s both' : undefined }}>{s.title}</div>
 
         {isLast ? (
-          <button onClick={onEnter} className="lo-press"
+          <button onClick={doEnter} className="lo-press"
             style={{ pointerEvents: 'auto', width: '100%', height: 54, marginTop: 28, border: 'none', borderRadius: 16, cursor: 'pointer', fontFamily: 'var(--sans)', fontSize: 16, fontWeight: 800, color: '#fff', background: ctaGradient, boxShadow: `0 12px 30px ${ctaShadow}` }}>
             {cta}
           </button>

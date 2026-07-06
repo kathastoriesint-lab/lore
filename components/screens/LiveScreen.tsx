@@ -17,7 +17,7 @@ import MeterHUD from '@/components/MeterHUD'
 import GoalCard from '@/components/GoalCard'
 import ChoiceSheet from '@/components/ChoiceSheet'
 import ComposePost, { type ComposeCtx } from '@/components/ComposePost'
-import FirstBeatCoach from '@/components/screens/FirstBeatCoach'
+import CoachBar from '@/components/screens/CoachBar'
 
 // A single on-screen item in the cinematic live-typing reader.
 type CinItem = {
@@ -759,11 +759,30 @@ export default function LiveScreen() {
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', position: 'relative' }}>
       <StatusBar />
 
-      {/* First-beat coach — one-time, bottom-anchored, non-blocking tips that teach
-          the core loop the first time you're in a story beat. Never covers scene one
-          (the narration stays visible above it); self-gates via localStorage. */}
-      {displaySit?.reader && (game.world === 'cricket' || game.world === 'creator-house') && (
-        <FirstBeatCoach world={game.world} />
+      {/* First-beat coach — one-time, bottom-anchored, non-blocking. Two contextual
+          tips, each fires once ever (own localStorage key), never covers the scene:
+          the tap tip on the opening narration, the choice tip when the A/B cards show. */}
+      {displaySit?.reader && chosen === null && !introGate && !readerDone && (
+        <CoachBar
+          key="coach-tap"
+          storageKey="weev_coach_tap"
+          eyebrow="Kaise chalta hai"
+          title="Kahani tumhare tap pe chalti hai"
+          body="Har line tumhare tap pe khulti hai. Jaldi nahi — scene ko jeeyo."
+          cta="Samajh gaya"
+          delayMs={1100}
+        />
+      )}
+      {displaySit?.reader && chosen === null && !introGate && readerDone && (
+        <CoachBar
+          key="coach-choice"
+          storageKey="weev_coach_choice"
+          eyebrow="Tumhari choice"
+          title="Yeh move tumhara hai"
+          body="Jo chunoge woh Feed pe ek real post banega — aur duniya react karegi."
+          cta="Chalo"
+          delayMs={650}
+        />
       )}
 
       {/* Story-pause trust nudge — sends the player into a senior's DM */}

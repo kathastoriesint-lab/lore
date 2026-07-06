@@ -6,6 +6,7 @@ import type { PostCommentOption } from '@/lib/data'
 import { getCricketChars, getCHChars, getCHPostComments } from '@/lib/content'
 import { applyDeltas, resolveTokens, fameToFollowers } from '@/lib/game'
 import { derivePosts, deriveOvernightPosts, deriveBeatBuzz, type FeedPost } from '@/lib/feed-posts'
+import FeedTabsCoach from '@/components/screens/FeedTabsCoach'
 import MeterHUD from '@/components/MeterHUD'
 import LiveEntryCard from '@/components/LiveEntryCard'
 import CommentComposer from '@/components/CommentComposer'
@@ -1118,6 +1119,9 @@ export default function FeedScreen() {
       ) : (
         <LiveEntryCard />
       )}
+
+      {/* First-visit coach — names the Feed + Messages tabs (one-time, non-blocking) */}
+      <FeedTabsCoach />
 
       {/* Tab bar — Feed · Messages · Profile (Live is entered via the card above) */}
       <div className="tabbar">

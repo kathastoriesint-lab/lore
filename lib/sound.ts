@@ -50,6 +50,28 @@ function blip(freq: number, dur: number, type: OscillatorType, gain: number, del
   osc.stop(t + dur + 0.02)
 }
 
+/** UI tick — a single soft blip for advancing (intro cards, coach tips, light confirms). */
+export function uiTick() {
+  if (!enabled) return
+  blip(620, 0.06, 'sine', 0.05, 0)
+}
+
+/** Cross into a world — a warm, rounded rising arpeggio; immersive, not celebratory
+ *  (the squad-verdict `selected` is the triumphant one). Used on the intro's enter CTA. */
+export function enterWorld() {
+  if (!enabled) return
+  blip(330, 0.22, 'sine', 0.07, 0)     // E4 — low, grounding
+  blip(494, 0.30, 'sine', 0.06, 0.12)  // B4
+  blip(659, 0.52, 'sine', 0.05, 0.26)  // E5 — the lift, lingering warm
+}
+
+/** Heart/like — a tiny bright pop. For feed likes + reaction taps. */
+export function like() {
+  if (!enabled) return
+  blip(880, 0.07, 'triangle', 0.06, 0)
+  blip(1245, 0.10, 'sine', 0.05, 0.04)
+}
+
 /** DM received — a soft two-note "pop", like a message landing. */
 export function dmLand() {
   if (!enabled) return
