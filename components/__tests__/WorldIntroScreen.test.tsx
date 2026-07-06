@@ -63,16 +63,11 @@ function renderWithCtx(ctx: Partial<AppCtx> = {}) {
   return { ...render(<AppContext.Provider value={value}><WorldIntroScreen /></AppContext.Provider>), value }
 }
 
-// The intro is now a 3-slide split-card carousel (parity with the cricket Dressing
-// Room intro): slides 0-1 show "Continue →", the last slide shows "Enter the House →".
-// The top-right "Skip" jumps to the last slide.
-const SLIDES = 3
-const advanceToLastSlide = () => {
-  for (let i = 0; i < SLIDES - 1; i++) fireEvent.click(screen.getByText('Continue →'))
-}
-
+// The intro is now a full-bleed cinematic 3-card carousel (shared IntroCarousel):
+// the top-right "Skip" jumps to the last card, which shows the "Enter the villa →"
+// CTA. That CTA routes into the first beat (enter() → startGame() on a fresh run).
 describe('WorldIntroScreen', () => {
-  it('renders the Skip button', () => {
+  it('renders the Skip button on the first card', () => {
     renderWithCtx()
     expect(screen.getByRole('button', { name: 'Skip' })).toBeInTheDocument()
   })
@@ -80,14 +75,14 @@ describe('WorldIntroScreen', () => {
   it('calls startGame when the Enter CTA is clicked (fresh run)', () => {
     const startGame = vi.fn()
     renderWithCtx({ startGame })
-    advanceToLastSlide()
-    fireEvent.click(screen.getByRole('button', { name: /Enter the House/i }))
+    fireEvent.click(screen.getByRole('button', { name: 'Skip' }))
+    fireEvent.click(screen.getByRole('button', { name: /Enter the villa/i }))
     expect(startGame).toHaveBeenCalled()
   })
 
-  it('Skip jumps to the last slide (the Enter the House CTA appears)', () => {
+  it('Skip jumps to the last card (the Enter the villa CTA appears)', () => {
     renderWithCtx()
     fireEvent.click(screen.getByRole('button', { name: 'Skip' }))
-    expect(screen.getByRole('button', { name: /Enter the House/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Enter the villa/i })).toBeInTheDocument()
   })
 })

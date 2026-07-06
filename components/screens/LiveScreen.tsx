@@ -17,6 +17,7 @@ import MeterHUD from '@/components/MeterHUD'
 import GoalCard from '@/components/GoalCard'
 import ChoiceSheet from '@/components/ChoiceSheet'
 import ComposePost, { type ComposeCtx } from '@/components/ComposePost'
+import FirstBeatCoach from '@/components/screens/FirstBeatCoach'
 
 // A single on-screen item in the cinematic live-typing reader.
 type CinItem = {
@@ -757,6 +758,13 @@ export default function LiveScreen() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', position: 'relative' }}>
       <StatusBar />
+
+      {/* First-beat coach — one-time, bottom-anchored, non-blocking tips that teach
+          the core loop the first time you're in a story beat. Never covers scene one
+          (the narration stays visible above it); self-gates via localStorage. */}
+      {displaySit?.reader && (game.world === 'cricket' || game.world === 'creator-house') && (
+        <FirstBeatCoach world={game.world} />
+      )}
 
       {/* Story-pause trust nudge — sends the player into a senior's DM */}
       {trustNudge && TRUST_NUDGES[trustNudge.charId] && (() => {

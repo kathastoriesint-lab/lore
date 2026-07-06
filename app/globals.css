@@ -100,6 +100,9 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .pulse::after{content:"";position:absolute;inset:-3px;border-radius:50%;background:#ff3b3b;
   opacity:.5;animation:pulse 1.6s ease-out infinite}
 @keyframes pulse{0%{transform:scale(.6);opacity:.6}100%{transform:scale(2.6);opacity:0}}
+/* App onboarding: pulsing tap-cue + staggered fade-up. */
+@keyframes cuePulse{0%,100%{opacity:.4}50%{opacity:.85}}
+@keyframes tiUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 
 /* ── Toast ── */
 .toast{position:absolute;left:50%;bottom:calc(var(--tabbar)+18px);transform:translate(-50%,8px);

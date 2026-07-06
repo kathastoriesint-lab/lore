@@ -152,7 +152,7 @@ export default function LoginScreen() {
     if (isDemoPhone) {
       if (c !== DEMO_OTP) { setErr('That code didn’t work — re-check or resend.'); return }
       setBusy(true); setErr(null)
-      completeDemoLogin().then(() => { setBusy(false); navigate(game.playerName ? 'worlds' : 'onboarding') })
+      completeDemoLogin().then(() => { setBusy(false); navigate(game.playerName ? 'worlds' : 'app-onboarding') })
       return
     }
     if (!window.verifyOtp) { setErr('Verification not ready — resend the code.'); return }
@@ -215,7 +215,7 @@ export default function LoginScreen() {
     if (e.key === 'Backspace' && !e.currentTarget.value && i > 0) otpRefs.current[i - 1]?.focus()
   }
 
-  function continueAsGuest() { setMethodOpen(false); navigate(game.playerName ? 'worlds' : 'onboarding') }
+  function continueAsGuest() { setMethodOpen(false); navigate(game.playerName ? 'worlds' : 'app-onboarding') }
   function continueWithEmail() { setMethodOpen(false); setErr(null); setStep('email') }
 
   // ── styles ──
