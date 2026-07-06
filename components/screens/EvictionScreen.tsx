@@ -10,7 +10,7 @@ import type { CharId } from '@/lib/types'
 // Eviction Night — the ceremony. Phases: intro → nominations → house votes (one at a
 // time) → audience bar → live tally → reveal → empty chair. Diegetic and dramatic;
 // this is the moment the storyline's scripted eviction is supposed to FEEL real.
-type Phase = 'intro' | 'nominees' | 'votes' | 'tally' | 'reveal' | 'aftermath'
+type Phase = 'intro' | 'nominees' | 'yourvote' | 'votes' | 'tally' | 'reveal' | 'aftermath'
 
 function Avatar({ id, size = 64, dim = false }: { id: CharId; size?: number; dim?: boolean }) {
   // The player can be a nominee / the evicted — render their own avatar.
@@ -48,6 +48,7 @@ export default function EvictionScreen() {
   const [phase, setPhase] = useState<Phase>('intro')
   const [voteIdx, setVoteIdx] = useState(0)   // how many house votes revealed
   const [tallyShown, setTallyShown] = useState(false)
+  const [myVote, setMyVote] = useState<CharId | null>(null)  // the player's own vote (cosmetic — result is scripted)
 
   // Guard: no pending eviction (e.g. direct nav / after resolve) → back to live.
   useEffect(() => {
@@ -61,9 +62,13 @@ export default function EvictionScreen() {
 
   if (!ev) return null
 
+  // Who the player can vote for (never themselves, even when at-risk adds them as a nominee).
+  const votable = ev.nominees.filter(id => id !== 'player')
+
   const advance = () => {
     if (phase === 'intro') setPhase('nominees')
-    else if (phase === 'nominees') setPhase('votes')
+    else if (phase === 'nominees') setPhase('yourvote')
+    else if (phase === 'yourvote') setPhase('votes')
     else if (phase === 'votes') {
       // Reveal votes one at a time; once all are shown, the next press → tally.
       if (voteIdx < ev.houseVotes.length) setVoteIdx(v => v + 1)
@@ -138,6 +143,38 @@ export default function EvictionScreen() {
         </div>
       )}
 
+      {/* ── YOUR VOTE (player casts one too — the house's result still stands) ── */}
+      {phase === 'yourvote' && (
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', position: 'relative' }}>
+          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.14em', color: 'var(--heat)', textAlign: 'center', marginBottom: 8 }}>
+            TUMHAARA VOTE
+          </div>
+          <div style={{ fontSize: 13.5, color: 'var(--ink2)', textAlign: 'center', marginBottom: 26, lineHeight: 1.5 }}>
+            Kise ghar bhejna chahte ho? Ghar ke saath tumhaara vote bhi jaayega.
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 20 }}>
+            {votable.map(id => {
+              const sel = myVote === id
+              return (
+                <button key={id} onClick={() => setMyVote(id)} style={{
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, cursor: 'pointer',
+                  padding: '16px 18px', borderRadius: 20, minWidth: 116, fontFamily: 'var(--sans)',
+                  background: sel ? 'color-mix(in srgb, var(--heat) 16%, var(--surf))' : 'var(--surf)',
+                  border: `2px solid ${sel ? 'var(--heat)' : 'var(--line)'}`,
+                  transition: 'background .2s, border-color .2s',
+                }}>
+                  <Avatar id={id} size={72} dim={!!myVote && !sel} />
+                  <div style={{ fontWeight: 700, fontSize: 15, color: 'var(--ink)' }}>{dispName(id)}</div>
+                  <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: '.06em', color: sel ? 'var(--heat)' : 'var(--ink3)' }}>
+                    {sel ? '✓ VOTE DIYA' : 'VOTE'}
+                  </div>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
       {/* ── HOUSE VOTES ── */}
       {phase === 'votes' && (
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', position: 'relative', gap: 12 }}>
@@ -172,7 +209,10 @@ export default function EvictionScreen() {
                 <div key={id}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 7 }}>
                     <Avatar id={id} size={34} />
-                    <span style={{ fontWeight: 700, fontSize: 14, flex: 1 }}>{dispName(id)}</span>
+                    <span style={{ fontWeight: 700, fontSize: 14, flex: 1 }}>
+                      {dispName(id)}
+                      {myVote === id && <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: '.06em', color: 'var(--heat)', marginLeft: 8 }}>· TUMHAARA VOTE</span>}
+                    </span>
                     <span style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 18, color: isOut ? 'var(--heat)' : 'var(--ink2)' }}>
                       {tallyShown ? pct : 0}%
                     </span>
@@ -220,9 +260,11 @@ export default function EvictionScreen() {
       {/* CTA — one clear button per phase (votes reveals one vote per press) */}
       {(
         <div style={{ paddingBottom: 44, position: 'relative' }}>
-          <button onClick={advance} style={cta(phase === 'reveal' || phase === 'aftermath')}>
+          <button onClick={advance} disabled={phase === 'yourvote' && !myVote}
+            style={{ ...cta(phase === 'reveal' || phase === 'aftermath'), ...(phase === 'yourvote' && !myVote ? { opacity: 0.45, cursor: 'default' } : {}) }}>
             {phase === 'intro' && 'Nominations dekho →'}
-            {phase === 'nominees' && 'Voting shuru karo →'}
+            {phase === 'nominees' && 'Apna vote daalo →'}
+            {phase === 'yourvote' && (myVote ? 'Vote lock karo 🔒' : 'Ek naam chuno')}
             {phase === 'votes' && (voteIdx < ev.houseVotes.length ? 'Agla vote →' : 'Public vote dekho →')}
             {phase === 'tally' && 'Result reveal karo →'}
             {phase === 'reveal' && 'Aage badho →'}
