@@ -5,7 +5,8 @@ import * as sound from '@/lib/sound'
 
 // FeedTabsCoach — a small one-time bar above the tab strip that names the two tabs
 // that matter: Feed (the world's reactions) and Messages (character DMs). Icons match
-// the real tab icons below it. Non-blocking, self-gates via localStorage, dismissable.
+// the real tab icons below it. Same card format as the story CoachBar — eyebrow + Skip
+// on top, a full-width "Samajh gaya" button at the bottom. Non-blocking, self-gates.
 
 const KEY = 'weev_coach_feed'
 
@@ -22,11 +23,12 @@ export default function FeedTabsCoach({ delayMs = 900 }: { delayMs?: number }) {
     return () => clearTimeout(t)
   }, [delayMs])
 
-  const done = () => {
-    haptics.select(); sound.prime(); sound.uiTick()
+  const close = () => {
     try { localStorage.setItem(KEY, '1') } catch { /* ignore */ }
     setOpen(false)
   }
+  const done = () => { haptics.select(); sound.prime(); sound.uiTick(); close() }
+  const skip = () => { haptics.tap(); close() }
 
   if (!open) return null
 
@@ -44,20 +46,24 @@ export default function FeedTabsCoach({ delayMs = 900 }: { delayMs?: number }) {
 
   return (
     // Sits just above the tab strip; icons mirror the tabs below it. Non-blocking.
-    <div style={{ position: 'absolute', left: 0, right: 0, bottom: 72, zIndex: 40, pointerEvents: 'none', display: 'flex', justifyContent: 'center', padding: '0 14px' }}>
+    <div style={{ position: 'absolute', left: 0, right: 0, bottom: 72, zIndex: 40, pointerEvents: 'none', display: 'flex', justifyContent: 'center', padding: '0 16px' }}>
       <div style={{
         pointerEvents: 'auto', width: '100%', maxWidth: 360,
         background: 'linear-gradient(180deg,#1a1020,#140d18)', border: '1px solid rgba(255,45,120,.3)',
-        borderRadius: 16, padding: '12px 14px',
-        boxShadow: '0 16px 40px rgba(0,0,0,.55), 0 0 22px rgba(255,45,120,.1)',
+        borderRadius: 20, padding: '17px 18px 16px',
+        boxShadow: '0 18px 50px rgba(0,0,0,.6), 0 0 26px rgba(255,45,120,.12)',
         fontFamily: 'var(--sans)', animation: reduced.current ? undefined : 'tiUp .4s cubic-bezier(.32,.72,0,1) both',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-          <span style={{ fontSize: 8.5, fontWeight: 800, letterSpacing: '.14em', textTransform: 'uppercase', color: 'var(--accent)' }}>Neeche do zaroori tab</span>
-          <button onClick={done} style={{ background: 'none', border: 'none', color: 'var(--accent)', fontSize: 11, fontWeight: 800, fontFamily: 'var(--sans)', cursor: 'pointer' }}>Samajh gaya</button>
+          <span style={{ fontSize: 8.5, fontWeight: 800, letterSpacing: '.15em', textTransform: 'uppercase', color: 'var(--accent)' }}>Neeche do zaroori tab</span>
+          <button onClick={skip} style={{ background: 'none', border: 'none', color: 'var(--ink3)', fontSize: 11, fontWeight: 700, fontFamily: 'var(--sans)', cursor: 'pointer', letterSpacing: '.04em' }}>Skip</button>
         </div>
         {row(<><path d="M3 10.5L12 3l9 7.5" /><path d="M5 9.5V21h14V9.5" /></>, 'Feed', 'Duniya ki reactions — har move pe live')}
         {row(<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />, 'Messages', 'Characters ke seedhe DM — rishte yahin bante hain')}
+        <button onClick={done} className="lo-press"
+          style={{ marginTop: 14, height: 40, width: '100%', border: 'none', borderRadius: 12, background: 'linear-gradient(120deg,#ff2d78,#c01a5a)', color: '#fff', fontWeight: 800, fontSize: 13.5, fontFamily: 'var(--sans)', cursor: 'pointer' }}>
+          Samajh gaya
+        </button>
       </div>
     </div>
   )
