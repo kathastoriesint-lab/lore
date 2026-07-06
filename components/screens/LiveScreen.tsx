@@ -117,9 +117,8 @@ const TRUST_NUDGES: Partial<Record<CharId, {
 function chGenderSceneImg(src: string | undefined, gender: 'male' | 'female'): string | undefined {
   if (!src || gender !== 'female') return src
   if (src.endsWith('ch-crush-leak.png')) return src.replace('ch-crush-leak.png', 'ch-crush-leak-kabir.png')
-  // The D3-1 "duo" player post shows the crush → neutral villa shot for a female player
-  // until its -f twin exists (the male-default image is the wrong person).
-  if (src.endsWith('ch-post-d3-1.png')) return src.replace('ch-post-d3-1.png', 'seed-villa.png')
+  // The D3-1 "duo" player post shows the crush → the -f variant (Kabir) for a female player.
+  if (src.endsWith('ch-post-d3-1.png')) return src.replace('ch-post-d3-1.png', 'ch-post-d3-1-f.png')
   return src
 }
 

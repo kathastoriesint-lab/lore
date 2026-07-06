@@ -64,6 +64,14 @@ const CH_FILL_BY_ACCT: Record<string, string[]> = {
 const CH_FILL_BY_CHAR: Record<string, string[]> = {
   ria: ['seed-ria'], kabir: ['seed-kabir'], ananya: ['seed-ananya'], dev: ['seed-dev'], zoya: ['seed-zoya'],
 }
+// Crush/ally post images whose female (-f) bespoke variant has been generated. For a
+// female player these swap to the -f file; anything not listed falls back to the seed
+// shot (until its -f twin is generated).
+const CH_POST_HAS_FEM = new Set(['ch-post-crush-d3-3', 'ch-post-crush-d4-2b', 'ch-post-crush-d5-1', 'ch-post-ally-d3nom', 'ch-post-d3-1'])
+function chFemVariant(url: string | undefined): string | undefined {
+  const base = url?.replace(/.*\//, '').replace(/\.png$/, '')
+  return base && CH_POST_HAS_FEM.has(base) ? url!.replace(/\.png$/, '-f.png') : undefined
+}
 function feedFillImg(handle: string | undefined, char: string | undefined, step: number, isCricket: boolean): string | undefined {
   const prefix = isCricket ? GP : CHP
   const acctMap = isCricket ? FEED_FILL_BY_ACCT : CH_FILL_BY_ACCT
@@ -136,10 +144,10 @@ export function derivePosts(game: GameState): FeedPost[] {
     } else if (reaction && reaction.char) {
       // Real character reaction → npc post (gender-correct for CH crush/ally), + photo.
       const char = allChars[chCharForGender(reaction.char, game.playerGender) as CharId]
-      // Female player: crush/ally display the swapped character, so use their seed shot
-      // instead of the male-default bespoke image (never a wrong-gender face).
+      // Female player: crush/ally display the swapped character → use the -f bespoke
+      // variant if it exists, else the gender-correct seed shot (never a wrong-gender face).
       const femSwap = !isCricket && game.playerGender === 'female' && (reaction.char === 'ananya' || reaction.char === 'kabir')
-      const reactImg = femSwap ? charFill : (reaction.imageUrl ?? charFill)
+      const reactImg = femSwap ? (chFemVariant(reaction.imageUrl) ?? charFill) : (reaction.imageUrl ?? charFill)
       if (char) posts.push({ type: 'npc', postId: `react-${sit.id}-${letter}`, sit, stepIndex: i, postOffset: 2, choice: letter, reaction: { char: reaction.char, caption: reaction.caption, imageUrl: reactImg }, char })
     }
 
@@ -169,11 +177,10 @@ export function derivePosts(game: GameState): FeedPost[] {
           const postFill = (!owner.isPlayer && !authoredPost.imageUrl)
             ? feedFillImg(authoredPost.source === 'account' ? owner.handle : undefined, authoredPost.source === 'character' && authoredPost.char ? chCharForGender(authoredPost.char, game.playerGender) : undefined, i, isCricket)
             : undefined
-          // The D3-1 "duo" player post features the crush → the male-default image is the
-          // wrong person for a female player; fall back to a neutral villa shot until its
-          // -f twin exists.
-          const authoredImg = (!isCricket && game.playerGender === 'female' && authoredPost.imageUrl?.endsWith('ch-post-d3-1.png'))
-            ? '/generated/creator-house-posts/seed-villa.png'
+          // The D3-1 "duo" player post features the crush → for a female player swap to
+          // the -f variant (Kabir) if it exists, else the male-default image.
+          const authoredImg = (!isCricket && game.playerGender === 'female')
+            ? (chFemVariant(authoredPost.imageUrl) ?? authoredPost.imageUrl)
             : authoredPost.imageUrl
           posts.push({ type: 'authored', postId: `post-${sit.id}-${letter}-${postIndex}`, sit, stepIndex: i, postOffset: postIndex * 2, choice: letter, caption: ai?.caption ?? authoredPost.caption, imageUrl: ai?.imageUrl ?? authoredImg ?? postFill, owner, label: authoredPost.label, reactions: ai?.reactions?.length ? ai.reactions : (authoredPost.reactions ?? []), comments: authoredPost.comments })
         }

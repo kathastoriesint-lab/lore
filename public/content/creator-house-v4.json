@@ -1,5 +1,5 @@
 {
-  "version": 13,
+  "version": 14,
   "situations": [
     {
       "id": "D1-1",
@@ -1521,7 +1521,8 @@
       "feedReaction": {
         "A": {
           "char": "ananya",
-          "caption": "Kuch raatein feed pe nahi jaati. Aaj wali unme se ek hai. 🌙✨ #CreatorHouse"
+          "caption": "Kuch raatein feed pe nahi jaati. Aaj wali unme se ek hai. 🌙✨ #CreatorHouse",
+          "imageUrl": "/generated/creator-house-posts/ch-post-crush-d4-2a.png"
         },
         "B": {
           "char": "ananya",
