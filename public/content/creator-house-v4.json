@@ -1,5 +1,5 @@
 {
-  "version": 11,
+  "version": 12,
   "situations": [
     {
       "id": "D1-1",
@@ -108,7 +108,8 @@
         },
         "B": {
           "char": "ria",
-          "caption": "Kuch log aate hain. Kuch log entry maarte hain. Day 1 se hi volume max. Let’s see kab tak chalti hai battery. 🤍"
+          "caption": "Kuch log aate hain. Kuch log entry maarte hain. Day 1 se hi volume max. Let’s see kab tak chalti hai battery. 🤍",
+          "imageUrl": "/generated/creator-house-posts/ch-post-ria-d1-1.png"
         }
       }
     },
@@ -222,7 +223,8 @@
       "feedReaction": {
         "A": {
           "char": "ria",
-          "caption": "Imitation flattery nahi hota jab tumhare paas apna kuch na ho. Day 1 se hi meri reel copy kar rahe hain. Main hun hi itni iconic. 🤍 #CreatorHouse"
+          "caption": "Imitation flattery nahi hota jab tumhare paas apna kuch na ho. Day 1 se hi meri reel copy kar rahe hain. Main hun hi itni iconic. 🤍 #CreatorHouse",
+          "imageUrl": "/generated/creator-house-posts/ch-post-ria-d1-2.png"
         },
         "B": {
           "account": {
@@ -455,7 +457,8 @@
       "feedReaction": {
         "A": {
           "char": "zoya",
-          "caption": "1 AM kitchen talks with my new fav in the house 🫶 sabse pyaari energy yahin hai! #CreatorHouse #Day2"
+          "caption": "1 AM kitchen talks with my new fav in the house 🫶 sabse pyaari energy yahin hai! #CreatorHouse #Day2",
+          "imageUrl": "/generated/creator-house-posts/ch-post-zoya-d2-1.png"
         },
         "B": {
           "account": {
@@ -535,7 +538,8 @@
                 },
                 "text": "day 2 aur already queen ki chhatri ke neeche 🌂 smart ya scared? 👀"
               }
-            ]
+            ],
+            "imageUrl": "/generated/creator-house-posts/ch-post-d2-2.png"
           }
         },
         {
@@ -574,7 +578,8 @@
         },
         "B": {
           "char": "ria",
-          "caption": "Some people build their own name. Respect. Dekhte hain woh name kitna bada hota hai. 🤍 #CreatorHouse"
+          "caption": "Some people build their own name. Respect. Dekhte hain woh name kitna bada hota hai. 🤍 #CreatorHouse",
+          "imageUrl": "/generated/creator-house-posts/ch-post-ria-d2-2.png"
         }
       }
     },
@@ -643,7 +648,8 @@
                 "name": "housewatch_india",
                 "text": "koi strategy nahi, sirf sach 🥺 vote button dhoondh rahi hoon SAVE ke liye #CreatorHouse"
               }
-            ]
+            ],
+            "imageUrl": "/generated/creator-house-posts/ch-post-d2-3a.png"
           }
         },
         {
@@ -669,7 +675,8 @@
                 "name": "creator.tea",
                 "text": "ye banda danger night pe SPECTACLE de raha hai?? 🍿 either legend or gone by morning 👀"
               }
-            ]
+            ],
+            "imageUrl": "/generated/creator-house-posts/ch-post-d2-3b.png"
           }
         }
       ],
@@ -762,7 +769,8 @@
                 "name": "housewatch_india",
                 "text": "RUKO YEH DUO?? day 3 aur main already invested 😭 ship ho gaya bhai"
               }
-            ]
+            ],
+            "imageUrl": "/generated/creator-house-posts/ch-post-d3-1.png"
           }
         },
         {
@@ -801,7 +809,8 @@
         },
         "B": {
           "char": "ria",
-          "caption": "Smart. Apna lane protect karna maturity hai. Feelings baad mein, followers pehle. Noted. 🤍 #CreatorHouse"
+          "caption": "Smart. Apna lane protect karna maturity hai. Feelings baad mein, followers pehle. Noted. 🤍 #CreatorHouse",
+          "imageUrl": "/generated/creator-house-posts/ch-post-ria-d3-1.png"
         }
       }
     },
@@ -893,7 +902,8 @@
       "feedReaction": {
         "A": {
           "char": "kabir",
-          "caption": "is ghar mein ek banda mila jo mere liye khada raha, bina soche 🥺 baaki sab apna number dekh rahe the #CreatorHouse #Nominations"
+          "caption": "is ghar mein ek banda mila jo mere liye khada raha, bina soche 🥺 baaki sab apna number dekh rahe the #CreatorHouse #Nominations",
+          "imageUrl": "/generated/creator-house-posts/ch-post-ally-d3nom.png"
         },
         "B": {
           "account": {
@@ -1126,7 +1136,8 @@
       "feedReaction": {
         "A": {
           "char": "ananya",
-          "caption": "kuch cheezein followers se zyaada keemti hoti hain. aaj samajh aaya. 🌙✨ #nofilter"
+          "caption": "kuch cheezein followers se zyaada keemti hoti hain. aaj samajh aaya. 🌙✨ #nofilter",
+          "imageUrl": "/generated/creator-house-posts/ch-post-crush-d3-3.png"
         },
         "B": {
           "account": {
@@ -1238,7 +1249,8 @@
                 "name": "housewatch_india",
                 "text": "left the bestie on the danger board to save their OWN number?? cold blooded 😭 #CreatorHouse"
               }
-            ]
+            ],
+            "imageUrl": "/generated/creator-house-posts/ch-post-d4-1.png"
           },
           "flagDeltas": {
             "allyEvicted": 1
@@ -1256,7 +1268,8 @@
         },
         "B": {
           "char": "ria",
-          "caption": "Danger night reveals everyone. Some shield their friends. Some shield their numbers. I respect the honest ones. 👑 #CreatorHouse"
+          "caption": "Danger night reveals everyone. Some shield their friends. Some shield their numbers. I respect the honest ones. 👑 #CreatorHouse",
+          "imageUrl": "/generated/creator-house-posts/ch-post-ria-d4-1.png"
         }
       }
     },
@@ -1517,7 +1530,8 @@
         },
         "B": {
           "char": "ananya",
-          "caption": "Terrace, akeli, thandi hawa. Itna hi chahiye tha waise bhi. Kisi ka intezaar nahi tha. Bilkul nahi. 🙂🌙 #CreatorHouse"
+          "caption": "Terrace, akeli, thandi hawa. Itna hi chahiye tha waise bhi. Kisi ka intezaar nahi tha. Bilkul nahi. 🙂🌙 #CreatorHouse",
+          "imageUrl": "/generated/creator-house-posts/ch-post-crush-d4-2b.png"
         }
       }
     },
@@ -1600,7 +1614,8 @@
                 },
                 "text": "NOT THE RECEIPTS 😭😭 ria's whole empire on borrowed money?? this house just went NUCLEAR #CreatorHouse #Exposed"
               }
-            ]
+            ],
+            "imageUrl": "/generated/creator-house-posts/ch-post-d4-3.png"
           }
         },
         {
@@ -1639,7 +1654,8 @@
         },
         "B": {
           "char": "ria",
-          "caption": "Someone had my life in their hands last night. They chose to walk away clean. I don't forget things like that. 🤍 #CreatorHouse"
+          "caption": "Someone had my life in their hands last night. They chose to walk away clean. I don't forget things like that. 🤍 #CreatorHouse",
+          "imageUrl": "/generated/creator-house-posts/ch-post-ria-d4-3.png"
         }
       },
       "variants": [
@@ -1785,7 +1801,8 @@
                 },
                 "text": "FINALE EVE aur ye banda solo chala gaya 👀 numbers ke liye sab chhod diya. iconic ya ice-cold? #CreatorHouse"
               }
-            ]
+            ],
+            "imageUrl": "/generated/creator-house-posts/ch-post-d5-1.png"
           }
         },
         {
@@ -1824,7 +1841,8 @@
         },
         "B": {
           "char": "ananya",
-          "caption": "Kisi ne aaj raat pachaas hazaar log chhod diye… ek insaan ke liye. Main. 🌙 Kal jo bhi ho, ye raat meri hai. #FinaleEve"
+          "caption": "Kisi ne aaj raat pachaas hazaar log chhod diye… ek insaan ke liye. Main. 🌙 Kal jo bhi ho, ye raat meri hai. #FinaleEve",
+          "imageUrl": "/generated/creator-house-posts/ch-post-crush-d5-1.png"
         }
       }
     },
@@ -1933,7 +1951,8 @@
         },
         "B": {
           "char": "kabir",
-          "caption": "mera banda jeet gaya 😭🔥 aur trophy uthake sabse pehle humaara naam liya. yahi banda jeetne ke laayak tha. #Finale #CreatorHouse"
+          "caption": "mera banda jeet gaya 😭🔥 aur trophy uthake sabse pehle humaara naam liya. yahi banda jeetne ke laayak tha. #Finale #CreatorHouse",
+          "imageUrl": "/generated/creator-house-posts/ch-post-ally-d5-2.png"
         }
       },
       "variants": [

@@ -125,7 +125,10 @@ export function derivePosts(game: GameState): FeedPost[] {
     // reaction stays an npc post (so it keeps its comment composer → the character's
     // DM back, plus trust-on-like) and now carries the photo too, not a blank gradient.
     const acctFill = reaction?.account && !reaction.imageUrl ? feedFillImg(reaction.account.handle, undefined, i, isCricket) : undefined
-    const charFill = reaction?.char && !reaction.imageUrl ? feedFillImg(undefined, chCharForGender(reaction.char, game.playerGender), i, isCricket) : undefined
+    // charFill is always computed (even when the reaction has a bespoke image) so a
+    // FEMALE player can fall back to the gender-correct seed shot on crush/ally posts,
+    // whose bespoke photo is the male-default look until its `-f` twin exists.
+    const charFill = reaction?.char ? feedFillImg(undefined, chCharForGender(reaction.char, game.playerGender), i, isCricket) : undefined
     if (reaction && reaction.account) {
       // Fan / media account reaction → authored card (photo, commentable, never DMs).
       const owner = { id: '__account', cls: '', init: reaction.account.avatarText ?? reaction.account.name[0]?.toUpperCase() ?? 'F', handle: reaction.account.handle, color: '#003087', isPlayer: false }
@@ -133,7 +136,11 @@ export function derivePosts(game: GameState): FeedPost[] {
     } else if (reaction && reaction.char) {
       // Real character reaction → npc post (gender-correct for CH crush/ally), + photo.
       const char = allChars[chCharForGender(reaction.char, game.playerGender) as CharId]
-      if (char) posts.push({ type: 'npc', postId: `react-${sit.id}-${letter}`, sit, stepIndex: i, postOffset: 2, choice: letter, reaction: { char: reaction.char, caption: reaction.caption, imageUrl: reaction.imageUrl ?? charFill }, char })
+      // Female player: crush/ally display the swapped character, so use their seed shot
+      // instead of the male-default bespoke image (never a wrong-gender face).
+      const femSwap = !isCricket && game.playerGender === 'female' && (reaction.char === 'ananya' || reaction.char === 'kabir')
+      const reactImg = femSwap ? charFill : (reaction.imageUrl ?? charFill)
+      if (char) posts.push({ type: 'npc', postId: `react-${sit.id}-${letter}`, sit, stepIndex: i, postOffset: 2, choice: letter, reaction: { char: reaction.char, caption: reaction.caption, imageUrl: reactImg }, char })
     }
 
     const legacyPost: ChoicePost | null = ch?.caption ? { source: 'player', caption: ch.caption, reactions: ch.reactions ?? [] } : null
@@ -162,7 +169,13 @@ export function derivePosts(game: GameState): FeedPost[] {
           const postFill = (!owner.isPlayer && !authoredPost.imageUrl)
             ? feedFillImg(authoredPost.source === 'account' ? owner.handle : undefined, authoredPost.source === 'character' && authoredPost.char ? chCharForGender(authoredPost.char, game.playerGender) : undefined, i, isCricket)
             : undefined
-          posts.push({ type: 'authored', postId: `post-${sit.id}-${letter}-${postIndex}`, sit, stepIndex: i, postOffset: postIndex * 2, choice: letter, caption: ai?.caption ?? authoredPost.caption, imageUrl: ai?.imageUrl ?? authoredPost.imageUrl ?? postFill, owner, label: authoredPost.label, reactions: ai?.reactions?.length ? ai.reactions : (authoredPost.reactions ?? []), comments: authoredPost.comments })
+          // The D3-1 "duo" player post features the crush → the male-default image is the
+          // wrong person for a female player; fall back to a neutral villa shot until its
+          // -f twin exists.
+          const authoredImg = (!isCricket && game.playerGender === 'female' && authoredPost.imageUrl?.endsWith('ch-post-d3-1.png'))
+            ? '/generated/creator-house-posts/seed-villa.png'
+            : authoredPost.imageUrl
+          posts.push({ type: 'authored', postId: `post-${sit.id}-${letter}-${postIndex}`, sit, stepIndex: i, postOffset: postIndex * 2, choice: letter, caption: ai?.caption ?? authoredPost.caption, imageUrl: ai?.imageUrl ?? authoredImg ?? postFill, owner, label: authoredPost.label, reactions: ai?.reactions?.length ? ai.reactions : (authoredPost.reactions ?? []), comments: authoredPost.comments })
         }
       })
     }

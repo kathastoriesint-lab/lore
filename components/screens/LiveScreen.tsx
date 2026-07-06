@@ -115,9 +115,12 @@ const TRUST_NUDGES: Partial<Record<CharId, {
 // gender-specific SCENE image (avatars flip separately via chCharForGender); applied
 // to both the reader img and the "blast" post it can become.
 function chGenderSceneImg(src: string | undefined, gender: 'male' | 'female'): string | undefined {
-  return src && gender === 'female' && src.endsWith('ch-crush-leak.png')
-    ? src.replace('ch-crush-leak.png', 'ch-crush-leak-kabir.png')
-    : src
+  if (!src || gender !== 'female') return src
+  if (src.endsWith('ch-crush-leak.png')) return src.replace('ch-crush-leak.png', 'ch-crush-leak-kabir.png')
+  // The D3-1 "duo" player post shows the crush → neutral villa shot for a female player
+  // until its -f twin exists (the male-default image is the wrong person).
+  if (src.endsWith('ch-post-d3-1.png')) return src.replace('ch-post-d3-1.png', 'seed-villa.png')
+  return src
 }
 
 export default function LiveScreen() {
