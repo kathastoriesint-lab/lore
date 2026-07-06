@@ -58,7 +58,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .screen.tabfade.active{transform:none;opacity:1;transition:opacity var(--t-tab) ease,visibility 0s}
 .screen.tabfade.behind{transform:none;opacity:0}
 
-.scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.scroll{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .scroll::-webkit-scrollbar{display:none}
 
 /* ── Status bar ── */

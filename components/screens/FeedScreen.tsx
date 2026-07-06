@@ -11,6 +11,18 @@ import MeterHUD from '@/components/MeterHUD'
 import LiveEntryCard from '@/components/LiveEntryCard'
 import CommentComposer from '@/components/CommentComposer'
 
+// Scroll a post to the top of the feed WITHOUT using Element.scrollIntoView — in a
+// mobile WebView that bubbles to the window/page scroll and shoves the whole screen
+// up, leaving blank space below the tab bar. Scroll ONLY the feed container.
+function scrollFeedToPost(postId: string) {
+  const sc = document.getElementById('feed-scroll')
+  if (!sc) return
+  const el = postId ? document.getElementById(postId) : null
+  if (!el) { sc.scrollTo({ top: 0, behavior: 'smooth' }); return }
+  const delta = el.getBoundingClientRect().top - sc.getBoundingClientRect().top
+  sc.scrollTo({ top: Math.max(0, sc.scrollTop + delta), behavior: 'smooth' })
+}
+
 // Inline character background — color-mix(var(--cc)) fails without a parent with the CSS class
 const CHAR_COLORS_HEX: Record<string, string> = {
   ria:'#b03a5e', kabir:'#2a6f8f', dev:'#3a7a4a', ananya:'#8a4ab0', zoya:'#aa6a8a',
@@ -661,8 +673,7 @@ export default function FeedScreen() {
     lastSeenChoicesRef.current = game.choices.length
     if (!fresh && !pendingPostReveal) return
     const t = setTimeout(() => {
-      const target = pendingPostReveal ? document.getElementById(`fp-${pendingPostReveal}`) : null
-      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      if (pendingPostReveal) scrollFeedToPost(`fp-${pendingPostReveal}`)
       else { const sc = document.getElementById('feed-scroll'); if (sc) sc.scrollTop = 0 }
     }, 250)
     return () => clearTimeout(t)
@@ -687,9 +698,7 @@ export default function FeedScreen() {
     const timers: ReturnType<typeof setTimeout>[] = []
     // Land the player ON their new post — not wherever the feed was scrolled —
     // so the streaming reactions/likes play in view.
-    timers.push(setTimeout(() => {
-      document.getElementById(`fp-${key}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    }, 350))
+    timers.push(setTimeout(() => scrollFeedToPost(`fp-${key}`), 350))
     const rafs: number[] = []
     // After a beat: pop the gain chip, animate the HUD followers, climb the likes (RAF
     // ease-out), stream comments one at a time, then fire the DM notification.
