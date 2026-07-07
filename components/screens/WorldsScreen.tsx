@@ -133,7 +133,7 @@ export default function WorldsScreen() {
               onClick={() => enterWorld(id)}
               style={{ position: 'relative', display: 'block', width: '100%', height: 244, borderRadius: 24, overflow: 'hidden', marginBottom: 16, border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left' }}
             >
-              <img src={w.art} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+              <img src={w.art} alt="" loading="lazy" decoding="async" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
               {grain}
               <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(8,8,15,.35) 0%, transparent 30%, rgba(8,8,15,.55) 60%, rgba(8,8,15,.94) 100%)' }} />
               <LiveBadge id={id} />
