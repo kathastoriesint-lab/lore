@@ -91,6 +91,14 @@ describe('resolveTokens', () => {
     expect(result).toContain('Ananya')  // ally for female
     expect(result).toContain('Kabir')   // crush for female
   })
+  it('strips a leaked LEADING stage-cue from a line', () => {
+    expect(resolveTokens('(shaant) Jo hona hai ho jaayega.', 'X', 'male')).toBe('Jo hona hai ho jaayega.')
+    expect(resolveTokens('(bahar se, voice note) Bhai ro mat', 'X', 'male')).toBe('Bhai ro mat')
+  })
+  it('never strips a numeric score or an inline mid-line aside', () => {
+    expect(resolveTokens('Score (29) tha', 'X', 'male')).toBe('Score (29) tha')
+    expect(resolveTokens('routine (parody hai relax) #Day1', 'X', 'male')).toBe('routine (parody hai relax) #Day1')
+  })
 })
 
 describe('charMeters', () => {

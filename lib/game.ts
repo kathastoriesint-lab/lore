@@ -603,6 +603,11 @@ export function resolveTokens(text: string, playerName: string, playerGender: 'm
   const crushHandle = male ? 'ananya.creates' : 'kabirlol'
   const allyHandle  = male ? 'kabirlol' : 'ananya.creates'
   return text
+    // Strip a LEADING authoring stage-cue that leaked into a line — a short
+    // parenthetical at the very start, e.g. "(shaant)" or "(bahar se, voice note)".
+    // Guarded so it never eats a numeric score "(29)" or an inline aside that
+    // appears mid-line like "(parody hai relax 😂)".
+    .replace(/^\s*\([^)\d][^)]{0,38}\)\s*/, '')
     .replaceAll('{name}', playerName || 'Tum')
     .replaceAll('{friend}', friendName)
     .replaceAll('{crush}', crush)
