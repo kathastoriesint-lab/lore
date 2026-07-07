@@ -2,6 +2,8 @@
 import { useState, useEffect, useRef, type CSSProperties, type FormEvent, type KeyboardEvent } from 'react'
 import { useApp } from '@/lib/context'
 import { completeMsg91Login, completeDemoLogin, DEMO_PHONE_DIGITS, DEMO_OTP, sendEmailOtp, verifyEmailOtp } from '@/lib/auth'
+import * as haptics from '@/lib/haptics'
+import * as sound from '@/lib/sound'
 
 // Phone login via the MSG91 OTP Widget (sends + verifies the OTP, returns a JWT
 // that completeMsg91Login exchanges for a Supabase session) OR email login via
@@ -152,6 +154,7 @@ export default function LoginScreen() {
     if (isDemoPhone) {
       if (c !== DEMO_OTP) { setErr('That code didn’t work — re-check or resend.'); return }
       setBusy(true); setErr(null)
+      haptics.success(); sound.confirm() // signed in
       completeDemoLogin().then(() => { setBusy(false); navigate(game.playerName ? 'worlds' : 'onboarding') })
       return
     }
@@ -164,6 +167,7 @@ export default function LoginScreen() {
         if (!token) { setBusy(false); setErr('Verification failed — try again.'); return }
         const r = await completeMsg91Login(token)
         if ('error' in r) { setBusy(false); setErr(r.error); return }
+        haptics.success() // signed in (page reloads next — haptic fires instantly)
         if (typeof window !== 'undefined') window.location.reload()
       },
       (e) => { setBusy(false); setErr(errText(e, 'That code didn’t work — re-check or resend.')) },
@@ -185,6 +189,7 @@ export default function LoginScreen() {
     setBusy(true); setErr(null)
     const r = await verifyEmailOtp(email, c)
     if ('error' in r) { setBusy(false); setErr(r.error); clearOtp(); otpRefs.current[0]?.focus(); return }
+    haptics.success() // signed in (page reloads next — haptic fires instantly)
     if (typeof window !== 'undefined') window.location.reload()
   }
 

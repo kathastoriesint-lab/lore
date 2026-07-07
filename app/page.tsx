@@ -288,7 +288,13 @@ export default function App() {
     toastTimer.current = setTimeout(() => setToast(null), 2000)
   }, [])
 
-  const navigate = useCallback((to: Screen, opts?: { replace?: boolean; fromStory?: boolean }) => {
+  const navigate = useCallback((to: Screen, opts?: { replace?: boolean; fromStory?: boolean; silent?: boolean }) => {
+    // Bottom-nav tab switch — a light tick, but ONLY on a genuine user tap to a
+    // main tab. App routing (replace), story-driven exits (fromStory) and
+    // programmatic auto-enters (silent) stay quiet so nothing buzzes on its own.
+    if (!opts?.replace && !opts?.fromStory && !opts?.silent && (to === 'feed' || to === 'dm-inbox' || to === 'profile')) {
+      haptics.tap(); sound.uiTick()
+    }
     // first_screen_opened: the first user-initiated navigation of the session
     // (replace:true navs are app routing, not user choice). With the session
     // ordinal this answers "second session — which surface did they open first",
@@ -417,7 +423,7 @@ export default function App() {
       setRelationshipAlerts([])
       saveAndSet(cricketState)
       analytics.track('world_entered', 'cricket', { world_id: 'cricket' })
-      navigate('feed')
+      navigate('feed', { silent: true })
     } else {
       navigate('worlds')
     }
@@ -484,6 +490,12 @@ export default function App() {
 
   const adjustIndividualTrust = useCallback((charId: CharId, delta: number) => {
     if (!delta || charId === 'player') return
+    // Bond milestone — crossing a band boundary upward (45 safe · 55 goal · 70 close)
+    // is a relationship level-up. Read from the ref so we can fire synchronously
+    // (no side effects inside the state updater).
+    const cur = dmTrustRef.current[charId] ?? defaultDmTrustFor(game.world, charId)
+    const after = clampTrust(cur + delta)
+    if (delta > 0 && [45, 55, 70].some(m => cur < m && after >= m)) { haptics.success(); sound.meterUp() }
     setDmTrust(prev => {
       const base = prev[charId] ?? defaultDmTrustFor(game.world, charId)
       const next = clampTrust(base + delta)
@@ -998,6 +1010,7 @@ export default function App() {
   // Like a post — updates player fame + target character's fame (idempotent: no double-like)
   const likePost = useCallback((postId: string, charId: CharId | null, _fameDelta: number) => {
     if (likedPosts.has(postId)) return  // already liked — full no-op
+    sound.like(); haptics.tap()
     setLikedPosts(prev => { const n = new Set(prev); n.add(postId); return n })
     // A like is low-stakes: liking someone ELSE's post never grows YOUR audience.
     // It just gets noticed by that creator — a small private trust nudge. The real
@@ -1018,6 +1031,7 @@ export default function App() {
   // post like a real comment (founder call, Jul 4).
   const addPostComment = useCallback((postId: string, text: string) => {
     if (!text.trim()) return
+    haptics.tap(); sound.uiTick() // comment sent
     setPostComments(prev => {
       const next = { ...prev, [postId]: text.trim() }
       postCommentsRef.current = next

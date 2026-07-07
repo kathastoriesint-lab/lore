@@ -1,6 +1,8 @@
 'use client'
 import { useState, useCallback, useEffect } from 'react'
 import { useApp } from '@/lib/context'
+import * as haptics from '@/lib/haptics'
+import * as sound from '@/lib/sound'
 
 // First-run identity. Cinematic ambient hero loop (same treatment as Login) +
 // a warm form: name + gender, fixed CTA. saveProfile handles all navigation
@@ -32,6 +34,7 @@ export default function OnboardingScreen() {
   const handleSave = useCallback(async () => {
     if (!name.trim() || saving) return
     setSaving(true)
+    haptics.success(); sound.confirm() // identity confirmed
     try {
       await saveProfile(name.trim(), gender, undefined)
     } finally {

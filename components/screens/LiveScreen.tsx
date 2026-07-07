@@ -414,6 +414,31 @@ export default function LiveScreen() {
     return () => clearTimeout(t)
   }, [introGate, screen, dmNotif, compose, sit?.id, isFinale, chosen, game.pendingSelection, game.pendingEviction, isDayLocked, game.weekUnlockAt])
 
+  // Ending / verdict — the loudest story moment. Fire once when the finale arc
+  // first renders: heavy impact + a triumphant or gut-punch tone by valence.
+  const endingCuedRef = useRef(false)
+  useEffect(() => {
+    if (!isFinale || endingCuedRef.current) return
+    endingCuedRef.current = true
+    const key = isCricket
+      ? resolveCricketEnding(asCricket(game.meters).form, captainTrust(dmTrust), (game.benchedWeeks ?? []).length)
+      : resolveEnding(game.meters.fame, computeBond(crushId(game.playerGender), 'creator-house', game.choices, game.playerName, game.playerGender, dmTrust).bond)
+    const negative = key === 'notYet' || key === 'chewedUp'
+    haptics.impact('heavy')
+    if (negative) sound.benched(); else sound.selected()
+  }, [isFinale, isCricket, game.meters, game.benchedWeeks, game.choices, game.playerGender, dmTrust])
+
+  // Meter / goal jump — cricket's result sheet. A moment AFTER the choice-confirm
+  // so decision and consequence read as two beats; only on a net-positive result.
+  useEffect(() => {
+    if (!showImpact || !sit || chosen === null) return
+    const d = sit.choices?.[chosen]?.deltas
+    const net = d ? (d.form ?? 0) + (d.fame ?? 0) + (d.trust ?? 0) : 0
+    if (net <= 0) return
+    const t = setTimeout(() => { haptics.tap(); sound.meterUp() }, 480)
+    return () => clearTimeout(t)
+  }, [showImpact, sit, chosen])
+
   // Clear pending timers on unmount to prevent post-unmount navigate/advanceSituation
   useEffect(() => {
     return () => { timersRef.current.forEach(clearTimeout) }
@@ -479,6 +504,7 @@ export default function LiveScreen() {
     const preChoiceMeters = { ...game.meters }
     processingRef.current = true
     setChosen(idx)
+    haptics.select(); sound.confirm() // choice committed
     if (isCricket) setShowImpact(true) // Creator House cuts to the feed — no Live impact card
 
     try {

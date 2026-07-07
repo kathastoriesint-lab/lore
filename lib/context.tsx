@@ -64,7 +64,7 @@ export interface AppCtx {
   injectCharDM: (charId: CharId, text: string, embed?: DMMessage['embed'], meta?: DMTimeMeta) => void
   setViewingChar: (id: CharId | null) => void
   advanceSituation: () => void
-  navigate: (s: Screen, opts?: { replace?: boolean; fromStory?: boolean }) => void
+  navigate: (s: Screen, opts?: { replace?: boolean; fromStory?: boolean; silent?: boolean }) => void
   goBack: () => void
   showToast: (msg: string) => void
   saveProfile: (name: string, gender: 'male' | 'female', avatarUrl?: string) => Promise<void>

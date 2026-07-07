@@ -20,7 +20,7 @@ export default function WorldIntroScreen() {
   // Resume an in-progress Creator House run — startGame would wipe it. Land on the
   // Feed (the world hub); Live is entered from its banner.
   const enter = () => {
-    if (game.world === 'creator-house' && game.situation > 0 && game.char) navigate('feed')
+    if (game.world === 'creator-house' && game.situation > 0 && game.char) navigate('feed', { silent: true })
     else startGame()
   }
 

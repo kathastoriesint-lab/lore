@@ -65,6 +65,31 @@ export function enterWorld() {
   blip(659, 0.52, 'sine', 0.05, 0.26)  // E5 — the lift, lingering warm
 }
 
+/** Choice / confirm — a warm, soft two-note settle. Committing an A/B choice,
+ *  confirming a name/avatar, a login landing. Gentler than postDone. */
+export function confirm() {
+  if (!enabled) return
+  blip(440, 0.09, 'sine', 0.055, 0)     // A4
+  blip(587, 0.13, 'sine', 0.05, 0.05)   // D5 — a small settle up
+}
+
+/** DM sent (outbound) — a light, quick upward tick. Deliberately quieter and
+ *  brighter than dmLand (inbound) so sending and receiving feel different. */
+export function messageSent() {
+  if (!enabled) return
+  blip(700, 0.05, 'triangle', 0.04, 0)
+  blip(960, 0.07, 'sine', 0.035, 0.03)
+}
+
+/** Meter / goal gain — a short rising blip for a positive stat bump on the
+ *  result sheet or a bond milestone. Smaller sibling of `selected`. */
+export function meterUp() {
+  if (!enabled) return
+  blip(523, 0.07, 'triangle', 0.05, 0)     // C5
+  blip(659, 0.09, 'triangle', 0.05, 0.05)  // E5
+  blip(784, 0.13, 'sine', 0.045, 0.11)     // G5 — the lift
+}
+
 /** Heart/like — a tiny bright pop. For feed likes + reaction taps. */
 export function like() {
   if (!enabled) return

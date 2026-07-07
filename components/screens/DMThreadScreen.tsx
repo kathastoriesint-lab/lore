@@ -8,6 +8,8 @@ import { fmtClock, phaseLabel } from '@/lib/dm-time'
 import { trustGateThreshold } from '@/lib/cricket-selection'
 import { DM_DAILY_BUDGET } from '@/lib/season'
 import { relationshipFor, computeBond, bondColor } from '@/lib/relationships'
+import * as haptics from '@/lib/haptics'
+import * as sound from '@/lib/sound'
 
 // CH caps (crush window / generic). Cricket uses the DAILY budget from season.ts —
 // the UI must count against the SAME number sendDM enforces, or message #11
@@ -254,10 +256,12 @@ export default function DMThreadScreen() {
     if (!charId || !text || sending) return
     setInput('')
     setDynamicChips([])
+    haptics.tap(); sound.messageSent() // outbound
     setSending(true)
     setTyping(true)
     try {
       await sendDM(charId, text)
+      sound.dmLand(); haptics.tap() // the reply landed in-thread
     } finally {
       setTyping(false)
       setSending(false)

@@ -9,7 +9,7 @@ export default function CricketIntroScreen() {
     // Resume an in-progress run — startCricketGame would wipe situation/meters/trust.
     // Land on the Feed (the world hub); Live is entered from its banner.
     if (game.world === 'cricket' && game.situation > 0) {
-      navigate('feed')
+      navigate('feed', { silent: true })
     } else if (game.playerName) {
       startCricketGame()
     } else {

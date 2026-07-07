@@ -6,6 +6,8 @@ import { buildEviction } from '@/lib/creator-house'
 import { resolveTokens } from '@/lib/game'
 import PlayerAvatar from '@/components/PlayerAvatar'
 import type { CharId } from '@/lib/types'
+import * as haptics from '@/lib/haptics'
+import * as sound from '@/lib/sound'
 
 // Eviction Night — the ceremony. Phases: intro → nominations → house votes (one at a
 // time) → audience bar → live tally → reveal → empty chair. Diegetic and dramatic;
@@ -60,12 +62,18 @@ export default function EvictionScreen() {
     if (phase === 'tally') { const t = setTimeout(() => setTallyShown(true), 150); return () => clearTimeout(t) }
   }, [phase])
 
+  // The reveal — the ceremony's gut-punch. Heavy impact + the low descending fall.
+  useEffect(() => {
+    if (phase === 'reveal') { haptics.impact('heavy'); sound.benched() }
+  }, [phase])
+
   if (!ev) return null
 
   // Who the player can vote for (never themselves, even when at-risk adds them as a nominee).
   const votable = ev.nominees.filter(id => id !== 'player')
 
   const advance = () => {
+    haptics.tap() // each ceremony step has a physical tick
     if (phase === 'intro') setPhase('nominees')
     else if (phase === 'nominees') setPhase('yourvote')
     else if (phase === 'yourvote') setPhase('votes')
@@ -156,7 +164,7 @@ export default function EvictionScreen() {
             {votable.map(id => {
               const sel = myVote === id
               return (
-                <button key={id} onClick={() => setMyVote(id)} style={{
+                <button key={id} onClick={() => { haptics.select(); setMyVote(id) }} style={{
                   display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, cursor: 'pointer',
                   padding: '16px 18px', borderRadius: 20, minWidth: 116, fontFamily: 'var(--sans)',
                   background: sel ? 'color-mix(in srgb, var(--heat) 16%, var(--surf))' : 'var(--surf)',
