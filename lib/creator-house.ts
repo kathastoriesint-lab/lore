@@ -220,7 +220,7 @@ function buildBaseEviction(id: string, game: GameState): EvictionNight | null {
       ],
       audience: { [ally]: 58, zoya: 42 },
       goodbye: 'Ro mat yaar 😅. Har koi apni ladta hai. Tu jeet — mere liye bhi.',
-      aftermath: `${allyName} chala gaya. Ghar mein ek ${allyName}-shaped khaali jagah.`,
+      aftermath: `${allyName} ${male ? 'chala gaya' : 'chali gayi'}. Ghar mein ek ${allyName}-shaped khaali jagah.`,
     }
   }
 
@@ -245,10 +245,10 @@ function buildBaseEviction(id: string, game: GameState): EvictionNight | null {
       audience: loyal ? { zoya: 61, [ally]: 39 } : { [ally]: 55, zoya: 45 },
       goodbye: loyal
         ? 'Sab ko smile dikhati rahi. Aaj sab ne asli chehra dekh liya. Bye babies. 💅'
-        : `Tu publicly saath khada hota toh main aaj yahan na hota. ${''}Yaad rakhna. 😔`,
+        : `Tu publicly saath ${male ? 'khada hota' : 'khadi hoti'} toh main aaj yahan na ${male ? 'hota' : 'hoti'}. Yaad rakhna. 😔`,
       aftermath: loyal
         ? 'Zoya gayi. Ghar thoda halka, thoda khaali. Tumne apna banda bacha liya.'
-        : `${allyName} chala gaya. Loyalty sirf private mein thi — aur yahan woh kaafi nahi hoti.`,
+        : `${allyName} ${male ? 'chala gaya' : 'chali gayi'}. Loyalty sirf private mein thi — aur yahan woh kaafi nahi hoti.`,
     }
   }
 
