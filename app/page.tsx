@@ -336,7 +336,10 @@ export default function App() {
     setNavHistory(prev => {
       if (prev.length <= 1) return prev
       const next = prev.slice(0, -1)
-      setScreen(next[next.length - 1])
+      const dest = next[next.length - 1]
+      // Track the transition (navigate does this; goBack used to bypass it, so
+      // all back-navigation went unrecorded in screen-time analytics).
+      setScreen(sPrev => { if (sPrev !== dest) analytics.trackScreen(dest, gameRef.current.world ?? null, sPrev); return dest })
       return next
     })
   }, [])
@@ -755,7 +758,10 @@ export default function App() {
         const withInbox: Screen[] = base[base.length - 1] === 'dm-inbox' ? base : [...base, 'dm-inbox']
         return [...withInbox, 'dm-thread']
       })
-      setScreen('dm-thread')
+      // Custom nav-history above means we can't use navigate(), but we still must
+      // record the screen change — otherwise story-routed DM reading/replying
+      // time was silently attributed to the underlying 'live' screen.
+      setScreen(prev => { analytics.trackScreen('dm-thread', game.world ?? null, prev); return 'dm-thread' })
     } else {
       navigate('dm-thread')
     }
