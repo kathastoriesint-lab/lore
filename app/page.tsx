@@ -5,7 +5,7 @@ import { AppContext, ImpactNotif, RelationshipAlert } from '@/lib/context'
 import {
   applyDeltas, applyFlagDeltas, charMeters, ensureSession, getAIReply, scoreTrustDelta,
   loadAllDMs, loadDMs, loadGameState, recordChoice, resetGameState, saveDM, saveGameState,
-  fameToFollowers, DEFAULT_FLAGS, buildCricketQueue, buildCHQueue, asCricket, chCharForGender,
+  fameToFollowers, DEFAULT_FLAGS, buildCricketQueue, buildCHQueue, asCricket, chCharForGender, snapshotWorld,
 } from '@/lib/game'
 import { getVisibleSituations } from '@/lib/ch-rules'
 import { stampTime, phaseFromTag, type DMTimeMeta } from '@/lib/dm-time'
@@ -433,13 +433,26 @@ export default function App() {
   }, [game, navigate, extrasSnapshot, saveAndSet])
 
   const startGame = useCallback(() => {
-    if (!game.playerName) {
+    const g = gameRef.current
+    if (!g.playerName) {
       if (typeof window !== 'undefined') localStorage.setItem('lore_pending_world', 'creator-house')
       navigate('onboarding')
       return
     }
+    // Stash the world we're leaving so switching doesn't wipe its progress.
+    const stash = { ...(g.stash ?? {}) }
+    if (g.world && g.world !== 'creator-house' && g.situation > 0) stash[g.world] = snapshotWorld(g)
+    // Resume Creator House from a prior stash instead of starting fresh.
+    const saved = stash['creator-house']
+    if (saved && (saved.situation ?? 0) > 0) {
+      delete stash['creator-house']
+      setRelationshipAlerts([])
+      saveAndSet({ ...g, ...saved, world: 'creator-house', stash })
+      navigate('feed', { silent: true })
+      return
+    }
     const newState: GameState = {
-      playerName: game.playerName, playerGender: game.playerGender,
+      playerName: g.playerName, playerGender: g.playerGender, avatarUrl: g.avatarUrl,
       // char:'player' is the self-sentinel (same as cricket). We land straight on Live —
       // the separate narrator/cast screen is gone; the cast is met via the feed.
       world: 'creator-house', char: 'player',
@@ -447,6 +460,7 @@ export default function App() {
       meters: { fame: 20 },
       flags: DEFAULT_FLAGS, runMemory: {},
       narrator_done: true, dayUnlockTime: {},
+      stash,
     }
     setRelationshipAlerts([])
     saveAndSet(newState)
@@ -460,18 +474,38 @@ export default function App() {
     // First open lands ON THE STORY (beat 1) — same as cricket. The feed is met
     // after your first choice creates something on it, not as the first screen.
     navigate('live')
-  }, [game.playerName, game.playerGender, saveAndSet, navigate])
+  }, [saveAndSet, navigate])
 
   const startCricketGame = useCallback(() => {
+    const g = gameRef.current
+    if (!g.playerName) {
+      if (typeof window !== 'undefined') localStorage.setItem('lore_pending_world', 'cricket')
+      navigate('onboarding')
+      return
+    }
+    // Stash the world we're leaving so switching doesn't wipe its progress.
+    const stash = { ...(g.stash ?? {}) }
+    if (g.world && g.world !== 'cricket' && g.situation > 0) stash[g.world] = snapshotWorld(g)
+    // Resume cricket from a prior stash instead of starting fresh (dmTrust already
+    // holds the cricket bonds — coexists across worlds — so no re-seed on resume).
+    const saved = stash['cricket']
+    if (saved && (saved.situation ?? 0) > 0) {
+      delete stash['cricket']
+      setRelationshipAlerts([])
+      saveAndSet({ ...g, ...saved, world: 'cricket', stash })
+      navigate('feed', { silent: true })
+      return
+    }
     // char:'player' sentinel — the player is themselves, not Hardik Pandya
     const newState: GameState = {
-      playerName: game.playerName, playerGender: game.playerGender,
+      playerName: g.playerName, playerGender: g.playerGender, avatarUrl: g.avatarUrl,
       world: 'cricket', char: 'player',
       situation: 0, situationQueue: buildCricketQueue(), choices: [],
       meters: { form: 40, fame: 25 },
       flags: DEFAULT_FLAGS, runMemory: {},
       narrator_done: true, dayUnlockTime: {},
       week: 1,
+      stash,
     }
     setDmTrust({ ...getCricketDMTrustStart() })
     setRelationshipAlerts([])
@@ -485,7 +519,7 @@ export default function App() {
     // First open lands ON THE STORY — S1 is the dopamine beat; the feed is met
     // after your first choice creates something on it (founder + CEO review P0).
     navigate('live')
-  }, [game.playerName, game.playerGender, saveAndSet, navigate])
+  }, [saveAndSet, navigate])
 
   const queueLowTrustAlert = useCallback((_charId: CharId) => {
     // low-trust feed posts disabled

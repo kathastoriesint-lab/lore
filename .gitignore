@@ -12,3 +12,4 @@ supabase/.temp/
 
 # Local QA screenshot artifacts (not source)
 cricket-world-screenshots/
+backups/

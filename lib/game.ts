@@ -157,7 +157,27 @@ export async function loadGameState(): Promise<GameState> {
     pendingEviction: typeof extra.pendingEviction === 'string' ? extra.pendingEviction : null,
     evictionsSeen: Array.isArray(extra.evictionsSeen) ? (extra.evictionsSeen as string[]) : undefined,
     evicted: Array.isArray(extra.evicted) ? (extra.evicted as string[]) : undefined,
+    stash: (extra.stash && typeof extra.stash === 'object' ? extra.stash : {}) as GameState['stash'],
   }
+}
+
+// The narrative fields that are world-specific (get overwritten on a world
+// switch). dmTrust / charFame / likedPosts / postComments / aiPosts are NOT here
+// — their keys never collide across worlds, so they coexist in one shared blob.
+export const WORLD_SNAPSHOT_KEYS = [
+  'world', 'char', 'situation', 'situationQueue', 'choices', 'meters', 'flags',
+  'runMemory', 'narrator_done', 'dayUnlockTime', 'week', 'interlude',
+  'pendingSelection', 'weekUnlockAt', 'selections', 'benchedWeeks', 'gateResults',
+  'variantSeen', 'activeMission', 'pendingEviction', 'evictionsSeen', 'evicted',
+] as const
+
+/** Snapshot the current world's narrative progress, for stashing before a switch. */
+export function snapshotWorld(g: GameState): Partial<GameState> {
+  const s: Record<string, unknown> = {}
+  for (const k of WORLD_SNAPSHOT_KEYS) {
+    if (g[k] !== undefined) s[k] = g[k]
+  }
+  return s as Partial<GameState>
 }
 
 export async function saveGameState(state: GameState, deviceId?: string) {
@@ -200,6 +220,8 @@ export async function saveGameState(state: GameState, deviceId?: string) {
       pendingEviction: state.pendingEviction ?? null,
       evictionsSeen: state.evictionsSeen ?? [],
       evicted: state.evicted ?? [],
+      // Other-world narrative snapshots (world-switch no longer wipes progress)
+      stash: state.stash ?? {},
     },
   }, { onConflict: 'user_id' })
 }

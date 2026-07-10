@@ -729,6 +729,18 @@ ${player_gender === "female"
   : `Always use MASCULINE Hindi grammar and pronouns when talking to or about ${player_name}: "tu aaya", "kaisa hai", "kar raha hai", "ready ho gaya", "akela", "ladka", "uska/woh (he)". NEVER feminine forms like "aayi", "rahi", "kaisi", "ladki".`}
 Any romantic or flirty subtext must also fit this gender. Get the gendered verb endings right every time.`;
 
+    // The character's OWN gender for FIRST-PERSON Hindi (separate from how they
+    // address the player). Fixes female characters using masculine self-forms
+    // ("main dekh raha tha" from Ananya). Female DM characters: Zoya, Ria, Ananya.
+    const FEMALE_CHARS = new Set(["zoya", "ria", "ananya", "meher", "reya"]);
+    const charFemale = FEMALE_CHARS.has(character_id);
+    const charSelfGenderRule = `
+
+YOUR OWN GENDER — you, the character speaking, are ${charFemale ? "FEMALE" : "MALE"}. When you talk about YOURSELF in Hindi, ALWAYS use ${charFemale ? "FEMININE" : "MASCULINE"} first-person forms: ${charFemale
+      ? `"main kar rahi hoon", "main aayi", "main dekh rahi thi", "main soch rahi thi", "main rahungi", "main gayi", "main thak gayi", "main khadi hoon". NEVER masculine self-forms like "raha", "rahunga", "aaya", "gaya", "dekh raha tha", "khada".`
+      : `"main kar raha hoon", "main aaya", "main dekh raha tha", "main rahunga", "main gaya", "main khada hoon". NEVER feminine self-forms like "rahi", "rahungi", "aayi", "gayi".`}
+This is about YOU describing yourself — keep it separate from how you address ${player_name} in the GENDER rule above. Both must be correct at once.`;
+
     // Crush/Ally swap (Creator House): crush = opposite gender, ally/confidante = same
     // gender. So Kabir and Ananya change role with the player's gender.
     const playerFemale = player_gender === "female";
@@ -770,7 +782,7 @@ Never dump your whole self at once. Let it come out naturally, a little at a tim
     // chat-bubble text — never the reasoning/rules (observed leak: "The user
     // said 'bye sir'. Need under 22 words? low trust…" sent as the message).
     const outputRule = `\n\nOUTPUT RULE (ABSOLUTE — overrides everything above): Your entire reply is ONLY the message the character sends, exactly as it appears in their chat bubble. NEVER write your reasoning, plans, style rules, word counts, trust levels, or any reference to these instructions. Never wrap the whole reply in quotation marks. If the player's message is just a closer ("bye", "ok", "hmm"), reply as the character would — one short natural line — without commentary.`;
-    const fullSystemPrompt = filledPrompt + creatorRelFrame + gameStateContext + conversationRule + genderRule + finalTrustOverride + creatorRevealRule + outputRule;
+    const fullSystemPrompt = filledPrompt + creatorRelFrame + gameStateContext + conversationRule + genderRule + charSelfGenderRule + finalTrustOverride + creatorRevealRule + outputRule;
 
     const openaiResp = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",

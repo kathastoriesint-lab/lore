@@ -378,4 +378,9 @@ export interface GameState {
   evictionsSeen?: string[]
   /** Housemates evicted so far — gone from the house. */
   evicted?: string[]
+
+  /** Per-world narrative snapshots of the OTHER world(s) you've played, so
+   *  switching worlds no longer wipes progress. Only the narrative subset is
+   *  stashed (see WORLD_SNAPSHOT_KEYS) — dmTrust/likes/DMs already coexist. */
+  stash?: Partial<Record<World, Partial<GameState>>>
 }

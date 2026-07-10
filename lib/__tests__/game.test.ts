@@ -1,7 +1,9 @@
 import { describe, it, expect } from 'vitest'
 import {
   clamp, applyDeltas, fameToFollowers, resolveEnding, resolveTokens, charMeters, migrateMeters,
+  snapshotWorld,
 } from '../game'
+import type { GameState } from '../types'
 
 describe('clamp', () => {
   it('keeps value in 0-100', () => {
@@ -104,5 +106,50 @@ describe('resolveTokens', () => {
 describe('charMeters', () => {
   it('returns default CH meters (fame only) for any charId', () => {
     expect(charMeters('ria')).toEqual({ fame: 20 })
+  })
+})
+
+describe('snapshotWorld (world-switch stash)', () => {
+  const cricket = {
+    playerName: 'Nabh', playerGender: 'male', avatarUrl: '/a.png',
+    world: 'cricket', char: 'player',
+    situation: 9, situationQueue: ['CR2-S1', 'CR2-S2'], choices: ['A', 'B'],
+    meters: { form: 62, fame: 40 }, flags: {}, runMemory: { debutRuns: 40 },
+    narrator_done: true, dayUnlockTime: {}, week: 2,
+    selections: { 'SEL-W1': 'started' }, benchedWeeks: [], gateResults: { 'CR2-S7': 'pass' },
+    // cross-world shared blobs — must NOT be stashed
+    dmTrust: { hardik: 55 }, likedPosts: ['p1'], postComments: { p2: 'gg' },
+    stash: {},
+  } as unknown as GameState
+
+  it('captures the narrative fields (situation, meters, week, selections)', () => {
+    const s = snapshotWorld(cricket)
+    expect(s.situation).toBe(9)
+    expect(s.meters).toEqual({ form: 62, fame: 40 })
+    expect(s.week).toBe(2)
+    expect(s.selections).toEqual({ 'SEL-W1': 'started' })
+    expect(s.gateResults).toEqual({ 'CR2-S7': 'pass' })
+    expect(s.world).toBe('cricket')
+  })
+
+  it('excludes identity + cross-world shared blobs (dmTrust/likes/stash)', () => {
+    const s = snapshotWorld(cricket) as Record<string, unknown>
+    expect('playerName' in s).toBe(false)
+    expect('playerGender' in s).toBe(false)
+    expect('avatarUrl' in s).toBe(false)
+    expect('dmTrust' in s).toBe(false)
+    expect('likedPosts' in s).toBe(false)
+    expect('postComments' in s).toBe(false)
+    expect('stash' in s).toBe(false)
+  })
+
+  it('round-trips: restoring the snapshot recovers the world exactly', () => {
+    const stashed = snapshotWorld(cricket)
+    // simulate switching to CH then back: identity is kept, narrative restored
+    const restored = { playerName: 'Nabh', playerGender: 'male', world: 'creator-house', situation: 0, ...stashed } as GameState
+    expect(restored.world).toBe('cricket')
+    expect(restored.situation).toBe(9)
+    expect(restored.meters).toEqual({ form: 62, fame: 40 })
+    expect(restored.playerName).toBe('Nabh')
   })
 })

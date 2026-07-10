@@ -49,6 +49,10 @@ export default function WorldsScreen() {
   const { navigate, game } = useApp()
 
   const inProgress = useCallback((id: World) => game.world === id && game.situation > 0, [game.world, game.situation])
+  // Resumable = live in it now, OR its progress is stashed (played, then switched
+  // worlds). Used for the badge wording; routing still goes through the intro,
+  // which restores the stash — so tapping never wipes either world.
+  const resumable = useCallback((id: World) => inProgress(id) || ((game.stash?.[id]?.situation ?? 0) > 0), [inProgress, game.stash])
 
   // Order: an in-progress world leads (resume continuity); otherwise default by the
   // player's gender — female → Creator House on top, male → Indian Dressing Room on top.
@@ -71,8 +75,8 @@ export default function WorldsScreen() {
   }, [navigate, inProgress])
 
   const badge = (id: World) => {
-    if (id === 'cricket') return inProgress('cricket') ? `CONTINUE · WEEK ${game.week ?? 1}` : 'LIVE · SEASON 1'
-    return inProgress('creator-house') ? 'IN PROGRESS' : 'LIVE · SEASON 1'
+    if (id === 'cricket') return resumable('cricket') ? `CONTINUE · WEEK ${game.week ?? game.stash?.cricket?.week ?? 1}` : 'LIVE · SEASON 1'
+    return resumable('creator-house') ? 'IN PROGRESS' : 'LIVE · SEASON 1'
   }
 
   const LiveBadge = ({ id, top = 15 }: { id: World; top?: number }) => (
