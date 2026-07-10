@@ -507,7 +507,10 @@ export default function App() {
       week: 1,
       stash,
     }
-    setDmTrust({ ...getCricketDMTrustStart() })
+    // Seed cricket bonds WITHOUT clobbering another world's bonds (CH crush/ally
+    // trust). Char-IDs never collide across worlds, so merging is safe — this is
+    // what keeps a stashed Creator House romance intact when you try cricket.
+    setDmTrust(prev => ({ ...prev, ...getCricketDMTrustStart() }))
     setRelationshipAlerts([])
     saveAndSet(newState)
     analytics.track('world_entered', 'cricket', { world_id: 'cricket' })
