@@ -136,6 +136,10 @@ class Analytics {
     this.userId = id
   }
 
+  /** Force an immediate flush and await it. Call before a full-page reload
+   *  (e.g. login success), which would otherwise drop the queued events. */
+  async flush() { await this._flush() }
+
   private async _flush() {
     if (!this.db) return
     const events = this.eventQueue.splice(0)

@@ -4,6 +4,7 @@ import { useApp } from '@/lib/context'
 import { completeMsg91Login, completeDemoLogin, DEMO_PHONE_DIGITS, DEMO_OTP, sendEmailOtp, verifyEmailOtp } from '@/lib/auth'
 import * as haptics from '@/lib/haptics'
 import * as sound from '@/lib/sound'
+import { analytics } from '@/lib/analytics'
 
 // Phone login via the MSG91 OTP Widget (sends + verifies the OTP, returns a JWT
 // that completeMsg91Login exchanges for a Supabase session) OR email login via
@@ -96,7 +97,7 @@ export default function LoginScreen() {
         window.initSendOTP?.({ widgetId: WIDGET_ID, tokenAuth: TOKEN_AUTH, exposeMethods: true, success: () => {}, failure: () => {} })
         ready.current = true
       })
-      .catch(() => { if (alive) setErr('Couldn’t load the verification widget — check your connection.') })
+      .catch(() => { if (alive) { setErr('Couldn’t load the verification widget — check your connection.'); analytics.track('auth_widget_failed', null, { reason: 'script_load' }) } })
     return () => { alive = false; if (resendTimer.current) clearInterval(resendTimer.current) }
   }, [])
 
@@ -139,10 +140,11 @@ export default function LoginScreen() {
     if (isDemoPhone) { setErr(null); setStep('otp'); clearOtp(); startResend(); setTimeout(() => otpRefs.current[0]?.focus(), 60); return }
     if (!ready.current || !window.sendOtp) { setErr('Still loading — try again in a second.'); return }
     setBusy(true); setErr(null)
+    analytics.track('otp_requested', null, { method: 'phone' })
     window.sendOtp(
       phone.replace('+', ''),
       () => { setBusy(false); setStep('otp'); clearOtp(); startResend(); setTimeout(() => otpRefs.current[0]?.focus(), 60) },
-      (e) => { setBusy(false); setErr(errText(e, 'Couldn’t send the code. Try again.')) },
+      (e) => { setBusy(false); const reason = errText(e, 'Couldn’t send the code. Try again.'); setErr(reason); analytics.track('otp_send_failed', null, { method: 'phone', reason }) },
     )
   }
   function verify(codeArg?: string) {
@@ -152,25 +154,28 @@ export default function LoginScreen() {
     // session already backs saves; the boot gate treats guests as "not logged
     // in", so we navigate in rather than reload — same as "Continue as guest").
     if (isDemoPhone) {
-      if (c !== DEMO_OTP) { setErr('That code didn’t work — re-check or resend.'); return }
+      if (c !== DEMO_OTP) { setErr('That code didn’t work — re-check or resend.'); analytics.track('login_failed', null, { method: 'demo', stage: 'code' }); return }
       setBusy(true); setErr(null)
       haptics.success(); sound.confirm() // signed in
+      analytics.track('login_succeeded', null, { method: 'demo' })
       completeDemoLogin().then(() => { setBusy(false); navigate(game.playerName ? 'worlds' : 'onboarding') })
       return
     }
     if (!window.verifyOtp) { setErr('Verification not ready — resend the code.'); return }
     setBusy(true); setErr(null)
+    analytics.track('otp_verify_attempted', null, { method: 'phone' })
     window.verifyOtp(
       c,
       async (d) => {
         const token = extractToken(d)
-        if (!token) { setBusy(false); setErr('Verification failed — try again.'); return }
+        if (!token) { setBusy(false); setErr('Verification failed — try again.'); analytics.track('login_failed', null, { method: 'phone', stage: 'no_token' }); return }
         const r = await completeMsg91Login(token)
-        if ('error' in r) { setBusy(false); setErr(r.error); return }
+        if ('error' in r) { setBusy(false); setErr(r.error); analytics.track('login_failed', null, { method: 'phone', stage: 'bridge', reason: r.error }); return }
         haptics.success() // signed in (page reloads next — haptic fires instantly)
+        analytics.track('login_succeeded', null, { method: 'phone' }); await analytics.flush()
         if (typeof window !== 'undefined') window.location.reload()
       },
-      (e) => { setBusy(false); setErr(errText(e, 'That code didn’t work — re-check or resend.')) },
+      (e) => { setBusy(false); const reason = errText(e, 'That code didn’t work — re-check or resend.'); setErr(reason); analytics.track('login_failed', null, { method: 'phone', stage: 'widget_verify', reason }) },
     )
   }
 
@@ -178,29 +183,33 @@ export default function LoginScreen() {
   async function sendEmail() {
     if (!emailValid || busy) return
     setBusy(true); setErr(null)
+    analytics.track('otp_requested', null, { method: 'email' })
     const r = await sendEmailOtp(email)
     setBusy(false)
-    if ('error' in r) { setErr(r.error); return }
+    if ('error' in r) { setErr(r.error); analytics.track('otp_send_failed', null, { method: 'email', reason: r.error }); return }
     setStep('email-otp'); clearOtp(); startResend(); setTimeout(() => otpRefs.current[0]?.focus(), 60)
   }
   async function verifyEmail(codeArg?: string) {
     const c = (codeArg ?? otpValue()).replace(/\D/g, '')
     if (c.length < EMAIL_OTP_LENGTH || busy) return
     setBusy(true); setErr(null)
+    analytics.track('otp_verify_attempted', null, { method: 'email' })
     const r = await verifyEmailOtp(email, c)
-    if ('error' in r) { setBusy(false); setErr(r.error); clearOtp(); otpRefs.current[0]?.focus(); return }
+    if ('error' in r) { setBusy(false); setErr(r.error); clearOtp(); otpRefs.current[0]?.focus(); analytics.track('login_failed', null, { method: 'email', stage: 'verify', reason: r.error }); return }
     haptics.success() // signed in (page reloads next — haptic fires instantly)
+    analytics.track('login_succeeded', null, { method: 'email' }); await analytics.flush()
     if (typeof window !== 'undefined') window.location.reload()
   }
 
   function resend() {
     if (busy || resendIn > 0) return
     setErr(null); clearOtp(); otpRefs.current[0]?.focus()
+    analytics.track('otp_requested', null, { method: isEmailOtp ? 'email' : 'phone', resend: true })
     if (isEmailOtp) {
-      sendEmailOtp(email).then(r => { if ('error' in r) setErr(r.error); else startResend() })
+      sendEmailOtp(email).then(r => { if ('error' in r) { setErr(r.error); analytics.track('otp_send_failed', null, { method: 'email', resend: true, reason: r.error }) } else startResend() })
     } else {
       if (!window.retryOtp) return
-      window.retryOtp(null, () => startResend(), (e) => setErr(errText(e, 'Couldn’t resend.')))
+      window.retryOtp(null, () => startResend(), (e) => { const reason = errText(e, 'Couldn’t resend.'); setErr(reason); analytics.track('otp_send_failed', null, { method: 'phone', resend: true, reason }) })
     }
   }
   function backFromOtp() {
