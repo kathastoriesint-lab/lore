@@ -3,6 +3,8 @@ import { useState, useCallback, useEffect } from 'react'
 import { useApp } from '@/lib/context'
 import * as haptics from '@/lib/haptics'
 import * as sound from '@/lib/sound'
+import { getLang, setLang, type AppLang } from '@/lib/lang'
+import { initContent } from '@/lib/content'
 
 // First-run identity. Cinematic ambient hero loop (same treatment as Login) +
 // a warm form: name + gender, fixed CTA. saveProfile handles all navigation
@@ -20,6 +22,14 @@ export default function OnboardingScreen() {
   const { saveProfile } = useApp()
   const [name, setName] = useState('')
   const [gender, setGender] = useState<'male' | 'female'>('male')
+  const [lang, setLangState] = useState<AppLang>(() => getLang())
+  const pickLang = useCallback((l: AppLang) => {
+    setLangState(l)
+    setLang(l)
+    // Re-run the content init so the chosen language's bundles are live before
+    // the first world entry (initContent is idempotent + cheap for bundled en).
+    initContent().catch(() => {})
+  }, [])
   const [saving, setSaving] = useState(false)
   const [heroIdx, setHeroIdx] = useState(0)
 
@@ -95,6 +105,31 @@ export default function OnboardingScreen() {
             }}
           />
           <div style={{ fontSize: 12, color: 'var(--ink3)', marginTop: 9 }}>This is how characters will address you in the story.</div>
+
+          <div style={{ ...eyebrow, margin: '24px 0 10px' }}>STORY LANGUAGE</div>
+          <div style={{ display: 'flex', gap: 10 }}>
+            {([['hi', 'Hinglish', 'देसी वाला मज़ा'], ['en', 'English', 'For everyone']] as const).map(([id, label, sub]) => {
+              const on = lang === id
+              return (
+                <button
+                  key={id}
+                  className="lo-press"
+                  onClick={() => pickLang(id)}
+                  style={{
+                    flex: 1, height: 58, borderRadius: 12, cursor: 'pointer',
+                    fontFamily: 'var(--sans)', fontSize: 14, fontWeight: on ? 700 : 600,
+                    color: on ? '#fff' : 'var(--ink2)',
+                    background: on ? 'rgba(255,45,120,.12)' : 'var(--surf)',
+                    border: `1px solid ${on ? 'var(--accent)' : 'var(--line)'}`,
+                    transition: 'all .15s', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2,
+                  }}
+                >
+                  <span>{label}</span>
+                  <span style={{ fontSize: 10.5, fontWeight: 500, color: on ? 'var(--ink2)' : 'var(--ink3)' }}>{sub}</span>
+                </button>
+              )
+            })}
+          </div>
 
           <div style={{ ...eyebrow, margin: '24px 0 10px' }}>YOU ARE</div>
           <div style={{ display: 'flex', gap: 10 }}>

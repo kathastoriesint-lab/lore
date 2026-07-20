@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from 'react'
 import * as haptics from '@/lib/haptics'
 import * as sound from '@/lib/sound'
+import { tr, getLang } from '@/lib/lang'
 
 export interface ComposeCtx {
   playerName: string
@@ -18,7 +19,7 @@ type Tone = 'bold' | 'funny' | 'mysterious'
 const TONES: { key: Tone; em: string; label: string; desc: string }[] = [
   { key: 'bold', em: '🔥', label: 'Bold', desc: 'confident' },
   { key: 'funny', em: '😎', label: 'Funny', desc: 'witty' },
-  { key: 'mysterious', em: '🙂', label: 'Mystery', desc: 'kam shabd' },
+  { key: 'mysterious', em: '🙂', label: 'Mystery', desc: tr('kam shabd', 'few words') },
 ]
 const VIBE: Record<Tone, 'Bold' | 'Funny' | 'Mysterious'> = { bold: 'Bold', funny: 'Funny', mysterious: 'Mysterious' }
 
@@ -69,7 +70,7 @@ export default function ComposePost({ playerName, avatarUrl, imageUrl, ctx, fall
     try {
       const res = await fetch('/api/lore-post', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mode: 'caption', vibe: VIBE[t], ctx }),
+        body: JSON.stringify({ mode: 'caption', vibe: VIBE[t], ctx, language: getLang() }),
       })
       if (res.ok) { const d = await res.json(); text = typeof d.caption === 'string' ? d.caption : '' }
     } catch { /* fall back below */ }
@@ -78,7 +79,7 @@ export default function ComposePost({ playerName, avatarUrl, imageUrl, ctx, fall
     if (toneRef.current !== t) return // vibe switched mid-generation — drop stale result
     // Pre-fetch the world's reactions for this caption (background) so Share is instant.
     reactionsRef.current = null
-    fetch('/api/lore-post', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'reactions', caption: text, ctx }) })
+    fetch('/api/lore-post', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'reactions', caption: text, ctx, language: getLang() }) })
       .then(r => (r.ok ? r.json() : null))
       .then(d => { if (d && Array.isArray(d.reactions) && d.reactions.length && toneRef.current === t) reactionsRef.current = { caption: text, reactions: d.reactions } })
       .catch(() => {})
@@ -90,7 +91,7 @@ export default function ComposePost({ playerName, avatarUrl, imageUrl, ctx, fall
   const capShow = (generating && genText !== '') || (!!caption && !generating)
   const capText = generating ? genText : caption
   const ready = !!caption && !generating
-  const shareLabel = generating ? 'AI likh raha hai…' : (caption ? 'Share to feed' : 'Pehle ek vibe chuno')
+  const shareLabel = generating ? tr('AI likh raha hai…', 'AI is writing…') : (caption ? 'Share to feed' : tr('Pehle ek vibe chuno', 'Pick a vibe first'))
 
   return (
     <div className="pw-screen">
@@ -118,8 +119,8 @@ export default function ComposePost({ playerName, avatarUrl, imageUrl, ctx, fall
 
         {/* Caption */}
         <div className="pw-cap">
-          {capEmpty && <span className="pw-ph">Ek vibe chuno — AI caption likh dega ✨</span>}
-          {capThinking && <span className="pw-think">likh raha hoon<i /><i className="d2" /><i className="d3" /></span>}
+          {capEmpty && <span className="pw-ph">{tr('Ek vibe chuno — AI caption likh dega ✨', 'Pick a vibe — AI writes the caption ✨')}</span>}
+          {capThinking && <span className="pw-think">{tr('likh raha hoon', 'writing')}<i /><i className="d2" /><i className="d3" /></span>}
           {capShow && <span>{capText}{generating && <span className="pw-caret" />}</span>}
         </div>
 
@@ -135,7 +136,7 @@ export default function ComposePost({ playerName, avatarUrl, imageUrl, ctx, fall
             </button>
           ))}
         </div>
-        {ready && <div className="pw-regen">↻ Doosra vibe</div>}
+        {ready && <div className="pw-regen">↻ {tr('Doosra vibe', 'Try another vibe')}</div>}
       </div>
 
       {/* Sticky footer — just the action */}

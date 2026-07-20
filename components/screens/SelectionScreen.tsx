@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useApp } from '@/lib/context'
 import { buildSelection } from '@/lib/cricket-selection'
 import { getCricketChars } from '@/lib/content'
+import { tr } from '@/lib/lang'
 import * as haptics from '@/lib/haptics'
 import * as sound from '@/lib/sound'
 
@@ -52,14 +53,14 @@ export default function SelectionScreen() {
   const verdictColor = sel.verdict === 'benched' ? 'var(--heat)' : sel.verdict === 'lifeline' ? '#FFB020' : 'var(--trust)'
   const verdictWord = sel.verdict === 'benched' ? 'BENCHED' : sel.verdict === 'lifeline' ? "CAPTAIN'S CALL" : sel.recall ? 'RECALLED' : 'STARTING'
   const verdictSub = sel.verdict === 'benched'
-    ? 'Tumhara naam sheet pe nahi hai. Orange bib, drinks duty — path wapas maidan se jaata hai.'
+    ? tr('Tumhara naam sheet pe nahi hai. Orange bib, drinks duty — path wapas maidan se jaata hai.', "Your name isn't on the sheet. Orange bib, drinks duty — the way back runs through the field.")
     : sel.verdict === 'lifeline'
-      ? 'Form sheet ne mana kiya. Captain ne apna naam laga diya.'
+      ? tr('Form sheet ne mana kiya. Captain ne apna naam laga diya.', 'The form sheet said no. The captain put his own name on the line.')
       : sel.recall
-        ? 'Bench se wapas — kaam ne darwaza khol diya.'
+        ? tr('Bench se wapas — kaam ne darwaza khol diya.', 'Back from the bench — the work opened the door.')
         : sel.week === 1
-          ? 'No.5 · IPL debut, 16 saal. Kal raat Wankhede ki lights tumhare naam.'
-          : 'Naam sheet pe hai. Kaam abhi baaki hai.'
+          ? tr('No.5 · IPL debut, 16 saal. Kal raat Wankhede ki lights tumhare naam.', 'No.5 · IPL debut at 16. Tomorrow night, the Wankhede lights are yours.')
+          : tr('Naam sheet pe hai. Kaam abhi baaki hai.', "Your name is on the sheet. The work isn't done.")
 
   const startReveal = () => {
     setPhase('sheet'); setStep(0); setResolved(false)
@@ -158,7 +159,7 @@ export default function SelectionScreen() {
             <div style={{ ...rowBase, borderStyle: 'dashed', borderColor: '#33333d', background: 'rgba(255,255,255,.02)' }}>
               <span style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 16, color: 'var(--ink3)', width: 16, textAlign: 'center', flex: 'none' }}>{nRows}</span>
               <span style={{ display: 'flex', alignItems: 'center', gap: 9, color: 'var(--ink3)', fontSize: 14, fontWeight: 600 }}>
-                Aakhri naam
+                {tr('Aakhri naam', 'One last name')}
                 <span className="typing" style={{ background: 'none', padding: 0 }}><i /><i /><i /></span>
               </span>
             </div>
@@ -173,7 +174,7 @@ export default function SelectionScreen() {
               <span style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 16, color: 'var(--ink3)', width: 16, textAlign: 'center', flex: 'none' }}>{nRows}</span>
               <span style={{ fontWeight: youIn ? 800 : 600, fontSize: 15.5, color: youIn ? '#fff' : 'var(--ink)' }}>
                 {sel.teamSheet[lastIdx]?.you
-                  ? `Tum${game.playerName ? ` (${game.playerName})` : ''}`
+                  ? tr(`Tum${game.playerName ? ` (${game.playerName})` : ''}`, `You${game.playerName ? ` (${game.playerName})` : ''}`)
                   : sel.teamSheet[lastIdx]?.name}
               </span>
               {youIn && (
@@ -240,18 +241,18 @@ export default function SelectionScreen() {
             </div>
           ))}
           <div style={{ fontSize: 11, color: 'var(--ink3)', textAlign: 'center', marginTop: 10 }}>
-            Captain ka bharosa DMs mein banta hai. Form maidan pe.
-          </div>
+            {tr('Captain ka bharosa DMs mein banta hai. Form maidan pe.', "The captain's trust is built in the DMs. Form is built on the field.")}
+</div>
         </div>
       )}
 
       {/* CTA */}
       <div style={{ paddingBottom: 44, position: 'relative' }}>
         <button onClick={advance} style={ctaStyle(phase === 'sheet' || phase === 'readout', phase === 'sheet' && !resolved)}>
-          {phase === 'intro' && 'Team sheet dekho →'}
-          {phase === 'sheet' && (!resolved ? 'Sheet lag rahi hai…' : 'Captain kya bola? →')}
-          {phase === 'lines' && 'Numbers dekho →'}
-          {phase === 'readout' && 'Wapas game mein →'}
+          {phase === 'intro' && tr('Team sheet dekho →', 'See the team sheet →')}
+          {phase === 'sheet' && (!resolved ? tr('Sheet lag rahi hai…', 'The sheet is going up…') : tr('Captain kya bola? →', 'What did the captain say? →'))}
+          {phase === 'lines' && tr('Numbers dekho →', 'See the numbers →')}
+          {phase === 'readout' && tr('Wapas game mein →', 'Back to the game →')}
         </button>
       </div>
     </div>

@@ -5,6 +5,7 @@ import { getAuthInfo, signOutToGuest, deleteAccountFully, type AuthInfo } from '
 import { getProfileStats, type ProfileStats } from '@/lib/profile-stats'
 import * as haptics from '@/lib/haptics'
 import * as sound from '@/lib/sound'
+import { getLang, setLang } from '@/lib/lang'
 
 // Global profile — world-agnostic, reached from the Worlds tab. About YOU across
 // all of Weev: identity, your worlds hub, account/settings. (The per-world profile
@@ -68,6 +69,12 @@ export default function GlobalProfileScreen() {
 
   const accountRows: { icon: string; label: string; meta?: string; color: string; onClick?: () => void }[] = [
     contact,
+    { icon: '🌐', label: 'Story language', meta: getLang() === 'en' ? 'English' : 'Hinglish', color: 'var(--ink)', onClick: () => {
+      // Toggle + reload: content accessors are read at boot/world-entry, so a
+      // full reload is the honest way to swap the live story language.
+      setLang(getLang() === 'en' ? 'hi' : 'en')
+      if (typeof window !== 'undefined') window.location.reload()
+    } },
     { icon: '🔔', label: 'Notifications', meta: 'On', color: 'var(--ink)' },
     { icon: '↪', label: 'Log out', color: 'var(--ink)', onClick: () => signOutToGuest().then(() => { if (typeof window !== 'undefined') window.location.reload() }) },
     { icon: '🗑', label: 'Delete account', color: 'var(--heat)', onClick: deleteAccount },

@@ -1,0 +1,2430 @@
+{
+ "version": 14,
+ "situations": [
+  {
+   "id": "D1-1",
+   "day": 1,
+   "slot": "Morning",
+   "tag": "⚡ DAY 1 · MORNING",
+   "title": "First Step",
+   "body": [
+    "The villa gates swing open. Inside: music, ring lights, and a pool throwing off gold. Two weeks ago, one of your reels blew up overnight — and now you're here.",
+    "Four creators are already inside. Ria's on the sofa, sunglasses on. Zoya's got her smile preloaded. {crush} and {ally} were saying something — now they're both quiet.",
+    "Every eye lands on you at once. You only get one first impression."
+   ],
+   "react": {
+    "char": "kabir",
+    "text": "Oh damn, the viral one is here 😭 now let’s see if the hype was real or just good editing 🔥"
+   },
+   "q": "How do you enter Creator House?",
+   "reader": [
+    {
+     "t": "nar",
+     "text": "Beyond the gate, the villa glows in the sun. You step inside — and freeze for a second. You’d only ever seen a house like this while doomscrolling your feed."
+    },
+    {
+     "t": "img",
+     "src": "/generated/creator-house-posts/seed-villa.png",
+     "h": 280
+    },
+    {
+     "t": "nar",
+     "text": "Everyone in the lounge goes still. Ria asks {crush} —"
+    },
+    {
+     "t": "cue",
+     "who": "Ria",
+     "avatar": "/avatars/ria.png",
+     "text": "That’s the one whose reel blew up last month, right? 👀"
+    },
+    {
+     "t": "cue",
+     "who": "{crush}",
+     "avatar": "/avatars/ananya.png",
+     "text": "Um… yeah. Yeah, I know them."
+    },
+    {
+     "t": "nar",
+     "text": "{crush}’s eyes meet yours for a split second — then look away. It’s been 3 years. But you still remember that look."
+    }
+   ],
+   "choices": [
+    {
+     "t": "Quiet entry — observe first",
+     "s": "Let the house come to you.",
+     "deltas": {
+      "fame": 1
+     },
+     "dm": [
+      {
+       "char": "zoya",
+       "text": "The quiet type? Interesting. I read people like you fast. 😏"
+      },
+      {
+       "char": "zoya",
+       "text": "One piece of advice — everyone in this house is acting. I can tell you who’s hiding what. Talk later? 💅"
+      }
+     ]
+    },
+    {
+     "t": "Loud entry — grab everyone’s attention",
+     "s": "Confident, loud, unforgettable.",
+     "deltas": {
+      "fame": 3
+     },
+     "post": {
+      "source": "player",
+      "imageUrl": "/generated/creator-house-posts/seed-villa.png",
+      "caption": "Creator House unlocked. 🔥 Nobody sneaks in here — definitely not me. Day 1, let’s gooo. #CreatorHouse #Day1",
+      "reactions": [
+       {
+        "char": "ria",
+        "text": "Loud arrivals are usually one of two things — confidence or overcompensation. Filing that away. 👑"
+       },
+       {
+        "char": "kabir",
+        "text": "YES BRO this energy 😭🔥 welcome to the madhouse"
+       },
+       {
+        "account": {
+         "name": "House Watch",
+         "handle": "housewatch_india",
+         "avatarText": "H"
+        },
+        "text": "day 1 entry already this loud?? this season is gonna be CHAOS 👀"
+       }
+      ]
+     }
+    }
+   ],
+   "feedReaction": {
+    "A": {
+     "account": {
+      "name": "House Watch",
+      "handle": "housewatch_india",
+      "avatarText": "H"
+     },
+     "caption": "new contestant walks in and immediately starts scanning everyone from the corner. silent gameplayer arc? 👀 #CreatorHouse"
+    },
+    "B": {
+     "char": "ria",
+     "caption": "Some people show up. Some people make an entrance. Volume at max from Day 1. Let’s see how long the battery lasts. 🤍",
+     "imageUrl": "/generated/creator-house-posts/ch-post-ria-d1-1.png"
+    }
+   }
+  },
+  {
+   "id": "D1-2",
+   "day": 1,
+   "slot": "Afternoon",
+   "tag": "⚡ DAY 1 · AFTERNOON",
+   "title": "First Reel",
+   "body": [
+    "By afternoon, the house drops its first content challenge — one common trend, one question: who pulls the most views. The golden light is perfect.",
+    "Ria stands up straight, flips her hair, and announces it like the result's already locked: \"I'll go first. Set the bar, then you guys can follow.\"",
+    "{ally} leans in at your ear: \"Bro, either match her energy — or flip the whole format and parody it. It'll go viral *and* piss Ria off.\""
+   ],
+   "react": {
+    "char": "kabir",
+    "text": "Ria really turned herself into the benchmark 😭 come on, let’s parody her — this house will lose it 🔥"
+   },
+   "q": "What will you do for your first reel?",
+   "reader": [
+    {
+     "t": "nar",
+     "text": "The first announcement blasts through the house speakers. First challenge — one trend, one winner. Win it, and you get followers… and maybe the season’s first big brand deal. Everyone’s already grabbed their phones."
+    },
+    {
+     "t": "img",
+     "src": "/generated/creator-house-posts/scene-challenge.png",
+     "h": 250
+    },
+    {
+     "t": "cue",
+     "who": "Ria",
+     "avatar": "/avatars/ria.png",
+     "text": "I’m going first. This kind of thing comes with experience — not everyone can pull it off. The rest of you can decide what to do after you see my reel. 👑"
+    },
+    {
+     "t": "nar",
+     "text": "Ria set the bar so high the whole house went quiet for a second. That’s her move — say you’re the best first, so everyone else has to measure themselves against you."
+    },
+    {
+     "t": "cue",
+     "who": "{ally}",
+     "avatar": "/avatars/kabir.png",
+     "text": "Bro listen — two options. Either match her energy and go head-to-head, or flip her whole 'aesthetic morning routine' thing into a parody. Funny, viral, and it’ll shake Ria’s ego a little. 😏"
+    },
+    {
+     "t": "nar",
+     "big": true,
+     "text": "Ria made herself the standard. Either hold up a mirror to her, or stay in your own lane. First reel — everyone’s watching."
+    }
+   ],
+   "choices": [
+    {
+     "t": "Match Ria’s energy — post a parody reel.",
+     "s": "Rip her format to shreds. Guaranteed viral, and Ria definitely won’t be happy.",
+     "deltas": {
+      "fame": 3
+     },
+     "relationshipDeltas": {
+      "ria": -2
+     },
+     "post": {
+      "source": "player",
+      "imageUrl": "/generated/creator-house-posts/ch-reel-parody.png",
+      "caption": "POV: someone spends 3 hours setting up their 'effortless aesthetic morning routine' 💅✨ (it’s parody, relax 😂) #CreatorHouse #Day1",
+      "reactions": [
+       {
+        "char": "ria",
+        "text": "Cute. Without my reel, you wouldn’t even have content. I’m flattered. 👀"
+       },
+       {
+        "char": "zoya",
+        "text": "OKAY not the day 1 shots being fired 💅 I'm obsessed, keep going babe"
+       },
+       {
+        "account": {
+         "name": "House Watch",
+         "handle": "housewatch_india",
+         "avatarText": "H"
+        },
+        "text": "A parody of Ria on DAY 1?? bro I genuinely can’t decide if that’s brave or insane 😭"
+       }
+      ]
+     }
+    },
+    {
+     "t": "Stay in your lane — hype up {ally}.",
+     "s": "Don’t play Ria’s game. Build your own original angle with {ally}.",
+     "deltas": {
+      "fame": 1
+     },
+     "relationshipDeltas": {
+      "kabir": 3
+     },
+     "dm": [
+      {
+       "char": "kabir",
+       "text": "Dude you fully ignored Ria and made your own thing 😭 respect"
+      },
+      {
+       "char": "kabir",
+       "text": "The easiest move was taking a cheap shot at her. You didn’t. You played on your own strength."
+      },
+      {
+       "char": "kabir",
+       "text": "Everyone here thinks I’m just jokes. You might be the first person who focused on the work, not the drama. I’ll remember that. 🔥"
+      }
+     ]
+    }
+   ],
+   "feedReaction": {
+    "A": {
+     "char": "ria",
+     "caption": "It’s not flattery when you’ve got nothing original of your own. Copying my reel from Day 1 already. I’m just that iconic. 🤍 #CreatorHouse",
+     "imageUrl": "/generated/creator-house-posts/ch-post-ria-d1-2.png"
+    },
+    "B": {
+     "account": {
+      "name": "Creator Tea",
+      "handle": "creator.tea",
+      "avatarText": "C"
+     },
+     "caption": "someone fully ignored ria’s bait and made their own reel. building a brand vs building beef — day 1 already made it clear who’s what 🍿"
+    }
+   }
+  },
+  {
+   "id": "D1-3",
+   "day": 1,
+   "slot": "Late Night",
+   "tag": "🌙 DAY 1 · NIGHT",
+   "title": "Terrace, Night",
+   "body": [
+    "It's 1 AM. The house noise has finally cooled off, the cameras inside have gone to sleep. You're on the terrace — first time alone, first time breathing properly.",
+    "The door opens just a little. {crush}. Two mugs of coffee, one for you. No ring light, no audience. Just the city lights spilling out into the distance.",
+    "{crush} comes over and leans on the railing beside you. \"There are no cameras here,\" they say softly. \"So... what are you really like?\""
+   ],
+   "react": {
+    "char": "ananya",
+    "text": "Everyone downstairs is asleep. Come up to the terrace… just 2 mins. No camera, promise. ✨"
+   },
+   "q": "How will {crush} handle this moment?",
+   "reader": [
+    {
+     "t": "nar",
+     "text": "It’s 1 a.m. and the villa is dead quiet. No ring lights on downstairs, no phones up. For the first time, it feels like you’re not performing."
+    },
+    {
+     "t": "img",
+     "src": "/generated/creator-house-posts/scene-terrace-night.png"
+    },
+    {
+     "t": "nar",
+     "text": "The terrace door opens. {crush} — two coffee mugs in hand. All day, everyone saw the in-front-of-camera version. This version of {crush} is different. Guarded. Real."
+    },
+    {
+     "t": "cue",
+     "who": "{crush}",
+     "avatar": "/avatars/ananya.png",
+     "text": "Here, your coffee. I was escaping the circus downstairs. 😅 All day everyone’s been walking around wearing their 'content face'… yours too, right? 🥺"
+    },
+    {
+     "t": "nar",
+     "text": "{crush} takes a sip of coffee and stares off into the distance. Then slowly — like this isn’t a question they ask just anyone — turns to you."
+    },
+    {
+     "t": "cue",
+     "who": "{crush}",
+     "avatar": "/avatars/ananya.png",
+     "text": "There’s no camera here. No followers. So… tell me the truth. How are you, really? ✨"
+    },
+    {
+     "t": "nar",
+     "big": true,
+     "text": "No audience. Just you, them, and this question. Will you actually listen — or play it cool and move on?"
+    }
+   ],
+   "choices": [
+    {
+     "t": "Open up, really listen",
+     "s": "Drop the mask. Coffee, honesty, and something unfinished that’s been there for three years.",
+     "deltas": {
+      "fame": -1
+     },
+     "relationshipDeltas": {
+      "ananya": 6
+     },
+     "dm": [
+      {
+       "char": "ananya",
+       "text": "You stopped. The easiest thing would’ve been to change the subject, crack a joke. You didn’t. 🥺"
+      },
+      {
+       "char": "ananya",
+       "text": "You know, for three years I’ve been wondering — if that night had gone differently, what then? And now you’re here, standing in front of me, completely real."
+      },
+      {
+       "char": "ananya",
+       "text": "Don’t tell anyone about tonight. This version of you… that was just for me. Good night. ✨"
+      }
+     ]
+    },
+    {
+     "t": "Then tell me why you’re showing up now — where were you 3 years ago?",
+     "s": "True. But first, we settle the score. Ask the three-year question straight.",
+     "deltas": {
+      "fame": 1
+     },
+     "relationshipDeltas": {
+      "ananya": -2
+     },
+     "dm": [
+      {
+       "char": "ananya",
+       "text": "Straight shot. 😅 …fair. You’ve earned the right to ask that."
+      },
+      {
+       "char": "ananya",
+       "text": "Three years ago, I got scared. You never said anything, I never asked — and time slipped through our fingers."
+      },
+      {
+       "char": "ananya",
+       "text": "Why now? …I don’t know. But you’re asking, which means something’s still there. Just… not tonight. Good night. 🙂"
+      }
+     ]
+    }
+   ],
+   "feedReaction": {
+    "A": {
+     "account": {
+      "name": "House Watch",
+      "handle": "housewatch_india",
+      "avatarText": "H"
+     },
+     "caption": "1 AM on the terrace, two people, no cameras rolling, just coffee. We’re not saying anything but… we’re seeing everything 👀 #CreatorHouse"
+    },
+    "B": {
+     "account": {
+      "name": "House Watch",
+      "handle": "housewatch_india",
+      "avatarText": "H"
+     },
+     "caption": "1 AM on the terrace — started with coffee, then something old came back up. They both came back looking different. This wasn’t light 👀🌙 #CreatorHouse"
+    }
+   }
+  },
+  {
+   "id": "D2-1",
+   "day": 2,
+   "slot": "Late Night",
+   "tag": "⚡ DAY 2 · 1 AM",
+   "title": "Zoya's Offer",
+   "body": [
+    "Everyone's asleep. One kitchen light is still on, and Zoya's standing there — two mugs of chai, one for you. \"Sit. Even the camera's asleep now.\"",
+    "She's sweet, *very* sweet. \"I like you, genuinely. That's why I'm telling you — everyone in this house is saying something behind your back. I hear everything. I can tell you... if we're on each other's side.\"",
+    "Then she leans in a little: \"So... what did you think of Ria? Be honest.\" Her eyes are smiling, but she's listening for one name."
+   ],
+   "react": {
+    "char": "zoya",
+    "text": "I’m on your side, babe. Just… trust has to go both ways, right? 💅"
+   },
+   "q": "Do you play along with Zoya or keep your distance?",
+   "reader": [
+    {
+     "t": "nar",
+     "text": "1 AM. The whole house is asleep. One lonely kitchen light — and Zoya, holding two mugs of chai like she’s been waiting just for you."
+    },
+    {
+     "t": "cue",
+     "who": "Zoya",
+     "avatar": "/avatars/zoya.png",
+     "text": "Sit, babe. Even the camera’s asleep. I just wanted to see if you’re okay. 🫶"
+    },
+    {
+     "t": "nar",
+     "text": "She holds out the chai. Sweet voice, warm smile. \"Everyone in this house is saying something behind your back. I hear everything. If you want, I can feed you intel.\""
+    },
+    {
+     "t": "cue",
+     "who": "Zoya",
+     "avatar": "/avatars/zoya.png",
+     "text": "Just one thing — what do you really think about Ria? This stays between us. 👀"
+    },
+    {
+     "t": "nar",
+     "text": "Her eyes are smiling. But you know better — everything Zoya says comes with a screenshot. Whatever you say tonight could be on someone else’s phone tomorrow."
+    },
+    {
+     "t": "cue",
+     "who": "Zoya",
+     "avatar": "/avatars/zoya.png",
+     "text": "And babe… one last thing. 🤫 Last night, terrace, 1 AM — you and {crush}, coffee. I saw it. Haven’t told anyone… yet."
+    }
+   ],
+   "choices": [
+    {
+     "t": "Play along — get a little intel",
+     "s": "You earn her trust. But now you owe her — and she’s got that terrace thing on you.",
+     "deltas": {
+      "fame": 2
+     },
+     "relationshipDeltas": {
+      "zoya": 3
+     },
+     "dm": [
+      {
+       "char": "zoya",
+       "text": "Ugh, I knew you were smart. 🫶"
+      },
+      {
+       "char": "zoya",
+       "text": "What you said about Ria… honestly, same. We totally match wavelengths, babe."
+      },
+      {
+       "char": "zoya",
+       "text": "And that terrace thing? 🤫 Stays between us. I’m on your side now. Just one day, I might ask you for a tiny favor too. 💅"
+      }
+     ]
+    },
+    {
+     "t": "Keep your distance — say nothing",
+     "s": "Stay safe. But now Zoya has that terrace card — and she’s not happy.",
+     "deltas": {
+      "fame": -1
+     },
+     "relationshipDeltas": {
+      "zoya": -2
+     },
+     "dm": [
+      {
+       "char": "zoya",
+       "text": "Aww, it’s okay. 🫶"
+      },
+      {
+       "char": "zoya",
+       "text": "You’re a little guarded, cute. I’m not offended, promise."
+      },
+      {
+       "char": "zoya",
+       "text": "Just saying, babe — people having 1 AM \"coffee dates\" on the terrace 👀 don’t keep their secrets secret for long. Think about that. ✨"
+      }
+     ]
+    }
+   ],
+   "feedReaction": {
+    "A": {
+     "char": "zoya",
+     "caption": "1 AM kitchen talks with my new fave in the house 🫶 sweetest energy in here! #CreatorHouse #Day2",
+     "imageUrl": "/generated/creator-house-posts/ch-post-zoya-d2-1.png"
+    },
+    "B": {
+     "account": {
+      "name": "House Watch",
+      "handle": "housewatch_india",
+      "avatarText": "H"
+     },
+     "caption": "Zoya offered midnight chai and got a poker face in return 🧊 babe really made an enemy on day 2?? 🍿 #CreatorHouse"
+    }
+   }
+  },
+  {
+   "id": "D2-2",
+   "day": 2,
+   "slot": "Afternoon",
+   "tag": "⚡ DAY 2 · AFTERNOON",
+   "title": "Ria, On Camera",
+   "body": [
+    "Afternoon. In front of everyone, camera on. Ria walks up to you — perfectly lit, perfectly calm. \"I was thinking we should do a collab. My reach could double your content in a day.\"",
+    "She smiles and adds one more line: \"Just one small thing — I'll handle the caption and the credit. And next time I take a stand on something, you're with me. Fair?\"",
+    "The whole house is watching. The reach is a gift — but Ria never gives anything for free. Say yes, and you're under her. Say no, and on camera, you just rejected the queen bee."
+   ],
+   "react": {
+    "char": "ria",
+    "text": "I don’t offer collabs to everyone. I’m offering one to you. Think about it — this offer comes once. 👑"
+   },
+   "q": "Take Ria’s collab or stay independent?",
+   "reader": [
+    {
+     "t": "nar",
+     "text": "Afternoon. The cameras are rolling, the whole house is in the hall. Ria walks right up to you — totally composed, like she wrote this scene herself."
+    },
+    {
+     "t": "cue",
+     "who": "Ria",
+     "avatar": "/avatars/ria.png",
+     "text": "Let’s do a collab. My reach will double your numbers in a day. Simple math. 👑"
+    },
+    {
+     "t": "cue",
+     "who": "Ria",
+     "avatar": "/avatars/ria.png",
+     "text": "I’ll handle the caption and credit. And when I take a stand on something, you stand with me. That’s it. Fair, right?"
+    },
+    {
+     "t": "nar",
+     "text": "The reach is real — one collab and your follower count shoots up. But this is Ria’s house, and her gifts always come with a chain attached."
+    }
+   ],
+   "choices": [
+    {
+     "t": "Take the collab — take the reach",
+     "s": "Follower jump is guaranteed. But now you owe Ria.",
+     "deltas": {
+      "fame": 4
+     },
+     "relationshipDeltas": {
+      "ria": 2
+     },
+     "post": {
+      "source": "player",
+      "caption": "Collab drop 🚨 with @riaofficial. Even I’m shocked at the reach 📈👑 #CreatorHouse #Day2",
+      "reactions": [
+       {
+        "char": "ria",
+        "text": "Good choice. You get how this house works. Welcome to the top table. 👑"
+       },
+       {
+        "char": "zoya",
+        "text": "Oho, Team Ria already? 💅 noted, babe."
+       },
+       {
+        "account": {
+         "name": "Creator Tea",
+         "handle": "creator.tea",
+         "avatarText": "C"
+        },
+        "text": "Day 2 and already under the queen’s umbrella 🌂 smart or scared? 👀"
+       }
+      ],
+      "imageUrl": "/generated/creator-house-posts/ch-post-d2-2.png"
+     }
+    },
+    {
+     "t": "Say no — stay independent",
+     "s": "Your name, your terms. Smaller reach, but the respect is yours.",
+     "deltas": {
+      "fame": -1
+     },
+     "relationshipDeltas": {
+      "ria": -3
+     },
+     "dm": [
+      {
+       "char": "ria",
+       "text": "Interesting. You said no. 👑"
+      },
+      {
+       "char": "ria",
+       "text": "You’re either brave, or new — haven’t decided yet."
+      },
+      {
+       "char": "ria",
+       "text": "No worries. I only make offers once. Let’s see how far your reach gets on its own. 🤍"
+      }
+     ]
+    }
+   ],
+   "feedReaction": {
+    "A": {
+     "account": {
+      "name": "House Watch",
+      "handle": "housewatch_india",
+      "avatarText": "H"
+     },
+     "caption": "BREAKING: newbie took Ria’s collab 📈 sure, the reach is coming — but nothing in this house is free 👑🔗 #CreatorHouse #Day2"
+    },
+    "B": {
+     "char": "ria",
+     "caption": "Some people build their own name. Respect. Let’s see how big that name gets. 🤍 #CreatorHouse",
+     "imageUrl": "/generated/creator-house-posts/ch-post-ria-d2-2.png"
+    }
+   }
+  },
+  {
+   "id": "D2-3",
+   "day": 2,
+   "slot": "Very Late",
+   "tag": "⚡ DAY 2 · 2 AM",
+   "title": "First Danger Night",
+   "body": [
+    "First eviction night. Inside, everything's quiet — but outside, the internet is exploding. Your name is trending — and right next to it, one word: \"EVICTED?\"",
+    "Every follower count feels like a vote now. Inside the house, you can see your standing in numbers — and right now, that number is slipping. You can't sleep. Your phone is in your hand.",
+    "You need to post something — prove your worth. Two ways to play it: honest and from the heart, or one huge viral swing that either saves you or sinks you."
+   ],
+   "react": {
+    "char": "kabir",
+    "text": "Bro, your name’s all over the internet right now, but don’t panic. Post something — something only YOU can post. I’m right here. 🔥"
+   },
+   "q": "What do you post on danger night?",
+   "reader": [
+    {
+     "t": "nar",
+     "text": "2 AM. First eviction night. The house is silent, but your phone screen is lit up — your name is trending, and with it, one question: are you leaving?"
+    },
+    {
+     "t": "nar",
+     "text": "This house shows you the truth through one thing only — followers. Every number is a vote. And right now, that number isn’t steady. It can drop."
+    },
+    {
+     "t": "cue",
+     "who": "{ally}",
+     "avatar": "/avatars/kabir.png",
+     "text": "Listen. Everyone outside is talking crap in your name. So answer them — with a post. Something only you can put out there. 🔥"
+    },
+    {
+     "t": "nar",
+     "text": "Two paths. One: honest, shaky truth — straight from the heart. The other: a big viral swing — spectacle, risk, something that either saves the night or sinks you."
+    },
+    {
+     "t": "nar",
+     "big": true,
+     "text": "This post is your read on the audience. Tomorrow morning, the follower count will tell you if you survived. How do you play it?"
+    }
+   ],
+   "choices": [
+    {
+     "t": "Post something raw and vulnerable",
+     "s": "From the heart, with shaking hands. Slow, but real.",
+     "deltas": {
+      "fame": 2
+     },
+     "post": {
+      "source": "player",
+      "caption": "Truth? I'm scared of leaving tonight. But I came in here as my real self — whether I'm here tomorrow or not. If my story means something to you, stay with me. 🤍 #CreatorHouse #DangerNight",
+      "reactions": [
+       {
+        "char": "kabir",
+        "text": "Bro, this wasn't a joke — it hit me straight in the heart. Listen, you're not going anywhere. Even if the numbers drop, I'm still right here. Get some sleep tonight, I'll stay up. 🔥"
+       },
+       {
+        "char": "ananya",
+        "text": "This… was so real it made me cry. 🥺 Please don't go."
+       },
+       {
+        "char": "__fan",
+        "name": "housewatch_india",
+        "text": "no strategy, just the truth 🥺 looking for the vote button to hit SAVE #CreatorHouse"
+       }
+      ],
+      "imageUrl": "/generated/creator-house-posts/ch-post-d2-3a.png"
+     }
+    },
+    {
+     "t": "Go for a huge viral swing",
+     "s": "Spectacle. Everything on the line. Win big or lose big.",
+     "deltas": {
+      "fame": 4
+     },
+     "post": {
+      "source": "player",
+      "caption": "If tonight is my last night in this house… I'm not going out like that. 🎬 Watch this. Sound ON. This reel either goes viral or I go down in history. One share from you = one vote. LET'S GO 🔥🚀 #CreatorHouse #DangerNight",
+      "reactions": [
+       {
+        "char": "kabir",
+        "text": "WAIT WHAT WAS THAT 😭🔥 you really put everything on the line, bro. Listen — whether it lands or not, you're not going anywhere. Stop refreshing the numbers and sleep. I'll keep watch. 🔥"
+       },
+       {
+        "char": "ria",
+        "text": "Bold. Either you're a genius or you just sank yourself. We'll know tomorrow. 👑"
+       },
+       {
+        "char": "__fan",
+        "name": "creator.tea",
+        "text": "this guy is serving SPECTACLE on danger night?? 🍿 either a legend or gone by morning 👀"
+       }
+      ],
+      "imageUrl": "/generated/creator-house-posts/ch-post-d2-3b.png"
+     }
+    }
+   ],
+   "feedReaction": {
+    "A": {
+     "account": {
+      "name": "House Watch",
+      "handle": "housewatch_india",
+      "avatarText": "H"
+     },
+     "caption": "no drama on danger night, just the truth 🥺 vote chatter is on fire — SAVE is trending. follower rank still bouncing all over 📉📈 #CreatorHouse #Day2"
+    },
+    "B": {
+     "account": {
+      "name": "House Watch",
+      "handle": "housewatch_india",
+      "avatarText": "H"
+     },
+     "caption": "EVICTION NIGHT SWING 🎬🚀 either the biggest moment of tonight or the biggest flop. followers are spiking, the vote timeline has gone insane 🔥 #CreatorHouse #Day2"
+    }
+   }
+  },
+  {
+   "id": "D3-1",
+   "day": 3,
+   "slot": "Morning",
+   "tag": "⚡ DAY 3 · MORNING",
+   "title": "{crush}'s Collab",
+   "body": [
+    "Morning. {crush} corners you with their phone in hand, a half-edited reel on the screen. \"I have an idea. You and me. A collab. Your reach, my edit, and the chemistry is kinda obvious.\"",
+    "By the numbers, {crush} has fewer followers than you. But this reel? It could blow up. For both of you. And everyone in the house will see exactly whose side you're on.",
+    "{crush}'s eyes are lit up, a little nervous too. \"I just need a yes or no. Don't overthink it.\""
+   ],
+   "react": {
+    "char": "ananya",
+    "text": "If we do this together… people are gonna talk. But I don't care. Do you? 🥺"
+   },
+   "q": "What do you want to do about {crush}'s collab offer?",
+   "reader": [
+    {
+     "t": "nar",
+     "text": "Morning. {crush} pulls you aside — a half-finished reel paused on their phone, waiting to be cut."
+    },
+    {
+     "t": "cue",
+     "who": "{crush}",
+     "avatar": "/avatars/ananya.png",
+     "text": "The two of us. One collab. Your reach, my edit… the chemistry's obvious to everyone, right? 🥺"
+    },
+    {
+     "t": "nar",
+     "text": "A collab like this in the house makes a statement. Everyone will see whose side you're on — and so will Ria."
+    },
+    {
+     "t": "cue",
+     "who": "{crush}",
+     "avatar": "/avatars/ananya.png",
+     "text": "I just need a yes or no. Don't go by the numbers… go with us. ✨"
+    },
+    {
+     "t": "nar",
+     "big": true,
+     "text": "One reel that could lift both of you up — but also paint a target on your back. Gamble on followers, or play it safe?"
+    }
+   ],
+   "choices": [
+    {
+     "t": "Do it together — make the reel",
+     "s": "The chemistry is real. Let the world see it.",
+     "deltas": {
+      "fame": 4
+     },
+     "relationshipDeltas": {
+      "ananya": 4
+     },
+     "post": {
+      "source": "player",
+      "caption": "New duo just dropped 🔥 {crush} + me, in the same frame. Everyone else can keep noticing. 😌✨ #CreatorHouse #CollabSzn",
+      "reactions": [
+       {
+        "char": "ananya",
+        "text": " You said yes… without even checking the numbers. I'm going to remember that. 🥺✨"
+       },
+       {
+        "char": "ria",
+        "text": "Cute little collab. Lending reach is generous… hope it goes both ways. 👀"
+       },
+       {
+        "char": "__fan",
+        "name": "housewatch_india",
+        "text": "WAIT THIS DUO?? day 3 and I'm already invested 😭 I ship it, bro"
+       }
+      ],
+      "imageUrl": "/generated/creator-house-posts/ch-post-d3-1.png"
+     }
+    },
+    {
+     "t": "Protect your lane",
+     "s": "Let them down easy. This is game time.",
+     "deltas": {
+      "fame": 1
+     },
+     "relationshipDeltas": {
+      "ananya": -2
+     },
+     "dm": [
+      {
+       "char": "ananya",
+       "text": "Got it. The timing just isn’t right right now. It’s okay. 🙂"
+      },
+      {
+       "char": "ananya",
+       "text": "Yeah, figured. In here, everyone checks their numbers first, the person second."
+      },
+      {
+       "char": "ananya",
+       "text": "It’s fine, dude. I can build alone too. Always have. 🥺"
+      }
+     ]
+    }
+   ],
+   "feedReaction": {
+    "A": {
+     "account": {
+      "name": "House Watch",
+      "handle": "housewatch_india",
+      "avatarText": "H"
+     },
+     "caption": "collab reel = soft launch confirmed?? 👀 this duo became the house favorite overnight 🚢💕 #CreatorHouse"
+    },
+    "B": {
+     "char": "ria",
+     "caption": "Smart. Protecting your lane is maturity. Feelings later, followers first. Noted. 🤍 #CreatorHouse",
+     "imageUrl": "/generated/creator-house-posts/ch-post-ria-d3-1.png"
+    }
+   }
+  },
+  {
+   "id": "D3-NOM",
+   "day": 3,
+   "slot": "Afternoon",
+   "tag": "⚡ DAY 3 · NOMINATIONS",
+   "title": "Nominations",
+   "body": [
+    "The house lights shift — red. Production's voice booms out: 'Time for nominations.' Everyone lines up, hearts pounding.",
+    "One by one, the names are revealed. And then two names stay on the screen — this week's in danger.",
+    "{ally} gives a small smile, but you know better — they're shaken underneath. Dev stays quiet, like always. Your person is in danger."
+   ],
+   "react": {
+    "char": "kabir",
+    "text": "Bro, I’m in danger 😳 but don’t stress, I’ll handle it. You focus on your game."
+   },
+   "q": "{ally} is in danger — what do you do right now?",
+   "reader": [
+    {
+     "t": "nar",
+     "text": "The house lights turn red. Production: \"This week’s nominations.\" Everyone’s lined up. Nobody moves."
+    },
+    {
+     "t": "cue",
+     "who": "Dev",
+     "avatar": "/avatars/dev.png",
+     "text": "(calm) Whatever happens, happens. I’m happy with my journey."
+    },
+    {
+     "t": "nar",
+     "text": "Two names stop on the screen — Dev and {ally}. {ally}'s eyes meet yours for a split second."
+    },
+    {
+     "t": "cue",
+     "who": "{ally}",
+     "avatar": "/avatars/kabir.png",
+     "text": "Look… I’m okay. Really. Don’t tank your numbers for me, okay? This is my fight. 🙂"
+    },
+    {
+     "t": "nar",
+     "big": true,
+     "text": "The person closest to you could be leaving this week. Right now — do you reassure them, or protect your own game?"
+    }
+   ],
+   "choices": [
+    {
+     "t": "Reassure {ally} — \"I’m here\"",
+     "s": "Emotional commitment. They know you’re with them.",
+     "deltas": {
+      "fame": 0
+     },
+     "relationshipDeltas": {
+      "kabir": 3
+     },
+     "dm": [
+      {
+       "char": "kabir",
+       "text": "Bro… what you just said. 🥺 Nobody in this house talks like that."
+      },
+      {
+       "char": "kabir",
+       "text": "Whether I go or stay — you’re my person. But listen, spend your numbers carefully. I mean it."
+      }
+     ]
+    },
+    {
+     "t": "Stay cool — protect your game",
+     "s": "Everyone in here fights for themselves. Standing first.",
+     "deltas": {
+      "fame": 1
+     },
+     "relationshipDeltas": {
+      "kabir": -2
+     },
+     "dm": [
+      {
+       "char": "kabir",
+       "text": "Yeah yeah, I got it. Everyone fights for themselves. 🙂"
+      },
+      {
+       "char": "kabir",
+       "text": "It’s fine, bro. Let’s see tomorrow night who actually stands up for who."
+      }
+     ]
+    }
+   ],
+   "feedReaction": {
+    "A": {
+     "char": "kabir",
+     "caption": "found one person in this house who stood up for me without thinking 🥺 everyone else was busy protecting their own numbers #CreatorHouse #Nominations",
+     "imageUrl": "/generated/creator-house-posts/ch-post-ally-d3nom.png"
+    },
+    "B": {
+     "account": {
+      "name": "House Watch",
+      "handle": "housewatch_india",
+      "avatarText": "H"
+     },
+     "caption": "the second nominations hit, loyalties get real obvious 👀 who’s willing to spend numbers for who, we’ll find out tomorrow night 🍿 #CreatorHouse"
+    }
+   }
+  },
+  {
+   "id": "D3-2",
+   "day": 3,
+   "slot": "Afternoon",
+   "tag": "⚡ DAY 3 · AFTERNOON",
+   "title": "Zoya’s Receipts",
+   "body": [
+    "Afternoon. Everyone's phones buzz at the same time. Zoya has posted something — no names, but everyone knows who it's about.",
+    "Screenshots. {crush}'s private messages — sent to someone else. And one line lands like a punch to the gut: 'Need to keep them close, the votes are coming in. It's just strategy.'",
+    "Terrace. Coffee. A 3-year 'connection.' In one second, it all looks different. Was any of it real... or were you just a move?"
+   ],
+   "react": {
+    "char": "zoya",
+    "text": "I didn’t say anything, babe 💅 the screenshots did. Now you decide what you want to do. 👀"
+   },
+   "q": "What do you do about Zoya’s leak?",
+   "reader": [
+    {
+     "t": "nar",
+     "text": "Afternoon. Zoya drops a \"no-name\" post — but everyone in the house knows exactly who it’s about. In the comments, your name and {crush}'s are getting dragged."
+    },
+    {
+     "t": "img",
+     "src": "/generated/creator-house-posts/ch-crush-leak.png",
+     "h": 280
+    },
+    {
+     "t": "nar",
+     "text": "In the screenshot, {crush}'s own words — to someone else: \"Need to keep them close, the numbers are doubling.\" Your breath catches."
+    },
+    {
+     "t": "cue",
+     "who": "Zoya",
+     "avatar": "/avatars/zoya.png",
+     "text": "Oh no, did that sting? 🙈 I only showed the truth, babe. Now you see it, right — in this house, even \"feelings\" are part of the game. 👀"
+    },
+    {
+     "t": "nar",
+     "text": "The heat is on, and it's all on camera. Your game is on the line, and so is your heart. Zoya's smiling — one shot, two hits."
+    },
+    {
+     "t": "nar",
+     "big": true,
+     "text": "In front of everyone, you were made to look used. Blow this up and tell your truth — or keep it together quietly?"
+    }
+   ],
+   "choices": [
+    {
+     "t": "Clap back to her face",
+     "s": "Publicly. Protect your own name, even if it gets messy.",
+     "deltas": {
+      "fame": 3
+     },
+     "relationshipDeltas": {
+      "zoya": -1
+     },
+     "post": {
+      "source": "player",
+      "imageUrl": "/generated/creator-house-posts/ch-crush-leak.png",
+      "caption": "Screenshots without context are only half the truth. 🎬 What you're calling strategy is my story — and I won't let someone else's edit define it. #CreatorHouse",
+      "reactions": [
+       {
+        "char": "zoya",
+        "text": "Ooh, fighting spirit 💅 but screenshots are still screenshots, babe 👀"
+       },
+       {
+        "char": "ria",
+        "text": "Bold. But now the whole house is gonna see your \"story\" differently. 👑"
+       },
+       {
+        "account": {
+         "name": "House Watch",
+         "handle": "housewatch_india",
+         "avatarText": "H"
+        },
+        "text": "they answered the screenshots HEAD ON 😭🔥 biggest twist of the season #CreatorHouse"
+       }
+      ]
+     }
+    },
+    {
+     "t": "Keep it quiet — go to {ally}",
+     "s": "Don't react. That's exactly what Zoya wants. Process it in private.",
+     "deltas": {
+      "fame": -1
+     },
+     "relationshipDeltas": {
+      "kabir": 2,
+      "zoya": -1
+     },
+     "dm": [
+      {
+       "char": "kabir",
+       "text": "Bro, don't react, that's literally what she wants 😭 Nothing burns her more than silence."
+      },
+      {
+       "char": "kabir",
+       "text": "And that screenshot… listen. Maybe it did start as strategy. But I've seen {crush}'s eyes when they talk about you. That's not fake anymore."
+      },
+      {
+       "char": "kabir",
+       "text": "Zoya lit the fire. Don't be water, and don't be fire either. Just… ask {crush} yourself, off-screen."
+      }
+     ]
+    }
+   ],
+   "feedReaction": {
+    "A": {
+     "account": {
+      "name": "Creator Tea",
+      "handle": "creator.tea",
+      "avatarText": "C"
+     },
+     "caption": "ZOYA dropped the screenshots, they clapped back 🍿 team-used vs team-strategy… the house just split in two #CreatorHouse"
+    },
+    "B": {
+     "account": {
+      "name": "House Watch",
+      "handle": "housewatch_india",
+      "avatarText": "H"
+     },
+     "caption": "screenshots viral, but that guy? poker face 🧊 is something brewing inside or did he really hold it together? 👀 #CreatorHouse"
+    }
+   }
+  },
+  {
+   "id": "D3-3",
+   "day": 3,
+   "slot": "Late Night",
+   "tag": "🌙 DAY 3 · NIGHT",
+   "title": "Two Hearts, Two Paths",
+   "body": [
+    "Night. Everyone's asleep. {crush} finds you on the terrace — a little wrecked after the Zoya drama, a little brave for showing up. \"I've been thinking about this all day. Whatever this is between us... I want to figure it out. For real.\"",
+    "\"But I know your standing's shaky right now. If we get closer, people will talk even more. Your followers will care.\" {crush} pauses. \"So I just need to know — do I come first, or does the game?\"",
+    "No cameras. No captions. Just you, {crush}, and a question you can't dodge."
+   ],
+   "react": {
+    "char": "ananya",
+    "text": "I don't want drama. I just want an honest answer. I can wait for you… can you wait for me? 🥺"
+   },
+   "q": "How do you answer {crush}?",
+   "reader": [
+    {
+     "t": "nar",
+     "text": "Night. The terrace is empty, everyone's asleep. {crush} was waiting for you — a little shaken after Zoya's drama, but still trying to hold it together."
+    },
+    {
+     "t": "cue",
+     "who": "{crush}",
+     "avatar": "/avatars/ananya.png",
+     "text": "I've been thinking about this all day. Whatever this is between us… I really want to figure it out. 🥺"
+    },
+    {
+     "t": "nar",
+     "text": "But {crush} knows this too — your game is weak right now. If you get close, the followers will feel some type of way."
+    },
+    {
+     "t": "cue",
+     "who": "{crush}",
+     "avatar": "/avatars/ananya.png",
+     "text": "I just want to know one thing… do I come first, or does your game? ✨"
+    },
+    {
+     "t": "nar",
+     "big": true,
+     "text": "No cameras, no captions. Just you and that question — heart or followers?"
+    }
+   ],
+   "choices": [
+    {
+     "t": "Choose {crush}",
+     "s": "The game can wait. This feeling can't.",
+     "deltas": {
+      "fame": -2
+     },
+     "relationshipDeltas": {
+      "ananya": 6
+     },
+     "dm": [
+      {
+       "char": "ananya",
+       "text": "You… you chose me. Before the followers. 🥺"
+      },
+      {
+       "char": "ananya",
+       "text": "I know that could cost you in the game. But you still said it. That's what matters most."
+      },
+      {
+       "char": "ananya",
+       "text": "I'm with you. And this isn't some 'almost-something' anymore… it's something. ✨"
+      }
+     ]
+    },
+    {
+     "t": "Choose the game",
+     "s": "In here, followers are survival. Not now.",
+     "deltas": {
+      "fame": 2
+     },
+     "relationshipDeltas": {
+      "ananya": -3
+     },
+     "dm": [
+      {
+       "char": "ananya",
+       "text": "The game. Got it. You made it clear, so thank you. 🙂"
+      },
+      {
+       "char": "ananya",
+       "text": "I wasn't wrong to take the chance… maybe the timing was. Or the guy."
+      },
+      {
+       "char": "ananya",
+       "text": "Okay. I'll back off. Play your game — I'll be watching. 🥺"
+      }
+     ]
+    }
+   ],
+   "feedReaction": {
+    "A": {
+     "char": "ananya",
+     "caption": "some things are worth more than followers. learned that today. 🌙✨ #nofilter",
+     "imageUrl": "/generated/creator-house-posts/ch-post-crush-d3-3.png"
+    },
+    "B": {
+     "account": {
+      "name": "House Watch",
+      "handle": "housewatch_india",
+      "avatarText": "H"
+     },
+     "caption": "something happened on the terrace last night… their body language has been weird all morning 👀 did something break? #CreatorHouse"
+    }
+   }
+  },
+  {
+   "id": "D4-1",
+   "day": 4,
+   "slot": "Late Night",
+   "tag": "🌙 DAY 4 · DANGER NIGHT",
+   "title": "Second Danger Night",
+   "body": [
+    "The speaker crackles again. Another danger night. But this time, before the name is even read, you already know — because the one at the bottom isn't you.",
+    "{ally}'s name is on the screen. Lowest standing. And in the whole house, only one person has enough reach to pull them up — you.",
+    "You have your own standing. You can spend it — save {ally}, at your own cost. Or keep yourself safe and let them fall."
+   ],
+   "react": {
+    "char": "kabir",
+    "text": "Dude, my name dropped to the bottom 😭 don't stress. Seriously — play for yourself, don't get caught up in me."
+   },
+   "q": "{ally} is in danger. Will you spend your standing to save them?",
+   "reader": [
+    {
+     "t": "nar",
+     "text": "Night. Living room. Everyone's standing in a line. The speaker comes on — second danger night. Tonight, one person's name is at the very bottom."
+    },
+    {
+     "t": "img",
+     "src": "/generated/creator-house-posts/seed-villa.png",
+     "h": 240
+    },
+    {
+     "t": "nar",
+     "text": "The screen lights up. The numbers are right there for everyone to see. Your eyes land on the name — and something drops in your chest. It's {ally}."
+    },
+    {
+     "t": "cue",
+     "who": "{ally}",
+     "avatar": "/avatars/kabir.png",
+     "text": "Damn… that's me, bro. 😭 It's okay, it happens. You take care of yourself. Seriously — don't risk it for me, your number isn't safe either."
+    },
+    {
+     "t": "nar",
+     "text": "And then you see your power. Your reach is big enough that if you spend the whole day pushing {ally} — reels, tags, story — they could survive. But your own standing will drop."
+    },
+    {
+     "t": "nar",
+     "big": true,
+     "text": "If you save them, it costs you. Your followers, their life in the game. Or keep yourself on top and let them fall alone. What do you do?"
+    }
+   ],
+   "choices": [
+    {
+     "t": "Shield them — put your standing on the line",
+     "s": "Pull {ally} up at the cost of your own followers. Friendship first.",
+     "deltas": {
+      "fame": -2
+     },
+     "relationshipDeltas": {
+      "kabir": 5
+     },
+     "dm": [
+      {
+       "char": "kabir",
+       "text": "Bro, you really… spent the whole day on me. 😭"
+      },
+      {
+       "char": "kabir",
+       "text": "I was watching your number drop and you still kept tagging me. You risked your spot. For me. Nobody in this house does that."
+      },
+      {
+       "char": "kabir",
+       "text": "I joke around so much, people think nothing gets to me. Today, it did. You're my person. I'll remember this till my last breath. 🔥"
+      }
+     ],
+     "flagDeltas": {
+      "savedAlly": 1
+     }
+    },
+    {
+     "t": "Protect yourself — let them fall",
+     "s": "Your standing comes first. On danger night, you save yourself first.",
+     "deltas": {
+      "fame": 3
+     },
+     "relationshipDeltas": {
+      "kabir": -3
+     },
+     "post": {
+      "source": "player",
+      "caption": "In this house, everyone fights their own battle. I'm fighting mine. 🎯 #DangerNight #CreatorHouse",
+      "reactions": [
+       {
+        "char": "ria",
+        "text": "Finally. Someone who gets that this game isn't a group project. Cold, but correct. 👑"
+       },
+       {
+        "char": "zoya",
+        "text": "hii babe your survival instinct is on point 💅 some people try to save someone who's drowning and end up drowning too. turns out you're smart."
+       },
+       {
+        "char": "__fan",
+        "name": "housewatch_india",
+        "text": "left your bestie on the danger board to save your OWN number?? cold blooded 😭 #CreatorHouse"
+       }
+      ],
+      "imageUrl": "/generated/creator-house-posts/ch-post-d4-1.png"
+     },
+     "flagDeltas": {
+      "allyEvicted": 1
+     }
+    }
+   ],
+   "feedReaction": {
+    "A": {
+     "account": {
+      "name": "House Watch",
+      "handle": "housewatch_india",
+      "avatarText": "🏠"
+     },
+     "caption": "dropped your own number on danger night to save your bestie?? loyalty over followers is CRAZY work 🥹🔥 protect this one #CreatorHouse #DangerNight"
+    },
+    "B": {
+     "char": "ria",
+     "caption": "Danger Night reveals everyone. Some protect their friends. Some protect their numbers. I respect the honest ones. 👑 #CreatorHouse",
+     "imageUrl": "/generated/creator-house-posts/ch-post-ria-d4-1.png"
+    }
+   }
+  },
+  {
+   "id": "D4-ELIM",
+   "title": "Empty Chair",
+   "tag": "🌙 DAY 4 · AFTERMATH",
+   "day": 4,
+   "reader": [
+    {
+     "t": "nar",
+     "text": "The ceremony lights went out. {ally} is gone — the one who stood by you every night."
+    },
+    {
+     "t": "nar",
+     "text": "There’s a {ally}-shaped hole in the house. You saved your number — and this was the price."
+    },
+    {
+     "t": "nar",
+     "big": true,
+     "text": "Now there are two paths — reach out to them one last time, or quietly move on."
+    }
+   ],
+   "choices": [
+    {
+     "t": "Send {ally} one last message",
+     "s": "They’re gone — but your message will reach them.",
+     "deltas": {
+      "fame": 0
+     },
+     "relationshipDeltas": {
+      "kabir": 2
+     },
+     "dm": [
+      {
+       "char": "kabir",
+       "text": "(from outside, voice note) Bro, don’t cry 😅 I told you — everyone fights their own battle. You win, for me too. That trophy is mine too 🥺 And next time, drop your number for your person. Love you, man."
+      }
+     ]
+    },
+    {
+     "t": "Quietly move on",
+     "s": "Game first. Everything else later.",
+     "deltas": {
+      "fame": 1
+     },
+     "dm": [
+      {
+       "char": "zoya",
+       "text": "See? You don’t win this house with loyalty. You did the right thing… maybe. 💅"
+      }
+     ]
+    }
+   ],
+   "variants": [
+    {
+     "when": {
+      "flag": {
+       "key": "savedAlly",
+       "gte": 1
+      }
+     },
+     "title": "Saved Them",
+     "reader": [
+      {
+       "t": "nar",
+       "text": "Danger Night’s verdict was about to drop. But this time, no name lit up on the screen. Production: \"This week, {ally} is SAFE.\""
+      },
+      {
+       "t": "nar",
+       "text": "Yesterday, you put your entire number on {ally} — reels, tags, story. The house saw it. They made it. Because of you."
+      },
+      {
+       "t": "cue",
+       "who": "{ally}",
+       "avatar": "/avatars/kabir.png",
+       "text": "Bro… you really dropped your number to save me 😭 I’ll never forget this for the rest of my life. Ride or die — now we’re in this together till the finale. 🔥"
+      },
+      {
+       "t": "nar",
+       "big": true,
+       "text": "{ally} made it — because of you. Today, your bond just got deeper."
+      }
+     ],
+     "choices": [
+      {
+       "t": "Hug {ally}",
+       "s": "Today’s bond is permanent.",
+       "deltas": {
+        "fame": 0
+       },
+       "relationshipDeltas": {
+        "kabir": 4
+       },
+       "dm": [
+        {
+         "char": "kabir",
+         "text": "Bro, what you did… I’d do anything for you. Ride or die. Till the finale now 🔥"
+        }
+       ]
+      },
+      {
+       "t": "Say \"Now we’re even\"",
+       "s": "Light joke, deep trust.",
+       "deltas": {
+        "fame": 1
+       },
+       "relationshipDeltas": {
+        "kabir": 2
+       },
+       "dm": [
+        {
+         "char": "kabir",
+         "text": "Haha, even? No way, bro — I’ll always owe you. You win the finale, drinks are on me 🍾"
+        }
+       ]
+      }
+     ],
+     "q": "{ally} made it — what do you do now?"
+    }
+   ],
+   "slot": "Very Late",
+   "body": [
+    "The decision from the second danger night is here. Everyone stands in a line, barely breathing. Production's voice: 'This week, leaving the house will be...'",
+    "A tiny pause. The whole house seems to stop breathing at once."
+   ],
+   "react": {
+    "char": "zoya",
+    "text": "Every eviction draws a line — before and after. After tonight, this house won’t be the same. 💅"
+   },
+   "q": "Now that they’re gone — what’s your next move?",
+   "feedReaction": {
+    "A": {
+     "account": {
+      "name": "House Watch",
+      "handle": "housewatch_india",
+      "avatarText": "H"
+     },
+     "caption": "Danger Night’s verdict is in 🥀 some made it, some didn’t… the house feels heavy tonight #CreatorHouse"
+    },
+    "B": {
+     "account": {
+      "name": "House Watch",
+      "handle": "housewatch_india",
+      "avatarText": "H"
+     },
+     "caption": "Danger Night’s verdict is in 🥀 some made it, some didn’t… the house feels heavy tonight #CreatorHouse"
+    }
+   }
+  },
+  {
+   "id": "D4-2",
+   "day": 4,
+   "slot": "Night",
+   "tag": "🌙 DAY 4 · NIGHT",
+   "title": "{crush}'s Call",
+   "body": [
+    "Danger night is over. The house is asleep. Your phone lights up — {crush}.",
+    "\"I'm on the terrace. Alone. If you want to come... I'm here.\" They're not saying come. They're just saying the door's open.",
+    "They've seen every choice you've made so far. Now they're leaving the decision to you. Are you going?"
+   ],
+   "react": {
+    "char": "ananya",
+    "text": "I'm on the terrace. Alone. 🥺 If you want to come, come. I'm not forcing you… just saying."
+   },
+   "q": "{crush} is on the terrace. Will you go, or let it go?",
+   "reader": [
+    {
+     "t": "nar",
+     "text": "The noise of the dangerous night has finally drained away. The house is sunk in darkness. You're still awake — heart still racing. Your phone lights up."
+    },
+    {
+     "t": "cue",
+     "who": "{crush}",
+     "avatar": "/avatars/ananya.png",
+     "text": "You asleep? I'm on the terrace… alone. After all that drama downstairs, up here it's just the wind and me. 🥺"
+    },
+    {
+     "t": "img",
+     "src": "/generated/creator-house-posts/scene-terrace-night.png",
+     "h": 250
+    },
+    {
+     "t": "cue",
+     "who": "{crush}",
+     "avatar": "/avatars/ananya.png",
+     "text": "Look, I'm not trying to force you. Just… if you want to come, I'm here. And if not, that's okay too. ✨"
+    },
+    {
+     "t": "nar",
+     "text": "This isn't the {crush} who's guarded in front of the cameras. This is the one who let their guard down — just for you. And they know every choice you've made so far."
+    },
+    {
+     "t": "nar",
+     "big": true,
+     "text": "She's putting the choice in your hands. Will you take the stairs — or put your phone down and go to sleep? What'll you do?"
+    }
+   ],
+   "choices": [
+    {
+     "t": "Go to the terrace — go see her",
+     "s": "Take the stairs. Stop putting this off.",
+     "deltas": {
+      "fame": 0
+     },
+     "relationshipDeltas": {
+      "ananya": 5
+     },
+     "dm": [
+      {
+       "char": "ananya",
+       "text": "You came. 🥺 You actually came."
+      },
+      {
+       "char": "ananya",
+       "text": "You know, all night I kept telling myself — don't text them, what will they think. But you came anyway, before I even had to say it properly. So maybe I wasn't the only one feeling this."
+      },
+      {
+       "char": "ananya",
+       "text": "This house turns everyone into a performance. But up on that terrace, with you… I was just me. For the first time in forever. Maybe for the first time in 3 years. Thank you. ✨"
+      }
+     ]
+    },
+    {
+     "t": "Let it go — put the phone down",
+     "s": "Not tonight. Clear head, guarded heart.",
+     "deltas": {
+      "fame": 1
+     },
+     "relationshipDeltas": {
+      "ananya": -2
+     },
+     "dm": [
+      {
+       "char": "ananya",
+       "text": "It's okay. Go to sleep. 🙂"
+      },
+      {
+       "char": "ananya",
+       "text": "I'll sit here a little longer. The breeze is nice. You get some rest."
+      },
+      {
+       "char": "ananya",
+       "text": "…truth? For one second, I really thought you'd come. My mistake. I'm used to sitting alone anyway. Good night. 🥺"
+      }
+     ]
+    }
+   ],
+   "feedReaction": {
+    "A": {
+     "char": "ananya",
+     "caption": "Some nights never make it to the feed. Tonight's one of them. 🌙✨ #CreatorHouse",
+     "imageUrl": "/generated/creator-house-posts/ch-post-crush-d4-2a.png"
+    },
+    "B": {
+     "char": "ananya",
+     "caption": "Terrace, alone, cold breeze. That's all I needed anyway. Wasn't waiting for anyone. Not at all. 🙂🌙 #CreatorHouse",
+     "imageUrl": "/generated/creator-house-posts/ch-post-crush-d4-2b.png"
+    }
+   }
+  },
+  {
+   "id": "D4-3",
+   "day": 4,
+   "slot": "Very Late",
+   "tag": "⚡ DAY 4 · 2 AM",
+   "title": "Ria, Unmasked",
+   "body": [
+    "2 AM. You have the screenshots Zoya leaked — and in them is the full truth about Ria. That 2.1M glamour image is standing on borrowed money. Unpaid sponsor dues, brand threats, all of it.",
+    "One post. One expose. And by morning, Ria's whole image — the one that's made you feel small since day 1 — will crack in front of everyone. The followers will come to you.",
+    "Or you delete the screenshots. Stay clean. Don't get your hands dirty with Zoya's mess. Your call."
+   ],
+   "react": {
+    "char": "zoya",
+    "text": "hii babe 💅 left these screenshots for you. your move now. post them… let everyone see. 👀"
+   },
+   "q": "Ria's truth — will you expose her, or stay clean?",
+   "reader": [
+    {
+     "t": "nar",
+     "text": "2 AM. Everyone's asleep. A folder pops up on your phone — sent by Zoya. Screenshots. And in them is the truth Ria's been hiding for 2 years."
+    },
+    {
+     "t": "cue",
+     "who": "Zoya",
+     "avatar": "/avatars/zoya.png",
+     "text": "hii babe ✨ got them? dug all this up with effort. Ria's whole 'luxury life' — built on borrowed money. sponsor messages, unpaid dues, everything. 👀"
+    },
+    {
+     "t": "img",
+     "src": "/generated/creator-house-posts/ch-ria-leak.png",
+     "h": 260,
+     "pos": "center top"
+    },
+    {
+     "t": "cue",
+     "who": "Zoya",
+     "avatar": "/avatars/zoya.png",
+     "text": "I don't wanna get my hands dirty. but you? you post it. by morning, she's done. and all her followers… over here. 💅"
+    },
+    {
+     "t": "nar",
+     "text": "This is the Ria who called you 'small-town' from day 1. The one who made you feel small in front of every camera. One tap, and her mask comes off."
+    },
+    {
+     "t": "nar",
+     "big": true,
+     "text": "One post — Ria's done, and the followers are yours. Or delete the screenshots — clean hands, smaller reach. What do you do?"
+    }
+   ],
+   "choices": [
+    {
+     "t": "Expose her — post the truth",
+     "s": "Rip Ria's mask off. The followers will come. But yeah, it's ruthless.",
+     "deltas": {
+      "fame": 4
+     },
+     "relationshipDeltas": {
+      "ananya": -2
+     },
+     "post": {
+      "source": "player",
+      "caption": "In this house, there's always something hiding behind everyone's 'aesthetic.' Tonight, I'm putting a few things out in the open. Truth over image. 👀 #CreatorHouse #Receipts",
+      "reactions": [
+       {
+        "char": "ria",
+        "text": "So this is who you are. Fine. You want my throne? You'll learn how heavy it is. This isn't over. 👑"
+       },
+       {
+        "char": "zoya",
+        "text": "AND SCENE 💅✨ see, babe? told you. you did what I needed done — and the blame lands on you. genius. 👀"
+       },
+       {
+        "account": {
+         "name": "House Watch",
+         "handle": "housewatch_india",
+         "avatarText": "H"
+        },
+        "text": "NOT THE RECEIPTS 😭😭 ria's whole empire on borrowed money?? this house just went NUCLEAR #CreatorHouse #Exposed"
+       }
+      ],
+      "imageUrl": "/generated/creator-house-posts/ch-post-d4-3.png"
+     }
+    },
+    {
+     "t": "Stay clean — delete the screenshots",
+     "s": "Don't get involved in Zoya's game. Less reach, full dignity.",
+     "deltas": {
+      "fame": -1
+     },
+     "relationshipDeltas": {
+      "kabir": 3
+     },
+     "dm": [
+      {
+       "char": "kabir",
+       "text": "Bro, I saw what Zoya was sending. The whole house was waiting on that folder. 😳"
+      },
+      {
+       "char": "kabir",
+       "text": "And you deleted it. Ria never once played straight with you — you had the chance to ruin her, and you didn't take it."
+      },
+      {
+       "char": "kabir",
+       "text": "The followers can come later, dude. But who you were tonight? Zoya could never. I respect you for that. For real. 🔥"
+      }
+     ]
+    }
+   ],
+   "feedReaction": {
+    "A": {
+     "account": {
+      "name": "House Watch",
+      "handle": "housewatch_india",
+      "avatarText": "🏠"
+     },
+     "caption": "the house is at WAR 🍿 team-exposed vs team-ria… after this, nobody's going back to normal 👀🔥 #CreatorHouse #Receipts"
+    },
+    "B": {
+     "char": "ria",
+     "caption": "Someone had my life in their hands last night. They chose to walk away clean. I don't forget things like that. 🤍 #CreatorHouse",
+     "imageUrl": "/generated/creator-house-posts/ch-post-ria-d4-3.png"
+    }
+   },
+   "variants": [
+    {
+     "when": {
+      "flag": {
+       "key": "allyEvicted",
+       "gte": 1
+      }
+     },
+     "choices": [
+      {
+       "t": "Expose her — post the truth",
+       "s": "Rip Ria's mask off. The followers will come. But yeah, it's ruthless.",
+       "deltas": {
+        "fame": 4
+       },
+       "relationshipDeltas": {
+        "ananya": -2
+       },
+       "post": {
+        "source": "player",
+        "caption": "In this house, there's always something hiding behind everyone's 'aesthetic.' Tonight, I'm putting a few things out in the open. Truth over image. 👀 #CreatorHouse #Receipts",
+        "reactions": [
+         {
+          "char": "ria",
+          "text": "So this is who you are. Fine. You want my throne? You'll learn how heavy it is. This isn't over. 👑"
+         },
+         {
+          "char": "zoya",
+          "text": "AND SCENE 💅✨ you did what I needed done — and the blame lands on you. genius. 👀"
+         },
+         {
+          "account": {
+           "name": "House Watch",
+           "handle": "housewatch_india",
+           "avatarText": "H"
+          },
+          "text": "NOT THE RECEIPTS 😭😭 this house just went NUCLEAR #CreatorHouse #Exposed"
+         }
+        ]
+       }
+      },
+      {
+       "t": "Stay clean — delete the screenshots",
+       "s": "Don't get involved in Zoya's game. Less reach, full dignity.",
+       "deltas": {
+        "fame": -1
+       },
+       "relationshipDeltas": {},
+       "dm": [
+        {
+         "char": "kabir",
+         "text": "(from outside, voice note) Bro, I was literally sitting right there — Zoya dropped the folder. 😳"
+        },
+        {
+         "char": "kabir",
+         "text": "And you deleted it. Gave up the followers, kept your dignity. I'm saying this even from outside the house — you're that guy."
+        },
+        {
+         "char": "kabir",
+         "text": "Go win. For me too. 🔥"
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "D5-1",
+   "day": 5,
+   "slot": "Late Night",
+   "tag": "⚡ DAY 5 · LATE NIGHT",
+   "title": "The Last Big Decision",
+   "body": [
+    "The finale's tomorrow. Tonight is the house's last content window — one post, prime slot, the whole internet watching. It'll hit your numbers directly.",
+    "On one side: a clean winner move — you, alone, on top. Perfect for fame. But you'll have to put whatever's been building with {crush} on the side. Publicly.",
+    "On the other: spend this night with someone for real — forget the numbers, choose {crush}. No cameras."
+   ],
+   "react": {
+    "char": "ria",
+    "text": "Tomorrow's the finale. Tonight decides whether someone came here to win, or for something else. I'm watching both. 🤍"
+   },
+   "q": "Last night — play to win, or play for the romance?",
+   "reader": [
+    {
+     "t": "nar",
+     "text": "Late night. The villa is quiet. Less than twenty-four hours till the finale. The house’s last content window is open right now — one slot, prime time, the whole internet online."
+    },
+    {
+     "t": "img",
+     "src": "/generated/creator-house-posts/scene-terrace-night.png",
+     "h": 250
+    },
+    {
+     "t": "nar",
+     "text": "There’s a clean winner move ready — just you, on top, full spotlight. The numbers will love it. You just have to keep {crush} out of frame. In front of everyone."
+    },
+    {
+     "t": "cue",
+     "who": "{crush}",
+     "avatar": "/avatars/ananya.png",
+     "text": "Tomorrow it all ends, right? So… just for tonight, no cameras. Just you and me. Is that possible? 🥺"
+    },
+    {
+     "t": "nar",
+     "text": "On one side, fifty thousand people. On the other, one person who’s stopped for real for the first time."
+    },
+    {
+     "t": "nar",
+     "big": true,
+     "text": "This is the question that’s been hiding since Day 1 — followers or feelings? Tonight, no lies."
+    }
+   ],
+   "choices": [
+    {
+     "t": "Play to WIN",
+     "s": "Post the winner move. The spotlight is yours alone.",
+     "deltas": {
+      "fame": 6
+     },
+     "relationshipDeltas": {
+      "ananya": -4
+     },
+     "post": {
+      "source": "player",
+      "caption": "Ten days. One house. And I’m still here — alone, on my own. Finale tomorrow. Everything else is noise. 🏆 #CreatorHouse #FinaleEve",
+      "reactions": [
+       {
+        "char": "ria",
+        "text": "The night before the finale and you’re doing a solo flex. Cold. Smart. That’s the game. 👑"
+       },
+       {
+        "char": "ananya",
+        "text": "Guess there wasn’t room for me in the frame. Got it. It’s fine. 🙂"
+       },
+       {
+        "account": {
+         "name": "HouseWatch India",
+         "handle": "housewatch_india",
+         "avatarText": "HW"
+        },
+        "text": "FINALE EVE and this guy went solo 👀 dropped everyone for the numbers. iconic or ice-cold? #CreatorHouse"
+       }
+      ],
+      "imageUrl": "/generated/creator-house-posts/ch-post-d5-1.png"
+     }
+    },
+    {
+     "t": "Play for the ROMANCE",
+     "s": "Skip the slot. Tonight, be with {crush}, no cameras.",
+     "deltas": {
+      "fame": -4
+     },
+     "relationshipDeltas": {
+      "ananya": 6
+     },
+     "dm": [
+      {
+       "char": "ananya",
+       "text": "Wait… you gave up the prime slot? The night before the finale? 🥺"
+      },
+      {
+       "char": "ananya",
+       "text": "Not for the numbers… for me? Really?"
+      },
+      {
+       "char": "ananya",
+       "text": "Come to the terrace. Cameras off. Tonight it’s just us. I’ve… I’ve never felt this with anyone before. 🌙"
+      }
+     ]
+    }
+   ],
+   "feedReaction": {
+    "A": {
+     "account": {
+      "name": "HouseWatch India",
+      "handle": "housewatch_india",
+      "avatarText": "HW"
+     },
+     "caption": "Finale eve and someone’s shining solo in prime slot — after keeping their closest bond out of frame. Numbers up. Heart? Who knows. 👀🏆 #CreatorHouse #Day5"
+    },
+    "B": {
+     "char": "ananya",
+     "caption": "Someone gave up fifty thousand people tonight… for one person. Me. 🌙 Whatever happens tomorrow, tonight is mine. #FinaleEve",
+     "imageUrl": "/generated/creator-house-posts/ch-post-crush-d5-1.png"
+    }
+   }
+  },
+  {
+   "id": "D5-2",
+   "day": 5,
+   "slot": "Finale",
+   "tag": "⚡ DAY 5 · LIVE FINALE",
+   "title": "Live Finale",
+   "body": [
+    "Studio lights. 1.1 lakh people live. Ria, {ally}, {crush} — everyone's on stage, everyone's with you. The host opens the envelope.",
+    "\"And this season's result…\" — pause. All of India is holding its breath.",
+    "It's your name. These ten days have narrowed down to this one moment. Now it's just — how do you take it?"
+   ],
+   "react": {
+    "char": "ria",
+    "text": "Your name came up. I didn’t teach you this — you earned it yourself. Now show them who you are. 🤍"
+   },
+   "q": "The result is in — how do you take it?",
+   "reader": [
+    {
+     "t": "nar",
+     "text": "Live finale. Studio lights, 1.1 lakh people online. On stage: Ria, {ally}, {crush} — all safe, all standing with you."
+    },
+    {
+     "t": "img",
+     "src": "/generated/creator-house-posts/seed-villa.png",
+     "h": 240
+    },
+    {
+     "t": "cue",
+     "who": "Host",
+     "avatar": "/avatars/ria.png",
+     "text": "And the winner of this season… is… this name. Congratulations. The stage is yours. 🎤"
+    },
+    {
+     "t": "nar",
+     "text": "Applause. The camera zooms in on your face. {ally}’s eyes are filling up. {crush} is just looking at you — like everything led to this one moment."
+    },
+    {
+     "t": "nar",
+     "big": true,
+     "text": "Ten days. One mic. Whatever you say now — that’s what people will remember. It’s yours. How do you take it?"
+    }
+   ],
+   "choices": [
+    {
+     "t": "Own it",
+     "s": "You earned this. Take it like you own the whole thing.",
+     "deltas": {
+      "fame": 3
+     },
+     "relationshipDeltas": {
+      "ananya": 1,
+      "kabir": 1
+     },
+     "dm": [
+      {
+       "char": "kabir",
+       "text": "OYE WINNER 😭🔥 you were up there on that stage like the house belonged to you. I knew it, bro."
+      },
+      {
+       "char": "kabir",
+       "text": "You took it like it was yours. No begging. that’s my guy. 🔥"
+      },
+      {
+       "char": "ananya",
+       "text": "You really made it yours. 🥺 And I’m glad I saw you that night — before everyone else."
+      }
+     ]
+    },
+    {
+     "t": "Grateful / humble",
+     "s": "This wasn’t just yours. Take everyone with you.",
+     "deltas": {
+      "fame": 2
+     },
+     "relationshipDeltas": {
+      "ananya": 2,
+      "kabir": 2
+     },
+     "dm": [
+      {
+       "char": "kabir",
+       "text": "bro you said our name on stage 😭 in front of everyone. i lowkey cried."
+      },
+      {
+       "char": "kabir",
+       "text": "the trophy’s yours, but you made it everyone’s. that’s why you won. 🔥"
+      },
+      {
+       "char": "ananya",
+       "text": "You pulled me into your moment. 🥺 You’re a winner — but a human first. That’s what I’ll remember."
+      }
+     ]
+    }
+   ],
+   "feedReaction": {
+    "A": {
+     "account": {
+      "name": "HouseWatch India",
+      "handle": "housewatch_india",
+      "avatarText": "HW"
+     },
+     "caption": "AND THE WINNER IS… 🏆 the way they owned that stage like the trophy was already theirs. season over. main character confirmed. 👑 #CreatorHouse #Finale"
+    },
+    "B": {
+     "char": "kabir",
+     "caption": "my guy won 😭🔥 and the first thing he did after lifting the trophy was say our name. this was the only guy who deserved to win. #Finale #CreatorHouse",
+     "imageUrl": "/generated/creator-house-posts/ch-post-ally-d5-2.png"
+    }
+   },
+   "variants": [
+    {
+     "when": {
+      "flag": {
+       "key": "allyEvicted",
+       "gte": 1
+      }
+     },
+     "reader": [
+      {
+       "t": "nar",
+       "text": "Live finale. Studio lights, 1.1 lakh people online. On stage: Ria and {crush} — {ally} didn’t make it to the end of this journey, but you can still feel their presence today."
+      },
+      {
+       "t": "img",
+       "src": "/generated/creator-house-posts/seed-villa.png",
+       "h": 240
+      },
+      {
+       "t": "cue",
+       "who": "Host",
+       "avatar": "/avatars/ria.png",
+       "text": "And the winner of this season… is… this name. Congratulations. The stage is yours. 🎤"
+      },
+      {
+       "t": "nar",
+       "text": "Applause. {crush}’s eyes are filling up — they’re looking at you like everything led to this one moment."
+      },
+      {
+       "t": "nar",
+       "big": true,
+       "text": "Ten days. One mic. It’s yours. How do you take it?"
+      }
+     ],
+     "choices": [
+      {
+       "t": "Own it",
+       "s": "You earned this. Take it like you own it.",
+       "deltas": {
+        "fame": 3
+       },
+       "relationshipDeltas": {
+        "ananya": 1
+       },
+       "dm": [
+        {
+         "char": "ananya",
+         "text": "You really made it yours. 🥺 And me? I saw you that night — before everyone else."
+        },
+        {
+         "char": "kabir",
+         "text": "(from outside) OYE WINNER 😭🔥 I’m out of the house, but I still got to see you win. you took it like you had every right to. that’s my guy."
+        }
+       ]
+      },
+      {
+       "t": "Grateful / humble",
+       "s": "This wasn’t just yours. Take everyone with you.",
+       "deltas": {
+        "fame": 2
+       },
+       "relationshipDeltas": {
+        "ananya": 2
+       },
+       "dm": [
+        {
+         "char": "ananya",
+         "text": "You pulled me into your moment. 🥺 You’re a winner — but a human first. That’s what I’ll remember."
+        },
+        {
+         "char": "kabir",
+         "text": "(from outside) bro you said our name on stage 😭 I cried watching from outside. that’s why you won."
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "chars": {
+  "ria": {
+   "id": "ria",
+   "name": "Ria",
+   "handle": "riaofficial",
+   "cls": "c-ria",
+   "init": "R",
+   "fame": 85,
+   "role": "Luxury lifestyle · 24 · Archrival"
+  },
+  "zoya": {
+   "id": "zoya",
+   "name": "Zoya",
+   "handle": "zoya.creates",
+   "cls": "c-zoya",
+   "init": "Z",
+   "fame": 50,
+   "role": "Beauty · 24 · The Schemer"
+  },
+  "ananya": {
+   "id": "ananya",
+   "name": "Ananya",
+   "handle": "ananya.creates",
+   "cls": "c-ananya",
+   "init": "A",
+   "fame": 15,
+   "role": "Dance · 23 · Your Crush / Ally"
+  },
+  "kabir": {
+   "id": "kabir",
+   "name": "Kabir",
+   "handle": "kabirlol",
+   "cls": "c-kabir",
+   "init": "K",
+   "fame": 55,
+   "role": "Comedy · 26 · Your Ally / Crush"
+  },
+  "dev": {
+   "id": "dev",
+   "name": "Dev",
+   "handle": "devlifts",
+   "cls": "c-dev",
+   "init": "D",
+   "fame": 30,
+   "role": "Fitness · 27 · Wild Card"
+  }
+ },
+ "endingData": {},
+ "narrLines": [
+  {
+   "text": "Creator House.",
+   "cls": "narr-h"
+  },
+  {
+   "text": "6 creators. One villa. 10 days.",
+   "cls": "narr-p"
+  },
+  {
+   "text": "You’re the newest one here. Nobody knows you — yet.",
+   "cls": "narr-p dim"
+  }
+ ],
+ "narrChars": [
+  [
+   "ria",
+   "Luxury. Lifestyle. Untouchable.\nEverything is curated. She knows it."
+  ],
+  [
+   "kabir",
+   "Everyone's friend. No one's.\nHe creates the drama. And he's always rolling on it."
+  ],
+  [
+   "ananya",
+   "The viral dancer. 23 years old.\nDon't turn her into just the \"cute dance girl\" — but will these people even listen?"
+  ],
+  [
+   "dev",
+   "Fitness. Brand deals. Grindset.\nLoyalty's for sale — whoever pays more."
+  ],
+  [
+   "zoya",
+   "On-camera: sweet. Off-camera? I'll cut straight through you."
+  ]
+ ],
+ "dmHooks": {
+  "ria": "So you’re the new creator who just walked in, huh. ||| I noticed your entry — then again, everyone did. ||| Let’s see if you last here, or if you end up being just another name. 👀",
+  "kabir": "Oh damn, fresh blood’s here! 😭 ||| Listen, everyone in this house is playing their own game — I can tell you what’s really going on. ||| Stick with me. Surviving solo in here is rough. 🔥",
+  "ananya": "Hey, I’m Ananya 🥺 ||| Things can get kinda intense in here — don’t freak out, I’ve got you. ||| You feel different from everyone else. In this house, that’s rare.",
+  "dev": "I saw your reach. Solid. ||| Everyone here is in it for content, me included — straight up. ||| Wanna collab? Good for both of us. Think about it. 💪",
+  "zoya": "Heyy! 🫶 ||| I’m Zoya. Just wanted to check if you’re settling in okay. ||| Everyone here is competing with each other... I genuinely want you to feel comfortable. If you need anything, tell me. 💅"
+ },
+ "dmMock": {
+  "ria": [
+   "Interesting. I'm thinking.",
+   "Okay, that was well said.",
+   "Hmm. I'm watching. 🤍"
+  ],
+  "kabir": [
+   "HAHA bro, facts 😭",
+   "Dude, you're awesome",
+   "Look, look — you're getting the game 🔥"
+  ],
+  "ananya": [
+   "Really? 🥺",
+   "You're really sweet, honestly",
+   "I agree... 🤍"
+  ],
+  "dev": [
+   "The numbers agree.",
+   "Solid. 💪",
+   "Facts. That's it."
+  ],
+  "zoya": [
+   "Aww you're so sweet 🫶",
+   "I get it, truly.",
+   "Okay, this is interesting... 💅"
+  ]
+ },
+ "dmOrder": [
+  "kabir",
+  "ananya",
+  "ria",
+  "dev",
+  "zoya"
+ ],
+ "dmTrust": {
+  "ria": 40,
+  "kabir": 60,
+  "ananya": 55,
+  "dev": 50,
+  "zoya": 35
+ },
+ "postComments": {
+  "ria": [
+   {
+    "text": "Inspired 🤍 This is everything.",
+    "deltas": {
+     "fame": 3
+    },
+    "toast": "Ria noticed you. Image +5"
+   },
+   {
+    "text": "Easy to say when you have it all 🙄",
+    "deltas": {
+     "fame": 2
+    },
+    "toast": "Ria is not pleased. Heat +8"
+   },
+   {
+    "text": "Can you mentor me? 🙏",
+    "deltas": {
+     "fame": 5
+    },
+    "toast": "Ria appreciated the ask. Image +4"
+   }
+  ],
+  "kabir": [
+   {
+    "text": "Lol this is so accurate 😭",
+    "deltas": {
+     "fame": 4
+    },
+    "toast": "Kabir liked this. Heat +2"
+   },
+   {
+    "text": "Off camera, you’re different too 😅",
+    "deltas": {
+     "fame": 3
+    },
+    "toast": "Kabir felt seen. Heat +3"
+   },
+   {
+    "text": "Stop trying to be deep 🙄",
+    "deltas": {
+     "fame": 1
+    },
+    "toast": "Kabir noted this. Heat +7"
+   }
+  ],
+  "housewatch": [
+   {
+    "text": "You’re overthinking this 😌",
+    "deltas": {
+     "fame": 2
+    },
+    "toast": "Low-heat move"
+   },
+   {
+    "text": "👀 accurate tbh",
+    "deltas": {
+     "fame": 6
+    },
+    "toast": "Engagement up. Heat +8"
+   },
+   {
+    "text": "Wrong 🙅 Stop spreading rumors",
+    "deltas": {
+     "fame": 3
+    },
+    "toast": "You pushed back"
+   }
+  ],
+  "ananya": [
+   {
+    "text": "Don’t cry 🥺 You’re amazing",
+    "deltas": {
+     "fame": 2
+    },
+    "toast": "Ananya trusts you more. Image +3"
+   },
+   {
+    "text": "2.1M, that is insane!! 🔥",
+    "deltas": {
+     "fame": 5
+    },
+    "toast": "Good vibes. Fame +5"
+   },
+   {
+    "text": "Nice try 😐",
+    "deltas": {
+     "fame": 0
+    },
+    "toast": "Ananya is hurt. Heat +5"
+   }
+  ],
+  "zoya": [
+   {
+    "text": "Love this energy 🫶",
+    "deltas": {
+     "fame": 3
+    },
+    "toast": "Zoya’s warm. Image +3"
+   },
+   {
+    "text": "Hmm, interesting 👀",
+    "deltas": {
+     "fame": 2
+    },
+    "toast": "Zoya’s watching. Heat +4"
+   },
+   {
+    "text": "I don’t agree 🙅",
+    "deltas": {
+     "fame": 1
+    },
+    "toast": "Zoya disagrees. Heat +6"
+   }
+  ],
+  "dev": [
+   {
+    "text": "Numbers don’t lie 📈 Respect",
+    "deltas": {
+     "fame": 4
+    },
+    "toast": "Dev respects the hustle. Fame +4"
+   },
+   {
+    "text": "This is all brand PR, right? 😅",
+    "deltas": {
+     "fame": 2
+    },
+    "toast": "Dev is skeptical. Heat +5"
+   },
+   {
+    "text": "Bro, same thoughts 💪",
+    "deltas": {
+     "fame": 3
+    },
+    "toast": "Dev’s aligned. Heat +2"
+   }
+  ]
+ },
+ "dossiers": {
+  "ria": {
+   "tagline": "The queen bee of the house. Always perched above everyone else — and she knows it.",
+   "persona": "\"I’m clean, I’m classy\" — that’s the whole vibe. Untouchable energy. Everyone measures themselves against her.",
+   "wants": "Landing some big luxury brand ambassador deal — so this whole rich-girl act finally feels real.",
+   "fears": "Getting exposed. That it’s all fake. One more shove and the whole image comes down like a house of cards.",
+   "truth": "This whole \"old money\" thing? It’s running on borrowed cash. The money she flashes? She doesn’t actually have it.",
+   "secret": "After shoots, she quietly returns the expensive clothes — gets the refund and keeps moving. And someone has the screenshots.",
+   "ties": [
+    {
+     "charId": "kabir",
+     "label": "RIVAL",
+     "color": "heat",
+     "note": "A brand deal Ria thought was locked in — Kabir cut her off in the middle. They’ve been at war ever since."
+    },
+    {
+     "charId": "zoya",
+     "label": "FRENEMY",
+     "color": "heat",
+     "note": "All \"hii babe\" on the surface, but underneath? Ready to eat each other alive."
+    },
+    {
+     "charId": "ananya",
+     "label": "DISMISSES",
+     "color": "ink3",
+     "note": "Calls her \"just a girl who can shake it\" and doesn’t even count her as real competition."
+    },
+    {
+     "charId": "dev",
+     "label": "ALLY (FRAGILE)",
+     "color": "fame",
+     "note": "Less friendship, more transaction. They’re together as long as it benefits both of them."
+    }
+   ]
+  },
+  "kabir": {
+   "tagline": "Friends with everyone, loyal to no one. There’s always something else going on behind that smile.",
+   "persona": "He’s all \"I’m just vibes, bro.\" Wins everyone over with a joke and makes them feel like they’re his people.",
+   "wants": "Becoming the main character of this whole house. His story, his spotlight, all of it.",
+   "fears": "People realizing he’s the real villain.",
+   "truth": "He sets up other people’s fights himself — drama is his best content. And he keeps screenshots on everyone as backup.",
+   "secret": "The very first rumor in the house? He leaked it himself. Kept his name out of it. Then sat back and enjoyed the show.",
+   "ties": [
+    {
+     "charId": "ria",
+     "label": "RIVAL",
+     "color": "heat",
+     "note": "Ever since the brand deal sabotage, it’s been open war between them."
+    },
+    {
+     "charId": "dev",
+     "label": "DUO (USING)",
+     "color": "fame",
+     "note": "On camera, they’re the funny duo. Off camera, they’re both using each other."
+    },
+    {
+     "charId": "ananya",
+     "label": "MANIPULATES",
+     "color": "heat",
+     "note": "Ananya thinks he’s her friend. He’s using her."
+    }
+   ]
+  },
+  "ananya": {
+   "tagline": "The most straightforward one in the house. What you see is what you get — and that’s exactly her weakness.",
+   "persona": "Sweet, bubbly, the viral dancer who blew up on Reels overnight.",
+   "wants": "For people to see her as a *real* creator — not just \"some dancer.\"",
+   "fears": "The same people she trusted using her and tossing her aside.",
+   "truth": "She’s gone deeper into these games than she can handle — and she knows it. The smile is real. So is the fear underneath.",
+   "secret": "No schemes, no screenshots. That total innocence is exactly what makes her the easiest target.",
+   "ties": [
+    {
+     "charId": "ria",
+     "label": "HURT BY",
+     "color": "ink3",
+     "note": "Ria’s \"thumka girl\" jab hit her right in the heart."
+    },
+    {
+     "charId": "kabir",
+     "label": "USED BY",
+     "color": "heat",
+     "note": "She trusts him blindly. She really shouldn’t."
+    }
+   ]
+  },
+  "dev": {
+   "tagline": "A total sellout. Even loyalty is just another deal to him.",
+   "persona": "Discipline, motivation, brand after brand. \"You didn’t wake up at 5? That’s why you’re behind.\"",
+   "wants": "Stack up the most brand money before the house chapter ends.",
+   "fears": "People writing him off as just some dumb gym bro who got lucky.",
+   "truth": "He goes wherever the clout is. And he’s studied strategy way more than anyone realizes.",
+   "secret": "One of his supplement brands flopped — and he’s quietly drowning in debt. Every deal in here is him trying to climb out of that hole.",
+   "ties": [
+    {
+     "charId": "ria",
+     "label": "ALLY",
+     "color": "fame",
+     "note": "A relationship of convenience. As long as the clout’s coming, it lasts."
+    },
+    {
+     "charId": "kabir",
+     "label": "USING",
+     "color": "fame",
+     "note": "Comedy duo on camera, sizing each other up behind the scenes."
+    }
+   ]
+  },
+  "zoya": {
+   "tagline": "Camera on: \"hii babies 🥰\". Camera off: knives out.",
+   "persona": "The beauty / GRWM girl. Sweet, soft, everyone’s favorite on screen.",
+   "wants": "Become the house beauty queen and leave every rival in the dust.",
+   "fears": "Losing that sweet image that hides all the cruelty underneath.",
+   "truth": "Camera off, sweetness gone. \"I’ll cut her down with a smile.\"",
+   "secret": "She leaks bad photos of her rivals and lets the fan pages do the rest. She’s got one of Ria’s pics right now — locked and loaded.",
+   "ties": [
+    {
+     "charId": "ria",
+     "label": "FRENEMY",
+     "color": "heat",
+     "note": "The rivalry that keeps the whole house gossiping."
+    }
+   ]
+  }
+ }
+}

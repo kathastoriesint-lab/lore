@@ -2,6 +2,7 @@
 import { createClient } from './supabase'
 import type { CharId, GameState, GameFlags, RunMemory, Meters, CHMeters, CricketMeters, World, DMMessage, Situation } from './types'
 import { getCricketDMHooks, getCricketSituations, getCHDMHooks, getCHDMMock, getCHSituations } from './content'
+import { getLang, tr } from './lang'
 
 // Lazy init — avoids module-level instantiation during SSR/prerender
 let _supabase: ReturnType<typeof createClient> | null = null
@@ -426,6 +427,7 @@ export async function getReplySuggestions(
         next_situation: ctx?.nextSituation ?? null,
         choices_made: ctx?.choicesMade ?? null,
         player_gender: ctx?.playerGender ?? 'male',
+        language: getLang(),
       }),
     })
     clearTimeout(timer)
@@ -453,7 +455,7 @@ export async function getCommentSuggestions(
     const resp = await fetch(`${SUPABASE_URL}/functions/v1/lore-chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': await loreChatAuth() },
-      body: JSON.stringify({ mode: 'comment-suggest', world, character, caption }),
+      body: JSON.stringify({ mode: 'comment-suggest', world, character, caption, language: getLang() }),
     })
     if (!resp.ok) return []
     const json = await resp.json()
@@ -474,7 +476,7 @@ export async function getCommentReaction(
     const resp = await fetch(`${SUPABASE_URL}/functions/v1/lore-chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': await loreChatAuth() },
-      body: JSON.stringify({ mode: 'comment-react', world, character, caption, comment }),
+      body: JSON.stringify({ mode: 'comment-react', world, character, caption, comment, language: getLang() }),
     })
     if (!resp.ok) return { sentiment: 'boring', reply: '' }
     const json = await resp.json()
@@ -517,6 +519,7 @@ export async function getAIReply(
         messages: msgs,
         player_name: playerName,
         player_gender: gameState?.playerGender ?? 'male',
+        language: getLang(),
         player_char: gameState?.char ?? null,
         player_meters: gameState?.meters ?? null,
         player_choices: gameState?.choices ?? null,
@@ -630,7 +633,7 @@ export function resolveTokens(text: string, playerName: string, playerGender: 'm
     // Guarded so it never eats a numeric score "(29)" or an inline aside that
     // appears mid-line like "(parody hai relax 😂)".
     .replace(/^\s*\([^)\d][^)]{0,38}\)\s*/, '')
-    .replaceAll('{name}', playerName || 'Tum')
+    .replaceAll('{name}', playerName || tr('Tum', 'You'))
     .replaceAll('{friend}', friendName)
     .replaceAll('{crush}', crush)
     .replaceAll('{ally}', ally)

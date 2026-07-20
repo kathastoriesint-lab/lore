@@ -13,6 +13,7 @@ import { sentimentDelta, computeBond } from '@/lib/relationships'
 import { phaseFromTag } from '@/lib/dm-time'
 import * as haptics from '@/lib/haptics'
 import * as sound from '@/lib/sound'
+import { getLang, tr } from '@/lib/lang'
 import MeterHUD from '@/components/MeterHUD'
 import GoalCard from '@/components/GoalCard'
 import ChoiceSheet from '@/components/ChoiceSheet'
@@ -54,10 +55,10 @@ const StatusBar = () => (
 
 // Creator House v4: four endings on the 2×2 (followers × crush bond).
 const FINALE_DATA = {
-  won:       { arc: 'Ghar Bhi, Dil Bhi', sub: 'Number #1 pe pahunche — aur jo real tha, woh bhi aakhir tak saath raha. Perfect finale.', color: '#FF2D78' },
-  feedQueen: { arc: 'Feed Ka Raja/Rani', sub: 'Har headline tumhara. Tum jeete — par akele. Numbers aaye, log gaye.', color: '#FFB020' },
-  worthMore: { arc: 'Numbers Se Zyada', sub: 'Leaderboard #1 nahi bane — par jo lekar nikle, woh numbers se bada tha.', color: '#FF5C3A' },
-  chewedUp:  { arc: 'Ghar Ne Chaba Diya', sub: 'Ghar ne use kiya, phir thook diya. Na numbers, na koi apna. Yahi hai game.', color: '#5e5e6e' },
+  won:       { arc: tr('Ghar Bhi, Dil Bhi', 'The House and the Heart'), sub: tr('Number #1 pe pahunche — aur jo real tha, woh bhi aakhir tak saath raha. Perfect finale.', 'You hit #1 — and the one real thing stayed with you till the end. The perfect finale.'), color: '#FF2D78' },
+  feedQueen: { arc: tr('Feed Ka Raja/Rani', 'Ruler of the Feed'), sub: tr('Har headline tumhara. Tum jeete — par akele. Numbers aaye, log gaye.', 'Every headline was yours. You won — alone. The numbers came, the people left.'), color: '#FFB020' },
+  worthMore: { arc: tr('Numbers Se Zyada', 'More Than Numbers'), sub: tr('Leaderboard #1 nahi bane — par jo lekar nikle, woh numbers se bada tha.', "You never topped the leaderboard — but what you walked out with was bigger than numbers."), color: '#FF5C3A' },
+  chewedUp:  { arc: tr('Ghar Ne Chaba Diya', 'Chewed Up by the House'), sub: tr('Ghar ne use kiya, phir thook diya. Na numbers, na koi apna. Yahi hai game.', "The house used you, then spat you out. No numbers, no one in your corner. That's the game."), color: '#5e5e6e' },
 }
 
 const asArray = <T,>(value: T | T[] | null | undefined): T[] => {
@@ -97,14 +98,14 @@ const TRUST_NUDGES: Partial<Record<CharId, {
   seed: string
 }>> = {
   hardik: {
-    title: 'Captain ka bharosa jeeto',
-    body: (cur, need) => `Press mein India ka sawaal aaya, aur Hardik ne tujhe gaur se dekha. India squad mein jagah captain ke haath hai — uska bharosa abhi ${cur}/${need} hai, ${need} chahiye. Usse DM pe baat karo; chat mein woh batayega ki kya dekhna chahta hai.`,
-    seed: 'Aaj press mein dekha tujhe. India ka sawaal sun ke thoda freeze ho gaya tha. ||| Main captain hoon — mujhe yakeen chahiye tu uss pressure ke liye ready hai. ||| Bata: jab pura stadium tujhse runs maange, tu apna game simple kaise rakhega?',
+    title: tr('Captain ka bharosa jeeto', "Win the captain's trust"),
+    body: (cur, need) => tr(`Press mein India ka sawaal aaya, aur Hardik ne tujhe gaur se dekha. India squad mein jagah captain ke haath hai — uska bharosa abhi ${cur}/${need} hai, ${need} chahiye. Usse DM pe baat karo; chat mein woh batayega ki kya dekhna chahta hai.`, `The India question came up at the press conference, and Hardik was watching you closely. Your India-squad spot is in the captain's hands — his trust sits at ${cur}/${need}; you need ${need}. Talk to him in DMs — in the chat he'll tell you exactly what he wants to see.`),
+    seed: tr('Aaj press mein dekha tujhe. India ka sawaal sun ke thoda freeze ho gaya tha. ||| Main captain hoon — mujhe yakeen chahiye tu uss pressure ke liye ready hai. ||| Bata: jab pura stadium tujhse runs maange, tu apna game simple kaise rakhega?', "Saw you at the press conference today. You froze a little when the India question came up. ||| I'm the captain — I need to know you're ready for that pressure. ||| Tell me: when the whole stadium is demanding runs from you, how do you keep your game simple?"),
   },
   rohit: {
-    title: 'Rohit ka bharosa jeeto',
-    body: (cur, need) => `Review room mein Rohit ne teri batting gaur se dekhi. Away leg se pehle uska bharosa chahiye — abhi ${cur}/${need} hai, ${need} tak le jaana hai. Usse DM pe baat karo; woh jaanna chahta hai tu pressure mein kaise sochta hai.`,
-    seed: 'Review room mein teri batting dekhi. Runs hain — par main learning dekhna chahta hoon. ||| Away leg aa raha hai, wahan crowd against hoti hai. ||| Bata: jab kuch na chal raha ho, tu innings kaise banata hai?',
+    title: tr('Rohit ka bharosa jeeto', "Win Rohit's trust"),
+    body: (cur, need) => tr(`Review room mein Rohit ne teri batting gaur se dekhi. Away leg se pehle uska bharosa chahiye — abhi ${cur}/${need} hai, ${need} tak le jaana hai. Usse DM pe baat karo; woh jaanna chahta hai tu pressure mein kaise sochta hai.`, `Rohit studied your batting in the review room. You need his trust before the away leg — it's at ${cur}/${need}; get it to ${need}. Talk to him in DMs — he wants to know how you think under pressure.`),
+    seed: tr('Review room mein teri batting dekhi. Runs hain — par main learning dekhna chahta hoon. ||| Away leg aa raha hai, wahan crowd against hoti hai. ||| Bata: jab kuch na chal raha ho, tu innings kaise banata hai?', "Watched your batting in the review room. The runs are there — but I want to see the learning. ||| The away leg is coming, and out there the crowd is against you. ||| Tell me: when nothing is working, how do you build an innings?"),
   },
 }
 
@@ -550,15 +551,15 @@ export default function LiveScreen() {
         const letter = idx === 0 ? 'A' : 'B'
         const fDelta = fameToFollowers(clamp(preChoiceMeters.fame + (ch.deltas.fame ?? 0))) - fameToFollowers(clamp(preChoiceMeters.fame))
         const audienceStr = fameToFollowers(clamp(preChoiceMeters.fame)).toLocaleString('en-IN')
-        const whyLine = (ch.postWhy ? r(ch.postWhy) : 'Tumhara move, ab public. Pura ghar, aur tumhare {followers} followers, dekh rahe hain.').replace(/\{followers\}/g, audienceStr)
+        const whyLine = (ch.postWhy ? r(ch.postWhy) : tr('Tumhara move, ab public. Pura ghar, aur tumhare {followers} followers, dekh rahe hain.', 'Your move, now public. The whole house — and your {followers} followers — are watching.')).replace(/\{followers\}/g, audienceStr)
         setCompose({
           key: `${sit.id}-${letter}`,
           initialCaption: r(playerSpec.caption),
           imageUrl: chGenderSceneImg(playerSpec.imageUrl || sit.reader?.find(b => b.t === 'img')?.src, game.playerGender),
           why: {
-            eyebrow: `AB DUNIYA KO BATAO${ch.postTag ? ' · ' + r(ch.postTag) : ''}`,
+            eyebrow: tr(`AB DUNIYA KO BATAO${ch.postTag ? ' · ' + r(ch.postTag) : ''}`, `NOW TELL THE WORLD${ch.postTag ? ' · ' + r(ch.postTag) : ''}`),
             line: whyLine,
-            sub: `Day ${sit.day} ka tone yahin set hoga`,
+            sub: tr(`Day ${sit.day} ka tone yahin set hoga`, `This sets the tone for Day ${sit.day}`),
           },
           ctx: {
             playerName: game.playerName || 'you',
@@ -646,7 +647,7 @@ export default function LiveScreen() {
   if (!game.char) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', height: '100%', alignItems: 'center', justifyContent: 'center', gap: 16, padding: 32 }}>
-        <div style={{ fontSize: 16, color: 'var(--ink2)', textAlign: 'center' }}>Apna naam aur gender batao pehle</div>
+        <div style={{ fontSize: 16, color: 'var(--ink2)', textAlign: 'center' }}>{tr('Apna naam aur gender batao pehle', 'Tell us your name and gender first')}</div>
         <button
           style={{ padding: '14px 28px', background: 'var(--accent)', color: '#fff', borderRadius: 14, fontWeight: 700, fontSize: 16 }}
           onClick={() => navigate('world-intro')}
@@ -700,7 +701,7 @@ export default function LiveScreen() {
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontWeight: 700, fontSize: 13, color: '#fff' }}>{postOwner.handle}</div>
-              <div style={{ fontSize: 10, color: 'var(--ink3)' }}>{postSpec.label ?? 'abhi · MI Season 1'}</div>
+              <div style={{ fontSize: 10, color: 'var(--ink3)' }}>{postSpec.label ?? tr('abhi · MI Season 1', 'now · MI Season 1')}</div>
             </div>
             {hasRealPost && <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--accent)', background: 'rgba(255,45,120,.12)', padding: '3px 8px', borderRadius: 20 }}>NEW</div>}
           </div>
@@ -796,10 +797,10 @@ export default function LiveScreen() {
         <CoachBar
           key="coach-tap"
           storageKey="weev_coach_tap"
-          eyebrow="Kaise chalta hai"
-          title="Kahani tumhare tap pe chalti hai"
-          body="Har line tumhare tap pe khulti hai. Jaldi nahi — scene ko jeeyo."
-          cta="Samajh gaya"
+          eyebrow={getLang() === 'en' ? 'How it works' : 'Kaise chalta hai'}
+          title={getLang() === 'en' ? 'The story moves on your tap' : 'Kahani tumhare tap pe chalti hai'}
+          body={getLang() === 'en' ? 'Every line reveals on your tap. No rush — live the scene.' : 'Har line tumhare tap pe khulti hai. Jaldi nahi — scene ko jeeyo.'}
+          cta={getLang() === 'en' ? 'Got it' : 'Samajh gaya'}
           delayMs={1100}
         />
       )}
@@ -807,10 +808,10 @@ export default function LiveScreen() {
         <CoachBar
           key="coach-choice"
           storageKey="weev_coach_choice"
-          eyebrow="Tumhari choice"
-          title="Yeh move tumhara hai"
-          body="Jo chunoge woh Feed pe ek real post banega — aur duniya react karegi."
-          cta="Chalo"
+          eyebrow={getLang() === 'en' ? 'Your choice' : 'Tumhari choice'}
+          title={getLang() === 'en' ? 'This move is yours' : 'Yeh move tumhara hai'}
+          body={getLang() === 'en' ? 'What you pick becomes a real post on the Feed — and the world reacts.' : 'Jo chunoge woh Feed pe ek real post banega — aur duniya react karegi.'}
+          cta={getLang() === 'en' ? "Let's go" : 'Chalo'}
           delayMs={650}
         />
       )}
@@ -826,7 +827,7 @@ export default function LiveScreen() {
             display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
             padding: '32px 28px', textAlign: 'center', animation: 'fadeIn .2s ease both',
           }}>
-            <div style={{ fontSize: 11, fontWeight: 900, letterSpacing: '.16em', color: 'var(--trust)', marginBottom: 18 }}>RUKO</div>
+            <div style={{ fontSize: 11, fontWeight: 900, letterSpacing: '.16em', color: 'var(--trust)', marginBottom: 18 }}>{tr('RUKO', 'HOLD ON')}</div>
             {ch && (
               <div className={`av ${ch.cls}`} style={{
                 width: 72, height: 72, fontSize: 26, marginBottom: 16,
@@ -848,8 +849,8 @@ export default function LiveScreen() {
                 boxShadow: '0 14px 38px rgba(61,214,200,.22)',
               }}
             >
-              {first} ko message karo →
-            </button>
+              {tr(`${first} ko message karo →`, `Message ${first} →`)}
+</button>
             <button
               onClick={() => setTrustNudge(null)}
               style={{
@@ -858,8 +859,8 @@ export default function LiveScreen() {
                 fontSize: 14, fontWeight: 600, fontFamily: 'var(--sans)', cursor: 'pointer',
               }}
             >
-              Abhi nahi
-            </button>
+              {tr('Abhi nahi', 'Not now')}
+</button>
           </div>
         )
       })()}
@@ -947,8 +948,8 @@ export default function LiveScreen() {
               background: 'radial-gradient(ellipse 130% 60% at 50% -10%, color-mix(in srgb, var(--accent) 10%, transparent) 0%, transparent 70%)',
             }} />
             <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: '.16em', color: 'var(--accent)', position: 'relative' }}>
-              FAISLA · {tagClean}
-            </div>
+              {tr(`FAISLA · ${tagClean}`, `THE CALL · ${tagClean}`)}
+</div>
             <div style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 31, lineHeight: 1.15, color: '#fff', margin: '16px 0 24px', position: 'relative' }}>
               {r(displaySit.q)}
             </div>
@@ -1040,23 +1041,23 @@ export default function LiveScreen() {
           <div style={{ position: 'absolute', inset: 0, zIndex: 50, background: 'var(--bg)', display: 'flex', flexDirection: 'column' }}>
             <div style={{ flex: 1, position: 'relative', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '32px 24px' }}>
               <div style={{ position: 'absolute', top: '12%', left: '50%', transform: 'translateX(-50%)', width: 280, height: 280, borderRadius: '50%', background: 'radial-gradient(ellipse, rgba(0,48,135,.25) 0%, transparent 70%)', pointerEvents: 'none' }} />
-              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.16em', color: '#5B8DEF', textAlign: 'center' }}>WEEK {Math.max(wk - 1, 1)} KHATAM · BREAK</div>
+              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.16em', color: '#5B8DEF', textAlign: 'center' }}>{tr(`WEEK ${Math.max(wk - 1, 1)} KHATAM · BREAK`, `WEEK ${Math.max(wk - 1, 1)} DONE · BREAK`)}</div>
               <div style={{ fontFamily: 'var(--serif)', fontSize: 27, fontWeight: 600, lineHeight: 1.35, textAlign: 'center', margin: '14px 0 6px' }}>
-                Agla match {hh}:{mm} baje.
+                {tr(`Agla match ${hh}:${mm} baje.`, `Next match at ${hh}:${mm}.`)}
               </div>
               <div style={{ fontSize: 12.5, color: 'var(--ink3)', textAlign: 'center', marginBottom: 22 }}>
-                Tab tak dressing room khula hai — 2 log tumhara wait kar rahe hain.
+                {tr('Tab tak dressing room khula hai — 2 log tumhara wait kar rahe hain.', 'Till then the dressing room is open — 2 people are waiting on you.')}
               </div>
               {card('🧢', 'Hardik Pandya',
-                capGapNow > 0 ? `Captain ka bharosa — abhi ${capGapNow} kam` : 'Captain ka bharosa pakka rakho',
+                capGapNow > 0 ? tr(`Captain ka bharosa — abhi ${capGapNow} kam`, `Captain's trust — ${capGapNow} short right now`) : tr('Captain ka bharosa pakka rakho', "Keep the captain's trust locked in"),
                 'TRUST', hardikDone, () => openDMThread('hardik'))}
               {card('💡', advisorName,
-                `Agle match ke liye tips — ${advisorName} se seedhi baat`,
+                tr(`Agle match ke liye tips — ${advisorName} se seedhi baat`, `Tips for the next match — straight talk with ${advisorName}`),
                 'TIPS', tipsDone, () => openDMThread(advisor))}
               {allDone && (
                 <button onClick={() => { skipWeekWait(); }} style={{ width: '100%', marginTop: 6, padding: '15px 0', borderRadius: 16, border: 'none', background: 'var(--accent)', color: '#fff', fontWeight: 800, fontSize: 15, fontFamily: 'var(--sans)', cursor: 'pointer', boxShadow: '0 8px 28px rgba(255,45,120,.35)' }}>
-                  Dono ho gaya — agla match ABHI khelo →
-                </button>
+                  {tr('Dono ho gaya — agla match ABHI khelo →', 'Both done — play the next match NOW →')}
+</button>
               )}
             </div>
             {/* Keep the bottom nav during the break so Feed / Messages / Profile stay reachable */}
@@ -1199,15 +1200,15 @@ export default function LiveScreen() {
         {isFinale && !isCricket && (
           <div style={{ padding: '36px 24px', display: 'flex', flexDirection: 'column', gap: 14, minHeight: '64%', justifyContent: 'center', alignItems: 'flex-start' }}>
             <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.14em', color: 'var(--accent)' }}>CREATOR HOUSE · SEASON 1 FINALE</div>
-            <div style={{ fontSize: 14.5, color: 'var(--ink2)', lineHeight: 1.5 }}>10 din. Ek ghar. Aur ant mein — duniya ne tumhe yeh maana:</div>
+            <div style={{ fontSize: 14.5, color: 'var(--ink2)', lineHeight: 1.5 }}>{tr('10 din. Ek ghar. Aur ant mein — duniya ne tumhe yeh maana:', '10 days. One house. And in the end — this is what the world called you:')}</div>
             <div style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 38, lineHeight: 1.08, color: finaleArc?.color ?? '#FFB020' }}>{finaleArc?.arc ?? 'The Main Character'}</div>
             <div style={{ fontSize: 15, color: 'var(--ink2)', lineHeight: 1.55 }}>{finaleArc?.sub ?? ''}</div>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', fontSize: 11.5, color: 'var(--ink3)', marginTop: 2 }}>
-              <span style={{ background: 'var(--surf)', border: '1px solid var(--line)', borderRadius: 99, padding: '5px 11px' }}>{game.choices.length} faisle</span>
+              <span style={{ background: 'var(--surf)', border: '1px solid var(--line)', borderRadius: 99, padding: '5px 11px' }}>{tr(`${game.choices.length} faisle`, `${game.choices.length} decisions`)}</span>
               <span style={{ background: 'var(--surf)', border: '1px solid var(--line)', borderRadius: 99, padding: '5px 11px' }}>{fameToFollowers(game.meters.fame).toLocaleString('en-IN')} followers</span>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 18, width: '100%' }}>
-              <button className="lo-press" style={{ width: '100%', height: 54, background: 'var(--accent)', color: '#fff', fontWeight: 700, fontSize: 16, borderRadius: 14, border: 'none', cursor: 'pointer', fontFamily: 'var(--sans)' }} onClick={() => navigate('feed')}>Feed dekho →</button>
+              <button className="lo-press" style={{ width: '100%', height: 54, background: 'var(--accent)', color: '#fff', fontWeight: 700, fontSize: 16, borderRadius: 14, border: 'none', cursor: 'pointer', fontFamily: 'var(--sans)' }} onClick={() => navigate('feed')}>{tr('Feed dekho →', 'See the feed →')}</button>
               <button className="lo-press" style={{ width: '100%', height: 48, background: 'none', color: 'var(--ink2)', fontWeight: 600, fontSize: 14, borderRadius: 14, border: '1px solid var(--line)', cursor: 'pointer', fontFamily: 'var(--sans)' }} onClick={() => navigate('profile')}>Profile</button>
             </div>
           </div>
@@ -1240,10 +1241,10 @@ export default function LiveScreen() {
             <div style={{ borderTop: '1px solid var(--line)', paddingTop: 16, fontSize: 13, color: 'var(--ink2)', lineHeight: 1.6 }}>
               <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.1em', color: 'var(--fame)', display: 'block', marginBottom: 6 }}>SEASON 2</span>
               {({
-                indiaCall: 'India ki jersey mili hai — ab use RAKHNA padta hai. Pehla international season aa raha hai.',
-                captainsBet: 'Captain ne daav lagaya tha. Season 2 mein woh daav vasool hoga — ya doob jayega.',
-                statsMachine: 'Numbers ne bulaya, kamre ne nahi. Season 2: thande kamre ko garam karna hai.',
-                notYet: "Benched hua ladka Ranji se wapas aata hai. Season 2 wahi kahani hai — tumhari.",
+                indiaCall: tr('India ki jersey mili hai — ab use RAKHNA padta hai. Pehla international season aa raha hai.', "You've got the India jersey — now you have to KEEP it. Your first international season is coming."),
+                captainsBet: tr('Captain ne daav lagaya tha. Season 2 mein woh daav vasool hoga — ya doob jayega.', 'The captain placed a bet on you. Season 2 is where it pays off — or goes under.'),
+                statsMachine: tr('Numbers ne bulaya, kamre ne nahi. Season 2: thande kamre ko garam karna hai.', "The numbers called you up, the room didn't. Season 2: warm up a cold dressing room."),
+                notYet: tr("Benched hua ladka Ranji se wapas aata hai. Season 2 wahi kahani hai — tumhari.", 'The benched kid fights his way back through Ranji. Season 2 is that story — yours.'),
               } as Record<string, string>)[endingKey ?? 'notYet']}
             </div>
 
@@ -1262,8 +1263,8 @@ export default function LiveScreen() {
                   style={{ width: '100%', height: 48, background: 'transparent', color: 'var(--ink2)', fontWeight: 600, fontSize: 14, borderRadius: 14, border: '1px solid var(--line)', cursor: 'pointer', fontFamily: 'var(--sans)' }}
                   onClick={startGame}
                 >
-                  Dobara khelo ↺
-                </button>
+                  {tr('Dobara khelo ↺', 'Play again ↺')}
+</button>
               ) : (
                 <button
                   className="lo-press"
@@ -1313,7 +1314,7 @@ export default function LiveScreen() {
                   {readerShowTap && (
                     <div className="cin-taphint" style={readerFinalHint ? { color: 'var(--accent)', fontWeight: 800 } : undefined}>
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6" /></svg>
-                      {readerFinalHint ? 'Faisle ka waqt — tap karo' : 'Tap anywhere to continue'}
+                      {readerFinalHint ? tr('Faisle ka waqt — tap karo', 'Decision time — tap') : 'Tap anywhere to continue'}
                     </div>
                   )}
                 </div>
@@ -1671,7 +1672,7 @@ export default function LiveScreen() {
             let reactions: Reaction[] = (preReactions && preReactions.length) ? (preReactions as Reaction[]) : c.defaultReactions
             if (!preReactions || !preReactions.length) {
               try {
-                const res = await fetch('/api/lore-post', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'reactions', caption, ctx: c.ctx }) })
+                const res = await fetch('/api/lore-post', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'reactions', caption, ctx: c.ctx, language: getLang() }) })
                 if (res.ok) { const d = await res.json(); if (Array.isArray(d.reactions) && d.reactions.length) reactions = d.reactions }
               } catch { /* keep authored fallback */ }
             }

@@ -7,6 +7,7 @@ import { weekForSituationId } from '@/lib/season'
 import { resolveTokens, fameToFollowers, asCricket } from '@/lib/game'
 import { ruleFor, captainTrust, captainTier } from '@/lib/cricket-selection'
 import { computeBond, crushTier } from '@/lib/relationships'
+import { tr } from '@/lib/lang'
 
 // World profile — per-world identity for the in-world Profile tab. Shared layout,
 // world-specific accent / meters / role / copy (cricket fully designed; Creator House
@@ -14,7 +15,7 @@ import { computeBond, crushTier } from '@/lib/relationships'
 
 // Short name for each week's squad selection (mirrors GoalCard).
 const UNLOCK_SHORT: Record<number, string> = {
-  1: 'Debut XI', 2: 'Apni jagah pakki', 3: 'Eliminator XI + India verdict',
+  1: 'Debut XI', 2: tr('Apni jagah pakki', 'Lock your spot'), 3: 'Eliminator XI + India verdict',
 }
 
 export default function ProfileScreen() {
@@ -29,7 +30,7 @@ export default function ProfileScreen() {
   const cover = isCricket ? 'linear-gradient(135deg,#003087,#001540)' : 'linear-gradient(135deg,#ff2d78,#7a1140)'
   const eyebrow = isCricket ? 'SEASON 1 · MUMBAI INDIANS' : 'CREATOR HOUSE · SEASON 1'
   const eyebrowColor = isCricket ? '#FFB020' : '#fff'
-  const role = isCricket ? 'Rookie batsman · 16 saal' : (chChar ? chChar.role : 'Housemate')
+  const role = isCricket ? tr('Rookie batsman · 16 saal', 'Rookie batsman · 16 years old') : (chChar ? chChar.role : 'Housemate')
 
   // Cricket: the TWO goals (Form + Captain's Trust) + Fame as the social stat.
   // Creator House shows Followers + crush Bond in its own redesigned section.
@@ -37,9 +38,9 @@ export default function ProfileScreen() {
   const capTrust = captainTrust(dmTrust)
   const meters = cm
     ? [
-        { icon: '🏏', label: 'FORM', color: '#FFB020', val: cm.form, note: 'Runs on the board. Selection ki pehli line yahi hai.' },
-        { icon: '🧢', label: "CAPTAIN'S TRUST", color: '#3DD6C8', val: capTrust, note: `Hardik ka bharosa — ${captainTier(capTrust)}. DMs mein banta hai.` },
-        { icon: '⭐', label: 'FAME', color: '#FF5C3A', val: cm.fame, note: 'Public attention. Selection isse nahi hoti — par sab dekhte hain.' },
+        { icon: '🏏', label: 'FORM', color: '#FFB020', val: cm.form, note: tr('Runs on the board. Selection ki pehli line yahi hai.', 'Runs on the board. The first line of every selection call.') },
+        { icon: '🧢', label: "CAPTAIN'S TRUST", color: '#3DD6C8', val: capTrust, note: tr(`Hardik ka bharosa — ${captainTier(capTrust)}. DMs mein banta hai.`, `Hardik's trust — ${captainTier(capTrust)}. Built in the DMs.`) },
+        { icon: '⭐', label: 'FAME', color: '#FF5C3A', val: cm.fame, note: tr('Public attention. Selection isse nahi hoti — par sab dekhte hain.', "Public attention. It doesn't pick the team — but everyone's watching.") },
       ]
     : []
 
@@ -57,8 +58,11 @@ export default function ProfileScreen() {
     const formGap = Math.max(0, rule.start.form - (cm?.form ?? 40))
     const capGap = Math.max(0, rule.start.captain - capTrust)
     nextTarget = formGap === 0 && capGap === 0
-      ? `Agla target: ${unlock} · ready ✓`
-      : `Agla target: ${unlock} · ${formGap > 0 ? `${formGap} form` : ''}${formGap > 0 && capGap > 0 ? ' + ' : ''}${capGap > 0 ? `${capGap} captain trust` : ''} aur chahiye`
+      ? tr(`Agla target: ${unlock} · ready ✓`, `Next target: ${unlock} · ready ✓`)
+      : tr(
+          `Agla target: ${unlock} · ${formGap > 0 ? `${formGap} form` : ''}${formGap > 0 && capGap > 0 ? ' + ' : ''}${capGap > 0 ? `${capGap} captain trust` : ''} aur chahiye`,
+          `Next target: ${unlock} · ${formGap > 0 ? `${formGap} form` : ''}${formGap > 0 && capGap > 0 ? ' + ' : ''}${capGap > 0 ? `${capGap} captain trust` : ''} still needed`,
+        )
   }
 
   const decisions = deriveKeyDecisions(game).slice(0, 4)
@@ -74,7 +78,7 @@ export default function ProfileScreen() {
   const crushChar = getCHChars()[crushId]
   const bond = !isCricket ? computeBond(crushId, 'creator-house', game.choices, name, game.playerGender, dmTrust).bond : 0
   const crushTierLabel = crushTier(bond)
-  const spineTitle = ({ ananya: 'Wahi shakl, 3 saal baad', kabir: 'Dosti, ya usse zyada?' } as Record<string, string>)[crushId] ?? 'Kuch toh chal raha hai'
+  const spineTitle = ({ ananya: tr('Wahi shakl, 3 saal baad', 'That same face, 3 years later'), kabir: tr('Dosti, ya usse zyada?', 'Friends, or something more?') } as Record<string, string>)[crushId] ?? tr('Kuch toh chal raha hai', "Something's going on")
 
   const sectionLabel: CSSProperties = { fontSize: 11, fontWeight: 800, letterSpacing: '.1em', color: 'var(--ink3)', padding: '0 4px 12px' }
 
@@ -198,7 +202,7 @@ export default function ProfileScreen() {
             <div style={{ height: 7, borderRadius: 4, background: 'rgba(255,255,255,.08)', overflow: 'hidden', marginTop: 12 }}>
               <div style={{ height: '100%', width: `${Math.min(100, bond)}%`, borderRadius: 4, background: '#FF6AA6', transition: 'width .6s cubic-bezier(.32,.72,0,1)' }} />
             </div>
-            <div style={{ fontSize: 11.5, color: 'var(--ink3)', marginTop: 8 }}>{crushTierLabel} — “Something Real” tak pahunchao</div>
+            <div style={{ fontSize: 11.5, color: 'var(--ink3)', marginTop: 8 }}>{tr(`${crushTierLabel} — “Something Real” tak pahunchao`, `${crushTierLabel} — take it all the way to “Something Real”`)}</div>
           </div>
         </div>
         </>)}

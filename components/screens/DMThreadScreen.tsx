@@ -10,6 +10,7 @@ import { DM_DAILY_BUDGET } from '@/lib/season'
 import { relationshipFor, computeBond, bondColor } from '@/lib/relationships'
 import * as haptics from '@/lib/haptics'
 import * as sound from '@/lib/sound'
+import { tr } from '@/lib/lang'
 
 // CH caps (crush window / generic). Cricket uses the DAILY budget from season.ts —
 // the UI must count against the SAME number sendDM enforces, or message #11
@@ -102,7 +103,7 @@ export default function DMThreadScreen() {
   // shows romance stages; other creators show a trust level. Cricket keeps the % meter.
   const chWorld = game.world !== 'cricket'
   const isCrush = chWorld && charId === (game.playerGender === 'female' ? 'kabir' : 'ananya')
-  const relStages = chWorld ? (isCrush ? ['Ajnabi', 'Spark', 'Kuch toh hai', 'Kareeb', 'Dil se'] : ['Low trust', 'Building', 'High trust']) : []
+  const relStages = chWorld ? (isCrush ? [tr('Ajnabi', 'Strangers'), 'Spark', tr('Kuch toh hai', 'Something there'), tr('Kareeb', 'Close'), tr('Dil se', 'The real thing')] : ['Low trust', 'Building', 'High trust']) : []
   const relIdx = relStages.length ? Math.min(relStages.length - 1, Math.floor((trustVal / 100) * relStages.length)) : 0
   const relCurrent = relStages[relIdx]
   const relNext = relStages[relIdx + 1]
@@ -375,8 +376,8 @@ export default function DMThreadScreen() {
             border: '1px solid color-mix(in srgb, var(--accent) 40%, transparent)',
           }}>
             <div style={{ fontSize: 9, fontWeight: 900, letterSpacing: '.12em', color: 'var(--accent)', marginBottom: 7 }}>
-              STORY MISSION · TUMHE BAAT SHURU KARNI HAI
-            </div>
+              {tr('STORY MISSION · TUMHE BAAT SHURU KARNI HAI', 'STORY MISSION · YOU MAKE THE FIRST MOVE')}
+</div>
             <div style={{ fontSize: 13, color: 'var(--ink)', fontWeight: 600, lineHeight: 1.5 }}>
               {game.activeMission.brief}
             </div>
@@ -386,8 +387,8 @@ export default function DMThreadScreen() {
               </div>
             )}
             <div style={{ fontSize: 10, color: 'var(--ink3)', marginTop: 8 }}>
-              Jo bhi likhoge, waise hi judge hoga — tone matters.
-            </div>
+              {tr('Jo bhi likhoge, waise hi judge hoga — tone matters.', "You'll be judged on exactly what you write — tone matters.")}
+</div>
           </div>
         )}
 
@@ -400,20 +401,20 @@ export default function DMThreadScreen() {
           }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 7 }}>
               <span style={{ fontSize: 9, fontWeight: 900, letterSpacing: '.12em', color: 'var(--trust)' }}>
-                {trustGoal.met ? '✓ GOAL POORA' : 'TUMHARA GOAL'}
+                {trustGoal.met ? tr('✓ GOAL POORA', '✓ GOAL COMPLETE') : tr('TUMHARA GOAL', 'YOUR GOAL')}
               </span>
               <span style={{ fontSize: 11, fontWeight: 800, color: trustGoal.met ? 'var(--trust)' : 'var(--ink2)', fontVariantNumeric: 'tabular-nums' }}>
-                Bharosa {trustVal} / {trustGoal.need}
+                {tr(`Bharosa ${trustVal} / ${trustGoal.need}`, `Trust ${trustVal} / ${trustGoal.need}`)}
               </span>
             </div>
             <div style={{ fontSize: 13, color: 'var(--ink)', fontWeight: 600, lineHeight: 1.45 }}>
               {trustGoal.met
-                ? `Unlock ho gaya: ${trustGoal.unlocks}.`
-                : `Iska bharosa ${trustGoal.need} tak le jao — unlock: ${trustGoal.unlocks}.`}
+                ? tr(`Unlock ho gaya: ${trustGoal.unlocks}.`, `Unlocked: ${trustGoal.unlocks}.`)
+                : tr(`Iska bharosa ${trustGoal.need} tak le jao — unlock: ${trustGoal.unlocks}.`, `Get their trust to ${trustGoal.need} — unlocks: ${trustGoal.unlocks}.`)}
             </div>
             {!trustGoal.met && (
               <div style={{ marginTop: 9, display: 'flex', flexDirection: 'column', gap: 6 }}>
-                <div style={{ fontSize: 9.5, fontWeight: 800, letterSpacing: '.08em', color: 'var(--ink3)' }}>KAISE JEETO</div>
+                <div style={{ fontSize: 9.5, fontWeight: 800, letterSpacing: '.08em', color: 'var(--ink3)' }}>{tr('KAISE JEETO', 'HOW TO WIN THEM OVER')}</div>
                 {trustGoal.tips.map((tip, i) => (
                   <div key={i} style={{ display: 'flex', gap: 7, fontSize: 12, color: 'var(--ink2)', lineHeight: 1.45 }}>
                     <span style={{ color: 'var(--trust)', flexShrink: 0 }}>→</span>
@@ -433,8 +434,8 @@ export default function DMThreadScreen() {
             {game.world === 'cricket' ? (
               <div>
                 <div style={{ fontSize:22, marginBottom:8 }}>🏏</div>
-                <div style={{ fontWeight:700, color:'var(--ink)', marginBottom:5 }}>Pehli baat tumhari hai</div>
-                <div style={{ fontSize:13, lineHeight:1.5 }}>{char.name.split(' ')[0]} ko message karo — dressing room ka darwaza yahin se khulta hai.</div>
+                <div style={{ fontWeight:700, color:'var(--ink)', marginBottom:5 }}>{tr('Pehli baat tumhari hai', 'The first move is yours')}</div>
+                <div style={{ fontSize:13, lineHeight:1.5 }}>{tr(`${char.name.split(' ')[0]} ko message karo — dressing room ka darwaza yahin se khulta hai.`, `Message ${char.name.split(' ')[0]} — this is where the dressing room door opens.`)}</div>
               </div>
             ) : (
               <div>
@@ -448,8 +449,8 @@ export default function DMThreadScreen() {
         {/* CH thread with no messages: the context card is the opener; nudge a first move */}
         {!hasStarted && chContext && (
           <div style={{ fontSize:12, color:'var(--ink3)', textAlign:'center', padding:'8px 24px', lineHeight:1.5 }}>
-            Message bhejo — {char.name.split(' ')[0]} se baat yahin banti ya bigadti hai.
-          </div>
+            {tr(`Message bhejo — ${char.name.split(' ')[0]} se baat yahin banti ya bigadti hai.`, `Send a message — this is where things with ${char.name.split(' ')[0]} are made or broken.`)}
+</div>
         )}
         {messages.slice(0, revealCount).map((msg, i) => {
           const isIn = msg.role === 'char'
@@ -518,7 +519,7 @@ export default function DMThreadScreen() {
           </div>
           {chipsLoading ? (
             <div className="smart-reply-card smart-reply-loading">
-              <span className="smart-reply-text">Soch raha hoon kya bolun<span className="sr-dots"><i/><i/><i/></span></span>
+              <span className="smart-reply-text">{tr('Soch raha hoon kya bolun', 'Thinking about what to say')}<span className="sr-dots"><i/><i/><i/></span></span>
             </div>
           ) : (
             dynamicChips.slice(0, 1).map((chip, i) => (
@@ -548,17 +549,17 @@ export default function DMThreadScreen() {
         }}>
           <div style={{ fontSize: 22, marginBottom: 6 }}>📵</div>
           <div style={{ fontWeight: 700, color: 'var(--ink)', fontSize: 14, marginBottom: 4 }}>
-            {char.name} ne apna phone band kar liya.
+            {tr(`${char.name} ne apna phone band kar liya.`, `${char.name} switched their phone off.`)}
           </div>
           <div style={{ fontSize: 12, color: 'var(--ink3)', marginBottom: 14 }}>
-            Kal baat karna. Opens in {lockCountdown}
-          </div>
+            {tr(`Kal baat karna. Opens in ${lockCountdown}`, `Talk tomorrow. Opens in ${lockCountdown}`)}
+</div>
           {/* Chat is over for now — give a clear way back to the feed. */}
           <button
             onClick={() => navigate('feed')}
             style={{ width: '100%', padding: '13px', borderRadius: 12, border: 'none', cursor: 'pointer', background: 'linear-gradient(120deg,#ff2d78,#c01a5a)', color: '#fff', fontWeight: 800, fontSize: 13.5, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
           >
-            Feed pe wapas jao
+            {tr('Feed pe wapas jao', 'Back to the feed')}
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6" /></svg>
           </button>
         </div>
@@ -568,13 +569,13 @@ export default function DMThreadScreen() {
       {hasStarted && storyDone && (
         <div style={{ padding: '10px 14px 14px' }}>
           <div style={{ textAlign: 'center', fontSize: 11.5, color: 'var(--ink3)', marginBottom: 8 }}>
-            Baaki baatein baad mein — story aage badh rahi hai.
-          </div>
+            {tr('Baaki baatein baad mein — story aage badh rahi hai.', 'Save the rest for later — the story is moving.')}
+</div>
           <button
             className="lo-press"
             onClick={() => navigate('feed')}
             style={{ width: '100%', padding: '15px 0', borderRadius: 14, border: 'none', background: 'var(--accent)', color: '#fff', fontWeight: 800, fontSize: 14.5, fontFamily: 'var(--sans)', cursor: 'pointer', boxShadow: '0 6px 22px rgba(255,45,120,.3)' }}
-          >Wapas feed pe →</button>
+          >{tr('Wapas feed pe →', 'Back to the feed →')}</button>
         </div>
       )}
 
@@ -582,11 +583,11 @@ export default function DMThreadScreen() {
       {asleep && (
         <div style={{ padding: '14px 16px 18px', textAlign: 'center', borderTop: '1px solid var(--line)' }}>
           <div style={{ fontSize: 13.5, fontWeight: 700, color: 'var(--ink)' }}>
-            {char.name.split(' ')[0]} so gaya 💤
+            {tr(`${char.name.split(' ')[0]} so gaya 💤`, `${char.name.split(' ')[0]} is asleep 💤`)}
           </div>
           <div style={{ fontSize: 11.5, color: 'var(--ink3)', marginTop: 4 }}>
-            Aaj ke {DM_DAILY_BUDGET} messages ho gaye — kal subah phir baat hogi.
-          </div>
+            {tr(`Aaj ke ${DM_DAILY_BUDGET} messages ho gaye — kal subah phir baat hogi.`, `That's all ${DM_DAILY_BUDGET} messages for today — talk again in the morning.`)}
+</div>
         </div>
       )}
 

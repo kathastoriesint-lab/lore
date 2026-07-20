@@ -6,6 +6,7 @@ import type { PostCommentOption } from '@/lib/data'
 import { getCricketChars, getCHChars, getCHPostComments } from '@/lib/content'
 import { applyDeltas, resolveTokens, fameToFollowers } from '@/lib/game'
 import { derivePosts, deriveOvernightPosts, deriveBeatBuzz, type FeedPost } from '@/lib/feed-posts'
+import { tr } from '@/lib/lang'
 import FeedTabsCoach from '@/components/screens/FeedTabsCoach'
 import MeterHUD from '@/components/MeterHUD'
 import LiveEntryCard from '@/components/LiveEntryCard'
@@ -193,17 +194,17 @@ interface CricketSeedProps {
 
 const CRICKET_COMMENTS: Record<string, PostCommentOption[]> = {
   hardik: [
-    { text: 'Captain energy 🔥 Paltan ready hai', deltas:{ form:3, fame:2, trust:3 }, toast:'Hardik saw this. Trust +3' },
+    { text: tr('Captain energy 🔥 Paltan ready hai', 'Captain energy 🔥 Paltan is ready'), deltas:{ form:3, fame:2, trust:3 }, toast:'Hardik saw this. Trust +3' },
     { text: 'What role should I focus on?', deltas:{ form:2, fame:0, trust:4 }, toast:'Good question. Trust +4' },
     { text: 'I\'m ready for any situation', deltas:{ form:2, fame:1, trust:3 }, toast:'Hardik approves. Trust +3' },
   ],
   rohit: [
-    { text: 'Tempo advice please Ro bhai 🙏', deltas:{ form:3, fame:0, trust:4 }, toast:'Rohit noticed. Form +3' },
-    { text: 'Shot tha 🔥', deltas:{ form:4, fame:1, trust:2 }, toast:'Rohit smiles. Form +4' },
+    { text: tr('Tempo advice please Ro bhai 🙏', 'Tempo tips please Ro 🙏'), deltas:{ form:3, fame:0, trust:4 }, toast:'Rohit noticed. Form +3' },
+    { text: tr('Shot tha 🔥', 'What a shot 🔥'), deltas:{ form:4, fame:1, trust:2 }, toast:'Rohit smiles. Form +4' },
     { text: 'This is everything 💙', deltas:{ form:3, fame:0, trust:3 }, toast:'Rohit approves. Form +3' },
   ],
   surya: [
-    { text: 'Legend 😄 Field dekh phir pagal ban', deltas:{ form:4, fame:2, trust:2 }, toast:'Surya liked this 🔥' },
+    { text: tr('Legend 😄 Field dekh phir pagal ban', 'Legend 😄 Read the field, then go wild'), deltas:{ form:4, fame:2, trust:2 }, toast:'Surya liked this 🔥' },
     { text: 'Teach me the angles please 🙏', deltas:{ form:3, fame:1, trust:3 }, toast:'Surya says come to nets. Form +3' },
     { text: 'Champion energy 💙', deltas:{ form:4, fame:2, trust:1 }, toast:'Surya energy unlocked. Fame +4' },
   ],
@@ -213,8 +214,8 @@ const CRICKET_COMMENTS: Record<string, PostCommentOption[]> = {
     { text: 'Nets tomorrow?', deltas:{ form:2, fame:0, trust:4 }, toast:'Bumrah approves. Form +3' },
   ],
   tilak: [
-    { text: 'Role model hai bhai 💙', deltas:{ form:3, fame:1, trust:3 }, toast:'Tilak trusts you more. Trust +3' },
-    { text: 'Sikhta rehta hoon', deltas:{ form:2, fame:0, trust:4 }, toast:'Tilak respects this. Trust +4' },
+    { text: tr('Role model hai bhai 💙', 'Role model, honestly 💙'), deltas:{ form:3, fame:1, trust:3 }, toast:'Tilak trusts you more. Trust +3' },
+    { text: tr('Sikhta rehta hoon', 'Always learning'), deltas:{ form:2, fame:0, trust:4 }, toast:'Tilak respects this. Trust +4' },
     { text: 'Same energy 🔥', deltas:{ form:3, fame:2, trust:2 }, toast:'Young table approved. Trust +2' },
   ],
 }
@@ -297,14 +298,14 @@ function CricketSeedFeed({ likedPosts, commentedPosts, postComments, myHandle, o
     <>
       {/* Hardik */}
       {seedPost('hardik-seed', 'hardik', '',
-        '"Ready rehna. Role-ready hota hai, reel-ready nahi." — Wankhede ki pehli practice. Season 1 starts now. 💙',
-        'Team set hai. Kaam shuru. #MumbaiIndians #IPL',
+        tr('"Ready rehna. Role-ready hota hai, reel-ready nahi." — Wankhede ki pehli practice. Season 1 starts now. 💙', '"Stay ready. Be role-ready, not reel-ready." — first practice at Wankhede. Season 1 starts now. 💙'),
+        tr('Team set hai. Kaam shuru. #MumbaiIndians #IPL', "Team's set. Work begins. #MumbaiIndians #IPL"),
         '284,102', '3 HOURS AGO', '/generated/cricket-posts/seed-hardik.png')}
 
       {/* Rohit */}
       {seedPost('rohit-seed', 'rohit', '',
-        'Pehle 12 ball survive karo. Phir game tumhara. Simple nahi. Lekin sach. 🏏',
-        'Tempo. Bas. #Cricket #MumbaiIndians',
+        tr('Pehle 12 ball survive karo. Phir game tumhara. Simple nahi. Lekin sach. 🏏', 'Survive the first 12 balls. Then the game is yours. Not simple. But true. 🏏'),
+        tr('Tempo. Bas. #Cricket #MumbaiIndians', "Tempo. That's it. #Cricket #MumbaiIndians"),
         '512,884', '5 HOURS AGO', '/generated/cricket-posts/seed-rohit.png')}
 
       {/* @paltanpulse gossip account */}
@@ -355,13 +356,13 @@ function CricketSeedFeed({ likedPosts, commentedPosts, postComments, myHandle, o
 
       {/* Surya */}
       {seedPost('surya-seed', 'surya', 'linear-gradient(135deg,#004080,#001a40)',
-        'Freedom ka matlab random nahi hota. Field dekh, phir pagal ban. T20 mein yahi farak hai. 😄🏏',
+        tr('Freedom ka matlab random nahi hota. Field dekh, phir pagal ban. T20 mein yahi farak hai. 😄🏏', "Freedom doesn't mean random. Read the field, then go wild. That's the whole difference in T20. 😄🏏"),
         'Range-hitting session done. #SKY #MumbaiIndians',
         '891,204', '2 HOURS AGO', '/generated/cricket-posts/seed-surya.png')}
 
       {/* Bumrah */}
       {seedPost('bumrah-seed', 'bumrah', '',
-        'Nets mein ego nahi chalta. Bas information. Good players adjust after one mistake.',
+        tr('Nets mein ego nahi chalta. Bas information. Good players adjust after one mistake.', 'No ego in the nets. Just information. Good players adjust after one mistake.'),
         'Work. Always. #Bumrah #MumbaiIndians',
         '1,204,441', '4 HOURS AGO', '/generated/cricket-posts/seed-bumrah.png')}
 
@@ -411,8 +412,8 @@ function CricketSeedFeed({ likedPosts, commentedPosts, postComments, myHandle, o
 
       {/* Tilak */}
       {seedPost('tilak-seed', 'tilak', 'linear-gradient(135deg,#2a5a8f,#0a1a40)',
-        'Hype sabko milta hai kabhi na kabhi. Trust repeat performances se milta hai. Season 1 is just the beginning. 💙',
-        'Process pe raho. #TilakVarma #MumbaiIndians',
+        tr('Hype sabko milta hai kabhi na kabhi. Trust repeat performances se milta hai. Season 1 is just the beginning. 💙', 'Everyone gets hype at some point. Trust comes from repeat performances. Season 1 is just the beginning. 💙'),
+        tr('Process pe raho. #TilakVarma #MumbaiIndians', 'Stay on the process. #TilakVarma #MumbaiIndians'),
         '342,108', '6 HOURS AGO', '/generated/cricket-posts/seed-tilak.png')}
 
       {/* @futurexi */}
@@ -643,9 +644,9 @@ export default function FeedScreen() {
       <div className="caughtup-card">
         <span className="chk"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg></span>
         <h4>You&apos;re all caught up</h4>
-        <p>Pichhle 24 ghante ke saare posts dekh liye. Neeche purane posts.</p>
+        <p>{tr('Pichhle 24 ghante ke saare posts dekh liye. Neeche purane posts.', "You've seen every post from the last 24 hours. Older posts below.")}</p>
       </div>
-      <div className="olderlbl">Purane posts</div>
+      <div className="olderlbl">{tr('Purane posts', 'Older posts')}</div>
     </div>
   )
 
@@ -912,7 +913,7 @@ export default function FeedScreen() {
                 {/* Authored comment hooks — your reply moves real bonds (story reads it back) */}
                 {!pc.isPlayer && (post.comments?.length ?? 0) > 0 && !commentedPosts.has(post.postId) && (
                   <div style={{ padding: '2px 14px 6px', display: 'flex', flexDirection: 'column', gap: 6 }}>
-                    <div style={{ fontSize: 9.5, fontWeight: 800, letterSpacing: '.08em', color: 'var(--ink3)' }}>REPLY KARO — sab dekh rahe hain</div>
+                    <div style={{ fontSize: 9.5, fontWeight: 800, letterSpacing: '.08em', color: 'var(--ink3)' }}>{tr('REPLY KARO — sab dekh rahe hain', "REPLY — everyone's watching")}</div>
                     {post.comments!.map((opt, j) => (
                       <button key={j} className="comment-option" onClick={() => handleComment(pc.id, post.postId, opt)}>{opt.text}</button>
                     ))}
@@ -1006,8 +1007,8 @@ export default function FeedScreen() {
         <SeedPost
           id="ria-seed" myComment={postComments['ria-seed']} charId="ria" onViewChar={setViewingChar}
           bg="linear-gradient(135deg,#b03a5e,#4a0820)"
-          caption="Pehla din. Pehla room. Pehle mujhe. Kuch cheezein change nahi honti. 🤍"
-          fullCaption="Kaafi log poochte hain — 'Ria, tujhe stress nahi hota?' Stress? Main stress ko content mein convert karti hoon. 🤍"
+          caption={tr('Pehla din. Pehla room. Pehle mujhe. Kuch cheezein change nahi honti. 🤍', 'Day one. First room. Me first. Some things never change. 🤍')}
+          fullCaption={tr("Kaafi log poochte hain — 'Ria, tujhe stress nahi hota?' Stress? Main stress ko content mein convert karti hoon. 🤍", "People keep asking — 'Ria, don't you ever get stressed?' Stress? I convert stress into content. 🤍")}
           likes="84,291" time="6 HOURS AGO"
           imageUrl="/generated/creator-house-posts/seed-ria.png"
           likedPosts={likedPosts} commentedPosts={commentedPosts} onLike={likePost} onComment={setCommentPost}
@@ -1019,8 +1020,8 @@ export default function FeedScreen() {
         <SeedPost
           id="zoya-seed" myComment={postComments['zoya-seed']} charId="zoya" onViewChar={setViewingChar}
           bg="linear-gradient(135deg,#aa6a8a,#2a0a1a)"
-          caption="Naye log. Naye vibes. Is ghar mein sab interesting lagte hain. Especially ek. 👀🫶"
-          fullCaption="Day 1 done. Chai piya. Kuch connections bane. Kuch strategies bhi. #CreatorHouse"
+          caption={tr('Naye log. Naye vibes. Is ghar mein sab interesting lagte hain. Especially ek. 👀🫶', 'New people. New vibes. Everyone in this house seems interesting. Especially one. 👀🫶')}
+          fullCaption={tr('Day 1 done. Chai piya. Kuch connections bane. Kuch strategies bhi. #CreatorHouse', 'Day 1 done. Had chai. Made some connections. Some strategies too. #CreatorHouse')}
           likes="29,441" time="5 HOURS AGO"
           imageUrl="/generated/creator-house-posts/seed-zoya.png"
           likedPosts={likedPosts} commentedPosts={commentedPosts} onLike={likePost} onComment={setCommentPost}
@@ -1059,13 +1060,13 @@ export default function FeedScreen() {
               {commentPost === 'housewatch' && !hwCommented && (
                 <CommentComposer
                   character={{ id: 'housewatch_india', name: 'House Watch', handle: 'housewatch_india' }}
-                  post={{ caption: 'Pehla din. Thread kal. 👀 #CreatorHouse' }}
+                  post={{ caption: tr('Pehla din. Thread kal. 👀 #CreatorHouse', 'Day one. Thread tomorrow. 👀 #CreatorHouse') }}
                   persona="a savage reality-TV gossip & watch page — screenshots everything, stirs drama"
                   canDM={false}
                   onDone={t => markCommented('housewatch', t)}
                 />
               )}
-              <div className="caption"><b>housewatch_india</b> Pehla din. Thread kal. 👀 #CreatorHouse</div>
+              <div className="caption"><b>housewatch_india</b> {tr('Pehla din. Thread kal. 👀 #CreatorHouse', 'Day one. Thread tomorrow. 👀 #CreatorHouse')}</div>
               {postComments['housewatch'] && (
                 <div className="caption cmt-in" style={{ paddingTop: 2, color: 'rgba(255,255,255,.85)' }}><b>{myHandle}</b> {postComments['housewatch']}</div>
               )}
@@ -1078,8 +1079,8 @@ export default function FeedScreen() {
         <SeedPost
           id="kabir-seed" myComment={postComments['kabir-seed']} charId="kabir" onViewChar={setViewingChar}
           bg="linear-gradient(135deg,#2a6f8f,#0a2a40)"
-          caption="&quot;Is ghar mein sab serious ho jaate hain jab camera on hota hai. Main serious tab hota hoon jab camera off hota hai.&quot; 😭👀"
-          fullCaption="Camera ka psychology. Day 1 observation thread kal. 😭"
+          caption={tr('"Is ghar mein sab serious ho jaate hain jab camera on hota hai. Main serious tab hota hoon jab camera off hota hai." 😭👀', '"Everyone in this house gets serious when the camera turns on. I get serious when it turns off." 😭👀')}
+          fullCaption={tr('Camera ka psychology. Day 1 observation thread kal. 😭', 'Camera psychology. Day 1 observation thread tomorrow. 😭')}
           likes="41,882" time="3 HOURS AGO"
           imageUrl="/generated/creator-house-posts/seed-kabir.png"
           likedPosts={likedPosts} commentedPosts={commentedPosts} onLike={likePost} onComment={setCommentPost}
@@ -1091,8 +1092,8 @@ export default function FeedScreen() {
         <SeedPost
           id="dev-seed" myComment={postComments['dev-seed']} charId="dev" onViewChar={setViewingChar}
           bg="linear-gradient(135deg,#3a7a4a,#0a2a1a)"
-          caption="5AM. Gym done. Creator House Day 1 different hai. Numbers aayenge. Always do. 💪📈"
-          fullCaption="Grind never stops. Villa ya gym — same mindset. #CreatorHouse #Fitness"
+          caption={tr('5AM. Gym done. Creator House Day 1 different hai. Numbers aayenge. Always do. 💪📈', '5AM. Gym done. Creator House Day 1 hits different. Numbers will come. Always do. 💪📈')}
+          fullCaption={tr('Grind never stops. Villa ya gym — same mindset. #CreatorHouse #Fitness', 'Grind never stops. Villa or gym — same mindset. #CreatorHouse #Fitness')}
           likes="18,204" time="4 HOURS AGO"
           imageUrl="/generated/creator-house-posts/seed-dev.png"
           likedPosts={likedPosts} commentedPosts={commentedPosts} onLike={likePost} onComment={setCommentPost}
@@ -1104,8 +1105,8 @@ export default function FeedScreen() {
         <SeedPost
           id="ananya-seed" myComment={postComments['ananya-seed']} charId="ananya" onViewChar={setViewingChar}
           bg="linear-gradient(135deg,#8a4ab0,#3a1660)"
-          caption="2.1M views raat mein. Subah uthke dekha toh ro padi. Phir Ria ko bataya. Usne bola... 'nice.' 🥺✨"
-          fullCaption="2.1M. Ro padi. Tumhara pyaar 🥺✨"
+          caption={tr("2.1M views raat mein. Subah uthke dekha toh ro padi. Phir Ria ko bataya. Usne bola... 'nice.' 🥺✨", "2.1M views overnight. Woke up, saw it, cried. Then I told Ria. She said... 'nice.' 🥺✨")}
+          fullCaption={tr('2.1M. Ro padi. Tumhara pyaar 🥺✨', '2.1M. I cried. Your love 🥺✨')}
           likes="2,108,441" time="45 MINUTES AGO"
           imageUrl="/generated/creator-house-posts/seed-ananya.png"
           likedPosts={likedPosts} commentedPosts={commentedPosts} onLike={likePost} onComment={setCommentPost}
@@ -1163,13 +1164,13 @@ export default function FeedScreen() {
             <div className="wi-title">{isCricket ? 'Indian Dressing Room.' : 'Creator House.'}</div>
           </div>
           <div className={`wi-line${introLines[2] ? ' in' : ''}`}>
-            <div className="wi-meta">{isCricket ? 'Mumbai Indians. Wankhede. Your first IPL.' : '6 creators. Ek villa. 10 din ka experiment.'}</div>
+            <div className="wi-meta">{isCricket ? 'Mumbai Indians. Wankhede. Your first IPL.' : tr('6 creators. Ek villa. 10 din ka experiment.', '6 creators. One villa. A 10-day experiment.')}</div>
           </div>
           <div className={`wi-line${introLines[3] ? ' in' : ''}`}>
             <div className="wi-drama" style={isCricket ? { borderLeftColor: '#003087', background: 'rgba(0,48,135,.1)' } : {}}>
               {isCricket
-                ? <><b>Auction ho gayi. Draft ho gaya. Ab dressing room hai.</b> Hardik ka role, Rohit ki silence, Bumrah ka pehla over — sab tumse alag zyada jaante hain. Par abhi nahi. Yeh season tumhara bhi hai.</>
-                : <><b>Aaj raat, villa khul raha hai.</b> 6 creators pehli baar mile hain. Koi dushman nahi, koi dost nahi — but by morning, alliances ban jaayengi. Tum kaun banna chahte ho?</>}
+                ? <><b>{tr('Auction ho gayi. Draft ho gaya. Ab dressing room hai.', "The auction's done. The draft's done. Now it's the dressing room.")}</b> {tr('Hardik ka role, Rohit ki silence, Bumrah ka pehla over — sab tumse alag zyada jaante hain. Par abhi nahi. Yeh season tumhara bhi hai.', "Hardik's role, Rohit's silence, Bumrah's first over — they all know more than you. Not for long. This season is yours too.")}</>
+                : <><b>{tr('Aaj raat, villa khul raha hai.', 'Tonight, the villa opens.')}</b> {tr('6 creators pehli baar mile hain. Koi dushman nahi, koi dost nahi — but by morning, alliances ban jaayengi. Tum kaun banna chahte ho?', '6 creators, meeting for the first time. No enemies, no friends — but by morning, alliances will form. Who do you want to be?')}</>}
             </div>
           </div>
           <div className={`wi-line${introLines[4] ? ' in' : ''}`}>

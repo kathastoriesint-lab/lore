@@ -9,6 +9,7 @@
 //
 // Voice: roman-Hinglish, dressing-room real.
 import type { CharId, GameState, SelectionVerdict } from './types'
+import { tr } from './lang'
 
 // ── Captain's Trust — the second headline goal ───────────────────────────────
 const CAPTAIN_ID = 'hardik'
@@ -137,34 +138,34 @@ export function buildSelection(id: string, game: GameState, dmTrust: Record<stri
   const verdict = resolveSelectionVerdict(week, form, captain, benched)
   const recall = isRecall(week, form, captain, benched)
 
-  const you = game.playerName || 'Tum'
+  const you = game.playerName || tr('Tum', 'You')
   const rival = 'Naman Dhir'
   const fifth = verdict === 'benched' ? { name: rival } : { name: you, you: true }
   const teamSheet = [...XI_TOP.map(name => ({ name })), fifth]
 
   const intro = {
-    1: 'Team sheet raat ko lagti hai. Do naam ek slot — tum, ya Naman.',
-    2: 'Selection meeting. Mahela ke saamne form sheet, Hardik ke saamne kuch aur. Darwaza bandh hota hai.',
-    3: 'Eliminator. Jeeto ya ghar jao. XI subah announce hogi — aur selectors stand mein honge.',
+    1: tr('Team sheet raat ko lagti hai. Do naam ek slot — tum, ya Naman.', 'The team sheet goes up tonight. Two names, one slot — you, or Naman.'),
+    2: tr('Selection meeting. Mahela ke saamne form sheet, Hardik ke saamne kuch aur. Darwaza bandh hota hai.', 'Selection meeting. Mahela has the form sheet in front of him. Hardik has something else. The door closes.'),
+    3: tr('Eliminator. Jeeto ya ghar jao. XI subah announce hogi — aur selectors stand mein honge.', 'The Eliminator. Win or go home. The XI drops in the morning — and the national selectors will be in the stands.'),
   }[week] ?? 'Team sheet drops now.'
 
   const captainLine =
-    verdict === 'started' && recall ? `Bench pe baith ke ${form} tak form le gaya. Yeh main ignore nahi kar sakta. Wapas aa.` :
-    verdict === 'started' ? 'Kaam bola tha, kaam dikha. Khelega.' :
-    verdict === 'lifeline' ? 'Numbers poore nahi hain. Par main hoon. Mera call — yeh khelega. Galat mat nikalna.' :
-    captain >= 40 ? 'Abhi nahi. Par main dekh raha hoon — jo bench pe karta hai woh bhi selection hota hai.' :
-    'Form sheet ne bol diya. Mere paas add karne ko kuch nahi tha.'
+    verdict === 'started' && recall ? tr(`Bench pe baith ke ${form} tak form le gaya. Yeh main ignore nahi kar sakta. Wapas aa.`, `Sat on the bench and dragged your form up to ${form}. I can't ignore that. Come back.`) :
+    verdict === 'started' ? tr('Kaam bola tha, kaam dikha. Khelega.', 'I asked for the work. You showed me the work. You play.') :
+    verdict === 'lifeline' ? tr('Numbers poore nahi hain. Par main hoon. Mera call — yeh khelega. Galat mat nikalna.', 'The numbers aren\'t there. But I am. My call — this one plays. Don\'t make me wrong.') :
+    captain >= 40 ? tr('Abhi nahi. Par main dekh raha hoon — jo bench pe karta hai woh bhi selection hota hai.', 'Not yet. But I\'m watching — what you do on the bench is a selection too.') :
+    tr('Form sheet ne bol diya. Mere paas add karne ko kuch nahi tha.', 'The form sheet did the talking. I had nothing to add.')
 
   const coachLine =
-    verdict === 'started' ? `Form ${form}. Sheet ne khud naam likha.` :
-    verdict === 'lifeline' ? `Sheet ${rule.start.form} maangti thi, tumhare paas ${form} tha. Captain ne apna naam laga diya. Ab yeh uska risk hai.` :
-    `Form ${form}, zaroorat ${rule.start.form}. Ya captain ka bharosa ${rule.lifeline.captain} — woh bhi nahi tha. Kaam karo.`
+    verdict === 'started' ? tr(`Form ${form}. Sheet ne khud naam likha.`, `Form ${form}. The sheet wrote the name itself.`) :
+    verdict === 'lifeline' ? tr(`Sheet ${rule.start.form} maangti thi, tumhare paas ${form} tha. Captain ne apna naam laga diya. Ab yeh uska risk hai.`, `The sheet asked for ${rule.start.form}. You had ${form}. The captain put his own name on you. That risk is his now.`) :
+    tr(`Form ${form}, zaroorat ${rule.start.form}. Ya captain ka bharosa ${rule.lifeline.captain} — woh bhi nahi tha. Kaam karo.`, `Form ${form}, needed ${rule.start.form}. Or the captain's trust at ${rule.lifeline.captain} — you didn't have that either. Do the work.`)
 
   const aftermath =
-    verdict === 'started' && recall ? 'Recall. Ghar mein sab jaante hain yeh kaise hua — chup-chaap kaam se. Ab prove karo yeh one-off nahi tha.' :
-    verdict === 'started' ? 'Naam sheet pe hai. Ab sheet se bahar ki duniya shuru hoti hai.' :
-    verdict === 'lifeline' ? 'Captain ne tumhare liye apni credibility kharch ki. Yeh karz hai — aur poora ghar dekh raha hai.' :
-    `${rival} khelega. Tum drinks le jaoge. Jo is hafte bench pe karoge — wohi agli sheet decide karega.`
+    verdict === 'started' && recall ? tr('Recall. Ghar mein sab jaante hain yeh kaise hua — chup-chaap kaam se. Ab prove karo yeh one-off nahi tha.', 'Recalled. Everyone in the dressing room knows how this happened — quiet, relentless work. Now prove it wasn\'t a one-off.') :
+    verdict === 'started' ? tr('Naam sheet pe hai. Ab sheet se bahar ki duniya shuru hoti hai.', 'Your name is on the sheet. Now the world beyond the sheet begins.') :
+    verdict === 'lifeline' ? tr('Captain ne tumhare liye apni credibility kharch ki. Yeh karz hai — aur poora ghar dekh raha hai.', 'The captain spent his own credibility on you. That\'s a debt — and the whole dressing room is watching.') :
+    tr(`${rival} khelega. Tum drinks le jaoge. Jo is hafte bench pe karoge — wohi agli sheet decide karega.`, `${rival} plays. You carry the drinks. What you do on the bench this week — that decides the next sheet.`)
 
   return {
     id, week, verdict, recall,

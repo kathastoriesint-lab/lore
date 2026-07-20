@@ -1,0 +1,3668 @@
+{
+ "version": 15,
+ "chars": {
+  "hardik": {
+   "id": "hardik",
+   "name": "Hardik Pandya",
+   "handle": "hardikpandya93",
+   "cls": "c-hardik",
+   "init": "H",
+   "fame": 90,
+   "role": "Captain · Role clarity · Confidence under scrutiny"
+  },
+  "rohit": {
+   "id": "rohit",
+   "name": "Rohit Sharma",
+   "handle": "rohitsharma45",
+   "cls": "c-rohit",
+   "init": "R",
+   "fame": 95,
+   "role": "Calm senior · Batting tempo · Long-game intelligence"
+  },
+  "surya": {
+   "id": "surya",
+   "name": "Suryakumar Yadav",
+   "handle": "surya_14kumar",
+   "cls": "c-surya",
+   "init": "S",
+   "fame": 88,
+   "role": "Fun senior · Creative T20 guide · Emotional ease"
+  },
+  "bumrah": {
+   "id": "bumrah",
+   "name": "Jasprit Bumrah",
+   "handle": "jaspritb99",
+   "cls": "c-bumrah",
+   "init": "J",
+   "fame": 92,
+   "role": "Elite standard · Discipline · Quiet technical truth"
+  },
+  "tilak": {
+   "id": "tilak",
+   "name": "Tilak Varma",
+   "handle": "tilakvarma12",
+   "cls": "c-tilak",
+   "init": "T",
+   "fame": 72,
+   "role": "Mirror · Young Indian benchmark · Friendly pressure"
+  },
+  "coach": {
+   "id": "coach",
+   "name": "Coach Sir",
+   "handle": "coachsir",
+   "cls": "c-coach",
+   "init": "C",
+   "fame": 30,
+   "role": "Childhood coach · Personal anchor · Cricket conscience"
+  },
+  "friend": {
+   "id": "friend",
+   "name": "Maddy",
+   "handle": "maddy_bro",
+   "cls": "c-friend",
+   "init": "M",
+   "fame": 10,
+   "role": "Best friend · Normal life · Emotional cost of fame"
+  },
+  "naman": {
+   "id": "naman",
+   "name": "Naman Dhir",
+   "handle": "namandhir",
+   "cls": "c-naman",
+   "init": "N",
+   "fame": 55,
+   "role": "Young Table · Competition / friendship"
+  },
+  "robin": {
+   "id": "robin",
+   "name": "Robin Minz",
+   "handle": "robinminz1",
+   "cls": "c-robin",
+   "init": "Rb",
+   "fame": 48,
+   "role": "Young Table warmth · Keeper-batter"
+  },
+  "mahela": {
+   "id": "mahela",
+   "name": "Mahela Jayawardene",
+   "handle": "mahela2006",
+   "cls": "c-mahela",
+   "init": "Mj",
+   "fame": 85,
+   "role": "Head Coach · Selection logic · Role clarity"
+  }
+ },
+ "situations": [
+  {
+   "id": "CR2-S1",
+   "day": 0,
+   "slot": "Night",
+   "tag": "⚡ AUCTION NIGHT · NIGHT",
+   "title": "Sold. Mumbai.",
+   "body": [
+    "Auction night. Your name on TV, MI’s paddle up, hammer drops — SOLD. The house is crying, your phone is exploding.",
+    "This night comes once. Who gets it — home, or the world?"
+   ],
+   "q": "What do you do right after the auction?",
+   "reader": [
+    {
+     "t": "nar",
+     "text": "Auction night. The whole family's glued to the TV, and on the screen — your name: {name}. Base price — ₹30 lakh. MI, your dream franchise, raises the paddle. Then RCB. MI again. Hammer drops — and SOLD."
+    },
+    {
+     "t": "img",
+     "src": "/generated/cricket-posts/cr2-s1-auction.png",
+     "h": 210
+    },
+    {
+     "t": "nar",
+     "text": "Mumbai Indians. At 16. Mom's crying happy tears, Dad's hand is shaking — and your phone has fully lost it. 200 notifications. 11 missed calls from your bestie, Maddy."
+    },
+    {
+     "t": "cue",
+     "who": "Coach Sir",
+     "avatar": "/avatars/coach.png",
+     "text": "Celebrate, beta — celebrate properly. But remember: MI bought you. Cricket hasn't accepted you yet. You'll have to earn that — still day 1."
+    },
+    {
+     "t": "nar",
+     "big": true,
+     "text": "This night comes once in a lifetime. Who gets it — your family, or the world?"
+    }
+   ],
+   "choices": [
+    {
+     "t": "Phone off. Family first.",
+     "s": "The internet will still be there tomorrow. This living room won't feel like this again.",
+     "deltas": {
+      "fame": -1
+     },
+     "relationshipDeltas": {
+      "friend": 2
+     },
+     "flagDeltas": {
+      "homeGrounding": 1
+     },
+     "dm": [
+      {
+       "char": "friend",
+       "text": "I called 11 times and you were with your family. Fair enough, bro. I'm happy, jealous, and kinda emotional too 😭"
+      },
+      {
+       "char": "friend",
+       "text": "Your mom was crying, right? Now you're gonna make me cry on video call too."
+      },
+      {
+       "char": "friend",
+       "text": "Tomorrow I want the full story. Ball-by-ball. From the paddle going up to the hammer drop."
+      }
+     ]
+    },
+    {
+     "t": "Post the jersey story — now",
+     "s": "Your name's trending right now. The moment's hot — tell the world you've arrived.",
+     "deltas": {
+      "fame": 3
+     },
+     "relationshipDeltas": {
+      "coach": -2,
+      "friend": -2
+     },
+     "flagDeltas": {
+      "hypeRisk": 1
+     },
+     "postTag": "AUCTION NIGHT",
+     "postWhy": "Right this second, your name is in India's trends — in an hour it'll be someone else. If the jersey post goes up now, the whole country sees it. This window won't open twice.",
+     "post": {
+      "source": "player",
+      "caption": "First time I held the MI jersey, I didn't know whether to smile or cry. From academy nets to this blue. The dream begins tonight. 💙 #SoldToMumbai",
+      "reactions": [
+       {
+        "char": "__fan",
+        "name": "paltanpulse",
+        "text": "OUR BOY IS HERE. Emotional jersey post on auction night — Paltan has officially adopted him 💙"
+       },
+       {
+        "char": "friend",
+        "text": "DID YOU HAVE THAT CAPTION READY?? Bro got sold at 9:41 and the post was up by 9:45 😭"
+       },
+       {
+        "char": "coach",
+        "text": "Photo's good. Now don't read the comments. Shadow practice tomorrow morning."
+       }
+      ],
+      "imageUrl": "/generated/cricket-posts/cr-s1-mipaltan.png"
+     },
+     "dm": [
+      {
+       "char": "friend",
+       "text": "Bro??? No reply to 11 missed calls... but this showed up? 😑"
+      },
+      {
+       "char": "friend",
+       "text": "You're talking to the whole world on Instagram but not your bestie. Noted. 📝"
+      },
+      {
+       "char": "friend",
+       "text": "Fine, superstar. I want the full story tomorrow — OR I'm showing up at your house."
+      }
+     ]
+    }
+   ],
+   "feedReaction": {
+    "A": {
+     "char": "coach",
+     "caption": "Today, one TV got turned off and one meal got served hot. Good start. Wankhede is still far away — keep your feet on the ground."
+    },
+    "B": {
+     "char": "friend",
+     "caption": "Bro got SOLD and had a caption ready in 4 minutes?? The superstar era is officially scary 😭"
+    }
+   }
+  },
+  {
+   "id": "CR2-S2",
+   "day": 1,
+   "slot": "Afternoon",
+   "tag": "⚡ NETS · AFTERNOON",
+   "title": "Bumrah's Over",
+   "body": [
+    "First day in the Wankhede nets — Mahela says one line: \"Kid, next net. Jasprit, one over.\" 3 balls, beaten 3 times. The whole room is watching.",
+    "3 balls left. Student or show-off?"
+   ],
+   "q": "How do you play Bumrah's next ball?",
+   "reader": [
+    {
+     "t": "nar",
+     "text": "First day in the Wankhede nets. You're strapping on your pads when Mahela says, without even looking up — \"Kid, next net. Jasprit, one over.\" The whole room has shown up to watch."
+    },
+    {
+     "t": "img",
+     "src": "/generated/cricket-posts/cr2-s2-nets.png",
+     "h": 210
+    },
+    {
+     "t": "cue",
+     "who": "Surya",
+     "avatar": "/avatars/surya.png",
+     "when": {
+      "flag": {
+       "key": "hypeRisk",
+       "gte": 1
+      }
+     },
+     "text": "Emotional post at night, straight to Bumrah in the morning. The scheduling sense of humor is savage 😄"
+    },
+    {
+     "t": "nar",
+     "text": "3 balls, beaten 3 times. The length looks like one thing, passes like another. Third one — slower ball: your shot finishes before the ball even gets there. Hardik's standing there with his arms folded. Rohit's completely still."
+    },
+    {
+     "t": "img",
+     "src": "/generated/cricket-posts/seed-bumrah.png",
+     "h": 210
+    },
+    {
+     "t": "cue",
+     "who": "Bumrah",
+     "avatar": "/avatars/bumrah.png",
+     "text": "You're guessing the length. Pick the wrist first."
+    },
+    {
+     "t": "nar",
+     "big": true,
+     "text": "3 balls left. The whole room is watching — student or show-off?"
+    }
+   ],
+   "choices": [
+    {
+     "t": "Defend — and ask what you missed",
+     "s": "Getting beaten in public is embarrassing. But the information is right there.",
+     "deltas": {
+      "form": 3,
+      "fame": -1
+     },
+     "relationshipDeltas": {
+      "bumrah": 4,
+      "rohit": 1
+     },
+     "flagDeltas": {
+      "mentorTrust": 1
+     },
+     "dm": [
+      {
+       "char": "bumrah",
+       "text": "Good that you asked. Most don’t."
+      },
+      {
+       "char": "bumrah",
+       "text": "On the slower one, you're tracking the ball. Wrong thing. Track the release point — the wrist drops a beat late, fingers on the side of the ball. You get that half-second earlier. That half-second is yours."
+      },
+      {
+       "char": "bumrah",
+       "text": "Nets tomorrow, 7 a.m. Just slower ones. Be there."
+      }
+     ]
+    },
+    {
+     "t": "Charge him — make a statement shot",
+     "s": "The whole room is watching. So give them something worth watching.",
+     "deltas": {
+      "form": -2,
+      "fame": 2
+     },
+     "relationshipDeltas": {
+      "bumrah": -2,
+      "surya": 1
+     },
+     "flagDeltas": {
+      "hypeRisk": 1
+     },
+     "post": {
+      "source": "account",
+      "name": "Meme Overs",
+      "handle": "memeovers",
+      "avatarText": "M",
+      "label": "Meme Overs · cricket memes",
+      "caption": "16-year-old walks into MI nets and CHARGES Jasprit Bumrah on ball four. Misses it by a postcode but bro the AUDACITY 💀🔥 (clip via nets cam)",
+      "reactions": [
+       {
+        "char": "surya",
+        "text": "The intent on that shot was A+, champ. The ball just read your plan first 😄"
+       },
+       {
+        "char": "hardik",
+        "text": "The intent is there. When's the control showing up?"
+       },
+       {
+        "char": "__fan",
+        "name": "paltanpulse",
+        "text": "Charging Bumrah in your FIRST net session. This kid fears nothing and maybe should 😭"
+       }
+      ],
+      "imageUrl": "/generated/cricket-posts/cr-s8-mipaltan.png"
+     }
+    }
+   ],
+   "feedReaction": {
+    "A": {
+     "account": {
+      "name": "Paltan Pulse",
+      "handle": "paltanpulse",
+      "avatarText": "P"
+     },
+     "caption": "Nets update: new kid got beaten 3 times by Boom — and then ASKED what he missed. All the seniors were watching. That's the stuff that never shows up on a scorecard 💙",
+     "imageUrl": "/generated/cricket-posts/cr2-s2-fan.png"
+    },
+    "B": {
+     "char": "friend",
+     "caption": "Bro charged BUMRAH on day one. Legend or clown — we'll know tomorrow 😭"
+    }
+   }
+  },
+  {
+   "id": "CR2-S3",
+   "day": 2,
+   "slot": "Evening",
+   "tag": "⚡ MEDIA ROOM · EVENING",
+   "title": "First Press Conference",
+   "body": [
+    "First official press conference — 11 mics, sponsor board, Naman Dhir right next to you: same age, same lane, only one spot in the XI.",
+    "The first question lands straight on your chest: \"Do you deserve a place in MI’s XI this season?\" Whatever you say becomes a clip."
+   ],
+   "q": "The camera's on. What do you say?",
+   "reader": [
+    {
+     "t": "nar",
+     "text": "MI media room. Ring lights, sponsor boards, 11 mics — and a placard with your name in the middle. First press conference of your life."
+    },
+    {
+     "t": "img",
+     "src": "/generated/cricket-posts/cr2-s3-feed.png",
+     "h": 210
+    },
+    {
+     "t": "nar",
+     "text": "Next to you: Naman Dhir. Same age, same middle-order lane. 2 names, 1 spot in the XI."
+    },
+    {
+     "t": "cue",
+     "who": "Naman",
+     "avatar": "/avatars/naman.png",
+     "text": "Nervous? I was too. Free advice — don’t become the headline."
+    },
+    {
+     "t": "nar",
+     "when": {
+      "flag": {
+       "key": "hypeRisk",
+       "gte": 1
+      }
+     },
+     "text": "In the front row, a reporter’s phone is playing your clip. The question’s been loaded since last night."
+    },
+    {
+     "t": "nar",
+     "text": "First question, straight to the chest: \"16 years old. Sold for crores. Do you deserve a spot in MI’s XI?\""
+    },
+    {
+     "t": "nar",
+     "big": true,
+     "text": "The next 30 seconds will become clips. You write the headline — or the headline writes you?"
+    }
+   ],
+   "choices": [
+    {
+     "t": "Give the team-first answer",
+     "s": "\"I’m here to learn. Whatever role the team gives me, I’ll do it.\" Boring, but bulletproof.",
+     "deltas": {
+      "form": 1,
+      "fame": 1
+     },
+     "relationshipDeltas": {
+      "hardik": 3,
+      "mahela": 2
+     },
+     "dm": [
+      {
+       "char": "hardik",
+       "text": "Saw the presser. Good. No headline."
+      },
+      {
+       "char": "hardik",
+       "text": "Let the bat make noise, keep it straight on the mic — that’s how we do it. We’ll talk role soon. Be ready."
+      }
+     ]
+    },
+    {
+     "t": "Give them a headline",
+     "s": "\"I came for the XI, not to wait around.\" If confidence is the product, sell it.",
+     "deltas": {
+      "fame": 4
+     },
+     "relationshipDeltas": {
+      "hardik": -3,
+      "rohit": -1,
+      "naman": -2
+     },
+     "flagDeltas": {
+      "pressCocky": 1,
+      "hypeRisk": 1
+     },
+     "post": [
+      {
+       "source": "account",
+       "name": "Paltan Pulse",
+       "handle": "paltanpulse",
+       "avatarText": "P",
+       "label": "Paltan Pulse · fan page",
+       "caption": "\"I CAME FOR THE XI, NOT TO WAIT AROUND.\" — 16-year-old confidence or a 16-year-old mistake? Clip: 200k views in 40 minutes and counting 🔥",
+       "reactions": [
+        {
+         "char": "__fan",
+         "name": "memeovers",
+         "text": "the kid really said that sitting NEXT to the guy fighting for the same spot 💀"
+        },
+        {
+         "char": "naman",
+         "text": "Bold. See you in the dressing room. 🙂"
+        },
+        {
+         "char": "__fan",
+         "name": "cricketroom_india",
+         "text": "Confidence sells, but the middle-order slot gets decided on a whiteboard, not in a soundbite."
+        }
+       ],
+       "imageUrl": "/generated/cricket-posts/cr-s24-mipaltan.png"
+      },
+      {
+       "source": "character",
+       "char": "naman",
+       "caption": "There’s 1 slot. The work will speak. 🏏",
+       "reactions": [
+        {
+         "char": "__fan",
+         "name": "futurexi",
+         "text": "Naman Dhir with the quiet response to today’s presser. Two kids, one spot — this subplot is the season."
+        }
+       ],
+       "comments": [
+        {
+         "text": "Facts. Whoever plays, MI wins. 🤝",
+         "deltas": {},
+         "relationshipDeltas": {
+          "naman": 3
+         },
+         "toast": "Naman saved the screenshot. Bond +3"
+        },
+        {
+         "text": "Fair. See you in the nets, bro. 🏏",
+         "deltas": {
+          "fame": 1
+         },
+         "relationshipDeltas": {
+          "naman": 1
+         },
+         "toast": "Respect noted. Naman +1, Fame +1"
+        },
+        {
+         "text": "The work will speak. Mine. 😏",
+         "deltas": {
+          "fame": 2
+         },
+         "relationshipDeltas": {
+          "naman": -3
+         },
+         "toast": "The screenshot’s already making the rounds. Naman −3, Fame +2"
+        }
+       ],
+       "imageUrl": "/generated/cricket-posts/cr-s4-player.png"
+      }
+     ]
+    }
+   ],
+   "feedReaction": {
+    "A": {
+     "char": "naman",
+     "caption": "There were 2 new names in the press room today. There’s 1 slot. The work will speak. 🤝",
+     "imageUrl": "/generated/cricket-posts/cr-s2-paltanpulse.png"
+    },
+    "B": {
+     "char": "friend",
+     "caption": "Bro really cut a full WWE promo in one presser 😭 Have you even thought about what your mom’s gonna say when she sees the clip?"
+    }
+   }
+  },
+  {
+   "id": "CR2-S4",
+   "day": 3,
+   "slot": "Night",
+   "tag": "⚡ TEAM MEETING · NIGHT",
+   "title": "Hardik’s Question",
+   "body": [
+    "After the meeting, Hardik signals you to stay. Mahela at the table, sheet in front of him. \"Your first shot won’t be opening. No.5, maybe No.6. Maybe just 28 off 15. You ready?\"",
+    "You’ve played top order your whole life. The captain isn’t listening for an answer — he’s listening to how you answer."
+   ],
+   "q": "What do you say to Hardik?",
+   "reader": [
+    {
+     "t": "nar",
+     "text": "Team hotel, 9:30 p.m. No playing XI on the whiteboard—just matchups: left-arm spin, death overs, powerplay, impact sub. Names come later here. Job comes first."
+    },
+    {
+     "t": "img",
+     "src": "/generated/cricket-posts/cr2-s4-role.png",
+     "h": 210
+    },
+    {
+     "t": "nar",
+     "text": "Meeting's over. Hardik signals: {name}, stay. Mahela opens a sheet on the table in front of you. This isn't casual."
+    },
+    {
+     "t": "cue",
+     "who": "Hardik",
+     "avatar": "/avatars/hardik.png",
+     "when": {
+      "flag": {
+       "key": "pressCocky",
+       "gte": 1
+      }
+     },
+     "text": "You gave them the headline in the presser. Now I'm asking—who's the player behind the headline?"
+    },
+    {
+     "t": "cue",
+     "who": "Hardik",
+     "avatar": "/avatars/hardik.png",
+     "text": "Your first shot won't be at the top—like it's always been. No. 5, maybe No. 6. Maybe just 28 off 15—not a fifty, not a highlight reel. You ready for that?"
+    },
+    {
+     "t": "nar",
+     "big": true,
+     "text": "You've batted top order your whole life. The captain doesn't want an answer—he wants to know your mindset."
+    }
+   ],
+   "choices": [
+    {
+     "t": "Accept the role — \"Wherever you want me, that's where I'll play.\"",
+     "s": "If MI needs a role, give them the role. That's where a captain's trust gets built.",
+     "deltas": {
+      "form": 1
+     },
+     "relationshipDeltas": {
+      "hardik": 5,
+      "mahela": 2,
+      "tilak": 1
+     },
+     "flagDeltas": {
+      "roleAcceptance": 1
+     },
+     "dm": [
+      {
+       "char": "hardik",
+       "text": "Good answer. Wasn't vague."
+      },
+      {
+       "char": "hardik",
+       "text": "When the chance comes, I need flexibility—not explanations. Keep the role clear, keep your head cool."
+      }
+     ]
+    },
+    {
+     "t": "Ask to open — make your case",
+     "s": "You know your game. If you won't say it, who will?",
+     "deltas": {
+      "fame": 2
+     },
+     "relationshipDeltas": {
+      "hardik": -4,
+      "rohit": -1,
+      "naman": -1
+     },
+     "post": {
+      "source": "account",
+      "name": "Future XI",
+      "handle": "futurexi",
+      "avatarText": "F",
+      "label": "Future XI · prospects",
+      "caption": "Inside scoop: MI's teenage buy wants top order—told the leadership his best use is in the powerplay. Bold ask from a kid who hasn't faced ball one in the IPL. 👀",
+      "reactions": [
+       {
+        "char": "rohit",
+        "text": "If you want to be an opener, wait. If you want to be a player, adapt."
+       },
+       {
+        "char": "__fan",
+        "name": "paltanpulse",
+        "text": "Honestly?? Let the kid open. Why buy a prodigy and hide him at 6?"
+       },
+       {
+        "char": "__fan",
+        "name": "memeovers",
+        "text": "day 3: asks the captain for the opening slot. day 4 prediction: asks for the captaincy 💀"
+       }
+      ],
+      "imageUrl": "/generated/cricket-posts/cr-s14-mipaltan.png"
+     }
+    }
+   ],
+   "feedReaction": {
+    "A": {
+     "char": "mahela",
+     "caption": "Young players who understand roles go further, faster. Wrote that in a notebook in 2006. Still true."
+    },
+    "B": {
+     "char": "friend",
+     "caption": "Bro, you asked HARDIK PANDYA to open. Built different. Terrifyingly different 😭"
+    }
+   }
+  },
+  {
+   "id": "CR2-S5",
+   "day": 4,
+   "slot": "Morning",
+   "tag": "⚡ TEAM SHEET · MORNING",
+   "title": "Team Sheet",
+   "body": [
+    "9:04 a.m. — team sheet at the door. Your name at No. 5. Wankhede tonight. IPL debut at 16.",
+    "Below that: 12th man — Naman Dhir. He’s in the corridor, and he still hasn’t seen the sheet."
+   ],
+   "q": "Who's gonna tell Naman—you, or the sheet?",
+   "reader": [
+    {
+     "t": "nar",
+     "text": "9:04 a.m. Team sheet at the door. You don't have to search for your name—it's there. No. 5: {name}. 16 years old. Tomorrow night. Wankhede. IPL debut."
+    },
+    {
+     "t": "img",
+     "src": "/generated/cricket-posts/cr2-s5-sheet.png",
+     "h": 210
+    },
+    {
+     "t": "cue",
+     "who": "Surya",
+     "avatar": "/avatars/surya.png",
+     "text": "Your name made the sheet, and now sleep's gone 😄 Welcome to the best insomnia in the world, champ."
+    },
+    {
+     "t": "nar",
+     "text": "Below that: 12th man — Naman Dhir. He's in the corridor, on his phone—hasn't seen the sheet yet. You've got a draft ready in your phone. He's got nothing."
+    },
+    {
+     "t": "nar",
+     "when": {
+      "flag": {
+       "key": "pressCocky",
+       "gte": 1
+      }
+     },
+     "text": "\"Slot 1 is mine. My game will do the talking.\" — remember his post? You got the slot. Now there's just a 12-step corridor left."
+    },
+    {
+     "t": "nar",
+     "big": true,
+     "text": "Debut in 24 hours, and your first decision isn't with the bat—it's about the guy who wanted your spot. Who's telling him—you, or the sheet?"
+    }
+   ],
+   "choices": [
+    {
+     "t": "Go tell him yourself — straight up, eye to eye",
+     "s": "He deserves to hear it from you, not a notification.",
+     "deltas": {
+      "form": 1
+     },
+     "relationshipDeltas": {
+      "naman": 3,
+      "hardik": 1
+     },
+     "dm": [
+      {
+       "char": "naman",
+       "text": "You came to tell me yourself. Before the sheet went up."
+      },
+      {
+       "char": "naman",
+       "text": "I'm jealous, obviously. But I'll remember this. However many overs you get tomorrow night, I'll still be the one bringing drinks—now go win us the match. 🏏"
+      }
+     ]
+    },
+    {
+     "t": "Post a \"DEBUT LOADING\" story",
+     "s": "This moment is yours. The world should know right now.",
+     "deltas": {
+      "fame": 3
+     },
+     "relationshipDeltas": {
+      "hardik": -2,
+      "naman": -2
+     },
+     "flagDeltas": {
+      "hypeRisk": 1
+     },
+     "postTag": "TEAM SHEET",
+     "postWhy": "The team sheet is still on the door — the world doesn’t know yet. Will the first post be yours, or some leak’s? You only get one debut announcement in a lifetime.",
+     "post": {
+      "source": "player",
+      "caption": "DEBUT LOADING. 🔒🏏 Tomorrow night. Wankhede. Blue jersey, my number. The dream finally has a date. 💙",
+      "reactions": [
+       {
+        "char": "__fan",
+        "name": "paltanpulse",
+        "text": "IT'S HAPPENING. THE KID DEBUTS TOMORROW AT WANKHEDE. If you’ve got tickets, you’re lucky 🔥"
+       },
+       {
+        "char": "naman",
+        "text": "Congrats. 🙂"
+       },
+       {
+        "char": "hardik",
+        "text": "The sheet stays in-house till the media manager says otherwise. Remember that."
+       }
+      ],
+      "imageUrl": "/generated/cricket-posts/cr-s7-player.png"
+     }
+    }
+   ],
+   "variants": [
+    {
+     "when": {
+      "lifeline": true
+     },
+     "title": "My call. He plays.",
+     "tag": "⚡ SELECTION ROOM · MORNING",
+     "q": "How do you answer the captain’s bet on you?",
+     "reader": [
+      {
+       "t": "nar",
+       "text": "9:04 a.m. The sheet still isn’t up — you’ve been called to the selection table. In front of Mahela: a printout of your nets numbers from the week."
+      },
+      {
+       "t": "img",
+       "src": "/generated/cricket-posts/cr2-s5-selection.png",
+       "h": 210
+      },
+      {
+       "t": "cue",
+       "who": "Mahela",
+       "avatar": "/avatars/mahela.png",
+       "text": "The numbers are honest — borderline. This week, your name maybe doesn’t make the sheet. That’s what the paper says."
+      },
+      {
+       "t": "cue",
+       "who": "Hardik",
+       "avatar": "/avatars/hardik.png",
+       "text": "I’ve read the numbers too. He still plays. My call, my responsibility."
+      },
+      {
+       "t": "nar",
+       "text": "Silence. Mahela holds the stare a beat longer — then the pen moves. No.5 — {name}. The ink is still wet."
+      },
+      {
+       "t": "nar",
+       "big": true,
+       "text": "The captain just put his name behind yours — tomorrow, your debut and his judgment both walk out to bat. How do you answer that?"
+      }
+     ],
+     "choices": [
+      {
+       "t": "Private promise — meet Hardik alone",
+       "s": "This stays in the room, not on the internet.",
+       "deltas": {
+        "form": 1
+       },
+       "relationshipDeltas": {
+        "hardik": 3
+       },
+       "flagDeltas": {
+        "lifelineOwed": 1
+       },
+       "dm": [
+        {
+         "char": "hardik",
+         "text": "You came. Good."
+        },
+        {
+         "char": "hardik",
+         "text": "Listen — this isn’t charity. I saw what the sheet doesn’t. Tomorrow, show them. And this stays between us."
+        }
+       ]
+      },
+      {
+       "t": "Public thank-you post",
+       "s": "The captain showed faith — the world should see it.",
+       "deltas": {
+        "fame": 2
+       },
+       "relationshipDeltas": {
+        "hardik": -1
+       },
+       "postTag": "CAPTAIN'S CALL",
+       "postWhy": "The captain bet on you against the numbers. If the thank-you post goes out now, the whole Paltan will see it — but what happened in the selection room goes public too.",
+       "post": {
+        "source": "player",
+        "caption": "When the numbers didn’t speak, the captain did. @hardikpandya93 — tomorrow night is for this faith. 🙏💙 #Debut",
+        "reactions": [
+         {
+          "char": "__fan",
+          "name": "cricketroom_india",
+          "text": "Interesting reveal — the captain overruled the sheet for the debutant. Bold. But now every dot ball gets audited."
+         },
+         {
+          "char": "__fan",
+          "name": "memeovers",
+          "text": "bro thanked the captain for selection BEFORE even playing 💀 speedrun any% pressure"
+         },
+         {
+          "char": "hardik",
+          "text": "Say thanks after the match."
+         }
+        ],
+        "imageUrl": "/generated/cricket-posts/cr-s2-mumbaiindians.png"
+       }
+      }
+     ]
+    },
+    {
+     "when": {
+      "benched": true
+     },
+     "title": "Orange Bib",
+     "tag": "⚡ ORANGE BIB · MORNING",
+     "q": "Day one on the bench — how do you win it?",
+     "reader": [
+      {
+       "t": "nar",
+       "text": "9:04 a.m. The sheet’s on the door. You read it 3 times — your name isn’t there. No.5: Naman Dhir. You’re not even 12th man — orange bib, drinks duty."
+      },
+      {
+       "t": "img",
+       "src": "/generated/cricket-posts/cr2-s5-benched.png",
+       "h": 210
+      },
+      {
+       "t": "cue",
+       "who": "Tilak",
+       "avatar": "/avatars/tilak.png",
+       "text": "Tomorrow you'll be looking at the Wankhede lights from beyond the rope — that first sheet hits hardest when your name's not on it. I spent 2 years in a bib. The way back runs through the ground, not the timeline."
+      },
+      {
+       "t": "nar",
+       "text": "Phone buzzes. Paltan Pulse just posted: \"WHERE IS THE KID?? MI buys a prodigy and BENCHES him?? #JusticeFor{name}\" — 8k likes and climbing."
+      },
+      {
+       "t": "nar",
+       "when": {
+        "flag": {
+         "key": "pressCocky",
+         "gte": 1
+        }
+       },
+       "text": "\"I came for the XI, not to wait\" — the clip's doing the rounds again today. New caption: \"Saw the XI. From the bench.\""
+      },
+      {
+       "t": "nar",
+       "big": true,
+       "text": "There are 2 roads from the bench — 1 through the ground, 1 through the timeline. Only 1 gets you back to the XI: which one are you taking?"
+      }
+     ],
+     "choices": [
+      {
+       "t": "Orange bib, fully involved",
+       "s": "Drinks, throwdowns, boundary drills — the room notices who stays locked in and who sulks.",
+       "deltas": {
+        "form": 2
+       },
+       "relationshipDeltas": {
+        "hardik": 3,
+        "tilak": 1
+       },
+       "dm": [
+        {
+         "char": "tilak",
+         "text": "Saw you in drills today. Bib on, still fully switched on. You were even giving Naman throwdowns."
+        },
+        {
+         "char": "tilak",
+         "text": "One thing you should know — Hardik watches the bench most when he thinks no one's looking. Today, he looked. The road back starts here. 🤝"
+        }
+       ]
+      },
+      {
+       "t": "Like the outrage posts",
+       "s": "The fans aren't exactly wrong. A double tap isn't a crime... is it?",
+       "deltas": {
+        "fame": 3
+       },
+       "relationshipDeltas": {
+        "hardik": -4
+       },
+       "flagDeltas": {
+        "likedOutrage": 1
+       },
+       "post": {
+        "source": "account",
+        "name": "Paltan Pulse",
+        "handle": "paltanpulse",
+        "avatarText": "P",
+        "label": "Paltan Pulse · fan page",
+        "caption": "🚨 CONFIRMED: the kid himself has LIKED our benching post. He KNOWS he should be playing. MI management, care to explain?? #JusticeFor{name}",
+        "reactions": [
+         {
+          "char": "__fan",
+          "name": "memeovers",
+          "text": "liked at 9:17am, sheet went up at 9:04. caught in 4k in 13 minutes 💀"
+         },
+         {
+          "char": "hardik",
+          "text": "Even liked posts make it back to the sheet. FYI."
+         },
+         {
+          "char": "__fan",
+          "name": "cricketroom_india",
+          "text": "A 16-year-old backing fan outrage over his own team’s selection. The talent was never the question. This is."
+         }
+        ]
+       }
+      }
+     ]
+    }
+   ],
+   "feedReaction": {
+    "A": {
+     "char": "tilak",
+     "caption": "Sheet day tells you the most — not by the name, by the reaction. I made note of a few reactions today. 🤝"
+    },
+    "B": {
+     "char": "friend",
+     "caption": "Bro I was supposed to send you the sheet screenshot on WhatsApp, NOT INSTAGRAM 😭 call me RIGHT NOW"
+    }
+   }
+  },
+  {
+   "id": "CR2-S6",
+   "day": 5,
+   "slot": "Morning",
+   "tag": "⚡ MATCHDAY · MORNING",
+   "title": "Debut Morning",
+   "body": [
+    "Debut day. You woke up 2 minutes before the alarm, kit bag packed since last night, 61 unread on your phone — everyone saying the same thing: today’s the day.",
+    "Team bus at 9. Coach Sir’s text from last night: 'Shadow practice. 20 minutes. Don’t bring your phone.'"
+   ],
+   "q": "Where do the 3 hours before your debut go?",
+   "reader": [
+    {
+     "t": "nar",
+     "text": "6:58 a.m., eyes open 2 minutes before the alarm. Marine Drive is half asleep — and tonight your name's on the team sheet."
+    },
+    {
+     "t": "img",
+     "src": "/generated/cricket-posts/cr-s17-player.png",
+     "h": 210
+    },
+    {
+     "t": "cue",
+     "who": "Rohit Sharma",
+     "avatar": "/avatars/rohit.png",
+     "text": "Nervous? Good. Means you get what today is."
+    },
+    {
+     "t": "cue",
+     "who": "Rohit Sharma",
+     "avatar": "/avatars/rohit.png",
+     "when": {
+      "flag": {
+       "key": "pressCocky",
+       "gte": 1
+      }
+     },
+     "text": "That presser headline? Tonight the ball reads that. Answer with the bat."
+    },
+    {
+     "t": "nar",
+     "text": "61 unread on your phone — all of Mumbai is saying your name. Coach's message: 'Shadow practice. 20 minutes. Don't bring your phone.'"
+    },
+    {
+     "t": "nar",
+     "big": true,
+     "text": "The 3 hours before your debut are yours alone. Who do you give them to — the game, or the name?"
+    }
+   ],
+   "choices": [
+    {
+     "t": "Lock into the routine — phone off, shadow practice",
+     "s": "Coach's 20-minute ritual. Game first, noise later.",
+     "deltas": {
+      "form": 2
+     },
+     "relationshipDeltas": {
+      "coach": 2
+     },
+     "flagDeltas": {
+      "homeGrounding": 1
+     },
+     "dm": [
+      {
+       "char": "coach",
+       "text": "Don't send me the video, beta. I know you did it. I can tell from the sound."
+      },
+      {
+       "char": "coach",
+       "text": "Today, just three jobs: watch the first ball. Watch the second ball. Watch the third ball. Wankhede will handle the rest."
+      },
+      {
+       "char": "coach",
+       "text": "And when they announce your name—pause for a second and really hear it. That second never comes twice."
+      }
+     ]
+    },
+    {
+     "t": "Open your timeline — soak in the hype",
+     "s": "All of Mumbai is saying your name. At least hear it once.",
+     "deltas": {
+      "fame": 2,
+      "form": -2
+     },
+     "flagDeltas": {
+      "hypeRisk": 1
+     },
+     "post": {
+      "source": "account",
+      "name": "Paltan Pulse",
+      "handle": "paltanpulse",
+      "label": "Paltan Pulse · fan page",
+      "caption": "DEBUT DAY 🚨 {name} tonight at Wankhede. 16 years old. From auction to team sheet — 3 weeks. Paltan, watch history tonight. 💙",
+      "reactions": [
+       {
+        "char": "__fan",
+        "name": "futurexi",
+        "text": "Youngest MI debutant watchlist officially activated. Tonight matters."
+       },
+       {
+        "char": "__fan",
+        "name": "memeovers",
+        "text": "kid's reposting fan edits at 8am on debut day. confidence or chaos, we find out tonight 😭"
+       },
+       {
+        "char": "friend",
+        "text": "BRO STOP LIKING EDITS AND GO PRACTICE. love you. GO."
+       }
+      ],
+      "imageUrl": "/generated/cricket-posts/cr-s13-friend.png"
+     }
+    }
+   ],
+   "feedReaction": {
+    "A": {
+     "char": "coach",
+     "caption": "On matchday, the loudest thing should be your routine. Everything else is just volume."
+    },
+    "B": {
+     "char": "friend",
+     "caption": "Bro is trending and I still have to take a chemistry test. Life is unfair 😭 #DebutDay"
+    }
+   },
+   "variants": [
+    {
+     "when": {
+      "benched": true
+     },
+     "title": "12th Man",
+     "tag": "⚡ 12TH MAN · MORNING",
+     "q": "What are you on Naman's debut day?",
+     "reader": [
+      {
+       "t": "nar",
+       "text": "7 a.m. Team sheet pinned — 11 names, not yours. 12th man: drinks, towels, throw-downs."
+      },
+      {
+       "t": "img",
+       "src": "/generated/cricket-posts/cr-s9-shared.png",
+       "h": 210
+      },
+      {
+       "t": "nar",
+       "text": "The name in your spot: Naman Dhir. The debut cap tonight goes to him — the same cap you dreamed about."
+      },
+      {
+       "t": "cue",
+       "who": "Naman Dhir",
+       "avatar": "/avatars/naman.png",
+       "text": "Bro… I don't even know what to say. This was my dream too. Just never thought it'd come true in front of you."
+      },
+      {
+       "t": "cue",
+       "who": "Tilak Varma",
+       "avatar": "/avatars/tilak.png",
+       "text": "How a player looks on the bench — people notice that before they notice the XI. Everyone's watching. All the time."
+      },
+      {
+       "t": "nar",
+       "big": true,
+       "text": "There's guilt in Naman's voice, and something else in your gut. Today is his day — what do you do with yours?"
+      }
+     ],
+     "choices": [
+      {
+       "t": "Give Naman throw-downs",
+       "s": "His debut, your hand. The room remembers this.",
+       "deltas": {
+        "form": 1
+       },
+       "relationshipDeltas": {
+        "naman": 4,
+        "hardik": 2,
+        "tilak": 1
+       },
+       "dm": [
+        {
+         "char": "naman",
+         "text": "Bro. You gave me throw-downs for forty minutes. For my debut. In the spot that should've been yours."
+        },
+        {
+         "char": "naman",
+         "text": "I'll never forget this. Ever."
+        },
+        {
+         "char": "naman",
+         "text": "Whatever happens tonight — this cap is a little bit yours too. 💙"
+        }
+       ]
+      },
+      {
+       "t": "Post your edit — mid-match",
+       "s": "So what if your name's not on the sheet. It's still on the timeline.",
+       "deltas": {
+        "fame": 3
+       },
+       "relationshipDeltas": {
+        "hardik": -3,
+        "naman": -2
+       },
+       "post": {
+        "source": "player",
+        "caption": "My name's not on the sheet. It's on the story. This chapter will get written too. 🔒💙 #Patience",
+        "reactions": [
+         {
+          "char": "__fan",
+          "name": "cricketroom_india",
+          "text": "Naman Dhir's debut night, and the benched kid posts a self-edit mid-match. Optics is a skill too. Developing."
+         },
+         {
+          "char": "__fan",
+          "name": "memeovers",
+          "text": "bro really said 'main character energy' during someone else's debut 💀"
+         },
+         {
+          "char": "__fan",
+          "name": "paltanpulse",
+          "text": "we love the kid but… not tonight, man. not tonight."
+         }
+        ],
+        "imageUrl": "/generated/cricket-posts/cr-s15-player.png"
+       },
+       "postTag": "APNI STORY",
+       "postWhy": "Someone else is making their debut and you're out here posting your own edit. Everyone's gonna see it — and everyone's gonna remember when you posted it."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "CR2-S7",
+   "day": 5,
+   "slot": "Night",
+   "tag": "⚡ WANKHEDE LIGHTS · NIGHT",
+   "title": "First Ball",
+   "body": [
+    "Wankhede packed. Chasing 178, MI are 39/2 — and you're heading down the steps with one line from Mahela in your ear: 'No. 5. Play your game.'",
+    "Up front: Noor Ahmad's wrist spin. At the death: Pathirana waiting. Your first IPL ball is about to leave your hand."
+   ],
+   "q": "How do you build this knock?",
+   "reader": [
+    {
+     "t": "nar",
+     "text": "Wankhede packed. CSK put up 178, MI 39/2 — Rohit gone, Tilak gone. Mahela has one line: 'No.5. Play your game.' 139 needed off 84."
+    },
+    {
+     "t": "img",
+     "src": "/generated/cricket-posts/cr2-s7-debut.png",
+     "h": 210
+    },
+    {
+     "t": "nar",
+     "when": {
+      "lifeline": true
+     },
+     "text": "Only you know this: you're in this XI because the captain insisted. Tonight, his name's on the line too."
+    },
+    {
+     "t": "cue",
+     "who": "Hardik Pandya",
+     "avatar": "/avatars/hardik.png",
+     "text": "Forget the scoreboard. Go over by over. I'll meet you at the other end."
+    },
+    {
+     "t": "nar",
+     "when": {
+      "flag": {
+       "key": "roleAcceptance",
+       "gte": 1
+      }
+     },
+     "text": "No.5 — the role the captain gave you, and you said yes to. You know what the job is here."
+    },
+    {
+     "t": "nar",
+     "big": true,
+     "text": "Noor Ahmad's googly in front of you, Pathirana at the death, long-on and deep midwicket back. Your first IPL ball is coming — how do you play it?"
+    }
+   ],
+   "choices": [
+    {
+     "t": "Build the chase — find the gaps, run twos, then cash in with boundaries",
+     "s": "The moment's big. The ball isn't. One at a time.",
+     "deltas": {
+      "form": 3,
+      "fame": 1
+     },
+     "relationshipDeltas": {
+      "hardik": 4,
+      "rohit": 2
+     },
+     "runWrite": "debut",
+     "outcomeGate": {
+      "metric": "form",
+      "threshold": 44,
+      "assists": [
+       {
+        "charId": "bumrah",
+        "min": 34,
+        "thresholdDelta": -4
+       }
+      ],
+      "pass": {
+       "title": "47 OFF 29",
+       "note": "Form beat the nerves. He played Noor's googly for ones and twos, then picked Pathirana's slower ball right out of the hand — release point, exactly the way he'd been taught. 19 off his last 2 overs. MI won, and Wankhede remembered the name.",
+       "post": {
+        "source": "account",
+        "name": "MI Paltan",
+        "handle": "mipaltan",
+        "label": "MI Paltan · just now",
+        "surface": "scorecard",
+        "caption": "DEBUT: {name} 47 (29). From 39/2 to the win — a 16-year-old grabbed the chase with both hands and took it home. 19 off Pathirana's last 2 overs. MI win by 5 wickets. 💙",
+        "reactions": [
+         {
+          "char": "hardik",
+          "text": "I asked about the role once. Got the answer today."
+         },
+         {
+          "char": "rohit",
+          "text": "Tempo. That's the word. Zero panic."
+         },
+         {
+          "char": "__fan",
+          "name": "cricketroom_india",
+          "text": "Picked the slower ball out of the hand on debut. Someone in that dressing room taught this kid something very specific."
+         }
+        ],
+        "imageUrl": "/generated/cricket-posts/cr-s18-shared.png"
+       }
+      },
+      "fail": {
+       "title": "9 OFF 11",
+       "note": "Didn't pick Pathirana's slower ball from the hand — just hit air. Deep midwicket didn't even have to move. 9 (11). Wankhede went quiet for a second — then announced the next name.",
+       "dm": [
+        {
+         "char": "rohit",
+         "text": "It happens. Learn fast."
+        },
+        {
+         "char": "rohit",
+         "text": "You read the slower ball from the hand, not the pitch. Nets tomorrow, 7 a.m. I'll be there."
+        }
+       ]
+      }
+     }
+    },
+    {
+     "t": "Counter-attack — make the statement from ball one",
+     "s": "Wankhede should remember you were here.",
+     "deltas": {
+      "form": 1,
+      "fame": 3
+     },
+     "relationshipDeltas": {
+      "surya": 2,
+      "hardik": 1
+     },
+     "flagDeltas": {
+      "hypeRisk": 1
+     },
+     "runWrite": "debut",
+     "outcomeGate": {
+      "metric": "form",
+      "threshold": 44,
+      "assists": [
+       {
+        "charId": "bumrah",
+        "min": 34,
+        "thresholdDelta": -4
+       }
+      ],
+      "pass": {
+       "title": "38 OFF 16",
+       "note": "The timing was there, so the madness turned into a plan. Noor's googly got lofted inside-out — a total SKY kind of shot. 38 (16), the stadium on its feet, and the commentary box had to ask how to spell the name.",
+       "post": {
+        "source": "account",
+        "name": "MI Paltan",
+        "handle": "mipaltan",
+        "label": "MI Paltan · just now",
+        "surface": "scorecard",
+        "caption": "38 off 16. ON DEBUT. {name} made Wankhede feel like home on night one. That inside-out off Noor Ahmad’s googly — people will be replaying that for weeks. 💙🔥",
+        "reactions": [
+         {
+          "char": "surya",
+          "text": "Read the field, then made them look stupid. Correct order 😄"
+         },
+         {
+          "char": "hardik",
+          "text": "The crowd loved the shot. I loved the timing."
+         },
+         {
+          "char": "__fan",
+          "name": "paltanpulse",
+          "text": "THE KID IS A CHEAT CODE. WANKHEDE HAS A NEW SOUND."
+         }
+        ],
+        "imageUrl": "/generated/cricket-posts/cr-s8-player.png"
+       }
+      },
+      "fail": {
+       "title": "2 OFF 3",
+       "note": "Same shot on the third ball — no base under it. Long-on didn’t even need one step. 2 (3). Tonight’s highlight is just one thing, and it’s your wicket.",
+       "dm": [
+        {
+         "char": "surya",
+         "text": "The intent was there. The base wasn’t."
+        },
+        {
+         "char": "surya",
+         "text": "Listen, champ — there’s only one ball between fearless and careless. Tomorrow in the nets, I’ll teach you the difference."
+        }
+       ]
+      }
+     }
+    }
+   ],
+   "feedReaction": {
+    "A": {
+     "char": "rohit",
+     "caption": "The first night isn’t everything. But what shows up on the first night is never a lie."
+    },
+    "B": {
+     "char": "friend",
+     "caption": "Bro’s first MI matchday was today. I’m still not normal. Might never be."
+    }
+   },
+   "variants": [
+    {
+     "when": {
+      "benched": true
+     },
+     "title": "From the Dugout",
+     "tag": "⚡ DUGOUT · NIGHT",
+     "q": "When the captain scans the dugout — what are you doing?",
+     "reader": [
+      {
+       "t": "nar",
+       "text": "Wankhede packed. You’re in the orange bib, drinks tray in hand. Naman’s padded up at No.6 — his first night."
+      },
+      {
+       "t": "img",
+       "src": "/generated/cricket-posts/cr-s27-player.png",
+       "h": 210
+      },
+      {
+       "t": "nar",
+       "text": "CSK’s 178. MI from 71/3 to 98/6 — the chase is slipping, with 2 Pathirana overs still left. Hardik scans the dugout: 1 impact slot remains."
+      },
+      {
+       "t": "cue",
+       "who": "Mahela Jayawardene",
+       "avatar": "/avatars/mahela.png",
+       "text": "The impact call belongs to the captain. In that second, he’s not looking at form — he’s looking at who’s ready."
+      },
+      {
+       "t": "nar",
+       "text": "His eyes stop on you — just for 1 second. Tilak beside you, silent. Tray in your hand — and 1 decision."
+      },
+      {
+       "t": "nar",
+       "big": true,
+       "text": "The call will come in 5 minutes — and whatever you’re doing right now is the data for it. What are you doing?"
+      }
+     ],
+     "choices": [
+      {
+       "t": "Pad up — stay switched on",
+       "s": "Whether he calls you or not — the player who looks ready is the one who got ready early.",
+       "deltas": {
+        "form": 2
+       },
+       "relationshipDeltas": {
+        "hardik": 2,
+        "tilak": 1
+       },
+       "runWrite": "debut",
+       "outcomeGate": {
+        "metric": "charTrust",
+        "charId": "hardik",
+        "threshold": 46,
+        "pass": {
+         "title": "IMPACT SUB — 14* (8)",
+         "note": "The captain lifted a hand: 'Kid. Pads.' A 2-over cameo — 2 boundaries off Pathirana, and in the last over they only needed 6 instead of 11. 14* off 8. Small number, big statement: when he looked, you were ready.",
+         "post": {
+          "source": "account",
+          "name": "MI Paltan",
+          "handle": "mipaltan",
+          "label": "MI Paltan · just now",
+          "surface": "scorecard",
+          "caption": "IMPACT: {name} 14* (8) as sub. Almost dragged them back from a lost position. A 16-year-old took on Pathirana in the death overs like the slot had been booked for him all along. 💙",
+          "reactions": [
+           {
+            "char": "hardik",
+            "text": "He was ready. That’s why I sent him. Simple."
+           },
+           {
+            "char": "tilak",
+            "text": "I saw it from the dugout. He was ready before the call even came. That’s the thing."
+           },
+           {
+            "char": "__fan",
+            "name": "paltanpulse",
+            "text": "CAME OFF THE BENCH AND TOOK ON PATHIRANA. protect this kid at all costs."
+           }
+          ],
+          "imageUrl": "/generated/cricket-posts/cr-s29-mipaltan.png"
+         }
+        },
+        "fail": {
+         "title": "NO CALL CAME",
+         "note": "Hardik’s eyes passed over you — didn’t stop. The impact slot went to someone else. The captain’s trust hasn’t reached your name yet. You stayed padded up all night.",
+         "dm": [
+          {
+           "char": "tilak",
+           "text": "Yeah, I saw. You were sitting there in pads the whole match."
+          },
+          {
+           "char": "tilak",
+           "text": "Don’t take it personally. With the captain, that’s how it is — you have to look ready before the chance even comes."
+          },
+          {
+           "char": "tilak",
+           "text": "DM him. Not about the match — about your role."
+          }
+         ]
+        }
+       }
+      },
+      {
+       "t": "Take your phone out — make some dugout content",
+       "s": "The match isn’t in your hands. The timeline is.",
+       "deltas": {
+        "fame": 2
+       },
+       "relationshipDeltas": {
+        "hardik": -3
+       },
+       "runWrite": "debut",
+       "outcomeGate": {
+        "metric": "charTrust",
+        "charId": "hardik",
+        "threshold": 46,
+        "pass": {
+         "title": "HE CALLED — PUT THE PHONE AWAY",
+         "note": "‘Kid! Pads!’ — the shout came while your phone was still in your hand. Tilak grabbed the tray, you grabbed the helmet. The cameo landed: 14* (8). But the captain had already seen where your focus was when the call came.",
+         "post": {
+          "source": "account",
+          "name": "MI Paltan",
+          "handle": "mipaltan",
+          "label": "MI Paltan · just now",
+          "surface": "scorecard",
+          "caption": "IMPACT: {name} 14* (8) as sub. Late call, quick hands — 2 boundaries off Pathirana in the death overs. The chase still stayed out of reach. 💙",
+          "reactions": [
+           {
+            "char": "hardik",
+            "text": "The cameo was fine. The focus question is still open."
+           },
+           {
+            "char": "__fan",
+            "name": "memeovers",
+            "text": "bro went from filming the dugout to batting in it within 90 seconds. cinema."
+           }
+          ],
+          "imageUrl": "/generated/cricket-posts/cr-s12-player.png"
+         }
+        },
+        "fail": {
+         "title": "THE CAMERA CAUGHT EVERYTHING",
+         "note": "The impact slot went to someone else. And the broadcast camera caught it too: in a losing game, the 12th man on his phone. That clip was all over the timeline before the night was over.",
+         "dm": [
+          {
+           "char": "tilak",
+           "text": "Bro. Broadcast caught you on your phone. In a losing match."
+          },
+          {
+           "char": "tilak",
+           "text": "You have to look ready — today, you looked like content. Know the difference."
+          }
+         ]
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "CR2-S8",
+   "day": 6,
+   "slot": "Morning",
+   "tag": "⚡ TIMELINE · MORNING",
+   "title": "Toofan",
+   "body": [
+    "The morning after your debut, your phone's facedown and still blowing up — 348 notifications, 23 missed calls, 40,000 new followers overnight.",
+    "There's a storm with your name on it. Question is: do you live inside it, or rise above it."
+   ],
+   "q": "What do you even do with a hero-storm?",
+   "reader": [
+    {
+     "t": "nar",
+     "text": "6:12. Phone face-down, still lighting up. 348 notifications. 4 interview requests, 1 brand DM. Coach sent just one thing: ‘Did you do recovery?’"
+    },
+    {
+     "t": "img",
+     "src": "/generated/cricket-posts/cr2-s8-phone.png",
+     "h": 210
+    },
+    {
+     "t": "nar",
+     "when": {
+      "started": true
+     },
+     "text": "Every third post is that same frame: Pathirana’s slower ball, your wait, the gap. The score isn’t the caption anymore — it’s the hashtag."
+    },
+    {
+     "t": "nar",
+     "when": {
+      "benched": true
+     },
+     "text": "Every edit is the same 8 balls — from orange bib to Pathirana. ‘14 not out’ is small, the clip is huge. ‘SUPER SUB’ is trending."
+    },
+    {
+     "t": "nar",
+     "when": {
+      "charTrust": {
+       "charId": "surya",
+       "gte": 44
+      }
+     },
+     "text": "In the middle of the scroll, one post quiets everything down — SKY’s."
+    },
+    {
+     "t": "cue",
+     "who": "Suryakumar Yadav",
+     "avatar": "/avatars/surya.png",
+     "when": {
+      "charTrust": {
+       "charId": "surya",
+       "gte": 44
+      }
+     },
+     "text": "Timeline chill. I’ve got the kid. You guys watch the match. 💙"
+    },
+    {
+     "t": "cue",
+     "who": "Maddy",
+     "avatar": "/avatars/friend.png",
+     "text": "Bro, half of those 23 missed calls were mine 😭 Don’t open Insta. Or do. You’re famous now and I’m in the comments fighting for your life."
+    },
+    {
+     "t": "nar",
+     "big": true,
+     "text": "There’s a storm with your name on it — do you stay inside it, or rise above it?"
+    }
+   ],
+   "choices": [
+    {
+     "t": "Ride it — reels, interviews, all of it",
+     "s": "Momentum is currency. Today, you’ve got it.",
+     "deltas": {
+      "fame": 4,
+      "form": -1
+     },
+     "relationshipDeltas": {
+      "hardik": -2
+     },
+     "flagDeltas": {
+      "hypeRisk": 1
+     },
+     "postTag": "TOOFAN KA CENTER",
+     "postWhy": "40,000 new people showed up overnight to watch you. This window closes tomorrow. In front of {followers} followers, this moment is yours — right now, in your own words.",
+     "post": {
+      "source": "player",
+      "caption": "Last night: Wankhede. Today: a full day of replays. It was a dream, now it’s a schedule. This is just the beginning. 💙🔥",
+      "reactions": [
+       {
+        "char": "surya",
+        "text": "The reel is fire, champ. Nets at 8 tomorrow — the bowling machine doesn’t watch reels 😄"
+       },
+       {
+        "char": "__fan",
+        "name": "paltanpulse",
+        "text": "THE EDIT. THE MUSIC. THE KID. yeah, we are SAT for this era."
+       },
+       {
+        "char": "__fan",
+        "name": "memeovers",
+        "text": "One good night and bro dropped a whole documentary 😭 respect honestly"
+       }
+      ],
+      "imageUrl": "/generated/cricket-posts/cr-s22-mipaltan.png"
+     }
+    },
+    {
+     "t": "Mute it — recovery and review.",
+     "s": "The noise will be there tomorrow too. The next match won’t wait.",
+     "deltas": {
+      "form": 2
+     },
+     "relationshipDeltas": {
+      "hardik": 3,
+      "coach": 2
+     },
+     "dm": [
+      {
+       "char": "hardik",
+       "text": "Recovery first. Review at 10."
+      },
+      {
+       "char": "hardik",
+       "text": "Last night was good. Starting today, the job is to do it again. That’s the difference between a player and a clip."
+      }
+     ]
+    }
+   ],
+   "feedReaction": {
+    "A": {
+     "char": "friend",
+     "caption": "Whatever mood the timeline’s in — my guy is my guy. 💙"
+    },
+    "B": {
+     "char": "coach",
+     "caption": "What happens in the nets the day after the noise? That’s a career. Everything else is weather."
+    }
+   },
+   "variants": [
+    {
+     "when": {
+      "gate": {
+       "sitId": "CR2-S7",
+       "is": "fail"
+      }
+     },
+     "title": "Reverse Storm",
+     "tag": "⚡ PILE-ON · MORNING",
+     "q": "How do you answer a pile-on?",
+     "reader": [
+      {
+       "t": "nar",
+       "text": "6:12. Phone face-down. 212 notifications, not one congratulations. Analyst thread — 'Did MI move too fast?' — 4,000 retweets. Meme pages: template ready."
+      },
+      {
+       "t": "img",
+       "src": "/generated/cricket-posts/cr2-s8-phone.png",
+       "h": 210
+      },
+      {
+       "t": "nar",
+       "when": {
+        "started": true
+       },
+       "text": "The same ball from every angle: Pathirana’s slower one, shot in the air, deep midwicket. Caption: 'Overhyped?' The question mark is just a formality."
+      },
+      {
+       "t": "nar",
+       "when": {
+        "benched": true
+       },
+       "text": "Haven’t even played, and there’s already a thread with your name on it: 'MI’s invisible man.' 2 team sheets, 0 matches — for the timeline, that’s crime enough."
+      },
+      {
+       "t": "nar",
+       "when": {
+        "charTrust": {
+         "charId": "surya",
+         "gte": 44
+        }
+       },
+       "text": "Then at 9:40, one post goes up — and sits on top of the whole pile-on."
+      },
+      {
+       "t": "cue",
+       "who": "Suryakumar Yadav",
+       "avatar": "/avatars/surya.png",
+       "when": {
+        "charTrust": {
+         "charId": "surya",
+         "gte": 44
+        }
+       },
+       "text": "1 match. 16 years old. Everybody breathe a little. I’ve got the kid. 💙"
+      },
+      {
+       "t": "cue",
+       "who": "Maddy",
+       "avatar": "/avatars/friend.png",
+       "text": "Bro. Don’t read the comments. DO NOT read them. I’m reading them and I can’t handle my BP or them both."
+      },
+      {
+       "t": "nar",
+       "big": true,
+       "text": "The world wrote your verdict overnight. Now it’s your turn — answer, or work?"
+      }
+     ],
+     "choices": [
+      {
+       "t": "Post a clap-back",
+       "s": "Staying quiet feels like guilt. Shut it all down with one line.",
+       "deltas": {
+        "fame": 3
+       },
+       "relationshipDeltas": {
+        "hardik": -4
+       },
+       "flagDeltas": {
+        "clapback": 1
+       },
+       "post": {
+        "source": "player",
+        "caption": "Everybody became an expert overnight? Might as well wear my jersey too then. Season’s long. Remember that. 🙂",
+        "reactions": [
+         {
+          "char": "__fan",
+          "name": "memeovers",
+          "text": "got the screenshot. template’s ready. thanks for the content kid 😭"
+         },
+         {
+          "char": "__fan",
+          "name": "cricketroom_india",
+          "text": "Feisty. But the last young player who tried to fight the timeline lost to it. They always do."
+         },
+         {
+          "char": "__fan",
+          "name": "paltanpulse",
+          "text": "kid… we know it hurt. but this post is getting deleted tomorrow morning. we know it."
+         }
+        ]
+       },
+       "postTag": "TOOFAN KA JAWAAB",
+       "postWhy": "The timeline’s talking about you. Now you talk. Whatever you write becomes tomorrow’s headline."
+      },
+      {
+       "t": "Stay quiet — ask Bumrah for time.",
+       "s": "Don’t answer the timeline. Answer with your technique.",
+       "deltas": {
+        "form": 3
+       },
+       "relationshipDeltas": {
+        "bumrah": 3,
+        "hardik": 2
+       },
+       "dm": [
+        {
+         "char": "bumrah",
+         "text": "Tomorrow, 7 a.m. Nets. Just us two."
+        },
+        {
+         "char": "bumrah",
+         "text": "What the timeline is saying isn’t data. What happens in the nets is."
+        },
+        {
+         "char": "bumrah",
+         "text": "Leave your phone at the hotel."
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "CR2-S9",
+   "day": 6,
+   "slot": "Night",
+   "tag": "⚡ LEAK · NIGHT",
+   "title": "The Fall",
+   "body": [
+    "11:47 p.m. A thread drops from a burner — 9 posts, three clips, all with your name on them. Everything stripped of context: a story you never wrote.",
+    "Team group chat: 340 people online, zero messages. Then one from Mahela: 'Meeting. 9am.'"
+   ],
+   "q": "What do you do before 9am?",
+   "reader": [
+    {
+     "t": "nar",
+     "when": {
+      "charTrust": {
+       "charId": "friend",
+       "gte": 76
+      }
+     },
+     "text": "5:20 p.m. Maddy: 'Bro, something about you is dropping tonight.' A six-hour head start — that’s why your hands don’t shake."
+    },
+    {
+     "t": "img",
+     "src": "/generated/cricket-posts/cr-s26-fail-mipaltan.png",
+     "h": 210
+    },
+    {
+     "t": "nar",
+     "text": "11:47 p.m. Burner thread goes live: 9 posts, 3 clips — 1 story you didn’t write. Every refresh brings a new screenshot."
+    },
+    {
+     "t": "nar",
+     "when": {
+      "flag": {
+       "key": "clapback",
+       "gte": 1
+      }
+     },
+     "text": "The thread’s centerpiece: your clap-back from yesterday, now a screenshot. Caption: 'Attitude or insecurity?' The quote tweets are on fire."
+    },
+    {
+     "t": "nar",
+     "when": {
+      "flag": {
+       "key": "likedOutrage",
+       "gte": 1
+      }
+     },
+     "text": "They dug up your likes too — every outrage post from the bench days, all in one compilation. Caption: 'Me before the team.'"
+    },
+    {
+     "t": "nar",
+     "when": {
+      "flag": {
+       "key": "pressCocky",
+       "gte": 1
+      }
+     },
+     "text": "Your first presser clip stitched to the scorecard: 'I came here for the XI' — cut — number. Dramatic music. 2.1 million views."
+    },
+    {
+     "t": "nar",
+     "text": "Team chat: 340 online, 0 messages. Then 1 message from Mahela: 'Meeting. 9am.'"
+    },
+    {
+     "t": "nar",
+     "big": true,
+     "text": "Before 9am, it’ll be decided who you are: someone who faces the mistake — or hides behind PR."
+    }
+   ],
+   "choices": [
+    {
+     "t": "Own it — first the room, then the world",
+     "s": "No excuses. No PR. Just the truth, straight.",
+     "deltas": {
+      "form": 1,
+      "fame": -2
+     },
+     "relationshipDeltas": {
+      "hardik": 4,
+      "rohit": 3
+     },
+     "flagDeltas": {
+      "ownedIt": 1
+     },
+     "dm": [
+      {
+       "char": "rohit",
+       "text": "I heard. And I also heard you want to say it yourself. Good."
+      },
+      {
+       "char": "rohit",
+       "text": "Everybody screws up. What matters is who answers for it."
+      },
+      {
+       "char": "rohit",
+       "text": "Text me yourself before 9 tomorrow. Whatever you want to say, say it to me first."
+      }
+     ]
+    },
+    {
+     "t": "Do the PR fix — post a statement, get the clips deleted",
+     "s": "Protect the name. Manage the story.",
+     "deltas": {
+      "fame": 2
+     },
+     "relationshipDeltas": {
+      "hardik": -5,
+      "rohit": -2,
+      "mahela": -2
+     },
+     "flagDeltas": {
+      "deflected": 1
+     },
+     "post": {
+      "source": "player",
+      "caption": "Some clips have been circulating since last night without context. My team is looking into it. I’m focused on my cricket. Thank you. 🙏",
+      "reactions": [
+       {
+        "char": "__fan",
+        "name": "cricketroom_india",
+        "text": "'My team is looking into it' — the sixteen-year-old has a team for this now. Noted and filed."
+       },
+       {
+        "char": "naman",
+        "text": "Who wrote the statement? Nice font."
+       },
+       {
+        "char": "__fan",
+        "name": "memeovers",
+        "text": "'context' just entered the group chat 💀 PR speedrun any% world record"
+       }
+      ],
+      "imageUrl": "/generated/cricket-posts/cr-s16-mipaltan.png"
+     },
+     "postTag": "DAMAGE CONTROL",
+     "postWhy": "The leak’s viral and the team’s silent. This post either puts out the fire or pours gasoline on it — think before you publish."
+    }
+   ],
+   "feedReaction": {
+    "A": {
+     "char": "hardik",
+     "caption": "What happened in that room today stays in that room. But I’ll say this — the room handled it. That matters."
+    },
+    "B": {
+     "char": "friend",
+     "caption": "Saw bro’s statement. The PR one. I need to talk to the actual bro. The real one."
+    }
+   }
+  },
+  {
+   "id": "CR2-S10",
+   "day": 7,
+   "slot": "Evening",
+   "tag": "⚡ SELECTION MEETING · EVENING",
+   "title": "Selection Meeting",
+   "body": [
+    "6 p.m., team room. On the whiteboard: next match matchups — and in Mahela's hand, the sheet every week begins and ends with.",
+    "This time, your name comes with a verdict — and after that, your next move."
+   ],
+   "q": "Retained. Now what?",
+   "reader": [
+    {
+     "t": "nar",
+     "when": {
+      "gate": {
+       "sitId": "CR2-S7",
+       "is": "pass"
+      }
+     },
+     "text": "Team room, 6 p.m. Mahela reads out your debut number — now it’s a hashtag. Then he looks at Hardik. Hardik’s already looking at you."
+    },
+    {
+     "t": "nar",
+     "when": {
+      "gate": {
+       "sitId": "CR2-S7",
+       "is": "fail"
+      }
+     },
+     "text": "Team room, 6 p.m. Mahela reads out the number you want to forget. Silence. 'Numbers don’t argue. Tape sometimes does.'"
+    },
+    {
+     "t": "img",
+     "src": "/generated/cricket-posts/cr2-s10-selection.png",
+     "h": 210
+    },
+    {
+     "t": "nar",
+     "when": {
+      "flag": {
+       "key": "ownedIt",
+       "gte": 1
+      }
+     },
+     "text": "Before the meeting, Mahela pulls you aside: \"The way you handled last night? That never goes on the sheet. But it counts.\""
+    },
+    {
+     "t": "nar",
+     "when": {
+      "flag": {
+       "key": "deflected",
+       "gte": 1
+      }
+     },
+     "text": "Your PR statement from yesterday is on the table — Mahela had it printed out. He says nothing. That’s the loudest part."
+    },
+    {
+     "t": "cue",
+     "who": "Hardik Pandya",
+     "avatar": "/avatars/hardik.png",
+     "text": "Retained. He plays the next match. No. 5, same role."
+    },
+    {
+     "t": "nar",
+     "big": true,
+     "text": "Your name’s on the sheet — no drama. Quietly earn the next match, or tell the world you were right?"
+    }
+   ],
+   "choices": [
+    {
+     "t": "Stay quiet — earn the next match",
+     "s": "Your name belongs on the team sheet, not in the headlines.",
+     "deltas": {
+      "form": 2
+     },
+     "relationshipDeltas": {
+      "hardik": 2
+     },
+     "dm": [
+      {
+       "char": "hardik",
+       "text": "What was said in the meeting is still the role. No. 5. If you have to stay till the death, you stay."
+      },
+      {
+       "char": "hardik",
+       "text": "And one more thing. This week, you got a few things right. I notice that. I just don’t say much."
+      }
+     ]
+    },
+    {
+     "t": "Post the vindication",
+     "s": "Give the doubters their receipt.",
+     "deltas": {
+      "fame": 3
+     },
+     "relationshipDeltas": {
+      "hardik": -3
+     },
+     "postTag": "RECEIPTS",
+     "postWhy": "A week ago, the timeline had already written you off. Today the team sheet answered for you. {followers} followers want that receipt straight from your hand.",
+     "post": {
+      "source": "player",
+      "caption": "Retained. To everyone writing \"overhyped\" — read it again. The work talks. It always will. 💙",
+      "reactions": [
+       {
+        "char": "rohit",
+        "text": "Hmm."
+       },
+       {
+        "char": "__fan",
+        "name": "cricketroom_india",
+        "text": "Retention is a Tuesday, not a trophy. Interesting energy from the kid."
+       },
+       {
+        "char": "__fan",
+        "name": "paltanpulse",
+        "text": "HE STAYS. AS HE SHOULD. the haters have a busy schedule today too 😌"
+       }
+      ],
+      "imageUrl": "/generated/cricket-posts/cr-s12-mipaltan.png"
+     }
+    }
+   ],
+   "feedReaction": {
+    "A": {
+     "char": "rohit",
+     "caption": "Every week, the team sheet asks a question. Every week, you have to answer it."
+    },
+    "B": {
+     "char": "friend",
+     "caption": "Bro’s selection saga has become my favorite show. Next episode Wednesday. 🍿"
+    }
+   },
+   "variants": [
+    {
+     "when": {
+      "benched": true
+     },
+     "title": "Outside the Sheet",
+     "tag": "⚡ SELECTION MEETING · EVENING",
+     "q": "What’s the way in from outside the sheet?",
+     "reader": [
+      {
+       "t": "nar",
+       "text": "6 p.m. The sheet goes up on the board. You read it twice — your name’s not there. Naman at No. 6, confirmed. Two weeks, two sheets — not inside the 12 even once."
+      },
+      {
+       "t": "img",
+       "src": "/generated/cricket-posts/cr2-s10-benched.png",
+       "h": 210
+      },
+      {
+       "t": "nar",
+       "when": {
+        "flag": {
+         "key": "deflected",
+         "gte": 1
+        }
+       },
+       "text": "Everyone knows why. Yesterday’s PR statement was printed on Mahela’s table. PR doesn’t get you selected."
+      },
+      {
+       "t": "nar",
+       "when": {
+        "flag": {
+         "key": "ownedIt",
+         "gte": 1
+        }
+       },
+       "text": "On your way out, a hand on your shoulder — Rohit. Says nothing, doesn’t need to. The room saw last night. But the sheet is built on numbers."
+      },
+      {
+       "t": "cue",
+       "who": "Mahela Jayawardene",
+       "avatar": "/avatars/mahela.png",
+       "text": "Wait. 2 minutes."
+      },
+      {
+       "t": "nar",
+       "text": "The room’s empty. Mahela gestures at the sheet — form column, your number, an empty box ahead."
+      },
+      {
+       "t": "nar",
+       "big": true,
+       "text": "Tonight can become the easiest excuse — or the most important number. What do you choose?"
+      }
+     ],
+     "choices": [
+      {
+       "t": "Work with Naman — build the numbers",
+       "s": "Make the guy playing sharper. Then become sharper than him.",
+       "deltas": {
+        "form": 3
+       },
+       "relationshipDeltas": {
+        "naman": 3,
+        "mahela": 2,
+        "hardik": 2
+       },
+       "dm": [
+        {
+         "char": "mahela",
+         "text": "You asked what the path is. I’ll say it straight."
+        },
+        {
+         "char": "mahela",
+         "text": "I need Form 64. On that number, I fight in the selection room myself — that sheet, I write with my own hand."
+        },
+        {
+         "char": "mahela",
+         "text": "Nets. Throw-downs. Prep with Naman. That all counts. Hype doesn't. Numbers count — 64."
+        }
+       ]
+      },
+      {
+       "t": "Tell the agent yes — float the trade rumor.",
+       "s": "MI doesn't value him? The market will.",
+       "deltas": {
+        "fame": 4
+       },
+       "relationshipDeltas": {
+        "hardik": -6,
+        "mahela": -3
+       },
+       "flagDeltas": {
+        "tradeNoise": 1
+       },
+       "post": {
+        "source": "account",
+        "name": "Cricketroom India",
+        "handle": "cricketroom_india",
+        "label": "Cricketroom India · analysis",
+        "caption": "EXCLUSIVE: Sources close to the young MI batter say the camp is 'evaluating options' ahead of the trade window. Two benchings in two weeks. Wants out? Story developing.",
+        "reactions": [
+         {
+          "char": "__fan",
+          "name": "paltanpulse",
+          "text": "NO. not this one. delete it. we made edits 😭"
+         },
+         {
+          "char": "__fan",
+          "name": "futurexi",
+          "text": "Three franchises would take that call today. Just saying."
+         },
+         {
+          "char": "hardik",
+          "text": "Whoever wants to talk, my meeting room is open. No timeline."
+         }
+        ],
+        "imageUrl": "/generated/cricket-posts/cr-s20-mipaltan.png"
+       }
+      }
+     ]
+    },
+    {
+     "when": {
+      "lifeline": true
+     },
+     "title": "The Captain's Name",
+     "tag": "⚡ SELECTION MEETING · EVENING",
+     "q": "The captain put his name on the line. What do you do?",
+     "reader": [
+      {
+       "t": "nar",
+       "text": "6 p.m., team room. Mahela reads the sheet — the numbers aren't on your side. His pen stops at the form column. 'There are other options.' The room goes quiet."
+      },
+      {
+       "t": "img",
+       "src": "/generated/cricket-posts/cr2-s5-selection.png",
+       "h": 210
+      },
+      {
+       "t": "cue",
+       "who": "Hardik",
+       "avatar": "/avatars/hardik.png",
+       "when": {
+        "flag": {
+         "key": "lifelineOwed",
+         "gte": 1
+        }
+       },
+       "text": "Second time I'm putting my name up for you. The first one still isn't settled. There won't be a third."
+      },
+      {
+       "t": "cue",
+       "who": "Hardik Pandya",
+       "avatar": "/avatars/hardik.png",
+       "text": "He's playing the next match. My call. Put it against my name."
+      },
+      {
+       "t": "cue",
+       "who": "Tilak Varma",
+       "avatar": "/avatars/tilak.png",
+       "text": "Bro, you get what this is, right? The captain's name isn't a blank check. It's a loan."
+      },
+      {
+       "t": "nar",
+       "big": true,
+       "text": "Now the captain's name sits in front of your numbers for everyone to see — will it rise or fall with your score? How do you answer that?"
+      }
+     ],
+     "choices": [
+      {
+       "t": "Private promise — 'this time, numbers'",
+       "s": "What he did for you in that room, answer it in the room.",
+       "deltas": {
+        "form": 1
+       },
+       "relationshipDeltas": {
+        "hardik": 3
+       },
+       "flagDeltas": {
+        "lifelineOwed": 1
+       },
+       "dm": [
+        {
+         "char": "hardik",
+         "text": "You texted. Good. Most people post thank-yous."
+        },
+        {
+         "char": "hardik",
+         "text": "Listen. This is the last explanation. Now let the bat talk."
+        },
+        {
+         "char": "hardik",
+         "text": "Wednesday. No. 5. I need an innings, not a promise."
+        }
+       ]
+      },
+      {
+       "t": "Post a prove-it message — publicly.",
+       "s": "Tell the world what the captain did — and what you're going to do.",
+       "deltas": {
+        "fame": 2
+       },
+       "relationshipDeltas": {
+        "hardik": -2
+       },
+       "post": {
+        "source": "player",
+        "caption": "Today the captain put his name on the line for me. On Wednesday, I'll answer with my bat. Write that down. 💙",
+        "reactions": [
+         {
+          "char": "__fan",
+          "name": "paltanpulse",
+          "text": "CAPTAIN'S PICK. this is cinema and we’ve got front row seats 🎬"
+         },
+         {
+          "char": "surya",
+          "text": "Good energy. Now just keep that energy in the fridge till Wednesday 😄"
+         },
+         {
+          "char": "__fan",
+          "name": "cricketroom_india",
+          "text": "Public promises are heavy things at sixteen. Wednesday will test this one."
+         }
+        ],
+        "imageUrl": "/generated/cricket-posts/cr-s22-hardik.png"
+       },
+       "postTag": "PROVE-IT SEASON",
+       "postWhy": "The night after the selection meeting. Whatever you post, the dressing room reads it by morning."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "CR2-S11",
+   "day": 8,
+   "slot": "Morning",
+   "tag": "⚡ COLD CORRIDOR · MORNING",
+   "title": "Hotel Gym. Alone.",
+   "body": [
+    "Day 8, 5:52 a.m. Empty hotel gym, trigger movement gone. Rohit's door is on this floor — nobody knocked. Just Coach Sir on video call, and a slump that doesn't break on its own."
+   ],
+   "q": "A slump doesn’t break by itself. How do you break it?",
+   "reader": [
+    {
+     "t": "nar",
+     "when": {
+      "benched": true
+     },
+     "text": "Day 8, 5:52 AM. Empty gym, Eliminator in 2 days. The orange bib feels normal now. The timeline doesn’t even say my name anymore — that hurts more than the trolling."
+    },
+    {
+     "t": "nar",
+     "when": {
+      "started": true
+     },
+     "text": "Day 8, 5:52 AM. Empty gym, Eliminator in 2 days. My name’s on the sheet — but my last 3 innings total? Barely an over’s worth. This silence is the loudest thing here."
+    },
+    {
+     "t": "img",
+     "src": "/generated/cricket-posts/cr2-s11-gym.png",
+     "h": 210
+    },
+    {
+     "t": "cue",
+     "who": "Coach Sir",
+     "avatar": "/avatars/coach.png",
+     "when": {
+      "flag": {
+       "key": "deflected",
+       "gte": 1
+      }
+     },
+     "text": "Son, PR wrote the statement — but no video for 3 days, that part’s you. Don’t run. A slump starts in the mind, not the technique. Remember the cement wicket? We start with the grip."
+    },
+    {
+     "t": "cue",
+     "who": "Coach Sir",
+     "avatar": "/avatars/coach.png",
+     "when": {
+      "flag": {
+       "key": "ownedIt",
+       "gte": 1
+      }
+     },
+     "text": "Son, I heard — and you owned the mistake yourself. People will keep looking you in the eye, but form doesn’t come back out of respect. No video for 3 days. Remember the cement wicket? We start with the grip."
+    },
+    {
+     "t": "nar",
+     "big": true,
+     "text": "My trigger movement’s gone in the mirror; Rohit’s on this same floor — and still, no one knocked. In a 20-crore Mumbai, just 1 video call: how do you break a slump?"
+    }
+   ],
+   "choices": [
+    {
+     "t": "Go back to basics with Coach",
+     "s": "Put the ego aside. Start with the grip — like when you were eleven.",
+     "deltas": {
+      "form": 3
+     },
+     "relationshipDeltas": {
+      "coach": 3
+     },
+     "flagDeltas": {
+      "homeGrounding": 1
+     },
+     "dm": [
+      {
+       "char": "coach",
+       "text": "Got the video. Showed exactly what I thought — the backlift is fine, your base is shaky. You’re getting to the ball too early."
+      },
+      {
+       "char": "coach",
+       "text": "Tomorrow, 6 AM, we do drills on video call. 200 balls. Defence only. Not a single shot. Like we used to on the cement wicket."
+      },
+      {
+       "char": "coach",
+       "text": "And son — don’t look at the scorecard this week. Watch the ball. I’ll handle the rest of the world."
+      }
+     ]
+    },
+    {
+     "t": "Lone-wolf grind — and post it",
+     "s": "Don’t wait on anybody. Your work, your story, your proof.",
+     "deltas": {
+      "form": 1,
+      "fame": 2
+     },
+     "flagDeltas": {
+      "hypeRisk": 1
+     },
+     "postTag": "LONE WOLF",
+     "postWhy": "No one’s watching — which is exactly why posting feels even more necessary. Let the world know the grind hasn’t stopped. {followers} followers want proof.",
+     "post": {
+      "source": "player",
+      "caption": "5 AM. Empty gym. No shortcuts, no excuses. 🔒 #TrustTheProcess",
+      "reactions": [
+       {
+        "char": "tilak",
+        "text": "The work is good. But don’t confuse isolation with process. The young table’s at nets tomorrow — come join."
+       },
+       {
+        "char": "__fan",
+        "name": "futurexi",
+        "text": "the kid is putting in the work in silence. respect. form is temporary."
+       },
+       {
+        "char": "__fan",
+        "name": "memeovers",
+        "text": "bro posted 'silent grind' with a ring light 💀"
+       }
+      ],
+      "imageUrl": "/generated/cricket-posts/cr-s25-player.png"
+     }
+    }
+   ],
+   "feedReaction": {
+    "A": {
+     "char": "coach",
+     "caption": "A slump breaks less through technique, more through how you think. I tell every student the same thing — grip first, glory later."
+    },
+    "B": {
+     "char": "friend",
+     "caption": "Bro’s posting gym stories at 5 AM. I’m asleep at 5 AM. We are not the same. (Proud though. A little.)"
+    }
+   },
+   "variants": [
+    {
+     "when": {
+      "charTrust": {
+       "charId": "rohit",
+       "gte": 44
+      }
+     },
+     "title": "Rohit’s 6 AM",
+     "tag": "⚡ COLD CORRIDOR · 6 AM",
+     "q": "Rohit spent his morning on you. What do you do with it?",
+     "reader": [
+      {
+       "t": "nar",
+       "text": "5:47 AM — knock. Rohit Sharma in the peephole, training kit, coffee: \"Car downstairs. 5 minutes.\" Empty Wankhede — 33,000 seats, 2 people."
+      },
+      {
+       "t": "img",
+       "src": "/generated/cricket-posts/cr2-s11-rohit.png",
+       "h": 210
+      },
+      {
+       "t": "nar",
+       "when": {
+        "flag": {
+         "key": "ownedIt",
+         "gte": 1
+        }
+       },
+       "text": "The night of the clip, you owned your mistake in front of everyone. Rohit said nothing then. This morning — this is his answer."
+      },
+      {
+       "t": "nar",
+       "when": {
+        "flag": {
+         "key": "deflected",
+         "gte": 1
+        }
+       },
+       "text": "He didn’t like the PR statement — everybody knows that. Still, he showed up. Rohit doesn’t see a player. He sees a problem."
+      },
+      {
+       "t": "cue",
+       "who": "Rohit",
+       "avatar": "/avatars/rohit.png",
+       "text": "Your problem isn’t the shot, it’s the tempo — you get to the ball too early. 15 minutes of just leaves, and name every ball — \"boring,\" \"good,\" \"mine.\" Or show me your way. Either works — decide now."
+      },
+      {
+       "t": "nar",
+       "big": true,
+       "text": "India’s calmest batsman got up at 6 just for you. Full surrender — or your own way?"
+      }
+     ],
+     "choices": [
+      {
+       "t": "Full surrender — whatever you say",
+       "s": "Check your ego. Learn tempo from the guy who’s owned this ground.",
+       "deltas": {
+        "form": 4
+       },
+       "relationshipDeltas": {
+        "rohit": 3
+       },
+       "dm": [
+        {
+         "char": "rohit",
+         "text": "The shot was there. The ball wasn’t. Now they’ll meet. Same time tomorrow."
+        }
+       ]
+      },
+      {
+       "t": "Defend your way",
+       "s": "Hear him out — but the trigger is yours. That’s what got you here.",
+       "deltas": {
+        "form": 2
+       },
+       "relationshipDeltas": {
+        "rohit": -2
+       },
+       "flagDeltas": {
+        "ownMethod": 1
+       },
+       "post": {
+        "source": "account",
+        "name": "Paltan Pulse",
+        "handle": "paltanpulse",
+        "avatarText": "P",
+        "label": "Paltan Pulse · fan page",
+        "caption": "LONG LENS, 6:14 AM, Wankhede: Rohit Sharma and that 16-year-old kid. Empty stadium. And word is — the kid was playing his own way right in front of ROHIT. Brains or guts? 👀💙",
+        "reactions": [
+         {
+          "char": "__fan",
+          "name": "futurexi",
+          "text": "his own method in front of Rohit Sharma at sixteen. either a future great or a future headline."
+         },
+         {
+          "char": "surya",
+          "text": "Relax, everyone. It was a session, not a summit. 😄"
+         },
+         {
+          "char": "__fan",
+          "name": "memeovers",
+          "text": "\"his own way\" bro that’s ROHIT SHARMA 💀"
+         }
+        ],
+        "imageUrl": "/generated/cricket-posts/cr-s19-rohit.png"
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "CR2-S12",
+   "day": 9,
+   "slot": "Evening",
+   "tag": "⚡ TWO NAMES, ONE SPOT · EVENING",
+   "title": "Two Names, One Spot",
+   "body": [
+    "The night before the Eliminator, there are two names on the whiteboard for the middle order: yours and Naman's. The poll is hanging at 51-49, a journalist wants the 'inside story,' and Mahela's pen is still hovering."
+   ],
+   "q": "There’s 1 slot. With Naman — or against him?",
+   "reader": [
+    {
+     "t": "nar",
+     "text": "Team room, 7 o’clock. Tomorrow’s Eliminator plan on the whiteboard — 2 names, 1 spot: {name} / Naman. Your phone’s face-down, still buzzing: poll at 51-49."
+    },
+    {
+     "t": "img",
+     "src": "/generated/cricket-posts/cr2-s12-rivalry.png",
+     "h": 210
+    },
+    {
+     "t": "nar",
+     "text": "DM from a journalist: \"Told you, didn’t I — you came for the XI, not to wait around. You gonna give me a story?\"",
+     "when": {
+      "flag": {
+       "key": "pressCocky",
+       "gte": 1
+      }
+     }
+    },
+    {
+     "t": "cue",
+     "who": "Naman",
+     "avatar": "/avatars/naman.png",
+     "text": "Bro. Whatever happens tomorrow — chai first, then cricket. Come through, let’s go over their death-overs plan together.",
+     "when": {
+      "charTrust": {
+       "charId": "naman",
+       "gte": 50
+      }
+     }
+    },
+    {
+     "t": "cue",
+     "who": "Naman",
+     "avatar": "/avatars/naman.png",
+     "text": "Hey. Weird, right — same room, same dream, 1 spot. Anyway. Nets are at 8.",
+     "when": {
+      "charTrust": {
+       "charId": "naman",
+       "gte": 35,
+       "lt": 50
+      }
+     }
+    },
+    {
+     "t": "cue",
+     "who": "Naman",
+     "avatar": "/avatars/naman.png",
+     "text": "{name}. May the best kid win. Seriously. Everything else is noise.",
+     "when": {
+      "charTrust": {
+       "charId": "naman",
+       "lt": 35
+      }
+     }
+    },
+    {
+     "t": "nar",
+     "big": true,
+     "text": "Mahela’s pen is hovering over both names — 2 sixteen-year-old dreams, tomorrow 1 gets erased. What game do you play tonight?"
+    }
+   ],
+   "choices": [
+    {
+     "t": "Prep with Naman",
+     "s": "Whoever plays, MI wins. Friendship first, selection after.",
+     "deltas": {
+      "form": 1
+     },
+     "relationshipDeltas": {
+      "naman": 4,
+      "hardik": 3,
+      "tilak": 2
+     },
+     "dm": [
+      {
+       "char": "naman",
+       "text": "Bro, you came. Honestly? Didn’t think you would. 😅"
+      },
+      {
+       "char": "naman",
+       "text": "Okay listen — I’ve watched their death bowler all season. 19th over: first 3 balls are WIDE yorkers, third man up. Anyone who charges, he feeds them right there."
+      },
+      {
+       "char": "naman",
+       "text": "And the slower ball only comes when the batter leaves the crease. Stay put — deep point stays open. Whoever plays tomorrow, this helps both of us. 🤝"
+      }
+     ]
+    },
+    {
+     "t": "Play politics — leak the numbers to the press",
+     "s": "It’s a slot war. And in a war, narrative is a weapon too.",
+     "deltas": {
+      "form": 1,
+      "fame": 3
+     },
+     "relationshipDeltas": {
+      "naman": -4,
+      "hardik": -3
+     },
+     "flagDeltas": {
+      "briefedPress": 1
+     },
+     "post": [
+      {
+       "source": "account",
+       "name": "Cricketroom India",
+       "handle": "cricketroom_india",
+       "avatarText": "C",
+       "label": "Cricketroom India · analysis",
+       "caption": "SOURCES: Inside the MI camp, there’s a full-on numbers war over the Eliminator spot. We got a detailed stats sheet making the case for young batter {name} — death-overs intent, matchup data, the whole package. The sheet came from 'inside camp.' Tomorrow’s XI will tell us what won — data or the dressing room.",
+       "reactions": [
+        {
+         "char": "naman",
+         "text": "Interesting sheet. I’ve got a number too — the one you make on the ground. 🙂"
+        },
+        {
+         "char": "__fan",
+         "name": "paltanpulse",
+         "text": "How did this sheet get out from 'inside,' bro... 🤨"
+        },
+        {
+         "char": "__fan",
+         "name": "memeovers",
+         "text": "Leak season > IPL season"
+        }
+       ],
+       "imageUrl": "/generated/cricket-posts/cr-s13-paltanpulse.png"
+      },
+      {
+       "source": "account",
+       "name": "Future XI",
+       "handle": "futurexi",
+       "avatarText": "F",
+       "label": "Future XI · prospects",
+       "caption": "POLL 🗳️ WHO STARTS THE ELIMINATOR? {name} vs Naman Dhir — 1 spot, 2 future stars. 24,318 votes and counting. Comments open. Selectors scroll too. 👀",
+       "comments": [
+        {
+         "text": "Naman deserves it too. Whoever plays — MI wins. 💙",
+         "deltas": {},
+         "relationshipDeltas": {
+          "naman": 3,
+          "hardik": 2
+         },
+         "toast": "Team-first comment. Naman saved the screenshot. The room noticed too."
+        },
+        {
+         "text": "Both are ready. Tomorrow’s XI will tell us.",
+         "deltas": {},
+         "toast": "Neutral. Safe. Nobody noticed."
+        },
+        {
+         "text": "Look at the numbers first — then vote. 📊",
+         "deltas": {
+          "fame": 2
+         },
+         "relationshipDeltas": {
+          "naman": -2,
+          "hardik": -1
+         },
+         "toast": "Self-promo. Fans ate it up. Dressing room saw it too."
+        }
+       ]
+      }
+     ]
+    }
+   ],
+   "feedReaction": {
+    "A": {
+     "char": "tilak",
+     "caption": "2 names, 1 spot — and both were in the nets together today. That’s dressing room culture. 💙"
+    },
+    "B": {
+     "char": "friend",
+     "caption": "Bro who even are these 'sources'? 🤔 Why do I feel like I know the sources personally 💀"
+    }
+   },
+   "variants": [
+    {
+     "when": {
+      "benched": true
+     },
+     "title": "Prove-It Nets",
+     "tag": "⚡ TWO NAMES, ONE SPOT · PROVE-IT NETS",
+     "q": "64 is written on the whiteboard. How do you get there?",
+     "reader": [
+      {
+       "t": "nar",
+       "text": "Evening, side nets. On the board, just: 64. In the next net, Naman — your spot tomorrow. Poll: 'SHOULD MI RECALL THE KID?' 19,000 votes."
+      },
+      {
+       "t": "img",
+       "src": "/generated/cricket-posts/seed-tilak.png",
+       "h": 210
+      },
+      {
+       "t": "nar",
+       "text": "After the trade rumor, Mahela stopped talking. The number still went up on the board — pros don’t make it personal.",
+       "when": {
+        "flag": {
+         "key": "tradeNoise",
+         "gte": 1
+        }
+       }
+      },
+      {
+       "t": "cue",
+       "who": "Mahela",
+       "avatar": "/avatars/mahela.png",
+       "text": "64. Not punishment—the line. Trial sim: 10 overs, match fielders, real umpire. Show me an innings, not intent."
+      },
+      {
+       "t": "cue",
+       "who": "Naman",
+       "avatar": "/avatars/naman.png",
+       "text": "Oi. You’re clearing 64, I know it. And if I play tomorrow, I’m playing for you too. Tea after. 🤝",
+       "when": {
+        "charTrust": {
+         "charId": "naman",
+         "gte": 50
+        }
+       }
+      },
+      {
+       "t": "cue",
+       "who": "Naman",
+       "avatar": "/avatars/naman.png",
+       "text": "Saw the board? Tough number. Well… may the best kid win.",
+       "when": {
+        "charTrust": {
+         "charId": "naman",
+         "lt": 35
+        }
+       }
+      },
+      {
+       "t": "nar",
+       "big": true,
+       "text": "64 isn’t a score, it’s the door back in — the stands know you, the sheet doesn’t. So what game are you playing tonight?"
+      }
+     ],
+     "choices": [
+      {
+       "t": "Prep with Naman — help him win tomorrow",
+       "s": "Your sim, his match. One plan, two dreams.",
+       "deltas": {
+        "form": 2
+       },
+       "relationshipDeltas": {
+        "naman": 4,
+        "hardik": 3,
+        "tilak": 2
+       },
+       "dm": [
+        {
+         "char": "naman",
+         "text": "Bro. You’re on the bench and still getting throw-downs in for me. I’m never forgetting that."
+        },
+        {
+         "char": "naman",
+         "text": "Here, return gift — their death bowler: first 3 balls of the 19th over, wide yorker, third man up. Don’t charge that. Ever."
+        },
+        {
+         "char": "naman",
+         "text": "And the slower ball only comes when you leave your crease. Same plan’s coming in your sim too — that’s what Mahela feeds the machine. 64 is yours. 🤝"
+        }
+       ]
+      },
+      {
+       "t": "Politics — build pressure from outside",
+       "s": "The sheet won’t listen? The public will. Feed your numbers to the press.",
+       "deltas": {
+        "fame": 3
+       },
+       "relationshipDeltas": {
+        "naman": -4,
+        "hardik": -3,
+        "mahela": -2
+       },
+       "flagDeltas": {
+        "briefedPress": 1
+       },
+       "post": [
+        {
+         "source": "account",
+         "name": "Cricketroom India",
+         "handle": "cricketroom_india",
+         "avatarText": "C",
+         "label": "Cricketroom India · analysis",
+         "caption": "SOURCES: Young batter {name}, stuck on MI’s bench, is ahead of several names in the squad on the 'internal numbers' — and we’ve seen the sheet. The question coming from inside camp: in a game like the Eliminator, how long does the form sheet keep losing to sentiment?",
+         "reactions": [
+          {
+           "char": "naman",
+           "text": "Big game tomorrow. Not today’s headline. 🙂"
+          },
+          {
+           "char": "__fan",
+           "name": "paltanpulse",
+           "text": "This story the night before the Eliminator? Timing is loud 🤨"
+          },
+          {
+           "char": "__fan",
+           "name": "memeovers",
+           "text": "Press briefing from the bench — multitasking king 💀"
+          }
+         ],
+         "imageUrl": "/generated/cricket-posts/cr-s2-cricketroom.png"
+        },
+        {
+         "source": "account",
+         "name": "Future XI",
+         "handle": "futurexi",
+         "avatarText": "F",
+         "label": "Future XI · prospects",
+         "caption": "POLL 🗳️ SHOULD MI RECALL THE KID FOR THE ELIMINATOR? {name} vs current XI — 19,204 votes. Comments open. Selectors scroll too. 👀",
+         "comments": [
+          {
+           "text": "Let Naman play — and whoever plays, MI wins. 💙",
+           "deltas": {},
+           "relationshipDeltas": {
+            "naman": 3,
+            "hardik": 2
+           },
+           "toast": "Team-first comment. Naman saved the screenshot. The room noticed."
+          },
+          {
+           "text": "That call is on the coaches. We’ll see tomorrow.",
+           "deltas": {},
+           "toast": "Neutral. Safe. Nobody noticed."
+          },
+          {
+           "text": "Recall him. Numbers don’t lie. 📊",
+           "deltas": {
+            "fame": 2
+           },
+           "relationshipDeltas": {
+            "naman": -2,
+            "hardik": -1
+           },
+           "toast": "Campaigning for your own recall. Fans loved it. The dressing room saw it too."
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "CR2-S13",
+   "day": 10,
+   "slot": "Night",
+   "tag": "⚡ ELIMINATOR · NIGHT",
+   "title": "Till the Last Ball",
+   "body": [
+    "Eliminator. Chasing 168—you lose a wicket in the 11th, and the dugout points at you. Two overs later, the board is simple: 52 needed off 30. And the selectors are sitting in the stands."
+   ],
+   "q": "52 off 30. How do you get there?",
+   "reader": [
+    {
+     "t": "nar",
+     "text": "Eliminator. Wankhede packed — 33,000 on their feet. Chasing 168, MI 89/4 — your cue."
+    },
+    {
+     "t": "img",
+     "src": "/generated/cricket-posts/cr2-s13-eliminator.png",
+     "h": 210
+    },
+    {
+     "t": "nar",
+     "text": "2 weeks on the bench, one whiteboard number — now this walk. Recalls happen on 22 yards. The crowd remembers who you are.",
+     "when": {
+      "flag": {
+       "key": "recalled",
+       "gte": 1
+      }
+     }
+    },
+    {
+     "t": "nar",
+     "text": "At the toss, Hardik said it on camera: \"The kid plays. My call.\" Now his word is in your bat.",
+     "when": {
+      "lifeline": true
+     }
+    },
+    {
+     "t": "cue",
+     "who": "Naman",
+     "avatar": "/avatars/naman.png",
+     "text": "(from the rope, carrying drinks) WIDE YORKER! First 3! Wait on it — deep point is open!",
+     "when": {
+      "charTrust": {
+       "charId": "naman",
+       "gte": 50
+      }
+     }
+    },
+    {
+     "t": "nar",
+     "text": "Rohit had said: \"Either works, but decide.\" You picked your way — today it gets tested in front of 33,000.",
+     "when": {
+      "flag": {
+       "key": "ownMethod",
+       "gte": 1
+      }
+     }
+    },
+    {
+     "t": "nar",
+     "big": true,
+     "text": "52 off 30 — whole season on it, selectors in the stands, India’s list in 3 days. Hardik’s eyes say: we’re winning from here, only one question — how?"
+    }
+   ],
+   "choices": [
+    {
+     "t": "Take it deep — calculated",
+     "s": "Play the matchups. Respect the boring ball, punish the bad one. Till the last ball.",
+     "deltas": {
+      "form": 3
+     },
+     "relationshipDeltas": {
+      "hardik": 4,
+      "rohit": 2
+     },
+     "runWrite": "clutch",
+     "outcomeGate": {
+      "metric": "form",
+      "threshold": 58,
+      "assists": [
+       {
+        "charId": "naman",
+        "min": 50,
+        "thresholdDelta": -4
+       },
+       {
+        "charId": "bumrah",
+        "min": 36,
+        "thresholdDelta": -2
+       }
+      ],
+      "pass": {
+       "title": "ELIMINATOR WON",
+       "note": "Last over, 8 needed. The wide yorker came — exactly the one on the plan. Third man was up, deep point open. You waited, played it, boundary on ball 2. 61 not out. Wankhede is still ringing in your ears.",
+       "post": {
+        "source": "account",
+        "name": "MI Paltan",
+        "handle": "mipaltan",
+        "avatarText": "MI",
+        "label": "MI Paltan · just now",
+        "surface": "scorecard",
+        "caption": "ELIMINATOR ✅ MI 169/5 (19.4). {name} 61* — the 16-year-old stood tall till the last ball. Season alive. 💙 #OneFamily",
+        "reactions": [
+         {
+          "char": "hardik",
+          "text": "Told you we were winning from here. The kid gave us the answer to 'how.'"
+         },
+         {
+          "char": "rohit",
+          "text": "Tempo. That’s what we were looking for."
+         },
+         {
+          "char": "__fan",
+          "name": "paltanpulse",
+          "text": "16 YEARS OLD. ELIMINATOR. 61 NOT OUT. I’m crying 😭💙"
+         }
+        ],
+        "imageUrl": "/generated/cricket-posts/cr-s25-pass.png"
+       }
+      },
+      "fail": {
+       "title": "The Fight Was Right",
+       "note": "You fought — the right way. Then one slower ball sold you out, caught at long-on. MI lost by 9 runs. In the dressing room, nobody looks at you. Only Hardik does.",
+       "dm": [
+        {
+         "char": "hardik",
+         "text": "Getting out wasn’t the mistake. The way you played was right. I’ll remember it — and so will the selectors."
+        },
+        {
+         "char": "hardik",
+         "text": "Head up. The season’s over. The story isn’t."
+        }
+       ]
+      }
+     }
+    },
+    {
+     "t": "Counter-attack — hit now",
+     "s": "Flip the pressure. Rip the match out of their hands in 2 overs.",
+     "deltas": {
+      "form": 2,
+      "fame": 3
+     },
+     "relationshipDeltas": {
+      "surya": 3,
+      "hardik": 2
+     },
+     "runWrite": "clutch",
+     "outcomeGate": {
+      "metric": "form",
+      "threshold": 58,
+      "assists": [
+       {
+        "charId": "naman",
+        "min": 50,
+        "thresholdDelta": -4
+       },
+       {
+        "charId": "bumrah",
+        "min": 36,
+        "thresholdDelta": -2
+       }
+      ],
+      "pass": {
+       "title": "WANKHEDE LOST ITS MIND",
+       "note": "You turned the 17th over into 19 runs. 54 off 26 — chase done with 12 balls left. SKY was up on the dugout railing, laughing, shaking his head. The selectors’ pens were moving.",
+       "post": {
+        "source": "account",
+        "name": "MI Paltan",
+        "handle": "mipaltan",
+        "avatarText": "MI",
+        "label": "MI Paltan · just now",
+        "surface": "scorecard",
+        "caption": "ELIMINATOR ✅ Won with 12 balls left! {name} 54 (26) — fearless, ruthless, SIXTEEN. Wankhede has a new heartbeat. 💙",
+        "reactions": [
+         {
+          "char": "surya",
+          "text": "Saw the field, then went feral. Yeah, he’s officially my student now. 😄"
+         },
+         {
+          "char": "hardik",
+          "text": "Fearless with a plan. That’s what we needed."
+         },
+         {
+          "char": "__fan",
+          "name": "futurexi",
+          "text": "that counterattack just walked into every India selection meeting."
+         }
+        ],
+        "imageUrl": "/generated/cricket-posts/cr-s26-pass-mipaltan.png"
+       }
+      },
+      "fail": {
+       "title": "One Shot Too Many",
+       "note": "You charged a wide yorker on the 3rd ball itself. Third man was up — everybody knew it. Top edge, straight into the keeper’s gloves. The chase broke right there. On the walk back, 33,000 people were silent.",
+       "dm": [
+        {
+         "char": "hardik",
+         "text": "The plan was there. You backed your plan."
+        },
+        {
+         "char": "hardik",
+         "text": "Never doubted the talent. Still doubting the decision. Close that gap — or someone else will."
+        }
+       ]
+      }
+     }
+    }
+   ],
+   "feedReaction": {
+    "A": {
+     "char": "rohit",
+     "caption": "Under pressure, your thinking shows, not the score. Tonight Wankhede saw both."
+    },
+    "B": {
+     "char": "surya",
+     "caption": "Wankhede nights >>> everything. Gonna remember this one for a long time. 😄💙"
+    }
+   },
+   "variants": [
+    {
+     "when": {
+      "benched": true
+     },
+     "title": "Last Chance Dugout",
+     "tag": "⚡ ELIMINATOR · DUGOUT",
+     "q": "The captain wants a plan from the bench. What do you give him?",
+     "reader": [
+      {
+       "t": "nar",
+       "text": "Eliminator. You’re not playing — bib on, sprinting along the rope with water bottles. The crowd’s chanting the XI. Not your name."
+      },
+      {
+       "t": "img",
+       "src": "/generated/cricket-posts/cr2-s13-benched.png",
+       "h": 210
+      },
+      {
+       "t": "nar",
+       "text": "Defense: they need 24 off 17, 5 wickets left. Time-out — Hardik breaks from the huddle and walks straight to the bench. Straight to you."
+      },
+      {
+       "t": "cue",
+       "who": "Hardik",
+       "avatar": "/avatars/hardik.png",
+       "text": "The data guys are done. Now you talk — you’ve watched these batters in the nets all season. How do we stop them at the death? Quick."
+      },
+      {
+       "t": "nar",
+       "text": "After the trade rumor, the captain’s maybe said 10 words to you. This 11th question is a door.",
+       "when": {
+        "flag": {
+         "key": "tradeNoise",
+         "gte": 1
+        }
+       }
+      },
+      {
+       "t": "nar",
+       "big": true,
+       "text": "Today the bat won’t speak. Mahela’s ready to write, the broadcast camera’s on the bench — does your cricket brain speak in 30 seconds, or stay quiet forever?"
+      }
+     ],
+     "choices": [
+      {
+       "t": "Give the plan — data and guts",
+       "s": "Their set batter can’t handle the slower ball, square boundary’s short — say it all. No hesitation.",
+       "deltas": {
+        "form": 1
+       },
+       "relationshipDeltas": {
+        "hardik": 4,
+        "mahela": 3
+       },
+       "flagDeltas": {
+        "benchImpact": 1
+       },
+       "dm": [
+        {
+         "char": "hardik",
+         "text": "Scenes!! We won. And that field switch in the 19th — deep point in, third man up — that was your call."
+        },
+        {
+         "char": "hardik",
+         "text": "You won us that match from the bench today. I don't forget stuff like that. Told the selectors the same thing."
+        },
+        {
+         "char": "hardik",
+         "text": "Recovery tomorrow. We'll talk the day after. Good night, match-winner."
+        }
+       ]
+      },
+      {
+       "t": "Sulk at the camera",
+       "s": "You benched me when you needed me. Now you want a plan? Stay quiet — my face will say enough.",
+       "deltas": {
+        "fame": 1
+       },
+       "relationshipDeltas": {
+        "hardik": -4
+       },
+       "post": {
+        "source": "account",
+        "name": "Meme Overs",
+        "handle": "memeovers",
+        "avatarText": "M",
+        "label": "Meme Overs · cricket memes",
+        "caption": "BROADCAST caught MI's young kid LIVE in the Eliminator when the captain asked the bench for a plan 💀 bro had the full 'not my problem' face on. Meme material for YEARS.",
+        "reactions": [
+         {
+          "char": "__fan",
+          "name": "paltanpulse",
+          "text": "this attitude? on the bench? in an eliminator?? bro 😬"
+         },
+         {
+          "char": "tilak",
+          "text": "Context: the bench is tough. But this… this was more than tough."
+         },
+         {
+          "char": "__fan",
+          "name": "futurexi",
+          "text": "selectors watch body language too. just saying."
+         }
+        ],
+        "imageUrl": "/generated/cricket-posts/cr-s13-surya.png"
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "CR2-S14",
+   "day": 11,
+   "slot": "Evening",
+   "tag": "⚡ THE VERDICT · EVENING",
+   "title": "The Verdict",
+   "body": [
+    "Squad announcement—India A and T20I list, 6 PM. Right now it’s 3:47, your phone has 89 notifications, and Hardik is in the room where the list gets made. 2 hours. Where do you spend them?"
+   ],
+   "q": "List drops at 6. Where are you till then?",
+   "reader": [
+    {
+     "t": "nar",
+     "text": "Day 11. India A and T20I list at 6. It's 3:47 right now, and my phone has 89 notifications. Hardik is in that room where the list gets made."
+    },
+    {
+     "t": "img",
+     "src": "/generated/cricket-posts/cr2-s14-verdict.png",
+     "h": 210
+    },
+    {
+     "t": "nar",
+     "text": "Yesterday's knock is in every highlight package. 'ELIMINATOR' is stuck to your name now.",
+     "when": {
+      "gate": {
+       "sitId": "CR2-S13",
+       "is": "pass"
+      }
+     }
+    },
+    {
+     "t": "nar",
+     "text": "Yesterday's loss is still sitting in my chest. But selectors notice fight even in a loss. Maybe.",
+     "when": {
+      "gate": {
+       "sitId": "CR2-S13",
+       "is": "fail"
+      }
+     }
+    },
+    {
+     "t": "cue",
+     "who": "Coach Sir",
+     "avatar": "/avatars/coach.png",
+     "text": "Son. You were 11 when you said this day would come. The day's here. The rest is just formality.",
+     "when": {
+      "charTrust": {
+       "charId": "coach",
+       "gte": 80
+      }
+     }
+    },
+    {
+     "t": "nar",
+     "when": {
+      "flag": {
+       "key": "benchImpact",
+       "gte": 1
+      }
+     },
+     "text": "Yesterday you won the match with your head, not your bat. Today we'll find out what the selectors saw on the broadcast — the bib, or the brain."
+    },
+    {
+     "t": "nar",
+     "when": {
+      "flag": {
+       "key": "briefedPress",
+       "gte": 1
+      }
+     },
+     "text": "And that 'sources' story? The dressing room might forget. The selection room never does."
+    },
+    {
+     "t": "nar",
+     "when": {
+      "flag": {
+       "key": "tradeNoise",
+       "gte": 1
+      }
+     },
+     "text": "1 old thing is traveling with this list — that trade rumor. The selectors read that too."
+    },
+    {
+     "t": "cue",
+     "who": "Maddy",
+     "avatar": "/avatars/friend.png",
+     "when": {
+      "charTrust": {
+       "charId": "friend",
+       "gte": 60
+      }
+     },
+     "text": "BRO. 6 PM. I have 3 YouTube channels open and 1 astrology stream. I'M nervous and I'm not even on the list 😭"
+    },
+    {
+     "t": "cue",
+     "who": "Rohit",
+     "avatar": "/avatars/rohit.png",
+     "when": {
+      "charTrust": {
+       "charId": "rohit",
+       "gte": 48
+      }
+     },
+     "text": "Before the list, one thing. What you learned this season won't show up on any list. That stays with you."
+    },
+    {
+     "t": "nar",
+     "big": true,
+     "text": "2 hours, 1 list — the longest wait of 16 years. Where are you spending it?"
+    }
+   ],
+   "choices": [
+    {
+     "t": "Phone off — go to Coach's academy",
+     "s": "Hear the ending where it started. Cement wicket, old net.",
+     "deltas": {},
+     "relationshipDeltas": {
+      "coach": 3,
+      "hardik": 1
+     },
+     "flagDeltas": {
+      "homeGrounding": 1
+     },
+     "dm": [
+      {
+       "char": "coach",
+       "text": "You here? Pad up. Your phone stays in my pocket — till 6, it's just throwdowns. Like when you were eleven."
+      },
+      {
+       "char": "coach",
+       "text": "Remember your first season ball? You were crying. I told you — forget the pain, never the fear. You didn't let yourself forget. Whatever happens today, that matters more than any list."
+      },
+      {
+       "char": "coach",
+       "text": "…Wait. Your phone's ringing in my pocket. 5:58. Unknown number — Mumbai code. …Son. Pick it up."
+      }
+     ]
+    },
+    {
+     "t": "Live tracker + statement ready",
+     "s": "Watch history happen. And let the first word be yours — whatever it is.",
+     "deltas": {
+      "fame": 2
+     },
+     "relationshipDeltas": {
+      "hardik": -1
+     },
+     "flagDeltas": {
+      "hypeRisk": 1
+     },
+     "postTag": "THE VERDICT",
+     "postWhy": "The list drops at 6. Whatever happens — the first word needs to be yours, not some headline's. {followers} followers are smashing refresh. Write the statement.",
+     "post": {
+      "source": "player",
+      "caption": "Whatever 6 PM brings — I earned this season, I didn't beg for it. Mumbai bought me. Now cricket decides what they got. 💙 #TheVerdict",
+      "reactions": [
+       {
+        "char": "__fan",
+        "name": "paltanpulse",
+        "text": "At 6:00:01, we're all meeting right here. WHATEVER HAPPENS 💙"
+       },
+       {
+        "char": "__fan",
+        "name": "futurexi",
+        "text": "list loading… this kid's name was on every shortlist. now let's see what the committee saw."
+       },
+       {
+        "char": "rohit",
+        "text": "Career comes before the statement. Both are still long."
+       }
+      ],
+      "imageUrl": "/generated/cricket-posts/cr-s11-player.png"
+     }
+    }
+   ],
+   "feedReaction": {
+    "A": {
+     "char": "friend",
+     "caption": "Bro turned his phone OFF on verdict day and went to the academy. I'm stressing for him instead. Update: some astrology stream says 'strong Jupiter'. 🙏"
+    },
+    "B": {
+     "char": "coach",
+     "caption": "Even today, the post came before the call. Times have changed. Same number, kid — call when the list drops."
+    }
+   }
+  }
+ ],
+ "narrLines": [
+  {
+   "text": "Mumbai Indians.",
+   "cls": "narr-h"
+  },
+  {
+   "text": "Wankhede. Blue kit. Your name on the squad list.",
+   "cls": "narr-p"
+  },
+  {
+   "text": "The dressing room hasn't bought the story yet.",
+   "cls": "narr-p dim"
+  }
+ ],
+ "narrChars": [
+  [
+   "hardik",
+   "Captain. Role clarity before ego.\nHe decides whether your confidence helps the team—or just your image."
+  ],
+  [
+   "rohit",
+   "The quiet one. One line that changes everything.\n\"That was a shot. That wasn’t a ball.\""
+  ],
+  [
+   "surya",
+   "Freedom. But earned, not random.\n\"Read the field, then go crazy.\""
+  ],
+  [
+   "bumrah",
+   "Six balls. No sledging. No smile.\nThe hardest mirror in the room."
+  ],
+  [
+   "tilak",
+   "Already trusts you. Watching you earn it.\n\"Anyone can get hype. Trust comes from doing it again and again.\""
+  ]
+ ],
+ "dmTrustStart": {
+  "hardik": 30,
+  "rohit": 30,
+  "surya": 35,
+  "bumrah": 25,
+  "tilak": 45,
+  "coach": 70,
+  "friend": 75,
+  "naman": 40,
+  "robin": 40,
+  "mahela": 25
+ },
+ "trustGoals": {
+  "rohit": {
+   "unlocks": "Backing from the seniors on the away leg (\"Win the Room\")",
+   "tips": [
+    "Talk more about your process than the result—Rohit reads your thinking, not just the score.",
+    "Tell him straight and honestly how you think under pressure.",
+    "No shortcuts, no excuses—that’s how you lose his trust."
+   ]
+  },
+  "hardik": {
+   "unlocks": "Your name on every team sheet — and an India verdict at the end of the season",
+   "tips": [
+    "A captain wants role clarity—know your role and own it.",
+    "Give direct answers; don’t turn it into a headline or drama.",
+    "Team first, ego second — act like it."
+   ]
+  }
+ },
+ "lowTrustFeed": {
+  "hardik": "Body language watch from MI training: the captain looked colder than usual around the new kid today. The talent's there, but the question of role discipline is still open.",
+  "rohit": "Quiet Rohit moment caught at nets. No public drama, but the senior didn’t look fully sold on the youngster today.",
+  "surya": "Usually Surya keeps every session light. Today the vibe around the new kid felt a little off. Paltan noticed.",
+  "bumrah": "Bumrah rarely reacts, which is exactly why today stood out. The technical chat with the youngster looked short and serious.",
+  "tilak": "Young table update: the friendly energy around the new MI kid looks a little complicated now. Competition is normal. Distance is new.",
+  "mahela": "Selection watch: MI staff still rate the talent, but trust in the youngster’s role still looks like a work in progress.",
+  "coach": "Old coach, new pressure. People close to the youngster feel the IPL noise is starting to change how he listens.",
+  "friend": "Off-field watch: childhood friends don’t always slide easily into sudden IPL life. Something feels a little distant around the new kid."
+ },
+ "socialAccounts": {
+  "miPaltan": {
+   "name": "MI Paltan",
+   "handle": "mipaltan",
+   "avatarText": "MI",
+   "label": "MI Paltan · just now"
+  },
+  "mumbaiIndians": {
+   "name": "Mumbai Indians",
+   "handle": "mumbaiindians",
+   "avatarText": "MI",
+   "label": "Mumbai Indians · official"
+  },
+  "paltanPulse": {
+   "name": "Paltan Pulse",
+   "handle": "paltanpulse",
+   "avatarText": "P",
+   "label": "Paltan Pulse · fan page"
+  },
+  "cricketroom": {
+   "name": "Cricketroom India",
+   "handle": "cricketroom_india",
+   "avatarText": "C",
+   "label": "Cricketroom India · analysis"
+  },
+  "futurexi": {
+   "name": "Future XI",
+   "handle": "futurexi",
+   "avatarText": "F",
+   "label": "Future XI · prospects"
+  },
+  "memeovers": {
+   "name": "Meme Overs",
+   "handle": "memeovers",
+   "avatarText": "M",
+   "label": "Meme Overs · cricket memes"
+  }
+ },
+ "endingData": {
+  "indiaCall": {
+   "arc": "The Call-Up",
+   "sub": "Unknown number. Then Hardik's on-record line: \"I put your name forward. The rest, you wrote yourself.\" T20I squad — the runs were there, and the room was yours too.",
+   "color": "#3DD6C8"
+  },
+  "captainsBet": {
+   "arc": "Captain's Bet",
+   "sub": "India A tour — the captain’s backed pick. \"The numbers are only halfway there. But I’m all in.\" Now it’s not about earning that trust — it’s about living up to it.",
+   "color": "#FFB020"
+  },
+  "statsMachine": {
+   "arc": "Stats Machine, Cold Room",
+   "sub": "India A — the numbers opened a door no one opened for you. The corridor was empty. Only Bumrah gave a nod. The scorecard made the case, because no one else did.",
+   "color": "#FF5C3A"
+  },
+  "notYet": {
+   "arc": "Not Yet",
+   "sub": "The list dropped. Your name didn’t. No call either. But at 16, \"not yet\" doesn’t mean \"never\" — this story isn’t over, it just hasn’t happened yet.",
+   "color": "#8a4ab0"
+  }
+ },
+ "dmHooks": {
+  "naman": "One slot, two people. Weird, right? Anyway — wanna hit nets together tomorrow?",
+  "mahela": "Selection is a sheet of numbers and one question: can I trust the role? Keep both in order.",
+  "hardik": "Wanted to talk about the role. Meet me after practice.",
+  "rohit": "I’m watching you. Ask if something’s not clicking.",
+  "surya": "Hey champ! Settling in a little? First week’s always tough.",
+  "bumrah": "One technical note from today.",
+  "tilak": "Good session. Wanted to ask one thing.",
+  "coach": "Call when you’re free, beta. Not urgent, important.",
+  "friend": "BRO PICK UP THE PHONE. I have 47 things to tell you."
+ },
+ "dmMock": {
+  "hardik": [
+   "Stay locked in on your role.",
+   "Focus on execution.",
+   "Team first. Always."
+  ],
+  "rohit": [
+   "You’re on the right track.",
+   "We’ll talk tomorrow.",
+   "I’m watching."
+  ],
+  "surya": [
+   "Yo, what’s the scene? 😄",
+   "Come to nets tomorrow, I’ll show you something.",
+   "Energy’s great, bro."
+  ],
+  "bumrah": [
+   "Still late on the slower one.",
+   "Better.",
+   "Watch the wrist."
+  ],
+  "tilak": [
+   "Good session.",
+   "Build trust. It'll take time.",
+   "Stick to the process."
+  ],
+  "coach": [
+   "Send the video.",
+   "Tomorrow, 6 a.m. Throwdowns.",
+   "It's going well. Let's go."
+  ],
+  "friend": [
+   "BROOOO 😭",
+   "I showed everyone. You're famous now. Terrifying.",
+   "Please keep replying."
+  ]
+ }
+}

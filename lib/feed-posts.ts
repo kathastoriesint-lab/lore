@@ -7,6 +7,7 @@ import { weekForSituationId } from './season'
 import { resolveGateOutcome, resolveSituationForReplay, variantCtxFor } from './variants'
 import { getCricketChars, getCHChars, getCricketSituations } from './content'
 import { applyDeltas, chCharForGender } from './game'
+import { tr } from './lang'
 
 // Character post-card colours (must echo .c-{id}{--cc} in globals.css).
 export const CHAR_COLORS_HEX: Record<string, string> = {
@@ -247,15 +248,15 @@ export function deriveOvernightPosts(game: GameState): FeedPost[] {
 
   // After SEL-W1 (week 2 open): the sheet verdict is public news.
   if (week >= 2 && sel['SEL-W1']) {
-    if (sel['SEL-W1'] === 'started') mk('paltanpulse', 'w1', `TEAM SHEET OUT: 16 saal ka debut aaj raat Wankhede pe. No.5 — ${name}. Neend kis kis ki udi? 🔥`, '/generated/cricket-posts/cr2-s5-sheet.png')
-    else if (sel['SEL-W1'] === 'lifeline') mk('cricketroom', 'w1', `Sources: coaching room ne form sheet dikhayi, captain ne apna naam. Aaj raat ka No.5 — ${name} — Hardik ki personal call hai.`, '/generated/cricket-posts/cr2-s5-selection.png')
+    if (sel['SEL-W1'] === 'started') mk('paltanpulse', 'w1', tr(`TEAM SHEET OUT: 16 saal ka debut aaj raat Wankhede pe. No.5 — ${name}. Neend kis kis ki udi? 🔥`, `TEAM SHEET OUT: a 16-year-old debuts TONIGHT at Wankhede. No.5 — ${name}. Who's sleeping tonight? Nobody. 🔥`), '/generated/cricket-posts/cr2-s5-sheet.png')
+    else if (sel['SEL-W1'] === 'lifeline') mk('cricketroom', 'w1', tr(`Sources: coaching room ne form sheet dikhayi, captain ne apna naam. Aaj raat ka No.5 — ${name} — Hardik ki personal call hai.`, `Sources: the coaching room held up the form sheet, the captain put down his name. Tonight's No.5 — ${name} — is Hardik's personal call.`), '/generated/cricket-posts/cr2-s5-selection.png')
     else mk('paltanpulse', 'w1', `WHERE IS ${name.toUpperCase()}?? MI buys a prodigy and BENCHES him?? #JusticeFor${name.replace(/\s+/g, '')} 😤`, '/generated/cricket-posts/cr2-s5-benched.png')
   }
   // After the debut gate (S7) resolves and week 3 opens: the knock is history.
   if (week >= 3 && gates['CR2-S7']) {
-    if (gates['CR2-S7'] === 'pass') mk('paltanpulse', 'w2', `${rm.debutRuns ?? 40}(${rm.debutBalls ?? 26})${sel['SEL-W1'] === 'benched' ? ' AS A SUB' : ' ON DEBUT'}. Okay MI, hum dekh rahe hain 💙 Ab isse XI se bahar mat karna.`, '/generated/cricket-posts/cr-s25-pass.png')
-    else mk('memeovers', 'w2', `debut ${rm.debutRuns ?? 12}(${rm.debutBalls ?? 14}) — hype train ka pehla station aa gaya. utarna hai kisi ko? 💀`, '/generated/cricket-posts/cr-s25-fail.png')
-    if (sel['SEL-W2'] === 'benched') mk('cricketroom', 'w2b', `Week 2 sheet: ${name} OUT. Storm ke baad ki khamoshi hamesha zyada loud hoti hai. Eliminator se pehle wapas aana hoga — wapas aana hai toh form dikhana hoga — 64 ka number bola ja raha hai.`, '/generated/cricket-posts/cr2-s12-net64.png')
+    if (gates['CR2-S7'] === 'pass') mk('paltanpulse', 'w2', tr(`${rm.debutRuns ?? 40}(${rm.debutBalls ?? 26})${sel['SEL-W1'] === 'benched' ? ' AS A SUB' : ' ON DEBUT'}. Okay MI, hum dekh rahe hain 💙 Ab isse XI se bahar mat karna.`, `${rm.debutRuns ?? 40}(${rm.debutBalls ?? 26})${sel['SEL-W1'] === 'benched' ? ' AS A SUB' : ' ON DEBUT'}. Okay MI, we see you 💙 Now don't you DARE drop this kid from the XI.`), '/generated/cricket-posts/cr-s25-pass.png')
+    else mk('memeovers', 'w2', tr(`debut ${rm.debutRuns ?? 12}(${rm.debutBalls ?? 14}) — hype train ka pehla station aa gaya. utarna hai kisi ko? 💀`, `debut ${rm.debutRuns ?? 12}(${rm.debutBalls ?? 14}) — first stop on the hype train. anyone getting off? 💀`), '/generated/cricket-posts/cr-s25-fail.png')
+    if (sel['SEL-W2'] === 'benched') mk('cricketroom', 'w2b', tr(`Week 2 sheet: ${name} OUT. Storm ke baad ki khamoshi hamesha zyada loud hoti hai. Eliminator se pehle wapas aana hoga — wapas aana hai toh form dikhana hoga — 64 ka number bola ja raha hai.`, `Week 2 sheet: ${name} OUT. The silence after a storm is always louder. Has to be back before the Eliminator — and the way back runs through form. The number being whispered: 64.`), '/generated/cricket-posts/cr2-s12-net64.png')
   }
   return out
 }
@@ -270,19 +271,19 @@ export function deriveOvernightPosts(game: GameState): FeedPost[] {
 // image so it never renders blank.
 const BUZZ_FEED = [
   { handle: 'paltanpulse', init: 'P', color: '#003087', img: '/generated/cricket-posts/cr-s14-mipaltan.png', lines: [
-    'Yeh kid alag hai. Andar wale bhi notice kar rahe hain 👀💙',
-    'Remember the name — Paltan ne pehle hi bola tha 🔥',
-    'Temperament > hype. Aur dono side dikh raha hai. 💙',
+    tr('Yeh kid alag hai. Andar wale bhi notice kar rahe hain 👀💙', 'This kid is different. Even the people inside are noticing 👀💙'),
+    tr('Remember the name — Paltan ne pehle hi bola tha 🔥', 'Remember the name — the Paltan called it first 🔥'),
+    tr('Temperament > hype. Aur dono side dikh raha hai. 💙', 'Temperament > hype. And right now we\'re seeing both. 💙'),
   ] },
   { handle: 'cricketroom_india', init: 'C', color: '#1a2a3a', img: '/generated/cricket-posts/cr-s2-cricketroom.png', lines: [
-    'Talent toh hai. Pressure mein kya karta hai — wahi asli test.',
-    'MI ka yeh young pick — abhi sabse zyada charcha isi ki.',
-    'Trust takes time. Kid abhi apna case bana raha hai.',
+    tr('Talent toh hai. Pressure mein kya karta hai — wahi asli test.', 'The talent is there. What he does under pressure — that\'s the real test.'),
+    tr('MI ka yeh young pick — abhi sabse zyada charcha isi ki.', 'MI\'s young pick — nobody in cricket is being talked about more right now.'),
+    tr('Trust takes time. Kid abhi apna case bana raha hai.', 'Trust takes time. The kid is still building his case.'),
   ] },
   { handle: 'futurexi', init: 'FX', color: '#2a1a4a', img: '/generated/cricket-posts/seed-futurexi.png', lines: [
-    'India ka next? Raasta lamba hai, par shuruaat solid.',
-    'Scouting note: is umar mein yeh temperament rare hai. 🏏',
-    'Yeh naam yaad rakhna. Watch this space.',
+    tr('India ka next? Raasta lamba hai, par shuruaat solid.', 'India\'s next? Long road ahead, but that is a solid start.'),
+    tr('Scouting note: is umar mein yeh temperament rare hai. 🏏', 'Scouting note: temperament like this at this age is rare. 🏏'),
+    tr('Yeh naam yaad rakhna. Watch this space.', 'Remember this name. Watch this space.'),
   ] },
 ] as const
 

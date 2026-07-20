@@ -4,6 +4,7 @@ import type { CharId } from '@/lib/types'
 import { getCricketChars, getCHChars, getCHDMOrder } from '@/lib/content'
 import { fmtClock } from '@/lib/dm-time'
 import LiveEntryCard from '@/components/LiveEntryCard'
+import { tr } from '@/lib/lang'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
@@ -138,10 +139,10 @@ export default function DMInboxScreen() {
           const lastMsg = hasMessages ? history[history.length - 1].text : null
           const isMission = game.activeMission?.char === charId
           const preview = isMission
-            ? '📌 STORY MISSION — baat shuru karo'
+            ? tr('📌 STORY MISSION — baat shuru karo', '📌 STORY MISSION — start the conversation')
             : lastMsg
               ? (lastMsg.length > 42 ? lastMsg.slice(0, 42) + '…' : lastMsg)
-              : isCricket ? 'Message karke baat shuru karo' : CHAR_SUBTEXT[charId] ?? char.role.split(' · ')[0]
+              : isCricket ? tr('Message karke baat shuru karo', 'Send a message to break the ice') : CHAR_SUBTEXT[charId] ?? char.role.split(' · ')[0]
           // WhatsApp-style stamp: story clock if the thread's last message is from
           // the latest story day, else "Day N". (No more constant "now".)
           const lastTimed = [...history].reverse().find(m => typeof m.t === 'number')

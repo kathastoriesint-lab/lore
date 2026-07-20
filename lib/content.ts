@@ -19,6 +19,7 @@ import type { Dossier } from './dossier'
 import type { PostCommentOption } from './data'
 import cricketBundled from '@/public/content/cricket-v15.json'
 import chBundled from '@/public/content/creator-house-v4.json'
+import { getLang } from './lang'
 
 export interface CricketContent {
   version: number
@@ -92,6 +93,20 @@ async function fetchJson(url: string, timeoutMs: number): Promise<unknown> {
 // only upgrades it. Loads last-known-good first (offline-friendly), then tries
 // the remote source. Any failure is swallowed — bundled keeps the game playable.
 export async function initContent(): Promise<void> {
+  // English mode (YC / non-Hindi readers): serve the bundled -en variants and
+  // skip LKG/remote entirely — they hold Hinglish content and would fight the
+  // language choice. English ships in the bundle, so it's always current.
+  if (getLang() === 'en') {
+    try {
+      const [cr, chEn] = await Promise.all([
+        import('@/public/content/cricket-v15-en.json'),
+        import('@/public/content/creator-house-v4-en.json'),
+      ])
+      if (isValidCricketContent(cr.default)) cricket = cr.default as unknown as CricketContent
+      if (isValidCHContent(chEn.default)) ch = chEn.default as unknown as CHContent
+    } catch { /* bundled Hinglish stands */ }
+    return
+  }
   // Last-known-good from a previous session (offline-friendly).
   try { const c = localStorage.getItem(LKG_KEY); if (c) applyCricket(JSON.parse(c)) } catch { /* ignore */ }
   try { const c = localStorage.getItem(CH_LKG_KEY); if (c) applyCH(JSON.parse(c)) } catch { /* ignore */ }

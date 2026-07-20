@@ -1,6 +1,7 @@
 'use client'
 import { useApp } from '@/lib/context'
 import { getCricketChars, getCricketNarrChars } from '@/lib/content'
+import { tr } from '@/lib/lang'
 
 export default function CricketIntroScreen() {
   const { startCricketGame, navigate, game } = useApp()
@@ -74,8 +75,8 @@ export default function CricketIntroScreen() {
         {/* The two goals + the weekly heartbeat */}
         <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
           {[
-            { label: '🏏 FORM', color: 'var(--fame)',  desc: 'Runs on the board — pehla goal' },
-            { label: "🧢 CAPTAIN'S TRUST", color: 'var(--trust)', desc: 'Hardik ka bharosa, DMs mein banta hai — doosra goal' },
+            { label: '🏏 FORM', color: 'var(--fame)',  desc: tr('Runs on the board — pehla goal', 'Runs on the board — goal one') },
+            { label: "🧢 CAPTAIN'S TRUST", color: 'var(--trust)', desc: tr('Hardik ka bharosa, DMs mein banta hai — doosra goal', "Hardik's trust, built in the DMs — goal two") },
           ].map(m => (
             <div key={m.label} style={{ flex: 1, background: 'rgba(255,255,255,.05)', borderRadius: 10, padding: '8px 10px' }}>
               <div style={{ fontSize: 9, fontWeight: 800, color: m.color, letterSpacing: '.06em' }}>{m.label}</div>
@@ -84,8 +85,8 @@ export default function CricketIntroScreen() {
           ))}
         </div>
         <div style={{ fontSize: 11, color: 'var(--ink3)', marginTop: 10, lineHeight: 1.5 }}>
-          📋 Har hafte team sheet lagti hai — dono goals decide karte hain naam aayega ya nahi.
-        </div>
+          {tr('📋 Har hafte team sheet lagti hai — dono goals decide karte hain naam aayega ya nahi.', '📋 The team sheet goes up every week — both goals decide whether your name makes it.')}
+</div>
 
         {/* CTAs */}
         <div className="wi-cta" style={{ marginTop: 20 }}>

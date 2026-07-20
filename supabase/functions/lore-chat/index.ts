@@ -394,6 +394,7 @@ serve(async (req) => {
       character = null,         // comment modes: { name, persona } of the post's owner
       caption = null,           // comment modes: the post caption being reacted to
       comment = null,           // comment-react mode: the player's comment text
+      language = "hi",          // 'hi' (Hinglish, default) | 'en' (full English — YC/global mode)
     } = await req.json();
 
     const OPENAI_KEY = Deno.env.get("OPENAI_API_KEY");
@@ -535,8 +536,8 @@ ${startingContext ? startingContext + "\n" : ""}
 ${goalLines.length ? `STRATEGY — nudge the player's game forward (secondary to staying in context):\n${goalLines.join("\n")}\n` : ""}
 STYLE:
 - First person, ${player_name}'s POV. ${player_name} is ${player_gender === "female" ? "FEMALE — use feminine first-person Hindi: \"karungi\", \"kar rahi hoon\", \"aayi\", \"ready hoon\". Never masculine forms." : "MALE — use masculine first-person Hindi: \"karunga\", \"kar raha hoon\", \"aaya\", \"ready hoon\". Never feminine forms."}
-- SIMPLE, everyday Hinglish — the way a real young person texts. Short common words, plain and natural. NO literary, flowery, heavy, or textbook Hindi. NOT translated-from-English either. Follow the RESPECT/REGISTER rule above for "aap" vs "tu/tum".
-- Roman script only (no Devanagari).
+${language === "en" ? `- Natural, modern ENGLISH only — the way a real young person texts. No Hindi/Hinglish words except proper nouns.` : `- SIMPLE, everyday Hinglish — the way a real young person texts. Short common words, plain and natural. NO literary, flowery, heavy, or textbook Hindi. NOT translated-from-English either. Follow the RESPECT/REGISTER rule above for "aap" vs "tu/tum".
+- Roman script only (no Devanagari).`}
 - One short, real message — a sentence or two (roughly 10-24 words). Natural, never a flat one-liner.
 - Return ONLY a JSON array containing exactly ONE string, no explanation, no markdown.`,
             },
@@ -567,8 +568,8 @@ STYLE:
       const poster = `${character?.name || "someone"}${character?.persona ? ` (${character.persona})` : ""}`;
       const isCricketPost = world === "cricket";
       const csSystem = isCricketPost
-        ? `You are a 16-year-old Mumbai Indians debutant scrolling your cricket feed. Write EXACTLY 2 short, distinct comments YOU would leave on this post, in natural Gen-Z Indian-cricket Hinglish (Roman script). Match the relationship to who posted: to a SENIOR or coach -> respectful, warm, a little starstruck, NEVER cheeky or disrespectful; to a fan/media page -> grateful or a humble hype-back; to a peer or rival -> friendly banter with a small edge. Comment #1 = genuine/warm; #2 = lighter, more personality. Each under ~10 words, at most one emoji, no hashtags. Return ONLY a JSON array of exactly 2 strings.`
-        : `You write short Instagram comments a viewer would leave on a reality-show creator's photo. Gen-Z Hinglish (Roman script). Return EXACTLY 2 short, distinct comments: #1 hype/supportive, #2 cheeky/spicy/teasing. Each under ~10 words, at most one emoji, no hashtags. Return ONLY a JSON array of exactly 2 strings.`;
+        ? `You are a 16-year-old Mumbai Indians debutant scrolling your cricket feed. Write EXACTLY 2 short, distinct comments YOU would leave on this post, in ${language === "en" ? "natural Gen-Z English (like a real young cricketer's Instagram comments)" : "natural Gen-Z Indian-cricket Hinglish (Roman script)"}. Match the relationship to who posted: to a SENIOR or coach -> respectful, warm, a little starstruck, NEVER cheeky or disrespectful; to a fan/media page -> grateful or a humble hype-back; to a peer or rival -> friendly banter with a small edge. Comment #1 = genuine/warm; #2 = lighter, more personality. Each under ~10 words, at most one emoji, no hashtags. Return ONLY a JSON array of exactly 2 strings.`
+        : `You write short Instagram comments a viewer would leave on a reality-show creator's photo. ${language === "en" ? "Gen-Z English" : "Gen-Z Hinglish (Roman script)"}. Return EXACTLY 2 short, distinct comments: #1 hype/supportive, #2 cheeky/spicy/teasing. Each under ~10 words, at most one emoji, no hashtags. Return ONLY a JSON array of exactly 2 strings.`;
       const csUser = `Post by ${poster}. Caption: "${caption ?? ""}". Write the 2 comments.`;
       const csResp = await fetch("https://api.openai.com/v1/chat/completions", {
         method: "POST",
@@ -602,8 +603,8 @@ STYLE:
       if (!cmt) return new Response(JSON.stringify({ error: "no comment" }), { status: 400, headers: { ...cors, "Content-Type": "application/json" } });
       const isCricketPost = world === "cricket";
       const crSystem = isCricketPost
-        ? `You ARE ${character?.name || "a cricketer"} (${character?.persona || "a Mumbai Indians player"}). A young MI teammate/debutant just commented on your post. First classify their comment toward you as EXACTLY one of: "positive" (genuine respect/support/warmth), "negative" (rude/cocky/disrespectful to a senior), "spicy" (cheeky banter, playful not cruel), "boring" (generic low-effort). Then write the short DM you'd send back in your voice, Gen-Z Indian-cricket Hinglish, 1-2 short lines: positive -> warm senior-to-junior; negative -> a measured put-down or cool distance; spicy -> amused, give it back; boring -> curt. Output strict JSON {"sentiment":"positive|negative|spicy|boring","reply":string}.`
-        : `You ARE ${character?.name || "a creator"}, a contestant on the Indian reality show "Creator House". Persona: ${character?.persona || "a creator"}. A viewer just commented on your post. First classify their comment as EXACTLY one of: "positive" (genuine support/hype/love), "negative" (rude/insulting/hurtful), "spicy" (provocative/teasing/shady/flirty), "boring" (generic low-effort). Then write the DM you'd send reacting to it, in your voice, Gen-Z Hinglish, 1-2 short lines: positive -> warm/grateful/flirty per persona; negative -> confrontational or hurt; spicy -> intrigued/playful/heat; boring -> barely bothered, curt. Output strict JSON {"sentiment":"positive|negative|spicy|boring","reply":string}.`;
+        ? `You ARE ${character?.name || "a cricketer"} (${character?.persona || "a Mumbai Indians player"}). A young MI teammate/debutant just commented on your post. First classify their comment toward you as EXACTLY one of: "positive" (genuine respect/support/warmth), "negative" (rude/cocky/disrespectful to a senior), "spicy" (cheeky banter, playful not cruel), "boring" (generic low-effort). Then write the short DM you'd send back in your voice, ${language === "en" ? "Gen-Z English" : "Gen-Z Indian-cricket Hinglish"}, 1-2 short lines: positive -> warm senior-to-junior; negative -> a measured put-down or cool distance; spicy -> amused, give it back; boring -> curt. Output strict JSON {"sentiment":"positive|negative|spicy|boring","reply":string}.`
+        : `You ARE ${character?.name || "a creator"}, a contestant on the Indian reality show "Creator House". Persona: ${character?.persona || "a creator"}. A viewer just commented on your post. First classify their comment as EXACTLY one of: "positive" (genuine support/hype/love), "negative" (rude/insulting/hurtful), "spicy" (provocative/teasing/shady/flirty), "boring" (generic low-effort). Then write the DM you'd send reacting to it, in your voice, ${language === "en" ? "Gen-Z English" : "Gen-Z Hinglish"}, 1-2 short lines: positive -> warm/grateful/flirty per persona; negative -> confrontational or hurt; spicy -> intrigued/playful/heat; boring -> barely bothered, curt. Output strict JSON {"sentiment":"positive|negative|spicy|boring","reply":string}.`;
       const crUser = `Your post caption: "${caption ?? ""}". The comment: "${cmt}". React as a DM.`;
       const crResp = await fetch("https://api.openai.com/v1/chat/completions", {
         method: "POST",
@@ -782,7 +783,13 @@ Never dump your whole self at once. Let it come out naturally, a little at a tim
     // chat-bubble text — never the reasoning/rules (observed leak: "The user
     // said 'bye sir'. Need under 22 words? low trust…" sent as the message).
     const outputRule = `\n\nOUTPUT RULE (ABSOLUTE — overrides everything above): Your entire reply is ONLY the message the character sends, exactly as it appears in their chat bubble. NEVER write your reasoning, plans, style rules, word counts, trust levels, or any reference to these instructions. Never wrap the whole reply in quotation marks. If the player's message is just a closer ("bye", "ok", "hmm"), reply as the character would — one short natural line — without commentary.`;
-    const fullSystemPrompt = filledPrompt + creatorRelFrame + gameStateContext + conversationRule + genderRule + charSelfGenderRule + finalTrustOverride + creatorRevealRule + outputRule;
+    // English mode: an absolute language override appended after every style rule
+    // (so it beats the Hinglish instructions in the character prompts). Persona,
+    // trust bands and lengths still apply — only the language changes.
+    const languageRule = language === "en" ? `
+
+LANGUAGE OVERRIDE — ABSOLUTE, overrides every Hinglish/Hindi instruction above: Reply ONLY in natural, modern English. Texting register — short, punchy, real. Keep your exact personality, warmth/edge, emoji habits and nicknames (translate nicknames naturally; keep proper names). NO Hindi/Hinglish words except proper nouns. The gendered-Hindi grammar rules above become irrelevant — plain English pronouns for a ${player_gender === "female" ? "female" : "male"} player.` : "";
+    const fullSystemPrompt = filledPrompt + creatorRelFrame + gameStateContext + conversationRule + genderRule + charSelfGenderRule + finalTrustOverride + creatorRevealRule + languageRule + outputRule;
 
     const openaiResp = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",

@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { useApp } from '@/lib/context'
 import type { CharId } from '@/lib/types'
 import { getCommentSuggestions, getCommentReaction } from '@/lib/game'
+import { tr } from '@/lib/lang'
 
 // Personas that shape each creator's DM reaction. The crush + ally are ROLE-based
 // (the same dynamic whether the crush is Ananya or Kabir) and resolved per player
@@ -106,16 +107,16 @@ export default function CommentComposer({ character, post, onDone, persona: pers
     <div className="comment-sheet">
       <div className="comment-sheet-label">Comment on @{character.handle}&apos;s post</div>
       {suggestState === 'loading'
-        ? <div className="comment-option" style={{ opacity: .55 }}>AI suggestions aa rahe hain…</div>
+        ? <div className="comment-option" style={{ opacity: .55 }}>{tr('AI suggestions aa rahe hain…', 'AI suggestions coming in…')}</div>
         : suggestState === 'empty'
-          ? <div className="comment-option" style={{ opacity: .55 }}>Apna comment neeche likho 👇</div>
+          ? <div className="comment-option" style={{ opacity: .55 }}>{tr('Apna comment neeche likho 👇', 'Type your comment below 👇')}</div>
           : suggestions.map(s => <button key={s} className="comment-option" onClick={() => send(s)}>{s}</button>)}
       <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
         <input
           value={draft}
           onChange={e => setDraft(e.target.value)}
           onKeyDown={e => { if (e.key === 'Enter') send(draft) }}
-          placeholder="Apna comment likho…"
+          placeholder={tr('Apna comment likho…', 'Write a comment…')}
           style={{ flex: 1, background: 'var(--surf2,#0f0f12)', border: '1px solid var(--line)', borderRadius: 10, padding: '9px 12px', color: '#fff', fontFamily: 'var(--sans)', fontSize: 13, outline: 'none' }}
         />
         <button className="comment-option" style={{ width: 'auto', padding: '0 16px', opacity: draft.trim() ? 1 : .5 }} onClick={() => send(draft)}>Send</button>

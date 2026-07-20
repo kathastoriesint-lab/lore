@@ -7,6 +7,7 @@ import { weekForSituationId } from '@/lib/season'
 import { resolveTokens, asCricket } from '@/lib/game'
 import { captainTrust } from '@/lib/cricket-selection'
 import { resolveCricketEnding } from '@/lib/cricket-rules'
+import { tr } from '@/lib/lang'
 
 // The India verdict ARRIVES — the season's climax lands in Coach Sir's thread
 // (typing dots, exact numbers, YOUR name) before any finale screen. This is
@@ -72,8 +73,8 @@ export default function LiveEntryCard() {
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div className="le-eye">SEASON FINALE · INDIA LIST</div>
-              <div className="le-ttl">{verdictDelivered ? 'Verdict aa gaya 🏏' : 'Coach Sir calling… 📞'}</div>
-              <div className="le-sub">{verdictDelivered ? 'Season ka hisaab dekho' : 'List nikli hai — coach ka phone aa raha hai'}</div>
+              <div className="le-ttl">{verdictDelivered ? tr('Verdict aa gaya 🏏', 'The verdict is in 🏏') : 'Coach Sir calling… 📞'}</div>
+              <div className="le-sub">{verdictDelivered ? tr('Season ka hisaab dekho', 'See how your season adds up') : tr('List nikli hai — coach ka phone aa raha hai', 'The list is out — coach is calling')}</div>
             </div>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="M9 18l6-6-6-6"/></svg>
           </div>
@@ -89,8 +90,8 @@ export default function LiveEntryCard() {
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div className="le-eye">SEASON 1 COMPLETE</div>
-              <div className="le-ttl">10 din khatam 🎬</div>
-              <div className="le-sub">Tumne poora ghar jee liya. Naya season jald…</div>
+              <div className="le-ttl">{tr('10 din khatam 🎬', '10 days done 🎬')}</div>
+              <div className="le-sub">{tr('Tumne poora ghar jee liya. Naya season jald…', 'You lived the whole house. New season soon…')}</div>
             </div>
           </div>
         </div>
@@ -122,7 +123,7 @@ export default function LiveEntryCard() {
           <div style={{ width: 34, height: 34, borderRadius: '50%', flexShrink: 0, backgroundImage: `url(/avatars/${game.activeMission!.char}.png)`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.1em', color: 'var(--accent)' }}>📌 STORY MISSION</div>
-            <div style={{ fontSize: 12.5, fontWeight: 700, color: '#fff', marginTop: 2 }}>{missionChar.name.split(' ')[0]} wait kar raha hai — baat shuru karo</div>
+            <div style={{ fontSize: 12.5, fontWeight: 700, color: '#fff', marginTop: 2 }}>{tr(`${missionChar.name.split(' ')[0]} wait kar raha hai — baat shuru karo`, `${missionChar.name.split(' ')[0]} is waiting — start the conversation`)}</div>
           </div>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M9 6l6 6-6 6" /></svg>
         </button>

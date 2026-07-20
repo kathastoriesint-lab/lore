@@ -61,7 +61,7 @@ async function callOpenAI(system: string, user: string, maxTokens: number, model
   return JSON.parse(raw)
 }
 
-function captionPrompt(ctx: Ctx, vibe: Vibe) {
+function captionPrompt(ctx: Ctx, vibe: Vibe, language?: string) {
   const cricket = ctx.world === 'cricket'
   const identity = cricket
     ? `a 16-year-old batting prodigy who just joined Mumbai Indians (IPL)`
@@ -71,7 +71,7 @@ function captionPrompt(ctx: Ctx, vibe: Vibe) {
     : `#Day${ctx.day || 1}, #CreatorHouse are fair game`
   const system =
     `You are the social-media voice of ${ctx.playerName || 'the player'}, ${identity}. ` +
-    `Write ONE short Instagram caption in Gen-Z Hinglish (Roman script, the way young Indians actually post). ` +
+    `Write ONE short Instagram caption in ${language === 'en' ? 'natural Gen-Z English' : 'Gen-Z Hinglish (Roman script, the way young Indians actually post)'}. ` +
     `Max ~120 characters. At most one emoji and one or two hashtags (${hashtags}). ` +
     `No quotation marks around the caption. Output strict JSON: {"caption": string}.`
   const user =
@@ -82,7 +82,7 @@ function captionPrompt(ctx: Ctx, vibe: Vibe) {
   return { system, user }
 }
 
-function reactionsPrompt(ctx: Ctx, caption: string) {
+function reactionsPrompt(ctx: Ctx, caption: string, language?: string) {
   const cricket = ctx.world === 'cricket'
   const chars = ctx.characters && ctx.characters.length
     ? ctx.characters
@@ -95,7 +95,7 @@ function reactionsPrompt(ctx: Ctx, caption: string) {
       `Voices: the teammates listed below (use their exact id), and fans (use id "__fan" with a believable handle as "name", e.g. paltanpulse, cricketroom_india, futurexi). `
     : `You write the live comment section reacting to a reality-show contestant's Instagram post. ` +
       `Voices: the housemates listed below (use their exact id), and fans (use id "__fan" with a believable handle as "name", e.g. housewatch_india, creator.tea, desi_reelszone). `) +
-    `Gen-Z Hinglish, Roman script, short (a few words each), realistic — some hyped, some shady, reactions should fit what the player just posted/did. ` +
+    `${language === 'en' ? 'Gen-Z English' : 'Gen-Z Hinglish, Roman script'}, short (a few words each), realistic — some hyped, some shady, reactions should fit what the player just posted/did. ` +
     `Return 4 to 6 comments. Output strict JSON: {"reactions":[{"char":string,"name":string,"text":string}]}. ` +
     `For housemates set char to their id and name to their name; for fans set char to "__fan" and name to the handle.`
   const user =
@@ -109,12 +109,12 @@ function reactionsPrompt(ctx: Ctx, caption: string) {
 // Two short comment suggestions the PLAYER would leave on someone else's post.
 // World-aware: cricket = you are a young MI debutant, voice + tone matched to who
 // posted (senior vs fan-page vs peer); creator-house = a reality-show viewer.
-function commentSuggestPrompt(world: string | undefined, character: { name?: string; persona?: string }, caption: string) {
+function commentSuggestPrompt(world: string | undefined, character: { name?: string; persona?: string }, caption: string, language?: string) {
   const poster = `${character?.name || 'someone'}${character?.persona ? ` (${character.persona})` : ''}`
   if (world === 'cricket') {
     const system =
       `You are a 16-year-old Mumbai Indians debutant scrolling your cricket feed. ` +
-      `Write EXACTLY 2 short, distinct comments YOU would leave on this post, in natural Gen-Z Indian-cricket Hinglish (Roman script). ` +
+      `Write EXACTLY 2 short, distinct comments YOU would leave on this post, in ${language === 'en' ? 'natural Gen-Z English' : 'natural Gen-Z Indian-cricket Hinglish (Roman script)'}. ` +
       `Match the relationship to who posted: to a SENIOR or coach → respectful, warm, a little starstruck — NEVER cheeky, teasing or disrespectful; ` +
       `to a fan / media page → grateful or a humble hype-back; to a peer or rival → friendly banter with a small edge. ` +
       `Comment #1 = genuine / warm; #2 = lighter, more personality. Each under ~10 words. ` +
@@ -124,7 +124,7 @@ function commentSuggestPrompt(world: string | undefined, character: { name?: str
   }
   const system =
     `You write short Instagram comments a viewer would leave on a reality-show creator's photo. ` +
-    `Gen-Z Hinglish (Roman script). Return EXACTLY 2 short, distinct comments: #1 hype/supportive, #2 cheeky/spicy/teasing. ` +
+    `${language === 'en' ? 'Gen-Z English' : 'Gen-Z Hinglish (Roman script)'}. Return EXACTLY 2 short, distinct comments: #1 hype/supportive, #2 cheeky/spicy/teasing. ` +
     `At most one emoji each, no hashtags. Output strict JSON {"suggestions":[string,string]}.`
   const user = `Post by ${poster}. Caption: "${caption}". Write the 2 comments.`
   return { system, user }
@@ -132,7 +132,7 @@ function commentSuggestPrompt(world: string | undefined, character: { name?: str
 
 // The character's reaction to the player's comment: tone bucket + an in-character DM.
 // World-aware so a cricket senior doesn't reply like a reality-show contestant.
-function commentReactPrompt(world: string | undefined, character: { name?: string; persona?: string }, caption: string, comment: string) {
+function commentReactPrompt(world: string | undefined, character: { name?: string; persona?: string }, caption: string, comment: string, language?: string) {
   if (world === 'cricket') {
     const system =
       `You ARE ${character?.name || 'a cricketer'} (${character?.persona || 'a Mumbai Indians player'}). ` +
@@ -141,7 +141,7 @@ function commentReactPrompt(world: string | undefined, character: { name?: strin
       `- "negative": rude, cocky, or disrespectful to a senior.\n` +
       `- "spicy": cheeky banter, a bit forward or provocative — playful, not cruel.\n` +
       `- "boring": generic, low-effort ("nice", "👍", "well played", "🔥").\n` +
-      `Then write the short DM you'd send back — your voice, Gen-Z Indian-cricket Hinglish, 1-2 short lines:\n` +
+      `Then write the short DM you'd send back — your voice, ${language === 'en' ? 'Gen-Z English' : 'Gen-Z Indian-cricket Hinglish'}, 1-2 short lines:\n` +
       `- positive → warm, encouraging, senior-to-junior; make the kid's day.\n` +
       `- negative → a measured put-down or cool distance — you're the senior, you don't flare up.\n` +
       `- spicy → amused, give it back, keep the kid in their place with a smile.\n` +
@@ -158,7 +158,7 @@ function commentReactPrompt(world: string | undefined, character: { name?: strin
     `- "negative": rude, insulting, or hurtful.\n` +
     `- "spicy": provocative, teasing, shady, flirty — stirs drama without being outright cruel.\n` +
     `- "boring": generic, low-effort, forgettable ("nice", "👍", "first", "cool").\n` +
-    `Then write the DM you would send reacting to it — in your voice, Gen-Z Hinglish, 1-2 short lines:\n` +
+    `Then write the DM you would send reacting to it — in your voice, ${language === 'en' ? 'Gen-Z English' : 'Gen-Z Hinglish'}, 1-2 short lines:\n` +
     `- positive → warm, grateful, or flirty per your persona.\n` +
     `- negative → confrontational or hurt, in your style (e.g. "wtf why would you say that…").\n` +
     `- spicy → intrigued / playful / heat — match their energy, give them something back.\n` +
@@ -169,7 +169,7 @@ function commentReactPrompt(world: string | undefined, character: { name?: strin
 }
 
 export async function POST(req: Request) {
-  let body: { mode?: string; vibe?: Vibe; caption?: string; comment?: string; character?: { name?: string; persona?: string }; ctx?: Ctx; world?: string } = {}
+  let body: { mode?: string; vibe?: Vibe; caption?: string; comment?: string; character?: { name?: string; persona?: string }; ctx?: Ctx; world?: string; language?: string } = {}
   try {
     body = await req.json()
   } catch {
@@ -182,7 +182,7 @@ export async function POST(req: Request) {
       const vibe: Vibe = (['Bold', 'Funny', 'Mysterious'] as Vibe[]).includes(body.vibe as Vibe)
         ? (body.vibe as Vibe)
         : 'Bold'
-      const { system, user } = captionPrompt(ctx, vibe)
+      const { system, user } = captionPrompt(ctx, vibe, body.language)
       const out = await callOpenAI(system, user, 120)
       const caption = typeof out?.caption === 'string' ? out.caption.trim() : ''
       if (!caption) throw new Error('empty caption')
@@ -192,7 +192,7 @@ export async function POST(req: Request) {
     if (body.mode === 'reactions') {
       const caption = (body.caption || '').trim()
       if (!caption) return Response.json({ error: 'no caption' }, { status: 400 })
-      const { system, user } = reactionsPrompt(ctx, caption)
+      const { system, user } = reactionsPrompt(ctx, caption, body.language)
       const out = await callOpenAI(system, user, 500)
       const reactions = Array.isArray(out?.reactions)
         ? out.reactions
@@ -209,7 +209,7 @@ export async function POST(req: Request) {
     }
 
     if (body.mode === 'comment-suggest') {
-      const { system, user } = commentSuggestPrompt(body.world ?? body.ctx?.world, body.character || {}, (body.caption || '').trim())
+      const { system, user } = commentSuggestPrompt(body.world ?? body.ctx?.world, body.character || {}, (body.caption || '').trim(), body.language)
       const out = await callOpenAI(system, user, 120, 'gpt-4o-mini')
       const suggestions = Array.isArray(out?.suggestions)
         ? out.suggestions.filter((s: unknown) => typeof s === 'string' && s.trim()).map((s: string) => s.trim()).slice(0, 2)
@@ -221,7 +221,7 @@ export async function POST(req: Request) {
     if (body.mode === 'comment-react') {
       const comment = (body.comment || '').trim()
       if (!comment) return Response.json({ error: 'no comment' }, { status: 400 })
-      const { system, user } = commentReactPrompt(body.world ?? body.ctx?.world, body.character || {}, (body.caption || '').trim(), comment)
+      const { system, user } = commentReactPrompt(body.world ?? body.ctx?.world, body.character || {}, (body.caption || '').trim(), comment, body.language)
       const out = await callOpenAI(system, user, 160, 'gpt-4o-mini')
       const sentiment = ['positive', 'negative', 'spicy', 'boring'].includes(out?.sentiment) ? out.sentiment : 'boring'
       const reply = typeof out?.reply === 'string' ? out.reply.trim() : ''

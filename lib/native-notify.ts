@@ -5,6 +5,7 @@
 // All calls no-op on the web (Capacitor.isNativePlatform() === false), so this
 // is safe to import and call from the shared web codebase.
 import { Capacitor } from '@capacitor/core'
+import { tr } from './lang'
 
 const LOCK_NOTIF_ID = 1001
 
@@ -20,7 +21,7 @@ export async function scheduleLockNotification(lockExpiresAt: number): Promise<v
       notifications: [{
         id: LOCK_NOTIF_ID,
         title: 'Squad announcement is ready 🏏',
-        body: 'Dekho tum XI mein aaye ya nahi.',
+        body: tr('Dekho tum XI mein aaye ya nahi.', 'Come see if you made the XI.'),
         schedule: { at: new Date(lockExpiresAt) },
       }],
     })
@@ -50,8 +51,8 @@ export async function scheduleMatchDayNotification(unlockAt: number, week: numbe
     await LocalNotifications.schedule({
       notifications: [{
         id: MATCHDAY_NOTIF_ID,
-        title: 'Break khatam — agla match 🏏',
-        body: `Week ${week} shuru. Dressing room wapas aao — story khul gayi hai.`,
+        title: tr('Break khatam — agla match 🏏', 'Break\'s over — next match 🏏'),
+        body: tr(`Week ${week} shuru. Dressing room wapas aao — story khul gayi hai.`, `Week ${week} begins. Get back to the dressing room — the story is open.`),
         schedule: { at: new Date(unlockAt) },
       }],
     })

@@ -2,6 +2,7 @@
 import { useApp } from '@/lib/context'
 import { getCHSituations } from '@/lib/content'
 import { evictionRisk, evictionTrust } from '@/lib/creator-house'
+import { tr } from '@/lib/lang'
 
 // Creator House eviction risk — the CH equivalent of cricket's focused goal.
 // In CH, your ALLY BOND (who has your back at the vote) decides how close eviction gets.
@@ -33,15 +34,15 @@ export default function CHStatusCard({ variant = 'focus' }: { variant?: 'focus' 
       return (
         <div style={{ padding: '10px 16px', background: 'var(--surf)', borderBottom: '1px solid var(--line)' }}>
           <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink2)' }}>
-            FINALE · Din {TOTAL_DAYS} — sab evictions survive kar li
+            {tr(`FINALE · Din ${TOTAL_DAYS} — sab evictions survive kar li`, `FINALE · Day ${TOTAL_DAYS} — survived every eviction`)}
           </span>
         </div>
       )
     }
     return (
       <div style={{ width: 'calc(100% - 24px)', margin: '8px 12px 0', background: 'var(--surf)', border: '1px solid var(--line)', borderRadius: 12, padding: '12px 16px' }}>
-        <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.1em', color: 'var(--ink3)', marginBottom: 4 }}>FINALE AA RAHA HAI</div>
-        <div style={{ fontSize: 13, color: 'var(--ink2)', lineHeight: 1.45 }}>Sari evictions nikal gayi. Day {TOTAL_DAYS} ko tumhaari kahani tay hoti hai.</div>
+        <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.1em', color: 'var(--ink3)', marginBottom: 4 }}>{tr('FINALE AA RAHA HAI', 'FINALE INCOMING')}</div>
+        <div style={{ fontSize: 13, color: 'var(--ink2)', lineHeight: 1.45 }}>{tr(`Sari evictions nikal gayi. Day ${TOTAL_DAYS} ko tumhaari kahani tay hoti hai.`, `Every eviction is behind you. Day ${TOTAL_DAYS} decides your story.`)}</div>
       </div>
     )
   }
@@ -54,7 +55,7 @@ export default function CHStatusCard({ variant = 'focus' }: { variant?: 'focus' 
     return (
       <div style={{ padding: '10px 16px', background: 'var(--surf)', borderBottom: '1px solid var(--line)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: '.1em', color: 'var(--ink3)' }}>DIN {risk.day} EVICTION</span>
+          <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: '.1em', color: 'var(--ink3)' }}>{tr(`DIN ${risk.day} EVICTION`, `DAY ${risk.day} EVICTION`)}</span>
           <span style={{ fontSize: 11, fontWeight: 800, color: st.color }}>{st.word}</span>
           <span style={{ fontSize: 11, color: 'var(--ink3)', marginLeft: 'auto' }}>TRUST {Math.round(risk.trust)}/{risk.threshold}</span>
         </div>
@@ -71,7 +72,7 @@ export default function CHStatusCard({ variant = 'focus' }: { variant?: 'focus' 
     }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
         <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.1em', color: 'var(--ink3)' }}>FOLLOWERS WATCHING</span>
-        <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.06em', color: 'var(--ink3)' }}>DIN {risk.day} EVICTION · DAY {day}/{TOTAL_DAYS}</span>
+        <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.06em', color: 'var(--ink3)' }}>{tr(`DIN ${risk.day} EVICTION · DAY ${day}/${TOTAL_DAYS}`, `DAY ${risk.day} EVICTION · DAY ${day}/${TOTAL_DAYS}`)}</span>
       </div>
 
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 9 }}>
@@ -87,8 +88,8 @@ export default function CHStatusCard({ variant = 'focus' }: { variant?: 'focus' 
 
       <div style={{ fontSize: 11.5, color: 'var(--ink3)', lineHeight: 1.4 }}>
         {safe
-          ? '→ Ghar tumhaare saath hai. Eviction night pe naam nahi aayega.'
-          : `→ ${remaining} TRUST aur chahiye — DM mein log se trust banao. Naam top pe aaya toh followers bachate hain, par ghar note karta hai.`}
+          ? tr('→ Ghar tumhaare saath hai. Eviction night pe naam nahi aayega.', "→ The house has your back. Your name won't come up on eviction night.")
+          : tr(`→ ${remaining} TRUST aur chahiye — DM mein log se trust banao. Naam top pe aaya toh followers bachate hain, par ghar note karta hai.`, `→ ${remaining} more TRUST needed — build it with people in the DMs. If your name tops the vote, your followers save you — but the house remembers.`)}
       </div>
     </div>
   )

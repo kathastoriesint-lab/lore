@@ -4,6 +4,7 @@ import { useApp } from '@/lib/context'
 import { getCHChars } from '@/lib/content'
 import { buildEviction } from '@/lib/creator-house'
 import { resolveTokens } from '@/lib/game'
+import { tr } from '@/lib/lang'
 import PlayerAvatar from '@/components/PlayerAvatar'
 import type { CharId } from '@/lib/types'
 import * as haptics from '@/lib/haptics'
@@ -39,7 +40,7 @@ export default function EvictionScreen() {
   const { game, navigate, resolveEviction, screen } = useApp()
   const name = (s: string) => resolveTokens(s, game.playerName, game.playerGender)
   // Name/handle that work for the player sentinel too.
-  const dispName = (id: CharId) => id === 'player' ? (game.playerName || 'Tum') : (getCHChars()[id]?.name ?? '')
+  const dispName = (id: CharId) => id === 'player' ? (game.playerName || tr('Tum', 'You')) : (getCHChars()[id]?.name ?? '')
   const dispHandle = (id: CharId) => id === 'player' ? 'you' : (getCHChars()[id]?.handle ?? '')
 
   const ev = useMemo(
@@ -135,8 +136,8 @@ export default function EvictionScreen() {
       {phase === 'nominees' && (
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', position: 'relative' }}>
           <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.14em', color: 'var(--ink3)', textAlign: 'center', marginBottom: 28 }}>
-            KHATRE MEIN
-          </div>
+            {tr('KHATRE MEIN', 'AT RISK')}
+</div>
           <div style={{ display: 'flex', justifyContent: 'center', gap: 36 }}>
             {ev.nominees.map(id => (
               <div key={id} style={{ textAlign: 'center' }}>
@@ -155,10 +156,10 @@ export default function EvictionScreen() {
       {phase === 'yourvote' && (
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', position: 'relative' }}>
           <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.14em', color: 'var(--heat)', textAlign: 'center', marginBottom: 8 }}>
-            TUMHAARA VOTE
+            {tr('TUMHAARA VOTE', 'YOUR VOTE')}
           </div>
           <div style={{ fontSize: 13.5, color: 'var(--ink2)', textAlign: 'center', marginBottom: 26, lineHeight: 1.5 }}>
-            Kise ghar bhejna chahte ho? Ghar ke saath tumhaara vote bhi jaayega.
+            {tr('Kise ghar bhejna chahte ho? Ghar ke saath tumhaara vote bhi jaayega.', "Who do you want to send home? Your vote goes in with the house's.")}
           </div>
           <div style={{ display: 'flex', justifyContent: 'center', gap: 20 }}>
             {votable.map(id => {
@@ -174,7 +175,7 @@ export default function EvictionScreen() {
                   <Avatar id={id} size={72} dim={!!myVote && !sel} />
                   <div style={{ fontWeight: 700, fontSize: 15, color: 'var(--ink)' }}>{dispName(id)}</div>
                   <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: '.06em', color: sel ? 'var(--heat)' : 'var(--ink3)' }}>
-                    {sel ? '✓ VOTE DIYA' : 'VOTE'}
+                    {sel ? tr('✓ VOTE DIYA', '✓ VOTED') : 'VOTE'}
                   </div>
                 </button>
               )
@@ -187,15 +188,15 @@ export default function EvictionScreen() {
       {phase === 'votes' && (
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', position: 'relative', gap: 12 }}>
           <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.14em', color: 'var(--ink3)', textAlign: 'center', marginBottom: 8 }}>
-            GHAR VOTE KAR RAHA HAI
-          </div>
+            {tr('GHAR VOTE KAR RAHA HAI', 'THE HOUSE IS VOTING')}
+</div>
           {ev.houseVotes.slice(0, voteIdx).map((v, i) => (
             <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, background: 'var(--surf)', border: '1px solid var(--line)', borderRadius: 16, padding: '12px 14px', animation: 'evVoteIn .35s ease-out' }}>
               <Avatar id={v.voter} size={42} />
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: 12.5, color: 'var(--ink2)', lineHeight: 1.45, fontStyle: 'italic' }}>&ldquo;{name(v.line)}&rdquo;</div>
                 <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.05em', color: 'var(--heat)', marginTop: 5 }}>
-                  → {dispName(v.target).toUpperCase()} KO VOTE
+                  {tr(`→ ${dispName(v.target).toUpperCase()} KO VOTE`, `→ VOTED ${dispName(v.target).toUpperCase()}`)}
                 </div>
               </div>
             </div>
@@ -219,7 +220,7 @@ export default function EvictionScreen() {
                     <Avatar id={id} size={34} />
                     <span style={{ fontWeight: 700, fontSize: 14, flex: 1 }}>
                       {dispName(id)}
-                      {myVote === id && <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: '.06em', color: 'var(--heat)', marginLeft: 8 }}>· TUMHAARA VOTE</span>}
+                      {myVote === id && <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: '.06em', color: 'var(--heat)', marginLeft: 8 }}>{tr('· TUMHAARA VOTE', '· YOUR VOTE')}</span>}
                     </span>
                     <span style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 18, color: isOut ? 'var(--heat)' : 'var(--ink2)' }}>
                       {tallyShown ? pct : 0}%
@@ -233,8 +234,8 @@ export default function EvictionScreen() {
             })}
           </div>
           <div style={{ fontSize: 11, color: 'var(--ink3)', textAlign: 'center', marginTop: 22 }}>
-            Sabse zyada vote — woh ghar jaata hai.
-          </div>
+            {tr('Sabse zyada vote — woh ghar jaata hai.', 'Most votes — they go home.')}
+</div>
         </div>
       )}
 
@@ -244,8 +245,8 @@ export default function EvictionScreen() {
           <Avatar id={ev.evicted} size={104} />
           <div style={{ fontFamily: 'var(--serif)', fontSize: 26, fontWeight: 600, marginTop: 18 }}>{dispName(ev.evicted)}</div>
           <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: '.14em', color: 'var(--heat)', marginTop: 8 }}>
-            GHAR CHHODNA HOGA
-          </div>
+            {tr('GHAR CHHODNA HOGA', 'HAS TO LEAVE THE HOUSE')}
+</div>
           <div style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 16, color: 'rgba(255,255,255,.85)', lineHeight: 1.5, marginTop: 22, textAlign: 'center' }}>
             &ldquo;{name(ev.goodbye)}&rdquo;
           </div>
@@ -257,8 +258,8 @@ export default function EvictionScreen() {
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', position: 'relative' }}>
           <Avatar id={ev.evicted} size={84} dim />
           <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.14em', color: 'var(--ink3)', marginTop: 16 }}>
-            KHAALI KURSI
-          </div>
+            {tr('KHAALI KURSI', 'THE EMPTY CHAIR')}
+</div>
           <div style={{ fontFamily: 'var(--serif)', fontSize: 22, fontWeight: 600, lineHeight: 1.45, marginTop: 16, textAlign: 'center' }}>
             {name(ev.aftermath)}
           </div>
@@ -270,13 +271,13 @@ export default function EvictionScreen() {
         <div style={{ paddingBottom: 44, position: 'relative' }}>
           <button onClick={advance} disabled={phase === 'yourvote' && !myVote}
             style={{ ...cta(phase === 'reveal' || phase === 'aftermath'), ...(phase === 'yourvote' && !myVote ? { opacity: 0.45, cursor: 'default' } : {}) }}>
-            {phase === 'intro' && 'Nominations dekho →'}
-            {phase === 'nominees' && 'Apna vote daalo →'}
-            {phase === 'yourvote' && (myVote ? 'Vote lock karo 🔒' : 'Ek naam chuno')}
-            {phase === 'votes' && (voteIdx < ev.houseVotes.length ? 'Agla vote →' : 'Public vote dekho →')}
-            {phase === 'tally' && 'Result reveal karo →'}
-            {phase === 'reveal' && 'Aage badho →'}
-            {phase === 'aftermath' && (ev.playerEvicted ? 'Ghar se bahar →' : 'House mein wapas →')}
+            {phase === 'intro' && tr('Nominations dekho →', 'See the nominations →')}
+            {phase === 'nominees' && tr('Apna vote daalo →', 'Cast your vote →')}
+            {phase === 'yourvote' && (myVote ? tr('Vote lock karo 🔒', 'Lock your vote 🔒') : tr('Ek naam chuno', 'Pick a name'))}
+            {phase === 'votes' && (voteIdx < ev.houseVotes.length ? tr('Agla vote →', 'Next vote →') : tr('Public vote dekho →', 'See the public vote →'))}
+            {phase === 'tally' && tr('Result reveal karo →', 'Reveal the result →')}
+            {phase === 'reveal' && tr('Aage badho →', 'Keep going →')}
+            {phase === 'aftermath' && (ev.playerEvicted ? tr('Ghar se bahar →', 'Out of the house →') : tr('House mein wapas →', 'Back into the house →'))}
           </button>
         </div>
       )}

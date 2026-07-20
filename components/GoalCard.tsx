@@ -3,6 +3,7 @@ import { useApp } from '@/lib/context'
 import { weekForSituationId } from '@/lib/season'
 import { ruleFor, captainTrust, captainTier, beatsToAnnouncement } from '@/lib/cricket-selection'
 import { asCricket } from '@/lib/game'
+import { tr } from '@/lib/lang'
 
 // Persistent goal banner — always answers: what am I aiming at, how close, where to go.
 // Two goals, one heartbeat: FORM + CAPTAIN'S TRUST vs the next squad announcement.
@@ -84,7 +85,7 @@ export default function GoalCard({ variant = 'full' }: { variant?: Variant }) {
             <div style={{ position: 'absolute', left: `${Math.min(100, need)}%`, top: -2.5, bottom: -2.5, width: 2.5, borderRadius: 2, background: 'rgba(255,255,255,.75)' }} />
           </div>
           <div style={{ fontSize: 9.5, fontWeight: 800, letterSpacing: '.08em', color: gap > 0 ? color : 'var(--trust)' }}>
-            {gap > 0 ? `+${gap} CHAHIYE` : 'READY ✓'}
+            {gap > 0 ? tr(`+${gap} CHAHIYE`, `+${gap} NEEDED`) : 'READY ✓'}
           </div>
         </>
       )
@@ -142,12 +143,12 @@ export default function GoalCard({ variant = 'full' }: { variant?: Variant }) {
       {/* THE loud objective — one specific chase, always answering "what now?" */}
       <div style={{ fontSize: 12.5, fontWeight: 800, color: '#fff', lineHeight: 1.4, marginBottom: 10 }}>
         🎯 {ready
-          ? 'Sheet pakki lag rahi hai — DM mein baat karke pakka karo'
+          ? tr('Sheet pakki lag rahi hai — DM mein baat karke pakka karo', "The sheet's looking locked — seal it in the DMs")
           : !captainOk && !formOk
-            ? `Form +${rule.start.form - form} aur Hardik +${rule.start.captain - captain} — dono is sheet se pehle`
+            ? tr(`Form +${rule.start.form - form} aur Hardik +${rule.start.captain - captain} — dono is sheet se pehle`, `Form +${rule.start.form - form} and Hardik +${rule.start.captain - captain} — both before this sheet`)
             : !captainOk
-              ? `Hardik ko ${rule.start.captain} tak le jao — is hafte ki sheet ke liye`
-              : `Form ${rule.start.form} chahiye — agla beat sab badal sakta hai`}
+              ? tr(`Hardik ko ${rule.start.captain} tak le jao — is hafte ki sheet ke liye`, `Get Hardik to ${rule.start.captain} — for this week's sheet`)
+              : tr(`Form ${rule.start.form} chahiye — agla beat sab badal sakta hai`, `You need Form ${rule.start.form} — the next beat can change everything`)}
       </div>
 
       {/* FORM */}
@@ -174,10 +175,10 @@ export default function GoalCard({ variant = 'full' }: { variant?: Variant }) {
       {!compact && (
         <div style={{ fontSize: 10.5, color: 'var(--ink3)', marginTop: 10, lineHeight: 1.5 }}>
           {ready
-            ? 'Dono bars clear. Sheet pe naam pakka lag raha hai.'
+            ? tr('Dono bars clear. Sheet pe naam pakka lag raha hai.', 'Both bars clear. Your name looks locked on the sheet.')
             : !captainOk
-              ? `Captain ka bharosa ${captain} (${captainTier(captain)}). DM pe baat karo — wahi build hota hai. Lifeline bar: ${rule.lifeline.captain}.`
-              : 'Form kam hai — ab captain ko itna jeeto ki woh naam laga de.'}
+              ? tr(`Captain ka bharosa ${captain} (${captainTier(captain)}). DM pe baat karo — wahi build hota hai. Lifeline bar: ${rule.lifeline.captain}.`, `Captain's trust: ${captain} (${captainTier(captain)}). Talk in the DMs — that's where it builds. Lifeline bar: ${rule.lifeline.captain}.`)
+              : tr('Form kam hai — ab captain ko itna jeeto ki woh naam laga de.', "Form's low — now win the captain over enough that he backs your name.")}
         </div>
       )}
 

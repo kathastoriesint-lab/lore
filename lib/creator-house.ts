@@ -11,6 +11,7 @@ import type { CharId, GameState, Situation } from './types'
 import { getCHSituations, getCHChars } from './content'
 import { allyLoyalty, allyId, resolveTokens, fameToFollowers } from './game'
 import { computeBond } from './relationships'
+import { tr } from './lang'
 
 export interface HouseVote { voter: CharId; target: CharId; line: string }
 
@@ -161,13 +162,13 @@ export function buildEviction(id: string, game: GameState): EvictionNight | null
       ...base,
       nominees: ['player', ...base.nominees],
       houseVotes: [
-        { voter: 'ria',  target: 'player',     line: 'Naye banda ka bharosa hi nahi bana ghar mein. Dekhte hain followers kya kehte hain.' },
-        { voter: 'zoya', target: 'player',     line: 'Tumne kisi ko apna nahi banaya. Risky hai tumhaare liye. 💅' },
-        { voter: ally,   target: base.evicted, line: 'Main tumhaare saath hoon — chahe ghar kuch bhi kahe.' },
+        { voter: 'ria',  target: 'player',     line: tr('Naye banda ka bharosa hi nahi bana ghar mein. Dekhte hain followers kya kehte hain.', 'The new one never earned this house\'s trust. Let\'s see what the followers have to say.') },
+        { voter: 'zoya', target: 'player',     line: tr('Tumne kisi ko apna nahi banaya. Risky hai tumhaare liye. 💅', 'You never made anyone here your own. That\'s a dangerous way to play. 💅') },
+        { voter: ally,   target: base.evicted, line: tr('Main tumhaare saath hoon — chahe ghar kuch bhi kahe.', 'I\'m with you — whatever this house says.') },
       ],
       // High share = closest to eviction; base.evicted (an NPC) still tops it, you sit just under.
       audience: { [base.evicted]: 44, player: 40, ...Object.fromEntries(base.nominees.filter(n => n !== base.evicted).map(n => [n, 16])) },
-      aftermath: base.aftermath + ' Tumhaara naam aakhir tak top pe gunja — followers ne bachaya, bas. Ghar ne note kar liya: trust nahi banaya toh akele pad jaoge.',
+      aftermath: base.aftermath + tr(' Tumhaara naam aakhir tak top pe gunja — followers ne bachaya, bas. Ghar ne note kar liya: trust nahi banaya toh akele pad jaoge.', ' Your name led the vote until the very end — the followers saved you, nothing else. The house took note: build trust, or stand alone.'),
     }
   }
 
@@ -176,7 +177,7 @@ export function buildEviction(id: string, game: GameState): EvictionNight | null
     ...base,
     nominees: ['player', ...base.nominees],
     audience: { [base.evicted]: 46, player: 33, ...Object.fromEntries(base.nominees.filter(n => n !== base.evicted).map(n => [n, 21])) },
-    aftermath: base.aftermath + ' Aur tumhaara naam bhi aaya — TRUST banaye rakho, warna har baar yeh tension rahegi.',
+    aftermath: base.aftermath + tr(' Aur tumhaara naam bhi aaya — TRUST banaye rakho, warna har baar yeh tension rahegi.', ' And your name came up too — keep the TRUST alive, or this dread comes back every single vote.'),
   }
 }
 
@@ -188,17 +189,17 @@ function buildBaseEviction(id: string, game: GameState): EvictionNight | null {
     // Zoya's naam sab ke moonh pe tha — par ghar Dev ko jaana padta hai. The twist.
     return {
       id, day: 3,
-      intro: 'Pehli eviction night. Do naam khatre mein. Lights down, ek hi spotlight.',
+      intro: tr('Pehli eviction night. Do naam khatre mein. Lights down, ek hi spotlight.', 'The first eviction night. Two names in danger. Lights down — one spotlight.'),
       nominees: ['dev', 'zoya'],
       evicted: 'dev',
       houseVotes: [
-        { voter: 'ria',    target: 'dev',  line: 'Numbers game hai. Dev ke paas the hi nahi. Sorry not sorry.' },
-        { voter: 'kabir',  target: 'dev',  line: 'Bhai personal kuch nahi... bas content ke hisaab se. 😬' },
-        { voter: 'ananya', target: 'zoya', line: 'Main Zoya ko vote kar rahi hoon. Usse darr lagta hai mujhe.' },
+        { voter: 'ria',    target: 'dev',  line: tr('Numbers game hai. Dev ke paas the hi nahi. Sorry not sorry.', 'It\'s a numbers game. Dev never had them. Sorry not sorry.') },
+        { voter: 'kabir',  target: 'dev',  line: tr('Bhai personal kuch nahi... bas content ke hisaab se. 😬', 'Nothing personal, bro... purely a content decision. 😬') },
+        { voter: 'ananya', target: 'zoya', line: tr('Main Zoya ko vote kar rahi hoon. Usse darr lagta hai mujhe.', 'I\'m voting Zoya. She scares me.') },
       ],
       audience: { dev: 58, zoya: 42 },
-      goodbye: 'Brand deals aate rahenge. Discipline kabhi nahi rukti. Main wapas aaunga. 💪',
-      aftermath: 'Subah Dev ki khaali kursi sabse pehle dikhti hai. Koi kuch nahi bolta.',
+      goodbye: tr('Brand deals aate rahenge. Discipline kabhi nahi rukti. Main wapas aaunga. 💪', 'The brand deals will keep coming. Discipline never stops. I\'ll be back. 💪'),
+      aftermath: tr('Subah Dev ki khaali kursi sabse pehle dikhti hai. Koi kuch nahi bolta.', 'In the morning, Dev\'s empty chair is the first thing everyone sees. Nobody says a word.'),
     }
   }
 
@@ -211,16 +212,16 @@ function buildBaseEviction(id: string, game: GameState): EvictionNight | null {
     const other: CharId = male ? 'ananya' : 'kabir'   // the other housemate votes to save the ally
     return {
       id, day: 4,
-      intro: 'Doosri danger raat ka faisla. Do naam khatre mein — lights down, ek spotlight.',
+      intro: tr('Doosri danger raat ka faisla. Do naam khatre mein — lights down, ek spotlight.', 'The second danger night\'s verdict. Two names in danger — lights down, one spotlight.'),
       nominees: [ally, 'zoya'],
       evicted: ally,
       houseVotes: [
-        { voter: 'ria',  target: ally,   line: 'Danger night mein numbers bolte hain. Support nahi bana na... 😬' },
-        { voter: other,  target: 'zoya', line: `Zoya ka naam jaana chahiye. Main soch-samajh ke vote de ${male ? 'rahi' : 'raha'} hoon.` },
+        { voter: 'ria',  target: ally,   line: tr('Danger night mein numbers bolte hain. Support nahi bana na... 😬', 'On a danger night, the numbers do the talking. You never built the support... 😬') },
+        { voter: other,  target: 'zoya', line: tr(`Zoya ka naam jaana chahiye. Main soch-samajh ke vote de ${male ? 'rahi' : 'raha'} hoon.`, 'It\'s Zoya\'s name that should go. I\'m casting this vote with my eyes open.') },
       ],
       audience: { [ally]: 58, zoya: 42 },
-      goodbye: 'Ro mat yaar 😅. Har koi apni ladta hai. Tu jeet — mere liye bhi.',
-      aftermath: `${allyName} ${male ? 'chala gaya' : 'chali gayi'}. Ghar mein ek ${allyName}-shaped khaali jagah.`,
+      goodbye: tr('Ro mat yaar 😅. Har koi apni ladta hai. Tu jeet — mere liye bhi.', 'Hey, don\'t cry 😅. Everyone fights their own fight in here. Win this — for me too.'),
+      aftermath: tr(`${allyName} ${male ? 'chala gaya' : 'chali gayi'}. Ghar mein ek ${allyName}-shaped khaali jagah.`, `${allyName} is gone. The house has a ${allyName}-shaped hole in it now.`),
     }
   }
 
@@ -230,25 +231,25 @@ function buildBaseEviction(id: string, game: GameState): EvictionNight | null {
     const allyName = male ? 'Kabir' : 'Ananya'
     return {
       id, day: 7,
-      intro: 'Doosri eviction. Is baar daav personal hai — tumhaara apna banda line pe hai.',
+      intro: tr('Doosri eviction. Is baar daav personal hai — tumhaara apna banda line pe hai.', 'The second eviction. This time it\'s personal — your own person is on the line.'),
       nominees: ['zoya', ally],
       evicted,
       houseVotes: loyal
         ? [
-            { voter: 'ria',   target: 'zoya', line: 'Zoya ka game over. Maine bahut dekh liya. 👀' },
-            { voter: ally === 'kabir' ? 'ananya' : 'kabir', target: 'zoya', line: 'Tumne stand liya — main bhi le rahi/raha hoon. Zoya jaaye.' },
+            { voter: 'ria',   target: 'zoya', line: tr('Zoya ka game over. Maine bahut dekh liya. 👀', 'Zoya\'s game is over. I\'ve seen more than enough. 👀') },
+            { voter: ally === 'kabir' ? 'ananya' : 'kabir', target: 'zoya', line: tr('Tumne stand liya — main bhi le rahi/raha hoon. Zoya jaaye.', 'You took a stand — so I\'m taking one too. Zoya goes.') },
           ]
         : [
-            { voter: 'ria',   target: ally, line: `Tumhaara "banda" akela pad gaya. Koi publicly saath nahi tha.` },
-            { voter: 'zoya',  target: ally, line: 'Smile ke peeche maine ginti rakhi thi. Aaj kaam aayi. 💅' },
+            { voter: 'ria',   target: ally, line: tr(`Tumhaara "banda" akela pad gaya. Koi publicly saath nahi tha.`, `Your "person" ended up standing alone. Nobody stood with them in public.`) },
+            { voter: 'zoya',  target: ally, line: tr('Smile ke peeche maine ginti rakhi thi. Aaj kaam aayi. 💅', 'Behind the smile, I was keeping count. Tonight it paid off. 💅') },
           ],
       audience: loyal ? { zoya: 61, [ally]: 39 } : { [ally]: 55, zoya: 45 },
       goodbye: loyal
-        ? 'Sab ko smile dikhati rahi. Aaj sab ne asli chehra dekh liya. Bye babies. 💅'
-        : `Tu publicly saath ${male ? 'khada hota' : 'khadi hoti'} toh main aaj yahan na ${male ? 'hota' : 'hoti'}. Yaad rakhna. 😔`,
+        ? tr('Sab ko smile dikhati rahi. Aaj sab ne asli chehra dekh liya. Bye babies. 💅', 'I kept smiling for all of you. Tonight you finally saw the real face. Bye babies. 💅')
+        : tr(`Tu publicly saath ${male ? 'khada hota' : 'khadi hoti'} toh main aaj yahan na ${male ? 'hota' : 'hoti'}. Yaad rakhna. 😔`, 'If you had stood with me in public, I wouldn\'t be leaving tonight. Remember that. 😔'),
       aftermath: loyal
-        ? 'Zoya gayi. Ghar thoda halka, thoda khaali. Tumne apna banda bacha liya.'
-        : `${allyName} ${male ? 'chala gaya' : 'chali gayi'}. Loyalty sirf private mein thi — aur yahan woh kaafi nahi hoti.`,
+        ? tr('Zoya gayi. Ghar thoda halka, thoda khaali. Tumne apna banda bacha liya.', 'Zoya is gone. The house feels lighter — and a little emptier. You saved your person.')
+        : tr(`${allyName} ${male ? 'chala gaya' : 'chali gayi'}. Loyalty sirf private mein thi — aur yahan woh kaafi nahi hoti.`, `${allyName} is gone. The loyalty only ever lived in private — and in this house, that\'s never enough.`),
     }
   }
 
