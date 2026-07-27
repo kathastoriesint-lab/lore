@@ -293,7 +293,7 @@ export default function LoginScreen() {
         {step === 'phone' && (
           <>
             <div style={headline}>Enter your mobile number</div>
-            <div style={subtext}>Continue on any phone, anytime — your story stays saved.</div>
+            <div style={subtext}>Save your story across phones. Or jump straight in as a guest.</div>
 
             <div style={{ display: 'flex', gap: 10, marginTop: 22 }}>
               <div style={{ ...inputBase, display: 'flex', alignItems: 'center', gap: 6, padding: '0 14px', fontWeight: 600, flex: 'none' }}>
@@ -310,6 +310,14 @@ export default function LoginScreen() {
               {busy ? 'Sending…' : 'Continue'}
             </button>
             {errLine}
+
+            {/* Guest is a FIRST-CLASS option, not buried behind "another method".
+                80 of 212 devices that reached this screen never got past it —
+                the login wall is the biggest funnel leak, so let people play now
+                and link a number later (the anon session already saves progress). */}
+            <button className="lo-press" onClick={continueAsGuest} style={{ ...primaryBtn(true), marginTop: 10, background: 'transparent', border: '1px solid var(--line)', color: 'var(--ink)', boxShadow: 'none' }}>
+              Play now, no signup
+            </button>
 
             <button onClick={() => setMethodOpen(true)} style={linkBtn}>Or login using another method</button>
             {trustLine}
